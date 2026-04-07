@@ -30,6 +30,7 @@
 #include "..\Util\ExePath.h"
 #include "..\Util\FileLogger.h"
 #include "..\Util\StringManip.h"
+#include "..\Util\keyboard.h"
 
 #include "..\Menu\FolderPreviewBmps.h"
 #include "..\Submenus\PedModelChanger.h"
@@ -584,6 +585,18 @@ namespace sub
 	{
 		std::map<Ped, std::vector<PedDecalValue>> vPedsAndDecals;
 
+		bool g_tattooPreviewMode = false;
+		const NamedPedDecal* g_previewTattoo = nullptr;
+
+		void ClearPreviewTattoo()
+		{
+			if (g_previewTattoo && DOES_ENTITY_EXIST(g_Ped1))
+			{
+				g_previewTattoo->Remove(g_Ped1);
+				g_previewTattoo = nullptr;
+			}
+		}
+
 		bool NamedPedDecal::IsOnPed(GTAentity ped) const
 		{
 			auto it = vPedsAndDecals.find(ped.Handle());
@@ -732,11 +745,42 @@ namespace sub
 		{
 			GTAentity ped = g_Ped1;
 
+			if (Menu::OnSubBack == nullptr)
+			{
+				Menu::OnSubBack = []
+				{
+					PedDecals::g_tattooPreviewMode = false;
+					PedDecals::ClearPreviewTattoo();
+				};
+			}
+
+			if (get_key_pressed(VirtualKey::B))
+			{
+				g_tattooPreviewMode = !g_tattooPreviewMode;
+				if (!g_tattooPreviewMode)
+				{
+					ClearPreviewTattoo();
+				}
+			}
+
 			AddTitle(selectedZone->first);
 
 			for (const auto& decal : selectedZone->second)
 			{
+				
+				bool isHovered = (*Menu::currentopATM == Menu::printingop + 1);
 				bool bDecalPressedApply = false, bDecalPressedRemove = false;
+
+				if (g_tattooPreviewMode && isHovered)
+				{
+					if (g_previewTattoo != &decal)
+					{
+						ClearPreviewTattoo();
+						decal.Apply(ped);
+						g_previewTattoo = &decal;
+					}
+				}
+
 				AddTickol(decal.caption, decal.IsOnPed(ped), bDecalPressedApply, bDecalPressedRemove, TICKOL::TATTOOTHING);
 				if (bDecalPressedApply)
 				{
@@ -747,6 +791,8 @@ namespace sub
 					decal.Remove(ped);
 				}
 			}
+
+			Menu::add_IB(VirtualKey::B, g_tattooPreviewMode ? "Preview: ON " : "Preview: OFF ");
 
 		}
 		void OpenSubDecals()
