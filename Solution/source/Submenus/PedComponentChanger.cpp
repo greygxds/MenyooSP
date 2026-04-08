@@ -745,45 +745,48 @@ namespace sub
 		{
 			GTAentity ped = g_Ped1;
 
+			bool bShortcutDecalPreviewPressed = false;
+
 			if (Menu::OnSubBack == nullptr)
 			{
 				Menu::OnSubBack = []
 				{
-					PedDecals::g_tattooPreviewMode = false;
 					PedDecals::ClearPreviewTattoo();
 				};
-			}
-
-			if (get_key_pressed(VirtualKey::B))
-			{
-				g_tattooPreviewMode = !g_tattooPreviewMode;
-				if (!g_tattooPreviewMode)
-				{
-					ClearPreviewTattoo();
-				}
 			}
 
 			AddTitle(selectedZone->first);
 
 			for (const auto& decal : selectedZone->second)
 			{
-				
 				bool isHovered = (*Menu::currentopATM == Menu::printingop + 1);
 				bool bDecalPressedApply = false, bDecalPressedRemove = false;
+				bool bIsOnPed = decal.IsOnPed(ped);
+
+				AddTickol(decal.caption, bIsOnPed, bDecalPressedApply, bDecalPressedRemove, TICKOL::TATTOOTHING);
 
 				if (g_tattooPreviewMode && isHovered)
 				{
+					
 					if (g_previewTattoo != &decal)
 					{
 						ClearPreviewTattoo();
-						decal.Apply(ped);
-						g_previewTattoo = &decal;
+						if (!bIsOnPed) {
+							decal.Apply(ped);
+							g_previewTattoo = &decal;
+						}
 					}
 				}
 
-				AddTickol(decal.caption, decal.IsOnPed(ped), bDecalPressedApply, bDecalPressedRemove, TICKOL::TATTOOTHING);
 				if (bDecalPressedApply)
 				{
+					decal.Apply(ped);
+				
+				}
+				// adding a decal while it's being previewed
+				else if (bDecalPressedRemove && g_previewTattoo == &decal)
+				{
+					ClearPreviewTattoo();
 					decal.Apply(ped);
 				}
 				else if (bDecalPressedRemove)
@@ -793,6 +796,16 @@ namespace sub
 			}
 
 			Menu::add_IB(VirtualKey::B, g_tattooPreviewMode ? "Preview: ON " : "Preview: OFF ");
+			bShortcutDecalPreviewPressed = IsKeyJustUp(VirtualKey::B);
+			if (bShortcutDecalPreviewPressed)
+			{
+				g_tattooPreviewMode = !g_tattooPreviewMode;
+				
+				if (!g_tattooPreviewMode)
+				{
+					ClearPreviewTattoo();
+				}
+			}
 
 		}
 		void OpenSubDecals()
