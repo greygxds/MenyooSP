@@ -55,7 +55,7 @@ GetModelInfo_t GetModelInfo;
 std::unordered_map<unsigned int, std::string> g_vehicleHashes;
 CallHook<InitVehicleArchetype_t>* g_InitVehicleArchetype = nullptr;
 CVehicleModelInfo* initVehicleArchetype_stub(const char* name, bool a2, unsigned int a3) {
-	addlog(ige::LogType::LOG_DEBUG, "getting hashkey for " + std::string(name), __FILENAME__);
+	addlog(ige::LogType::LOG_DEBUG, "getting hashkey for " + std::string(name));
 	g_vehicleHashes.insert({ GET_HASH_KEY(name), boost::to_lower_copy(name) });
 	return g_InitVehicleArchetype->fn(name, a2, a3);
 }
@@ -72,19 +72,19 @@ void setupHooks() {
 	if (g_isEnhanced) {
 		auto addr = MemryScan::PatternScanner::FindPattern("e8 ? ? ? ? 43 89 44 2c");
 		if (!addr) {
-			addlog(ige::LogType::LOG_ERROR, "Couldn't find InitVehicleArchetypeEnahnced", __FILENAME__);
+			addlog(ige::LogType::LOG_ERROR, "Couldn't find InitVehicleArchetypeEnahnced");
 			return;
 		}
-		addlog(ige::LogType::LOG_INFO, "Found InitVehicleArchetypeEnhanced at " + std::to_string(addr), __FILENAME__);
+		addlog(ige::LogType::LOG_INFO, "Found InitVehicleArchetypeEnhanced at " + std::to_string(addr));
 		g_InitVehicleArchetypeEnhanced = HookManager::SetCall(addr, initVehicleArchetypeEnhanced_stub);
 	}
 	else {
 		auto addr = GTAmemory::FindPattern("\xE8\x00\x00\x00\x00\x48\x8B\x4D\xE0\x48\x8B\x11", "x????xxxxxxx");
 		if (!addr) {
-			addlog(ige::LogType::LOG_ERROR, "Couldn't find InitVehicleArchetype", __FILENAME__);
+			addlog(ige::LogType::LOG_ERROR, "Couldn't find InitVehicleArchetype");
 			return;
 		}
-		addlog(ige::LogType::LOG_INFO, "Found InitVehicleArchetype at " + std::to_string(addr), __FILENAME__);
+		addlog(ige::LogType::LOG_INFO, "Found InitVehicleArchetype at " + std::to_string(addr));
 		g_InitVehicleArchetype = HookManager::SetCall(addr, initVehicleArchetype_stub);
 	}
 }
@@ -154,7 +154,7 @@ namespace MemryScan
 			{
 				p.push_back(PatternByte());
 			}
-			else if (w.length() == 2 && isxdigit(w.data()[0]) && isxdigit(w.data()[1])) // Hex
+			else if (w.length() == 2 && isxdigit(static_cast<unsigned char>(w.data()[0])) && isxdigit(static_cast<unsigned char>(w.data()[1]))) // Hex
 			{
 				p.push_back(PatternByte(w));
 			}
@@ -185,7 +185,7 @@ namespace MemryScan
 			}
 		}
 
-		addlog(ige::LogType::LOG_ERROR, "Pattern " + s + " not found", __FILENAME__);
+		addlog(ige::LogType::LOG_ERROR, "Pattern " + s + " not found");
 
 		return NULL;
 	}
@@ -210,7 +210,7 @@ namespace MemryScan
 	{
 		DWORD64 i;
 		DWORD64 size;
-		DWORD64 address;
+		DWORD64 address = (DWORD64)g_MainModule;
 
 		MODULEINFO info = g_MainModuleInfo;
 		size = (DWORD64)info.SizeOfImage;
@@ -970,7 +970,7 @@ struct GenericTask
 {
 public:
 	typedef UINT64(*func)(UINT64);
-	GenericTask(func pFunc, UINT64 Arg) : _toRun(pFunc), _arg(Arg)
+	GenericTask(func pFunc, UINT64 Arg) : _toRun(pFunc), _arg(Arg), _res(0)
 	{
 	}
 	virtual void Run()
@@ -1178,11 +1178,12 @@ void GTAmemory::Init()
 
 	if (g_isEnhanced) {
 		address = MemryScan::PatternScanner::FindPattern("48 8d 3d ? ? ? ? 48 8b 04 f7");
+		if (address) _blipList = reinterpret_cast<BlipList*>(*reinterpret_cast<int*>(address + 3) + address + 7);
 	}
 	else {
-		address = FindPattern("\x4C\x8D\x05\x00\x00\x00\x00\x0F\xB7\xC1", "xxx????xxx");
+		address = MemryScan::PatternScanner::FindPattern("3b 35 ? ? ? ? 74 ? 48 81 fd");
+		if (address) _blipList = reinterpret_cast<BlipList*>(*reinterpret_cast<int*>(address - 4) + address);
 	}
-	if (address) _blipList = reinterpret_cast<BlipList*>(*reinterpret_cast<int*>(address + 3) + address + 7);
 
 	if (g_isEnhanced) {
 		address = MemryScan::PatternScanner::FindPattern("41 57 41 56 56 57 53 48 83 ec ? 89 d7 49 89 ce");
@@ -1295,7 +1296,12 @@ void GTAmemory::Init()
 	_vehiclePoolAddress = reinterpret_cast<UINT64*>(*reinterpret_cast<int*>(address + 3) + address + 7);
 
 	if (!g_isEnhanced) {
-		address = FindPattern("\x4C\x8B\x05\x00\x00\x00\x00\x41\x3B\x50\x00\x7D\x00\x49\x8B\x40","xxx????xxx?x?xxx");
+		if (GTAmemory::GetGameVersion() > eGameVersion::VER_1_0_3751_0) {
+			address = FindPattern("\x4C\x8B\x05\x00\x00\x00\x00\x41\x3B\x50\x00\x7D\x00\x49\x8B\x40", "xxx????xxx?x?xxx");
+		}
+		else {
+			address = FindPattern("\x4C\x8B\x0D\x00\x00\x00\x00\x44\x8B\xC1\x49\x8B\x41\x08", "xxx????xxxxxxx");
+		}
 		_entityPoolAddress = reinterpret_cast<UINT64*>(*reinterpret_cast<int*>(address + 3) + address + 7);
 
 		address = FindPattern("\x48\x8B\x05\x00\x00\x00\x00\x41\x0F\xBF\xC8\x0F\xBF\x40\x10", "xxx????xxxxxxxx");
@@ -1512,7 +1518,7 @@ void GTAmemory::Init()
 			address = address - 8;
 		}
 		else {
-			addlog(ige::LogType::LOG_ERROR, "Couldn't find GetModelInfo (Enhanced)", __FILENAME__);
+			addlog(ige::LogType::LOG_ERROR, "Couldn't find GetModelInfo (Enhanced)");
 		}
 	}
 	else {
@@ -1532,7 +1538,7 @@ void GTAmemory::Init()
 				"xxxxxxxxxxx");
 
 			if (!address) {
-				addlog(ige::LogType::LOG_ERROR, "Couldn't find GetModelInfo", __FILENAME__);
+				addlog(ige::LogType::LOG_ERROR, "Couldn't find GetModelInfo");
 			}
 		}
 		else {
@@ -1542,7 +1548,7 @@ void GTAmemory::Init()
 				address = address - 0x2C;
 			}
 			else {
-				addlog(ige::LogType::LOG_ERROR, "Couldn't find GetModelInfo (v58+)", __FILENAME__);
+				addlog(ige::LogType::LOG_ERROR, "Couldn't find GetModelInfo (v58+)");
 			}
 		}
 	}
@@ -1550,8 +1556,8 @@ void GTAmemory::Init()
 		GetModelInfo = (GetModelInfo_t)(address);
 	}
 
-	_SpSnow = SpSnow();
-	addlog(ige::LogType::LOG_INIT, "GTAMemory Init Done", __FILENAME__);
+	g_spSnow = SpSnow();
+	addlog(ige::LogType::LOG_INIT, "GTAMemory Init Done");
 }
 
 void GTAmemory::InitEnhancedPools() {
@@ -1712,12 +1718,18 @@ void GTAmemory::InitEnhancedPools() {
 				}
 			}
 		}
-		address = address - 0x2C;
-		addlog(ige::LogType::LOG_TRACE, "Found Pattern: " + std::to_string(address), __FILENAME__);
+		if (address)
+		{
+			address = address - 0x2C;
+			addlog(ige::LogType::LOG_TRACE, "Found Pattern: " + std::to_string(address));
+			GetModelInfo = (GetModelInfo_t)(address);
+		}
+		else
+		{
+			addlog(ige::LogType::LOG_ERROR, "Couldn't find GetModelInfo pattern");
+		}
 
-		GetModelInfo = (GetModelInfo_t)(address);
-
-		_SpSnow = SpSnow();
+		g_spSnow = SpSnow();
 	}
 }
 
@@ -1745,18 +1757,18 @@ struct HashNode
 };
 void GTAmemory::GenerateVehicleModelList()
 {
-	addlog(ige::LogType::LOG_DEBUG, "Generating Vehicle Model List. isEnhanced = " + std::to_string(g_isEnhanced), __FILENAME__);
+	addlog(ige::LogType::LOG_DEBUG, "Generating Vehicle Model List. isEnhanced = " + std::to_string(g_isEnhanced));
 
 	int classOffset;
 	uintptr_t address;
 	HashNode** HashMap;
 	//Zorg
 	if (g_isEnhanced) {
-		addlog(ige::LogType::LOG_TRACE, "Scanning Enhanced Address", __FILENAME__);
+		addlog(ige::LogType::LOG_TRACE, "Scanning Enhanced Address");
 		address = MemryScan::PatternScanner::FindPattern("0f b6 88 ? ? ? ? 83 e1 ? e9");
 		if (address)
 		{
-			addlog(ige::LogType::LOG_TRACE, "Found Address, scanning for Hashes", __FILENAME__);
+			addlog(ige::LogType::LOG_TRACE, "Found Address, scanning for Hashes");
 			classOffset = *(uint*)(address + 3);
 
 			address = MemryScan::PatternScanner::FindPattern("74 ? 49 89 d0 4c 8b 1d");
@@ -1766,17 +1778,20 @@ void GTAmemory::GenerateVehicleModelList()
 				modelHashEntries = *reinterpret_cast<UINT16*>(address + *(int*)(address - 7) - 3);
 				// Pattern scan to avoid having offsets accross labels.
 				address = MemryScan::PatternScanner::FindPattern("\x3B\x05\x00\x00\x00\x00\x7D\x00\x48\x8B\x0D", "xx????x?xxx", address, 200); // TODO: use the findpattern with legacy patterns, because it supports a start address.
-				modelNum1 = *reinterpret_cast<int*>(*(int*)(address + 2) + address + 6);
-				modelNum2 = *reinterpret_cast<PUINT64>(*(int*)(address + 11) + address + 15);
-				modelNum3 = *reinterpret_cast<PUINT64>(*(int*)(address + 48) + address + 52);
-				modelNum4 = *reinterpret_cast<PUINT64>(*(int*)(address + 33) + address + 37);
+				if (address)
+				{
+					modelNum1 = *reinterpret_cast<int*>(*(int*)(address + 2) + address + 6);
+					modelNum2 = *reinterpret_cast<PUINT64>(*(int*)(address + 11) + address + 15);
+					modelNum3 = *reinterpret_cast<PUINT64>(*(int*)(address + 48) + address + 52);
+					modelNum4 = *reinterpret_cast<PUINT64>(*(int*)(address + 33) + address + 37);
+				}
 			}
 		}
 	}
 	else {
 		address = FindPattern("\x66\x81\xF9\x00\x00\x74\x10\x4D\x85\xC0", "xxx??xxxxx");
 		if (address) {
-			addlog(ige::LogType::LOG_TRACE, "Found Address, scanning for Hashes", __FILENAME__);
+			addlog(ige::LogType::LOG_TRACE, "Found Address, scanning for Hashes");
 			address = address - 0x21;
 			//UINT64 baseFuncAddr = *reinterpret_cast<int*>(address - 0x21) + address - 0x1D;
 			UINT64 baseFuncAddr = address + *reinterpret_cast<int*>(address) + 0x4;
@@ -1792,7 +1807,7 @@ void GTAmemory::GenerateVehicleModelList()
 		}
 	}
 
-	addlog(ige::LogType::LOG_TRACE, "Patterns Scanned Success", __FILENAME__);
+	addlog(ige::LogType::LOG_TRACE, "Patterns Scanned Success");
 	HashMap = reinterpret_cast<HashNode**>(modelHashTable);
 	//I know 0x20 items are defined but there are only 0x16 vehicle classes.
 	//But keeping it at 0x20 is just being safe as the & 0x1F in theory supports up to 0x20
@@ -1821,7 +1836,7 @@ void GTAmemory::GenerateVehicleModelList()
 			}
 		}
 	}
-	addlog(ige::LogType::LOG_TRACE, "Exiting GenerateVehicleModelList()", __FILENAME__);
+	addlog(ige::LogType::LOG_TRACE, "Exiting GenerateVehicleModelList()");
 }
 
 bool GTAmemory::IsModelAPed(unsigned int modelHash)
@@ -1914,7 +1929,7 @@ void GTAmemory::EditGXTLabel(DWORD labelHash, LPCSTR string)
 	{
 		if (entry.labelHash == labelHash)
 		{
-			strcpy_s((char*)(_globalTextBlockAddr + entry.strOffset), strlen(string), string);
+			strcpy_s((char*)(_globalTextBlockAddr + entry.strOffset), strlen(string) + 1, string);
 			//strcpy((char *)(_globalTextBlockAddr + entry.strOffset), string);
 		}
 	}
@@ -1949,6 +1964,7 @@ UINT64 GTAmemory::GetPtfxAddress(int handle)
 int GTAmemory::GetEntityBoneCount(int handle)
 {
 	UINT64 MemAddress = _entityAddressFunc(handle);
+	if (!MemAddress) return 0;
 	UINT64 Addr2 = (*(UINT64(__fastcall**)(__int64))(*(UINT64*)MemAddress + 88i64))(MemAddress);
 	UINT64 Addr3;
 	if (!Addr2)
@@ -1987,6 +2003,7 @@ UINT64 GTAmemory::GetEntityBoneMatrixAddress(int handle, int boneIndex)
 		return 0;
 
 	UINT64 MemAddress = _entityAddressFunc(handle);
+	if (!MemAddress) return 0;
 	UINT64 Addr2 = (*(UINT64(__fastcall**)(__int64))(*(UINT64*)MemAddress + 88i64))(MemAddress);
 	UINT64 Addr3;
 	if (!Addr2)
@@ -2206,11 +2223,11 @@ int GTAmemory::GetNumberOfVehicles()
 	return 0;
 }
 
-float GTAmemory::WorldGravity_get()
+float GTAmemory::GetWorldGravity()
 {
 	return *_readWorldGravityAddress;
 }
-void GTAmemory::WorldGravity_set(float value)
+void GTAmemory::SetWorldGravity(float value)
 {
 	*_writeWorldGravityAddress = value;
 	SET_GRAVITY_LEVEL(0);
@@ -2306,7 +2323,7 @@ uintptr_t GTAmemory::FindPattern(const char* pattern, const char* mask)
 
 //--------------------------------SpSnow---------------------------------------------------------
 
-SpSnow _SpSnow;
+SpSnow g_spSnow;
 
 void SpSnow::EnableSnow(bool bEnable)
 {
@@ -2700,14 +2717,14 @@ void GeneralGlobalHax::EnableBlockedMpVehiclesInSp()
 			if (address)
 			{
 				int globalindex = *(int*)(address + offset) & 0xFFFFFF;
-				addlog(ige::LogType::LOG_INFO, "Setting Global Variable " + std::to_string(globalindex) + " to true", __FILENAME__);
+				addlog(ige::LogType::LOG_INFO, "Setting Global Variable " + std::to_string(globalindex) + " to true");
 				*GTAmemory::GetGlobalPtr<INT32>(globalindex) = 1;
 				return;
 			}
 		}
 	}
 
-	addlog(ige::LogType::LOG_ERROR, "Global Variable not found, check game version >= 1.0.678.1", __FILENAME__);
+	addlog(ige::LogType::LOG_ERROR, "Global Variable not found, check game version >= 1.0.678.1");
 }
 
 // from EnableMPCars by drp4lyf
@@ -2725,16 +2742,16 @@ bool GTAmemory::FindScript(int hash) {
 	}
 
 	if (!patternAddr) {
-		addlog(ige::LogType::LOG_ERROR, "ERROR: finding address 1", __FILENAME__);
-		addlog(ige::LogType::LOG_ERROR, "Aborting...", __FILENAME__);
+		addlog(ige::LogType::LOG_ERROR, "ERROR: finding address 1");
+		addlog(ige::LogType::LOG_ERROR, "Aborting...");
 		return false;
 	}
 	scriptTable = (ScriptTable*)(patternAddr + *(int*)(patternAddr + 3) + 7);
 
 	ScriptTableItem* Item = scriptTable->FindScript(hash);
 	if (Item == NULL) {
-		addlog(ige::LogType::LOG_ERROR, "ERROR: finding script shop_controller ", __FILENAME__);
-		addlog(ige::LogType::LOG_ERROR, "Aborting...", __FILENAME__);
+		addlog(ige::LogType::LOG_ERROR, "ERROR: finding script shop_controller ");
+		addlog(ige::LogType::LOG_ERROR, "Aborting...");
 		return false;
 	}
 	while (!Item->IsLoaded())
@@ -2742,7 +2759,7 @@ bool GTAmemory::FindScript(int hash) {
 
 	shopController = Item->Header;
 
-	//addlog(ige::LogType::LOG_INFO,  "Found shopcontroller", __FILENAME__);
+	//addlog(ige::LogType::LOG_INFO,  "Found shopcontroller");
 	return true;
 }
 
@@ -2874,50 +2891,7 @@ void GeneralGlobalHax::SetPlayerMovementSpeed(float value)
 	}
 }
 
-int GeneralGlobalHax::GetVehicleBoostState()
-{
-	if (!g_isEnhanced) {
-		auto baddr = *GeneralGlobalHax::WorldPtrPtr();
-		if (baddr)
-		{
-			auto gameVersion = GTAmemory::GetGameVersion();
-			if (gameVersion <= eGameVersion::VER_1_0_2372_0_NOSTEAM)
-				return *(GetMultilayerPointer<int*>(baddr, std::vector<DWORD>{0x8, 0xD28, 0x318}));
-		}
-	}
-	return 0;
-}
-void GeneralGlobalHax::SetVehicleBoostState(int value)
-{
-	if (g_isEnhanced) return;
-	auto baddr = *GeneralGlobalHax::WorldPtrPtr();
-	if (baddr)
-	{
-		auto gameVersion = GTAmemory::GetGameVersion();
-		if (gameVersion <= eGameVersion::VER_1_0_2372_0_NOSTEAM)
-			*(GetMultilayerPointer<int*>(baddr, std::vector<DWORD>{0x8, 0xD28, 0x318})) = value;
-	}
-}
-float* GeneralGlobalHax::GetVehicleBoostChargePtr()
-{
-	if (!g_isEnhanced) {
-		auto baddr = *GeneralGlobalHax::WorldPtrPtr();
-		if (baddr)
-		{
-			auto gameVersion = GTAmemory::GetGameVersion();
-			if (gameVersion <= eGameVersion::VER_1_0_1103_2_NOSTEAM)
-				return (GetMultilayerPointer<float*>(baddr, std::vector<DWORD>{0x8, 0xD28, 0x31C}));
-			if (gameVersion <= eGameVersion::VER_1_0_2372_0_NOSTEAM)//VER_1_0_1868_1_NOSTEAM
-				return (GetMultilayerPointer<float*>(baddr, std::vector<DWORD>{0x8, 0xD28, 0x320})); // Might be off
-		}
-	}
-	return nullptr;
-}
-
 std::string GTAmemory::GetVehicleModelName(Hash hash) {
-	if(g_vehicleHashes.empty()) {
-		addlog(ige::LogType::LOG_ERROR, "g_vehicleHashes Empty", __FILENAME__);
-	}
 	auto modelIt = g_vehicleHashes.find(hash);
 	if (modelIt != g_vehicleHashes.end()) return modelIt->second;
 	return "NOTFOUND";

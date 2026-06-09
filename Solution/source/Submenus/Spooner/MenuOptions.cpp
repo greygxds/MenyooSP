@@ -22,6 +22,7 @@
 #include "EntityManagement.h"
 #include "RelationshipManagement.h"
 #include "SpoonerEntity.h"
+#include "../../Scripting/Game.h"
 
 namespace sub::Spooner
 {
@@ -34,8 +35,8 @@ namespace sub::Spooner
 
 			if (*Menu::currentopATM == Menu::printingop)
 			{
-				SpoonerMode::ModelPreviewInfo.entityType = EntityType::PROP;
-				SpoonerMode::ModelPreviewInfo.model = model;
+				SpoonerMode::modelPreviewInfo.entityType = EntityType::PROP;
+				SpoonerMode::modelPreviewInfo.model = model;
 			}
 
 			if (pressed)
@@ -43,15 +44,15 @@ namespace sub::Spooner
 				EntityManagement::AddProp(model, text);
 			}
 		}
-		void AddOption_AddPed(const std::string& text, const GTAmodel::Model& model)
+		void AddOptionAddPed(const std::string& text, const GTAmodel::Model& model)
 		{
 			bool pressed = false;
 			AddOption(text, pressed);
 
 			if (*Menu::currentopATM == Menu::printingop)
 			{
-				SpoonerMode::ModelPreviewInfo.entityType = EntityType::PED;
-				SpoonerMode::ModelPreviewInfo.model = model;
+				SpoonerMode::modelPreviewInfo.entityType = EntityType::PED;
+				SpoonerMode::modelPreviewInfo.model = model;
 			}
 
 			if (pressed)
@@ -66,8 +67,8 @@ namespace sub::Spooner
 
 			if (*Menu::currentopATM == Menu::printingop)
 			{
-				SpoonerMode::ModelPreviewInfo.entityType = EntityType::VEHICLE;
-				SpoonerMode::ModelPreviewInfo.model = model;
+				SpoonerMode::modelPreviewInfo.entityType = EntityType::VEHICLE;
+				SpoonerMode::modelPreviewInfo.model = model;
 			}
 
 			if (pressed)
@@ -78,52 +79,93 @@ namespace sub::Spooner
 
 		void AddOption_RelationshipTextScroller()
 		{
-			std::vector<std::string> relationshipstringvec{ "NONE" };
-			for (UINT8 i = 0; i < RelationshipManagement::vRGs.size(); i++)
+			std::vector<std::string> relationshipStringVec{ "NONE" };
+			for (UINT8 i = 0; i < RelationshipManagement::relationshipGroups.size(); i++)
 			{
-				if (GTAped(SelectedEntity.Handle).RelationshipGroup_get() == GET_HASH_KEY(RelationshipManagement::vRGs[i]))
-					relationshipstringvec[0] = RelationshipManagement::vRGs[i];
+				if (GTAped(selectedEntity.handle).RelationshipGroup_get() == GET_HASH_KEY(RelationshipManagement::relationshipGroups[i]))
+					relationshipStringVec[0] = RelationshipManagement::relationshipGroups[i];
 			}
 
-			bool relationshipstring_plus = false, relationshipstring_minus = false;
-			AddTexter("Relationship", 0, relationshipstringvec, null, relationshipstring_plus, relationshipstring_minus);
-			if (relationshipstring_plus)
+			bool relationshipStringPlus = false, relationshipStringMinus = false;
+			AddTexter("Relationship", 0, relationshipStringVec, null, relationshipStringPlus, relationshipStringMinus);
+			if (relationshipStringPlus)
 			{
 				Hash currHash;
-				if (RelationshipManagement::GetPedRelationshipGroup(SelectedEntity.Handle, currHash))
+				if (RelationshipManagement::GetPedRelationshipGroup(selectedEntity.handle, currHash))
 				{
-					for (INT8 i = 0; i < RelationshipManagement::vRGs.size(); i++)
+					for (INT8 i = 0; i < RelationshipManagement::relationshipGroups.size(); i++)
 					{
-						if (GTAped(SelectedEntity.Handle).RelationshipGroup_get() == GET_HASH_KEY(RelationshipManagement::vRGs[i]))
+						if (GTAped(selectedEntity.handle).RelationshipGroup_get() == GET_HASH_KEY(RelationshipManagement::relationshipGroups[i]))
 						{
 							i++;
-							if (i >= RelationshipManagement::vRGs.size())
+							if (i >= RelationshipManagement::relationshipGroups.size())
 								break;
-							RelationshipManagement::SetPedRelationshipGroup(SelectedEntity.Handle, GET_HASH_KEY(RelationshipManagement::vRGs[i]));
+							RelationshipManagement::SetPedRelationshipGroup(selectedEntity.handle, GET_HASH_KEY(RelationshipManagement::relationshipGroups[i]));
 							break;
 						}
 					}
 				}
 				else
 				{
-					RelationshipManagement::SetPedRelationshipGroup(SelectedEntity.Handle, GET_HASH_KEY(RelationshipManagement::vRGs[0]));
+					RelationshipManagement::SetPedRelationshipGroup(selectedEntity.handle, GET_HASH_KEY(RelationshipManagement::relationshipGroups[0]));
 				}
 			}
-			if (relationshipstring_minus)
+			if (relationshipStringMinus)
 			{
-				for (INT8 i = 0; i < RelationshipManagement::vRGs.size(); i++)
+				for (INT8 i = 0; i < RelationshipManagement::relationshipGroups.size(); i++)
 				{
-					if (GTAped(SelectedEntity.Handle).RelationshipGroup_get() == GET_HASH_KEY(RelationshipManagement::vRGs[i]))
+					if (GTAped(selectedEntity.handle).RelationshipGroup_get() == GET_HASH_KEY(RelationshipManagement::relationshipGroups[i]))
 					{
 						i--;
 						if (i < 0)
 							break;
-						RelationshipManagement::SetPedRelationshipGroup(SelectedEntity.Handle, GET_HASH_KEY(RelationshipManagement::vRGs[i]));
+						RelationshipManagement::SetPedRelationshipGroup(selectedEntity.handle, GET_HASH_KEY(RelationshipManagement::relationshipGroups[i]));
 						break;
 					}
 				}
 			}
 		}
+
+		void AddOption_AddPedWithCallback(const std::string& text, const GTAmodel::Model& model, const std::function<void(Ped, const std::string&)>& callback)
+		{
+			bool pressed = false;
+			AddOption(text, pressed);
+
+			if (*Menu::currentopATM == Menu::printingop)
+			{
+				SpoonerMode::modelPreviewInfo.entityType = EntityType::PED;
+				SpoonerMode::modelPreviewInfo.model = model;
+			}
+
+			if (pressed)
+			{
+				Hash modelHash = *(Hash*)&model;
+				std::string modelName = text;
+
+				if (!STREAMING::HAS_MODEL_LOADED(modelHash))
+				{
+					STREAMING::REQUEST_MODEL(modelHash);
+					while (!STREAMING::HAS_MODEL_LOADED(modelHash))
+					{
+						WAIT(0);
+					}
+				}
+
+				Vector3 pos = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER_PED_ID(), 0.0f, 5.0f, 0.0f);
+				Ped pedHandle = PED::CREATE_PED(26, modelHash, pos.x, pos.y, pos.z, 0.0f, true, true);
+
+				if (pedHandle != 0)
+				{
+					callback(pedHandle, modelName);
+				}
+				else
+				{
+					Game::Print::PrintBottomLeft("Failed to spawn ped.");
+				}
+			}
+		}
+
+
 
 	}
 

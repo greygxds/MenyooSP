@@ -165,10 +165,10 @@ namespace sub::TeleportLocations_catind
 			{
 				if (currentBunkerInfo.location == nullptr)
 				{
-					Menu::SetSub_previous();
+					Menu::SetPreviousMenu();
 					return;
 				}
-				GTAped ped = Static_241;
+				GTAped ped = g_Ped1;
 				AddTitle(currentBunkerInfo.location->name);
 
 				for (auto& o : vOptionArrays)
@@ -280,10 +280,10 @@ namespace sub::TeleportLocations_catind
 			{
 				if (currentMocInfo.location == nullptr)
 				{
-					Menu::SetSub_previous();
+					Menu::SetPreviousMenu();
 					return;
 				}
-				GTAped ped = Static_241;
+				GTAped ped = g_Ped1;
 				AddTitle(currentMocInfo.location->name);
 
 				for (auto& o : vOptionArrays)
@@ -312,4 +312,9 @@ namespace sub::TeleportLocations_catind
 }
 
 
-
+#include "..\..\Menu\submenu_switch.h"
+#include "..\..\Menu\submenu_enum.h"
+REGISTER_SUBMENU(TELEPORTOPS_BUNKERS,                   sub::TeleportLocations_catind::GunRunningInteriors::Bunkers::Sub_Bunkers)
+REGISTER_SUBMENU(TELEPORTOPS_BUNKERS_INLOC,             sub::TeleportLocations_catind::GunRunningInteriors::Bunkers::Sub_Bunkers_InLoc)
+REGISTER_SUBMENU(TELEPORTOPS_MOC,                       sub::TeleportLocations_catind::GunRunningInteriors::Moc::Sub_Moc)
+REGISTER_SUBMENU(TELEPORTOPS_MOC_INLOC,                 sub::TeleportLocations_catind::GunRunningInteriors::Moc::Sub_Moc_InLoc)

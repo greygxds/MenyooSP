@@ -9,7 +9,21 @@
 */
 #pragma once
 
+#include "..\macros.h"
+
+#include "..\Menu\Menu.h"
+#include "..\Menu\Routine.h"
+#include "..\Menu\MenuConfig.h"
+#include "..\Menu\Language.h"
+
+#include "..\Natives\natives2.h"
+#include "..\Util\GTAmath.h"
+#include "..\Natives\types.h" // RGBA
+#include "..\Scripting\enums.h"
+#include "..\Scripting\Game.h"
+
 #include <string>
+#include <math.h>
 
 typedef signed char INT8;
 typedef unsigned char UINT8;
@@ -20,12 +34,8 @@ namespace sub
 {
 	void Settings();
 
-	void SettingsMenuPos_();
-
-	//extern RGBA* _g_settings_rgba;
-	//extern int*_g_settings_rgba2;
-	//extern int* _g_settings_font;
-	extern UINT8 settings_hud_c;
+	void SettingsMenuPos();
+	extern UINT8 settingsHUDColor;
 
 	void AddsettingscolOption(const std::string& text, RGBA& feature);
 	void SettingsColours();
@@ -36,13 +46,7 @@ namespace sub
 	void SettingsFonts2();
 
 	void SettingsLanguage();
-
-	namespace SettingsThemes_catind
-	{
-		void Sub_Main();
-
-	}
-
+	void SettingsThemesMain();
 }
 
 

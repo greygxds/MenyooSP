@@ -46,7 +46,7 @@
 #include <string>
 #include <vector>
 
-std::vector<Entity> _nearbyPeds, _nearbyVehicles, _worldPeds, _worldVehicles, _worldObjects, _worldEntities;
+std::vector<Entity> nearbyPeds, nearbyVehicles, worldPeds, worldVehicles, worldObjects, worldEntities;
 
 namespace World
 {
@@ -210,12 +210,12 @@ namespace World
 	}
 	void GetNearbyPeds(std::vector<GTAped>& result, GTAped ped, float radius, int maxAmount)
 	{
-		const Vector3 position = ped.Position_get();
-		int* handles = new int[maxAmount * 2 + 2];
+		const Vector3 position = ped.GetPosition();
+		std::vector<int> handles(maxAmount * 2 + 2);
 
 		handles[0] = maxAmount;
 
-		const int amount = GET_PED_NEARBY_PEDS(ped.Handle(), (Any*)handles, -1);
+		const int amount = GET_PED_NEARBY_PEDS(ped.Handle(), (Any*)handles.data(), -1);
 
 		int index;
 		int* currped;
@@ -234,14 +234,12 @@ namespace World
 				}
 			}
 		}
-
-		delete[] handles;
 	}
 	void GetNearbyPeds(std::vector<GTAped>& result, const Vector3& position, float radius)
 	{
 		//std::vector<Entity> handles;
 		//GTAmemory::GetPedHandles(handles);
-		auto& handles = _worldPeds;
+		auto& handles = worldPeds;
 
 		for (auto& currped : handles)
 		{
@@ -256,12 +254,12 @@ namespace World
 	}
 	void GetNearbyVehicles(std::vector<GTAvehicle>& result, GTAped ped, float radius, int maxAmount)
 	{
-		const Vector3 position = ped.Position_get();
-		int* handles = new int[maxAmount * 2 + 2];
+		const Vector3 position = ped.GetPosition();
+		std::vector<int> handles(maxAmount * 2 + 2);
 
 		handles[0] = maxAmount;
 
-		const int amount = GET_PED_NEARBY_VEHICLES(ped.Handle(), (Any*)handles);
+		const int amount = GET_PED_NEARBY_VEHICLES(ped.Handle(), (Any*)handles.data());
 
 		int index;
 		GTAvehicle currveh;
@@ -274,20 +272,18 @@ namespace World
 			{
 				currveh.Handle() = handles[index];
 
-				if (Vector3::Subtract(position, currveh.Position_get()).LengthSquared() < radius * radius)
+				if (Vector3::Subtract(position, currveh.GetPosition()).LengthSquared() < radius * radius)
 				{
 					result.push_back(currveh);
 				}
 			}
 		}
-
-		delete[] handles;
 	}
 	void GetNearbyVehicles(std::vector<GTAvehicle>& result, const Vector3& position, float radius)
 	{
 		//std::vector<Entity> handles;
 		//GTAmemory::GetVehicleHandles(handles);
-		auto& handles = _worldVehicles;
+		auto& handles = worldVehicles;
 
 		for (auto& currveh : handles)
 		{
@@ -298,13 +294,13 @@ namespace World
 
 	void GetNearbyProps(std::vector<GTAprop>& result, GTAped ped, float radius)
 	{
-		GetNearbyProps(result, ped.Position_get(), radius);
+		GetNearbyProps(result, ped.GetPosition(), radius);
 	}
 	void GetNearbyProps(std::vector<GTAprop>& result, const Vector3& position, float radius)
 	{
 		//std::vector<Entity> handles;
 		//GTAmemory::GetPropHandles(handles);
-		auto& handles = _worldObjects;
+		auto& handles = worldObjects;
 
 		for (auto& currprop : handles)
 		{
@@ -415,9 +411,9 @@ namespace World
 		//return cam;
 
 		Camera cam = CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", 1);
-		cam.Position_set(position);
-		cam.Rotation_set(rotation);
-		cam.FieldOfView_set(fov);
+		cam.SetPosition(position);
+		cam.SetRotation(rotation);
+		cam.SetFieldOfView(fov);
 		return cam;
 	}
 	void DestroyAllCameras()
@@ -447,9 +443,9 @@ namespace World
 			position.z = World::GetGroundHeight(position) + model.Dim1().z;//model.Dim2().z;
 		}
 		auto ped = CreatePed(model, position, rotation.z, false);
-		ped.Position_set(position); // More accurate position
+		ped.SetPosition(position); // More accurate position
 		if (placeOnGround) ped.PlaceOnGround();
-		ped.Rotation_set((rotation)); // Rotation
+		ped.SetRotation((rotation)); // Rotation
 		return ped;
 	}
 	GTAped CreateRandomPed(const Vector3& position)
@@ -490,9 +486,9 @@ namespace World
 			position.z = World::GetGroundHeight(position) + model.Dim1().z;//model.Dim2().z;
 		}
 		auto vehicle = CreateVehicle(model, position, rotation.z, false);
-		vehicle.Position_set(position); // More accurate position
+		vehicle.SetPosition(position); // More accurate position
 		if (placeOnGround) vehicle.PlaceOnGround();
-		vehicle.Rotation_set(rotation); // Rotation
+		vehicle.SetRotation(rotation); // Rotation
 		return vehicle;
 	}
 
@@ -518,9 +514,9 @@ namespace World
 			position.z = World::GetGroundHeight(position) + model.Dim1().z;//model.Dim2().z;
 		}
 		GTAprop prop = CreateProp(model, position, dynamic, false);
-		prop.Position_set(position); // More accurate position
+		prop.SetPosition(position); // More accurate position
 		if (placeOnGround) prop.PlaceOnGround();
-		prop.Rotation_set(rotation); // Rotation
+		prop.SetRotation(rotation); // Rotation
 
 		return prop;
 	}
@@ -629,8 +625,8 @@ namespace World
 		if (aimedEntity.Handle())
 			return aimedEntity;
 
-		const Vector3& camCoord = GameplayCamera::Position_get();
-		const Vector3& hitCoord = (GameplayCamera::DirectionFromScreenCentre_get() * 1000.0f) + camCoord;
+		const Vector3& camCoord = GameplayCamera::GetPosition();
+		const Vector3& hitCoord = (GameplayCamera::GetDirectionFromScreenCentre() * 1000.0f) + camCoord;
 
 		const RaycastResult& ray = RaycastResult::Raycast(camCoord, hitCoord, IntersectOptions::Everything, myPed);
 
@@ -687,11 +683,11 @@ namespace World
 		INT i, j;
 		GTAped ped;
 
-		const Vector3& originCoord = originPed.Position_get();
+		const Vector3& originCoord = originPed.GetPosition();
 
-		Ped* peds = new Ped[140 * 2 + 2]; // Five minutes into doubled stack size and chill and it gives you that ped handle
+		std::vector<Ped> peds(140 * 2 + 2); // Five minutes into doubled stack size and chill and it gives you that ped handle
 		peds[0] = 140;
-		INT found = GET_PED_NEARBY_PEDS(originPed.Handle(), (Any*)peds, -1);
+		INT found = GET_PED_NEARBY_PEDS(originPed.Handle(), (Any*)peds.data(), -1);
 		for (i = 0; i < found; i++)
 		{
 			j = i * 2 + 2;
@@ -720,7 +716,6 @@ namespace World
 			EXPLODE_PED_HEAD(ped.Handle(), WEAPON_HEAVYSNIPER);
 
 		}
-		delete[] peds;
 
 		/*bool originPedExists = originPed.Exists();
 
@@ -761,7 +756,7 @@ namespace World
 
 
 // World - clear area
-void clear_area_of_entities(const EntityType& type, const Vector3& coords, float radius, const std::vector<GTAentity>& excludes)
+void ClearAreaOfEntities(const EntityType& type, const Vector3& coords, float radius, const std::vector<GTAentity>& excludes)
 {
 	if (GTAmemory::GetIsEnhanced()) return; // It actually works for enhanced now, but after some time of clearing entities, the game crashes? TODO: investigate why that is.
 	//LOAD_ALL_OBJECTS_NOW();
@@ -790,7 +785,7 @@ void clear_area_of_entities(const EntityType& type, const Vector3& coords, float
 	WAIT(0);
 	sub::Spooner::EntityManagement::DeleteInvalidEntitiesInDb();
 
-	update_nearby_stuff_arrays_tick();
+	UpdateNearbyStuffArraysTick();
 
 	/*switch (type)
 	{
@@ -821,9 +816,9 @@ void clear_area_of_vehicles_around_entity(Entity entity, float radius, bool memr
 			if (IS_PED_SITTING_IN_ANY_VEHICLE(entity))
 				oldcar = GET_VEHICLE_PED_IS_IN(entity, 0);
 
-			Vehicle* vehicles = new Vehicle[160 * 2 + 2];
+			std::vector<Vehicle> vehicles(160 * 2 + 2);
 			vehicles[0] = 160;
-			found = GET_PED_NEARBY_VEHICLES(entity, (Any*)vehicles);
+			found = GET_PED_NEARBY_VEHICLES(entity, (Any*)vehicles.data());
 			for (i = 0; i < found; i++)
 			{
 				offsettedID = i * 2 + 2;
@@ -842,15 +837,14 @@ void clear_area_of_vehicles_around_entity(Entity entity, float radius, bool memr
 
 				CLEAR_AREA_OF_VEHICLES(Pos.x, Pos.y, Pos.z, radius, 0, 0, 1, 1, 0, 0, 0);
 			}
-			delete[] vehicles;
 		}
 	}
 
 	else
 	{
 		if (IS_ENTITY_A_PED(entity))
-			clear_area_of_entities(EntityType::VEHICLE, Pos, radius, { GET_VEHICLE_PED_IS_USING(entity) });
-		else clear_area_of_entities(EntityType::VEHICLE, Pos, radius, {});
+			ClearAreaOfEntities(EntityType::VEHICLE, Pos, radius, { GET_VEHICLE_PED_IS_USING(entity) });
+		else ClearAreaOfEntities(EntityType::VEHICLE, Pos, radius, {});
 	}
 
 
@@ -867,9 +861,9 @@ void clear_area_of_peds_around_entity(Entity entity, float radius, bool memry)
 		{
 			INT i, offsettedID, found;
 
-			Ped* peds = new Ped[160 * 2 + 2];
+			std::vector<Ped> peds(160 * 2 + 2);
 			peds[0] = 160;
-			found = GET_PED_NEARBY_PEDS(entity, (Any*)peds, -1);
+			found = GET_PED_NEARBY_PEDS(entity, (Any*)peds.data(), -1);
 			for (i = 0; i < found; i++)
 			{
 				offsettedID = i * 2 + 2;
@@ -886,26 +880,25 @@ void clear_area_of_peds_around_entity(Entity entity, float radius, bool memry)
 
 				CLEAR_AREA_OF_PEDS(Pos.x, Pos.y, Pos.z, radius, 0);
 			}
-			delete[] peds;
 		}
 	}
 
 	else
 	{
 		if (IS_ENTITY_A_PED(entity))
-			clear_area_of_entities(EntityType::PED, Pos, radius, { entity });
-		else clear_area_of_entities(EntityType::PED, Pos, radius, {});
+			ClearAreaOfEntities(EntityType::PED, Pos, radius, { entity });
+		else ClearAreaOfEntities(EntityType::PED, Pos, radius, {});
 	}
 
 }
 void clear_attachments_off_entity(const GTAentity& entity, const EntityType& entType)
 {
-	auto* handles = &_worldEntities;
+	auto* handles = &worldEntities;
 	switch (entType)
 	{
-	case EntityType::PED: handles = &_worldPeds; break;
-	case EntityType::VEHICLE: handles = &_worldVehicles; break;
-	case EntityType::PROP: handles = &_worldObjects; break;
+	case EntityType::PED: handles = &worldPeds; break;
+	case EntityType::VEHICLE: handles = &worldVehicles; break;
+	case EntityType::PROP: handles = &worldObjects; break;
 	}
 	for (GTAentity e : *handles)
 	{
@@ -914,11 +907,11 @@ void clear_attachments_off_entity(const GTAentity& entity, const EntityType& ent
 			/*if (entity.Handle() == PLAYER_PED_ID() && IS_PED_A_PLAYER(e.Handle()))
 			{
 			std::string ofn("_reserved");
-			sub::ComponentChanger_Outfit_catind::Create(entity.Handle(), ofn);
-			if (sub::ComponentChanger_Outfit_catind::Exists(ofn))
+			sub::ComponentChangerOutfit::Create(entity.Handle(), ofn);
+			if (sub::ComponentChangerOutfit::Exists(ofn))
 			{
 			WAIT(40);
-			sub::ComponentChanger_Outfit_catind::Apply(entity, ofn, true, true, true, true);
+			sub::ComponentChangerOutfit::Apply(entity, ofn, true, true, true, true);
 			}
 			}
 			else*/

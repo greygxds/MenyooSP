@@ -83,11 +83,14 @@ public:
 
 	void Dynamic_set(bool value);
 
-	float Heading_get() const;
+	float GetHeading() const;
 	void Heading_set(float value);
 
-	int Health_get() const;
-	void Health_set(int value);
+	int GetHealth() const;
+	void SetHealth(int value);
+
+	float Vehicle_engine_get() const;
+	void Vehicle_engine_set(float value);
 
 	float HeightAboveGround() const;
 	float GetGroundZ() const;
@@ -112,7 +115,7 @@ public:
 	void SetOnFire(bool value);
 
 	bool MissionEntity_get() const;
-	void MissionEntity_set(bool value);
+	void SetMissionEntity(bool value);
 
 	bool IsUpright() const;
 	void SetUpright();
@@ -122,8 +125,16 @@ public:
 	bool IsVisible() const;
 	void SetVisible(bool value);
 
-	int MaxHealth_get() const;
-	void MaxHealth_set(int value);
+	int LandingGearState_get() const;
+	void SetLandingGearState(int state);
+
+	int GetMaxHealth() const;
+	void SetMaxHealth(int value);
+
+	bool ToggleLandingGear() const;
+	void SetLandingGear(bool value);
+	int GetLandingGearState() const;
+	bool HasLandingGear() const;
 
 	GTAmodel::Model Model() const;
 	GTAmodel::ModelDimensions ModelDimensions() const;
@@ -131,38 +142,39 @@ public:
 	Vector3 Dim1() const;
 	Vector3 Dim2() const;
 
-	Vector3 Position_get() const;
-	void Position_set(Vector3 value);
+	Vector3 GetPosition() const;
+	void SetPosition(Vector3 value);
 
 	Vector3 Rotation_get() const;
-	void Rotation_set(Vector3 value);
+	void SetRotation(Vector3 value);
 	Vector3 Direction_get() const;
 	void Direction_set(Vector3 value);
 
 	Vector3 Velocity_get() const;
 	void Velocity_set(Vector3 value);
 	Vector3 RotationVelocity_get() const;
-	float Speed_get() const;
+	float GetSpeed() const;
 	void MaxSpeed_set(float value);
 	Vector3 SpeedVector_get(bool relative);
 
 
-	int Alpha_get() const;
-	void Alpha_set(int value);
+	int GetAlpha() const;
+	void SetAlpha(int value);
 	void ResetAlpha();
 
-	int LodDistance_get() const;
-	void LodDistance_set(int value);
+	int GetLODDistance() const;
+	void SetLODDistance(int value);
 
-	bool HasGravity_get() const;
-	virtual void HasGravity_set(bool value);
+	bool GetHasGravity() const;
+	virtual void SetHasGravity(bool value);
 
 	Vector3 CollisionNormal() const;
 	bool HasCollided() const;
 	void IsRecordingCollisions_set(bool value);
 	void HasCollisionWithEntity_set(const GTAentity& ent, bool value);
-	bool IsCollisionEnabled_get() const;
-	void IsCollisionEnabled_set(bool value);
+	bool GetIsCollisionEnabled() const;
+	void SetIsCollisionEnabled(bool value);
+	void ToggleLandingGear();
 
 	virtual int NetID() const;
 
@@ -238,12 +250,9 @@ public:
 
 	bool IsOnlyDamagedByPlayer() const;
 	void SetOnlyDamagedByPlayer(bool value);
-	
+
 
 protected:
 	int mHandle;
-	
+
 };
-
-
-

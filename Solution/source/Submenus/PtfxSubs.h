@@ -14,22 +14,58 @@
 #include <string>
 #include <vector>
 
+#include "..\macros.h"
+
+#include "..\Menu\Menu.h"
+#include "..\Menu\Routine.h"
+
+#include "..\Natives\natives2.h"
+
+#include "..\Submenus\WeaponOptions.h"
+#include "..\Util\keyboard.h"
+
+#include "..\Scripting\Game.h"
+
+#include "..\Util\ExePath.h"
+
+#include <windows.h>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <ctime>
+#include <json\single_include\nlohmann\json.hpp>
+
 namespace sub
 {
-	namespace Ptfx_catind
+	namespace PtfxSubs
 	{
-		typedef struct { std::string name, asset, fx; } PtfxS;
+		extern int ITEMS_PER_PAGE;
+		struct PtfxS
+		{
+			std::string name;
+			std::string asset;
+			std::string fx;
+		};
 
-		extern const std::vector<PtfxS> vPTFX;
+		inline bool operator==(const PtfxS& a, const PtfxS& b) 
+		{
+			return a.name == b.name && a.asset == b.asset && a.fx == b.fx;
+		}
 
-		typedef struct { GTAentity entity; std::string asset, fx; } PtfxlopS;
-		extern std::vector<PtfxlopS> _fxlops;
+		extern const std::vector<PtfxS> PTFX;
 
+		typedef struct 
+		{ 
+			GTAentity entity; 
+			std::string asset;
+			std::string fx; 
+		} PtfxlopS;
+
+		extern std::vector<PtfxlopS> fxLoops;
 		void AddEntityToPtfxLops(const PtfxS& effect, const GTAentity& entity);
-
-		void __AddOption_entity(const PtfxS& effect, GTAentity entity);
-		void __AddOption_loopOnEntity(const PtfxS& effect, GTAentity entity);
-
+		void AddOptionEntity(const PtfxS& effect, GTAentity entity);
+		void AddOptionLoopOnEntity(const PtfxS& effect, GTAentity entity);
+		void PTFXFavourites();
 		void PTFXSub();
 
 	}

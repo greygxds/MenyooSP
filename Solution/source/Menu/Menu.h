@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Menyoo PC - Grand Theft Auto V single-player trainer mod
 * Copyright (C) 2019  MAFINS
 *
@@ -93,6 +93,7 @@ extern RGBA _globalPedTrackers_Col;
 extern std::pair<UINT16, UINT16> menubindsGamepad;
 extern UINT16 menubinds;
 extern UINT16 respawnbinds;
+extern UINT16 stopanimbinds;
 extern INT8 g_loglevel;
 
 class MenuInput final
@@ -147,12 +148,12 @@ public:
 	static UINT16 breakcount;
 	static UINT16 totalbreaks;
 	static UINT8 breakscroll;
-	static INT16 currentsub_ar_index;
-	static INT currentsub_ar[100];
+	static INT16 currentArrayIndex;
+	static INT currentArray[100];
 	static INT currentop_ar[100];
 	static INT SetSub_delayed;
 	static int delayedTimer;
-	static bool bit_controller, bit_mouse, bit_centre_title, bit_centre_options, bit_centre_breaks, gradients, thin_line_over_screct, bit_glare_test;
+	static bool bitController, bit_mouse, bit_centre_title, bit_centre_options, bit_centre_breaks, gradients, thinLineOverScrect, bit_glare_test;
 	static Scaleform scaleform_menuGlare, instructional_buttons;
 	static std::vector<Scaleform_IbT> vIB;
 	static std::function<void()> OnSubBack;
@@ -180,12 +181,14 @@ public:
 	static bool isBinds();
 	static void while_closed();
 	static void while_opened();
+	static bool isStopAnimBinds();
+	static void while_stopanim();
 	static void Up(bool playSound = true);
 	static void Down(bool playSound = true);
 	static void Bottom(bool playSound = true);
 	static void Top(bool playSound = true);
-	static void SetSub_previous();
-	static void SetSub_new(INT sub_index);
+	static void SetPreviousMenu();
+	static void NewSetMenu(INT sub_index);
 	static void SetSub_closed();
 
 	static void glare_test();
@@ -200,9 +203,9 @@ public:
 };
 
 
-//bool IsOptionPressed();
-//bool IsOptionRPressed();
-//bool IsOptionLPressed();
+bool IsOptionPressed();
+bool IsOptionRPressed();
+bool IsOptionLPressed();
 
 extern bool null;
 extern int inull;
@@ -250,10 +253,10 @@ void AddTickol(const std::string& text, BOOL condition, void(&callback_ON)(), vo
 void AddTexter(const std::string& text, int selectedindex, const std::vector<std::string>& textarray, bool &A_PRESS = null, bool &RIGHT_PRESS = null, bool &LEFT_PRESS = null, bool gxt = 0);
 
 
-void Add_preset_colour_options_previews(UINT8 const r, UINT8 const g, UINT8 const b);
-void Add_preset_colour_options_previews(const RgbS& rgb);
-void Add_preset_colour_options_previews(const RGBA& rgb);
-bool Add_preset_colour_options(INT& r, INT& g, INT& b);
+void AddPresetColourOptionsPreviews(UINT8 const r, UINT8 const g, UINT8 const b);
+void AddPresetColourOptionsPreview(const RgbS& rgb);
+void AddPresetColourOptionsPreviews(const RGBA& rgb);
+bool AddPresetColourOptions(INT& r, INT& g, INT& b);
 
 
 

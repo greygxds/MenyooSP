@@ -305,10 +305,10 @@ namespace sub::TeleportLocations_catind
 		{
 			if (currentFacilityInfo.location == nullptr)
 			{
-				Menu::SetSub_previous();
+				Menu::SetPreviousMenu();
 				return;
 			}
-			GTAped ped = Static_241;
+			GTAped ped = g_Ped1;
 			AddTitle(currentFacilityInfo.location->name);
 
 			for (auto& o : vOptionArrays)
@@ -342,7 +342,7 @@ namespace sub::TeleportLocations_catind
 		{
 			if (currentFacilityInfo.location == nullptr || selectedOptionArray == nullptr || selectedOptionArray->ptr == nullptr)
 			{
-				Menu::SetSub_previous();
+				Menu::SetPreviousMenu();
 				return;
 			}
 			AddTitle(selectedOptionArray->name.empty() ? "Option" : selectedOptionArray->name);
@@ -376,4 +376,8 @@ namespace sub::TeleportLocations_catind
 }
 
 
-
+#include "..\..\Menu\submenu_switch.h"
+#include "..\..\Menu\submenu_enum.h"
+REGISTER_SUBMENU(TELEPORTOPS_FACILITIES,                sub::TeleportLocations_catind::Facilities::Sub_Facilities)
+REGISTER_SUBMENU(TELEPORTOPS_FACILITIES_INLOC,          sub::TeleportLocations_catind::Facilities::Sub_Facilities_InLoc)
+REGISTER_SUBMENU(TELEPORTOPS_FACILITIES_INOPTION,       sub::TeleportLocations_catind::Facilities::Sub_Facilities_InOption)

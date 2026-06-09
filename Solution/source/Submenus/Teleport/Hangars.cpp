@@ -298,10 +298,10 @@ namespace sub::TeleportLocations_catind
 		{
 			if (currentHangarInfo.location == nullptr)
 			{
-				Menu::SetSub_previous();
+				Menu::SetPreviousMenu();
 				return;
 			}
-			GTAped ped = Static_241;
+			GTAped ped = g_Ped1;
 			AddTitle(currentHangarInfo.location->name);
 
 			for (auto& o : vOptionArrays)
@@ -335,7 +335,7 @@ namespace sub::TeleportLocations_catind
 		{
 			if (currentHangarInfo.location == nullptr || selectedOptionArray == nullptr || selectedOptionArray->ptr == nullptr)
 			{
-				Menu::SetSub_previous();
+				Menu::SetPreviousMenu();
 				return;
 			}
 			AddTitle(selectedOptionArray->name.empty() ? "Option" : selectedOptionArray->name);
@@ -368,4 +368,9 @@ namespace sub::TeleportLocations_catind
 }
 
 
+#include "..\..\Menu\submenu_switch.h"
+#include "..\..\Menu\submenu_enum.h"
+REGISTER_SUBMENU(TELEPORTOPS_HANGARS,                   sub::TeleportLocations_catind::Hangars::Sub_Hangars)
+REGISTER_SUBMENU(TELEPORTOPS_HANGARS_INLOC,             sub::TeleportLocations_catind::Hangars::Sub_Hangars_InLoc)
+REGISTER_SUBMENU(TELEPORTOPS_HANGARS_INOPTION,          sub::TeleportLocations_catind::Hangars::Sub_Hangars_InOption)
 

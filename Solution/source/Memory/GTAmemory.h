@@ -112,7 +112,7 @@ namespace rage {
 			pad2 = 0;
 			clipDictionary = 0;
 			physicsDictionary = 0;
-			memset(pad5, 0, sizeof(physicsDictionary));
+			memset(pad5, 0, sizeof(pad5));
 		}
 	};
 
@@ -285,7 +285,7 @@ struct ScriptHeader {
 	int GetCodePageSize(int page) const {
 		return (page < 0 || page >= CodePageCount() ? 0 : (page == CodePageCount() - 1) ? codeLength & 0x3FFF : 0x4000);
 	}
-	unsigned char* GetCodePageAddress(int page) const { return codeBlocksOffset[page]; }
+	unsigned char* GetCodePageAddress(int page) const { return (page < 0 || page >= CodePageCount()) ? nullptr : codeBlocksOffset[page]; }
 	unsigned char* GetCodePositionAddress(int codePosition) const {
 		return codePosition < 0 || codePosition >= codeLength ? NULL : &codeBlocksOffset[codePosition >> 14][codePosition & 0x3FFF];
 	}
@@ -612,8 +612,8 @@ public:
 
 	static int GetNumberOfVehicles();
 
-	static float WorldGravity_get();
-	static void WorldGravity_set(float value);
+	static float GetWorldGravity();
+	static void SetWorldGravity(float value);
 
 	static inline bool bittest(int data, unsigned char index)
 	{
@@ -667,7 +667,7 @@ public:
 	void ToggleSnow(bool bEnable);
 	void Tick();
 };
-extern SpSnow _SpSnow;
+extern SpSnow g_spSnow;
 
 class GeneralGlobalHax final
 {
@@ -682,11 +682,6 @@ public:
 	static void SetPlayerSwimSpeed(float value);
 	static float GetPlayerMovementSpeed();
 	static void SetPlayerMovementSpeed(float value);
-
-	static int GetVehicleBoostState();
-	static void SetVehicleBoostState(int value);
-	static float* GetVehicleBoostChargePtr();
-
 };
 
 void setupHooks();
