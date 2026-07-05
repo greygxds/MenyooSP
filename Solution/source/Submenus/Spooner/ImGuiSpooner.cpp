@@ -12,52 +12,68 @@
 #include <atomic>
 #include <mutex>
 #include <cmath>
+#include <algorithm>
+#include <vector>
+#include <pugixml/src/pugixml.hpp>
 
 #include "SpoonerEntity.h"
 #include "SpoonerMode.h"
 #include "SpoonerSettings.h"
 #include "..\..\Scripting\GTAentity.h"
+#include "..\..\Scripting\GTAprop.h"
+#include "..\..\Scripting\GTAped.h"
+#include "..\..\Scripting\GTAvehicle.h"
+#include "..\..\Scripting\Model.h"
+#include "..\..\Scripting\Camera.h"
+#include "..\..\Scripting\World.h"
+#include "..\..\Scripting\Game.h"
 #include "..\..\Util\GTAmath.h"
 #include "..\..\Natives\natives.h"
+#include "..\..\Natives\natives2.h"
+#include "..\..\Menu\Menu.h"
+#include "..\..\Menu\Routine.h"
+#include "..\..\Util\ExePath.h"
 #include "Submenus.h"
+#include "EntityManagement.h"
+#include "Databases.h"
+
 
 namespace sub::Spooner::ImGuiSpooner
 {
-	struct PendingWrites
-	{
-		bool positionDirty = false;  Vector3 positionVal{};
-		bool rotationDirty = false;  Vector3 rotationVal{};
-		bool scaleDirty = false;     Vector3 scaleVal{1.0f, 1.0f, 1.0f};
-	};
-
-	struct SharedState
-	{
-		bool entityValid = false;
-		Vector3 position{};
-		Vector3 rotation{};
-		Vector3 scale{1.0f, 1.0f, 1.0f};
-
-		// Active rendering camera
-		Vector3 camCoord{};
-		Vector3 camRot{};
-		float   camFov = 50.0f;
-
-		// SpoonerMode state mirrored here for render-thread access
-		SpoonerMode::EditingState editingState;
-
-		// Render-thread interaction state.
-		bool gizmoOver = false;
-		bool gizmoUsing = false;
-
-		PendingWrites pending;
-	};
+// ═══════════════════════════════════════════════════════════════════
+//  Shared State
+// ═══════════════════════════════════════════════════════════════════
 
 	static std::mutex g_Mutex;
-	static SharedState g_Shared;
+	SharedState g_Shared;
+
+	void SetCommand(SharedState& s, CursorCommand cmd, int intP, int dbP, float floatP, FavouriteSpawnPayload spawnP)
+	{
+		auto& q = s.cmds.queue;
+		if (q.size() >= 16) return;
+		q.push_back(QueuedCommand{cmd, intP, dbP, floatP, spawnP});
+	}
 
 	static std::atomic<bool> g_Visible{ false };
 	static std::atomic<bool> g_ShuttingDown{ false };
+	std::atomic<bool> g_ContextMenuReady{ false };
+	std::atomic<bool> g_EmptySpaceMenuReady{ false };
 	static bool g_ImGuiInitialized = false;
+
+	// ── Async spawn state ──
+	struct PendingSpawn
+	{
+		Hash modelHash = 0;
+		uint8_t category = 0;
+		DWORD startTime = 0;
+		Vector3 position{};
+		bool active = false;
+	};
+	static PendingSpawn g_PendingSpawn;
+
+// ═══════════════════════════════════════════════════════════════════
+//  Gizmo Math
+// ═══════════════════════════════════════════════════════════════════
 
 	static void BuildTransformMatrix(const Vector3& pos, const Vector3& rot, const Vector3& scale, float* matrix)
 	{
@@ -217,35 +233,38 @@ namespace sub::Spooner::ImGuiSpooner
 		}
 	}
 
+// ═══════════════════════════════════════════════════════════════════
+//  Gizmo
+// ═══════════════════════════════════════════════════════════════════
 
 	static void RunGizmo_NoLock(SharedState& s)
 	{
-		s.gizmoOver = false;
-		s.gizmoUsing = false;
+		s.render.gizmoOver = false;
+		s.render.gizmoUsing = false;
 
-		if (!s.entityValid || s.editingState.mode != SpoonerMode::eEditMode::Gizmo) return;
+		if (!s.cache.entityValid || s.render.editingState.mode != SpoonerMode::eEditMode::Gizmo) return;
 
 		ImGuiIO& io = ImGui::GetIO();
 
 		float viewMat[16], projMat[16];
-		BuildCameraMatricesFromCache(s.camCoord, s.camRot, s.camFov, io.DisplaySize.x, io.DisplaySize.y, viewMat, projMat);
+		BuildCameraMatricesFromCache(s.render.camCoord, s.render.camRot, s.render.camFov, io.DisplaySize.x, io.DisplaySize.y, viewMat, projMat);
 
 		ImGuizmo::BeginFrame();
 		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
 		ImGuizmo::OPERATION op;
-		switch (s.editingState.transformMode)
+		switch (s.render.editingState.transformMode)
 		{
 			case SpoonerMode::eTransformMode::Rotation: op = ImGuizmo::ROTATE; break;
 			case SpoonerMode::eTransformMode::Scale:    op = ImGuizmo::SCALE;  break;
 			default:                                          op = ImGuizmo::TRANSLATE; break;
 		}
-		ImGuizmo::MODE gizmoMode = s.editingState.localSpace ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
+		ImGuizmo::MODE gizmoMode = s.render.editingState.localSpace ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
 
 		if (op == ImGuizmo::TRANSLATE)
 		{
 			float matrix[16];
-			BuildTransformMatrix(s.position, s.rotation, Vector3(1.0f, 1.0f, 1.0f), matrix);
+			BuildTransformMatrix(s.cache.position, s.cache.rotation, Vector3(1.0f, 1.0f, 1.0f), matrix);
 
 			float deltaMatrix[16]{};
 			float snapMatrix[3] = { Settings::gridSnapSize, Settings::gridSnapSize, Settings::gridSnapSize };
@@ -256,14 +275,14 @@ namespace sub::Spooner::ImGuiSpooner
 			if (ImGuizmo::IsUsing())
 			{
 				Vector3 newPos(
-					s.position.x + deltaMatrix[12],
-					s.position.y + deltaMatrix[13],
-					s.position.z + deltaMatrix[14]
+					s.cache.position.x + deltaMatrix[12],
+					s.cache.position.y + deltaMatrix[13],
+					s.cache.position.z + deltaMatrix[14]
 				);
 
-				if (fabsf(newPos.x - s.position.x) > FLT_EPSILON ||
-					fabsf(newPos.y - s.position.y) > FLT_EPSILON ||
-					fabsf(newPos.z - s.position.z) > FLT_EPSILON)
+				if (fabsf(newPos.x - s.cache.position.x) > FLT_EPSILON ||
+					fabsf(newPos.y - s.cache.position.y) > FLT_EPSILON ||
+					fabsf(newPos.z - s.cache.position.z) > FLT_EPSILON)
 				{
 					s.pending.positionDirty = true;
 					s.pending.positionVal = newPos;
@@ -277,10 +296,10 @@ namespace sub::Spooner::ImGuiSpooner
 
 			if (!ImGuizmo::IsUsing())
 			{
-				BuildTransformMatrix(s.position, s.rotation, Vector3(1.0f, 1.0f, 1.0f), s_DragMatrix);
-				s_LastEuler[0] = s.rotation.x;
-				s_LastEuler[1] = s.rotation.y;
-				s_LastEuler[2] = s.rotation.z;
+				BuildTransformMatrix(s.cache.position, s.cache.rotation, Vector3(1.0f, 1.0f, 1.0f), s_DragMatrix);
+				s_LastEuler[0] = s.cache.rotation.x;
+				s_LastEuler[1] = s.cache.rotation.y;
+				s_LastEuler[2] = s.cache.rotation.z;
 			}
 
 			float oldRot[3] = { s_LastEuler[0], s_LastEuler[1], s_LastEuler[2] };
@@ -316,7 +335,7 @@ namespace sub::Spooner::ImGuiSpooner
 			static float s_DragMatrix[16];
 
 			if (!ImGuizmo::IsUsing())
-				BuildTransformMatrix(s.position, s.rotation, s.scale, s_DragMatrix);
+				BuildTransformMatrix(s.cache.position, s.cache.rotation, s.cache.scale, s_DragMatrix);
 
 			float deltaMatrix[16] = {0};
 			ImGuizmo::Manipulate(viewMat, projMat, ImGuizmo::SCALE, ImGuizmo::LOCAL, s_DragMatrix, deltaMatrix, nullptr);
@@ -327,13 +346,13 @@ namespace sub::Spooner::ImGuiSpooner
 				DecomposeTransformMatrix(deltaMatrix, deltaPos, deltaRot, deltaScale);
 
 				Vector3 newScale;
-				newScale.x = s.scale.x * deltaScale.x;
-				newScale.y = s.scale.y * deltaScale.y;
-				newScale.z = s.scale.z * deltaScale.z;
+				newScale.x = s.cache.scale.x * deltaScale.x;
+				newScale.y = s.cache.scale.y * deltaScale.y;
+				newScale.z = s.cache.scale.z * deltaScale.z;
 
-				if (fabsf(newScale.x - s.scale.x) > FLT_EPSILON ||
-					fabsf(newScale.y - s.scale.y) > FLT_EPSILON ||
-					fabsf(newScale.z - s.scale.z) > FLT_EPSILON)
+				if (fabsf(newScale.x - s.cache.scale.x) > FLT_EPSILON ||
+					fabsf(newScale.y - s.cache.scale.y) > FLT_EPSILON ||
+					fabsf(newScale.z - s.cache.scale.z) > FLT_EPSILON)
 				{
 					s.pending.scaleDirty = true;
 					s.pending.scaleVal = newScale;
@@ -341,8 +360,99 @@ namespace sub::Spooner::ImGuiSpooner
 			}
 		}
 
-		s.gizmoOver  = ImGuizmo::IsOver();
-		s.gizmoUsing = ImGuizmo::IsUsing();
+		s.render.gizmoOver  = ImGuizmo::IsOver();
+		s.render.gizmoUsing = ImGuizmo::IsUsing();
+	}
+
+// ═══════════════════════════════════════════════════════════════════
+//  Context Menu & Theme
+// ═══════════════════════════════════════════════════════════════════
+
+	// Adapted from Vulkan-RTX by wpsimon09
+	// https://github.com/wpsimon09/Vulkan-RTX/blob/main/Internal/Editor/UIContext/UIContext.cpp#L172
+	static void SetColourThemePabloDark()
+	{
+		ImGuiStyle& style  = ImGui::GetStyle();
+		ImVec4*     colors = style.Colors;
+
+		style.WindowRounding    = 8.0f;
+		style.ChildRounding     = 8.0f;
+		style.FrameRounding     = 6.0f;
+		style.PopupRounding     = 6.0f;
+		style.ScrollbarRounding = 6.0f;
+		style.GrabRounding      = 6.0f;
+		style.TabRounding       = 6.0f;
+
+		colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
+		colors[ImGuiCol_TextDisabled]          = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+		colors[ImGuiCol_WindowBg]              = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+		colors[ImGuiCol_ChildBg]               = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+		colors[ImGuiCol_PopupBg]               = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+		colors[ImGuiCol_Border]                = ImVec4(0.25f, 0.25f, 0.25f, 0.70f);
+		colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+		colors[ImGuiCol_FrameBg]               = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+		colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+		colors[ImGuiCol_FrameBgActive]         = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+		colors[ImGuiCol_TitleBg]               = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+		colors[ImGuiCol_TitleBgActive]         = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+		colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
+		colors[ImGuiCol_MenuBarBg]             = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
+		colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
+		colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
+		colors[ImGuiCol_CheckMark]             = ImVec4(0.80f, 0.80f, 0.80f, 1.00f);
+		colors[ImGuiCol_SliderGrab]            = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
+		colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.85f, 0.85f, 0.85f, 1.00f);
+		colors[ImGuiCol_Button]                = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+		colors[ImGuiCol_ButtonHovered]         = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+		colors[ImGuiCol_ButtonActive]          = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+		colors[ImGuiCol_Header]                = ImVec4(0.25f, 0.25f, 0.25f, 0.55f);
+		colors[ImGuiCol_HeaderHovered]         = ImVec4(0.35f, 0.35f, 0.35f, 0.80f);
+		colors[ImGuiCol_HeaderActive]          = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
+		colors[ImGuiCol_Separator]             = ImVec4(0.30f, 0.30f, 0.30f, 0.50f);
+		colors[ImGuiCol_SeparatorHovered]      = ImVec4(0.45f, 0.45f, 0.45f, 0.78f);
+		colors[ImGuiCol_SeparatorActive]       = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+		colors[ImGuiCol_ResizeGrip]            = ImVec4(0.30f, 0.30f, 0.30f, 0.25f);
+		colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.45f, 0.45f, 0.45f, 0.67f);
+		colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.50f, 0.50f, 0.50f, 0.95f);
+		colors[ImGuiCol_Tab]                   = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
+		colors[ImGuiCol_TabHovered]            = ImVec4(0.30f, 0.30f, 0.30f, 0.80f);
+		colors[ImGuiCol_TabActive]             = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+		colors[ImGuiCol_TabUnfocused]          = ImVec4(0.10f, 0.10f, 0.10f, 0.97f);
+		colors[ImGuiCol_TabUnfocusedActive]    = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+		colors[ImGuiCol_PlotLines]             = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
+		colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.90f, 0.50f, 0.50f, 1.00f);
+		colors[ImGuiCol_PlotHistogram]         = ImVec4(0.80f, 0.65f, 0.00f, 1.00f);
+		colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(0.90f, 0.50f, 0.00f, 1.00f);
+		colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.50f, 0.50f, 0.50f, 0.35f);
+		colors[ImGuiCol_DragDropTarget]        = ImVec4(1.00f, 0.00f, 0.00f, 0.90f);
+		colors[ImGuiCol_NavHighlight]          = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
+		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+		colors[ImGuiCol_NavWindowingDimBg]     = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+		colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+	}
+
+// ═══════════════════════════════════════════════════════════════════
+//  D3D11 Render Callback
+// ═══════════════════════════════════════════════════════════════════
+
+	static bool ImGui_Init(ID3D11Device* device, ID3D11DeviceContext* context)
+	{
+		HWND hWnd = D3D11Hook::GetWindowHandle();
+		if (!hWnd) return false;
+
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO();
+		io.IniFilename = nullptr;
+		io.MouseDrawCursor = false;
+		SetColourThemePabloDark();
+
+		if (!ImGui_ImplWin32_Init(hWnd)) { ImGui::DestroyContext(); return false; }
+		if (!ImGui_ImplDX11_Init(device, context)) { ImGui_ImplWin32_Shutdown(); ImGui::DestroyContext(); return false; }
+		g_ImGuiInitialized = true;
+		return true;
 	}
 
 	static void OnRender(ID3D11Device* device, ID3D11DeviceContext* context, IDXGISwapChain* swapChain)
@@ -353,31 +463,8 @@ namespace sub::Spooner::ImGuiSpooner
 			return;
 		}
 
-		if (!g_ImGuiInitialized)
-		{
-			HWND hWnd = D3D11Hook::GetWindowHandle();
-			if (!hWnd) return;
-
-			IMGUI_CHECKVERSION();
-			ImGui::CreateContext();
-			ImGuiIO& io = ImGui::GetIO();
-			io.IniFilename = nullptr;
-			io.MouseDrawCursor = false;
-			ImGui::StyleColorsDark();
-
-			if (!ImGui_ImplWin32_Init(hWnd))
-			{
-				ImGui::DestroyContext();
-				return;
-			}
-			if (!ImGui_ImplDX11_Init(device, context))
-			{
-				ImGui_ImplWin32_Shutdown();
-				ImGui::DestroyContext();
-				return;
-			}
-			g_ImGuiInitialized = true;
-		}
+		if (!g_ImGuiInitialized && !ImGui_Init(device, context))
+			return;
 
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
@@ -386,14 +473,30 @@ namespace sub::Spooner::ImGuiSpooner
 		{
 			std::lock_guard<std::mutex> lock(g_Mutex);
 
-			ImGui::GetIO().MouseDrawCursor = g_Shared.editingState.mode == SpoonerMode::eEditMode::Gizmo && g_Shared.editingState.cameraLocked;
+			bool cursorMode = g_Shared.render.cursorModeEnabled;
+			ImGuiIO& io = ImGui::GetIO();
+
+			io.MouseDrawCursor = cursorMode ||
+				(g_Shared.render.editingState.mode == SpoonerMode::eEditMode::Gizmo);
 
 			RunGizmo_NoLock(g_Shared);
+
+			if (cursorMode)
+				HandleCursorModeClicks(io);
+
+			DrawContextMenu();
+
+			if (cursorMode)
+				DrawMenuBarWindow();
 		}
 
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
+
+// ═══════════════════════════════════════════════════════════════════
+//  Attachment Gizmo Math
+// ═══════════════════════════════════════════════════════════════════
 
 	static Vector3 WorldDeltaToBoneRelative(const Vector3& worldDelta, const Vector3& boneRotEuler)
 	{
@@ -422,6 +525,10 @@ namespace sub::Spooner::ImGuiSpooner
 			sel.attachmentArgs.offset = parentEntity.GetOffsetGivenWorldCoords(newWorldPos);
 		}
 	}
+
+// ═══════════════════════════════════════════════════════════════════
+//  Script Thread Ticks
+// ═══════════════════════════════════════════════════════════════════
 
 	static void DrainPending_ScriptThread(SharedState& s)
 	{
@@ -483,65 +590,403 @@ namespace sub::Spooner::ImGuiSpooner
 		s.pending = PendingWrites{};
 	}
 
+	// ── Snapshot ──────────────────────────────────────────────────
+
 	static void RefreshSnapshot_ScriptThread(SharedState& s)
 	{
 		int renderingCam = CAM::GET_RENDERING_CAM();
 		if (renderingCam != 0 && CAM::DOES_CAM_EXIST(renderingCam))
 		{
-			s.camCoord = CAM::GET_CAM_COORD(renderingCam);
-			s.camRot   = CAM::GET_CAM_ROT(renderingCam, 2);
-			s.camFov   = CAM::GET_CAM_FOV(renderingCam);
+			s.render.camCoord = CAM::GET_CAM_COORD(renderingCam);
+			s.render.camRot   = CAM::GET_CAM_ROT(renderingCam, 2);
+			s.render.camFov   = CAM::GET_CAM_FOV(renderingCam);
 		}
 		else
 		{
-			s.camCoord = CAM::GET_GAMEPLAY_CAM_COORD();
-			s.camRot   = CAM::GET_GAMEPLAY_CAM_ROT(2);
-			s.camFov   = CAM::GET_GAMEPLAY_CAM_FOV();
+			s.render.camCoord = CAM::GET_GAMEPLAY_CAM_COORD();
+			s.render.camRot   = CAM::GET_GAMEPLAY_CAM_ROT(2);
+			s.render.camFov   = CAM::GET_GAMEPLAY_CAM_FOV();
 		}
 
-		s.editingState = SpoonerMode::editingState;
-
-		const bool inGizmoNow = s.editingState.mode == SpoonerMode::eEditMode::Gizmo;
-		static bool s_wasInGizmo = false;
-		if (inGizmoNow && !s_wasInGizmo)
-		{
-			SpoonerMode::editingState.cameraLocked = true;
-			s.editingState.cameraLocked = true;
-		}
-		s_wasInGizmo = inGizmoNow;
+		s.render.editingState = SpoonerMode::editingState;
+		s.render.cursorModeEnabled = Settings::bCursorMode;
 
 		SpoonerEntity& sel = selectedEntity;
-		s.entityValid = (sel.handle.Handle() != 0) && sel.handle.Exists();
-		if (!s.entityValid)
+		s.cache.entityHandle = sel.handle.Handle();
+		s.cache.entityValid = (s.cache.entityHandle != 0) && sel.handle.Exists();
+		if (!s.cache.entityValid)
 		{
-			s.position = Vector3{};
-			s.rotation = Vector3{};
-			s.scale = Vector3{1.0f, 1.0f, 1.0f};
+			s.cache.position = Vector3{};
+			s.cache.rotation = Vector3{};
+			s.cache.scale = Vector3{1.0f, 1.0f, 1.0f};
+			s.cache.entityFrozen = false;
+			s.cache.entityCollision = true;
+			s.cache.entityType = 0;
+			s.cache.entityInDb = false;
+			s.cache.entityHashName.clear();
+			s.cache.entityAttached = false;
+			s.cache.vehicleEngineOn = false;
+			s.cache.vehicleLightsOn = false;
 			return;
 		}
 
-		s.position = sel.handle.GetPosition();
-		s.rotation = sel.handle.Rotation_get();
-		s.scale = sel.handle.GetScale();
+		s.cache.position = sel.handle.GetPosition();
+		s.cache.rotation = sel.handle.Rotation_get();
+		s.cache.scale = sel.handle.GetScale();
+
+		// Cache entity state for context menu
+		s.cache.entityFrozen = sel.handle.IsPositionFrozen();
+		s.cache.entityCollision = sel.handle.GetIsCollisionEnabled();
+		s.cache.entityType = static_cast<int>(sel.handle.Type());
+		s.cache.entityHashName = sel.hashName;
+		s.cache.entityInDb = EntityManagement::GetEntityIndexInDb(sel) >= 0;
+		s.cache.entityAttached = ENTITY::IS_ENTITY_ATTACHED(sel.handle.Handle());
+		if (s.cache.entityType == 2)
+		{
+			s.cache.vehicleEngineOn = GET_IS_VEHICLE_ENGINE_RUNNING(sel.handle.Handle());
+			BOOL lightsOn = FALSE, highbeamsOn = FALSE;
+			GET_VEHICLE_LIGHTS_STATE(sel.handle.Handle(), &lightsOn, &highbeamsOn);
+			s.cache.vehicleLightsOn = lightsOn != FALSE;
+		}
+		else
+		{
+			s.cache.vehicleEngineOn = false;
+			s.cache.vehicleLightsOn = false;
+		}
 	}
+
+	// ── Favourite Cache Refresh ────────────────────────────────────
+	// Occurs every 1800 ticks, so on average 30 seconds
+
+	static void RefreshFavouriteCache_ScriptThread(FavouriteCache& cache)
+	{
+		cache.props.clear();
+		{
+			pugi::xml_document doc;
+			if (doc.load_file((GetPathffA(Pathff::Main, true) + "FavouriteProps.xml").c_str()))
+			{
+				for (auto node = doc.child("FavouriteProps").first_child(); node; node = node.next_sibling())
+					cache.props.push_back({ node.attribute("modelName").as_string(), GET_HASH_KEY(node.attribute("modelName").as_string()) });
+			}
+		}
+
+		cache.peds.clear();
+		{
+			pugi::xml_document doc;
+			if (doc.load_file((GetPathffA(Pathff::Main, true) + "FavouritePeds.xml").c_str()))
+			{
+				for (auto node = doc.child("FavouritePeds").first_child(); node; node = node.next_sibling())
+					cache.peds.push_back({ node.attribute("customName").as_string(), node.attribute("hash").as_uint() });
+			}
+		}
+
+		cache.vehicles.clear();
+		{
+			pugi::xml_document doc;
+			if (doc.load_file((GetPathffA(Pathff::Main, true) + "AddedVehicleModels.xml").c_str()))
+			{
+				for (auto node = doc.child("AddedVehicleModels").first_child(); node; node = node.next_sibling())
+					cache.vehicles.push_back({ node.attribute("customName").as_string(), node.attribute("modelHash").as_uint() });
+			}
+		}
+	}
+
+	static void RefreshDbCache_ScriptThread(SharedState& s)
+	{
+		s.dbEntityCache.clear();
+		s.dbEntityCache.reserve(Databases::EntityDb.size());
+		for (int i = 0; i < static_cast<int>(Databases::EntityDb.size()); i++)
+		{
+			auto& ent = Databases::EntityDb[i];
+			if (ent.handle.Exists())
+				s.dbEntityCache.push_back({ ent.hashName, i });
+		}
+	}
+
+	static std::optional<FavouriteCache> RefreshCaches_ScriptThread()
+	{
+		static int cacheFrameCounter = 0;
+		if (++cacheFrameCounter < 1800)
+			return std::nullopt;
+		cacheFrameCounter = 0;
+		FavouriteCache cache;
+		RefreshFavouriteCache_ScriptThread(cache);
+		return cache;
+	}
+
+	static void DrainQueue_ScriptThread(SharedState& s, std::vector<CursorCommand>& cmds, std::vector<SharedState>& snapshots)
+	{
+		std::vector<QueuedCommand> localQueue;
+		localQueue.swap(s.cmds.queue);
+		cmds.reserve(localQueue.size());
+		snapshots.reserve(localQueue.size());
+		for (auto& qc : localQueue)
+		{
+			s.cmds.commandIntPayload = qc.intPayload;
+			s.cmds.commandDbPayload = qc.dbPayload;
+			s.cmds.commandFloatPayload = qc.floatPayload;
+			s.cmds.spawnPayload = qc.spawnPayload;
+			snapshots.push_back(s);
+			cmds.push_back(qc.cmd);
+		}
+	}
+
+// ═══════════════════════════════════════════════════════════════════
+//  Cursor Command Processing (dispatch table)
+// ═══════════════════════════════════════════════════════════════════
+
+	using CmdHandler = void(*)(const SharedState&);
+
+	static void Cmd_None(const SharedState&) {}
+
+	// ── RMB entity commands ──
+	static void Cmd_RmbMenu_ManualEditing(const SharedState&) { Menu::NewSetMenu(SUB::SPOONER_MANUALEDITING); }
+	static void Cmd_RmbMenu_Attachment(const SharedState&)    { Menu::NewSetMenu(SUB::SPOONER_ATTACHMENTOPS); }
+	static void Cmd_RmbMenu_TaskSequence(const SharedState&)  { Menu::NewSetMenu(SUB::SPOONER_TASKSEQUENCE_TASKLIST); }
+	static void Cmd_RmbMenu_Wardrobe(const SharedState&)      { Submenus::SetEnt241(); Menu::NewSetMenu(SUB::COMPONENTS); }
+	static void Cmd_RmbMenu_Animations(const SharedState&)    { Submenus::SetEnt241(); Menu::NewSetMenu(SUB::ANIMATIONSUB); }
+	static void Cmd_RmbMenu_Frozen(const SharedState&)        { if (selectedEntity.handle.Exists()) selectedEntity.handle.FreezePosition(!selectedEntity.handle.IsPositionFrozen()); }
+	static void Cmd_RmbMenu_Collision(const SharedState&)     { if (selectedEntity.handle.Exists()) selectedEntity.handle.SetIsCollisionEnabled(!selectedEntity.handle.GetIsCollisionEnabled()); }
+	static void Cmd_RmbMenu_Copy(const SharedState&)          { if (selectedEntity.handle.Exists()) EntityManagement::CopyEntity(selectedEntity, EntityManagement::GetEntityIndexInDb(selectedEntity) >= 0, true, Submenus::_copyEntTexterValue); }
+	static void Cmd_RmbMenu_Delete(const SharedState&)        { if (selectedEntity.handle.Exists()) { selectedEntity.handle.RequestControl(600); EntityManagement::DeleteEntity(selectedEntity); } }
+	static void Cmd_RmbMenu_PlaceOnGround(const SharedState&) { if (selectedEntity.handle.Exists()) selectedEntity.handle.PlaceOnGround(); }
+	static void Cmd_RmbMenu_DbToggle(const SharedState&)      { SpoonerEntity& sel = selectedEntity; if (!sel.handle.Exists()) return; int idx = EntityManagement::GetEntityIndexInDb(sel); if (idx >= 0) EntityManagement::RemoveEntityFromDb(sel); else EntityManagement::AddEntityToDb(sel, Settings::bAddToDbAsMissionEntities); }
+	static void Cmd_RmbMenu_Detach(const SharedState&)        { auto& sel = selectedEntity; if (!sel.handle.Exists()) return; EntityManagement::DetachEntity(sel); }
+	static void Cmd_RmbMenu_Engine(const SharedState&)        { if (selectedEntity.handle.Exists() && static_cast<EntityType>(selectedEntity.handle.Type()) == EntityType::VEHICLE) { BOOL running = GET_IS_VEHICLE_ENGINE_RUNNING(selectedEntity.handle.Handle()); SET_VEHICLE_ENGINE_ON(selectedEntity.handle.Handle(), !running, true, true); } }
+	static void Cmd_RmbMenu_Lights(const SharedState&)        { if (selectedEntity.handle.Exists() && static_cast<EntityType>(selectedEntity.handle.Type()) == EntityType::VEHICLE) { BOOL lightsOn = FALSE, highbeamsOn = FALSE; GET_VEHICLE_LIGHTS_STATE(selectedEntity.handle.Handle(), &lightsOn, &highbeamsOn); SET_VEHICLE_LIGHTS(selectedEntity.handle.Handle(), lightsOn ? 4 : 3); } }
+	static void Cmd_RmbMenu_Repair(const SharedState&)        { if (selectedEntity.handle.Exists() && static_cast<EntityType>(selectedEntity.handle.Type()) == EntityType::VEHICLE) SET_VEHICLE_FIXED(selectedEntity.handle.Handle()); }
+	static void Cmd_RmbMenu_MenyooCustoms(const SharedState&) { Submenus::SetEnt12(); Menu::NewSetMenu(SUB::MODSHOP); }
+
+	// ── World commands ──
+	static void Cmd_World_TimePreset(const SharedState& s)
+	{
+		static const int timePresets[4][2] = {{6,0},{12,0},{19,0},{23,0}};
+		int idx = s.cmds.commandIntPayload;
+		if (idx >= 0 && idx < 4)
+		{
+			NETWORK_OVERRIDE_CLOCK_TIME(timePresets[idx][0], timePresets[idx][1], 0);
+			if (pauseClock)
+			{
+				pauseClockH = static_cast<UINT8>(timePresets[idx][0]);
+				pauseClockM = static_cast<UINT8>(timePresets[idx][1]);
+			}
+		}
+	}
+	static void Cmd_World_WeatherSet(const SharedState& s)
+	{
+		int idx = s.cmds.commandIntPayload;
+		if (idx >= 0 && idx < (int)World::sWeatherNames.size())
+			World::SetWeather(World::sWeatherNames[idx].second);
+	}
+	static void Cmd_World_WeatherReset(const SharedState&) { World::ClearWeatherOverride(); }
+	static void Cmd_World_SpeedSet(const SharedState& s)   { SET_TIME_SCALE(s.cmds.commandFloatPayload); }
+
+	// ── Spawn commands ──
+	static void Cmd_SpawnFavourite(const SharedState& s)
+	{
+		if (g_PendingSpawn.active) return;
+		Vector3 pos = SpoonerMode::spoonerModeCamera.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
+		REQUEST_MODEL(s.cmds.spawnPayload.modelHash);
+		g_PendingSpawn = { s.cmds.spawnPayload.modelHash, s.cmds.spawnPayload.category, GetTickCount(), pos, true };
+	}
+
+	static void CheckPendingSpawns_ScriptThread()
+	{
+		if (!g_PendingSpawn.active) return;
+
+		DWORD now = GetTickCount();
+		if (now - g_PendingSpawn.startTime > 3000)
+		{
+			g_PendingSpawn.active = false;
+			Game::Print::PrintBottomLeft("~r~Spawn failed:~s~ model timed out");
+			return;
+		}
+
+		REQUEST_MODEL(g_PendingSpawn.modelHash);
+		if (!HAS_MODEL_LOADED(g_PendingSpawn.modelHash))
+			return;
+
+		GTAmodel::Model mdl(g_PendingSpawn.modelHash);
+		switch (g_PendingSpawn.category)
+		{
+		case 0: World::CreateProp(mdl, g_PendingSpawn.position, Vector3(), Settings::bSpawnDynamicProps, false); break;
+		case 1: World::CreatePed(mdl, g_PendingSpawn.position, Vector3(), false); break;
+		case 2: World::CreateVehicle(mdl, g_PendingSpawn.position, Vector3(), false); break;
+		}
+		mdl.Unload();
+		g_PendingSpawn.active = false;
+	}
+
+	// ── View commands ──
+	static void Cmd_View_GridSnap(const SharedState& s)
+	{
+		Settings::bGridSnapEnabled = s.cmds.commandFloatPayload > 0.0f;
+		if (s.cmds.commandFloatPayload > 0.0f)
+			Settings::gridSnapSize = s.cmds.commandFloatPayload;
+	}
+	static void Cmd_View_RotationSnap(const SharedState& s) { Settings::rotationSnapDegrees = s.cmds.commandFloatPayload; }
+	static void Cmd_View_ModeSwitch(const SharedState& s)   { Settings::spoonerModeMode = s.cmds.commandIntPayload != 0 ? eSpoonerModeMode::Precision : eSpoonerModeMode::GroundEase; }
+	static void Cmd_View_DrawGrid(const SharedState&)       { Settings::bDrawGrid = !Settings::bDrawGrid; }
+	static void Cmd_CloseSpooner(const SharedState&)        { SpoonerMode::bEnabled = false; SpoonerMode::TurnOff(); }
+
+	// ── Select / click commands ──
+	static void Cmd_SelectEntity(const SharedState& s)
+	{
+		GTAentity clicked = SpoonerMode::spoonerModeCamera.RaycastForEntity(Vector2(s.cursorScreenX, s.cursorScreenY), 0, 160.0f);
+		if (clicked.Exists())
+		{
+			SpoonerMode::SetAsSelectedEntity(clicked);
+			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Gizmo;
+			SpoonerMode::editingState.transformMode = SpoonerMode::eTransformMode::Position;
+			memset(Menu::currentArray, 0, sizeof(Menu::currentArray));
+			memset(Menu::currentop_ar, 0, sizeof(Menu::currentop_ar));
+			Menu::currentArray[0] = SUB::MAINMENU;
+			Menu::currentop_ar[0] = 1;
+			Menu::currentArrayIndex = 0;
+			Menu::NewSetMenu(ENTITY::IS_ENTITY_ATTACHED(clicked.GetHandle())
+				? SUB::SPOONER_ATTACHMENTOPS
+				: SUB::SPOONER_MANUALEDITING);
+		}
+		else
+		{
+			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+		}
+	}
+	static void Cmd_SelectEntityAndShowMenu(const SharedState& s)
+	{
+		GTAentity clicked = SpoonerMode::spoonerModeCamera.RaycastForEntity(Vector2(s.cursorScreenX, s.cursorScreenY), 0, 160.0f);
+		if (clicked.Exists())
+		{
+			SpoonerMode::SetAsSelectedEntity(clicked);
+			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+			g_ContextMenuReady = true;
+		}
+		else
+		{
+			g_EmptySpaceMenuReady = true;
+			SpoonerMode::ResetSelectedEntity();
+		}
+	}
+	static void Cmd_EmptyMenu_PlaceEntityHere(const SharedState& s)
+	{
+		int idx = s.cmds.commandDbPayload;
+		if (idx >= 0 && idx < static_cast<int>(Databases::EntityDb.size()))
+		{
+			auto& ent = Databases::EntityDb[idx];
+			if (ent.handle.Exists())
+			{
+				Vector3 cursorPos = SpoonerMode::spoonerModeCamera.RaycastForCoord(
+					Vector2(s.emptyMenuCursorX, s.emptyMenuCursorY), 0, 300.0f, 300.0f);
+				ent.handle.RequestControlOnce();
+				ent.handle.SetPosition(cursorPos);
+				ent.handle.PlaceOnGround();
+				if (ent.attachmentArgs.isAttached)
+					EntityManagement::DetachEntity(ent);
+			}
+		}
+	}
+
+	static const CmdHandler s_cmdHandlers[] = {
+		Cmd_None,                  // None (0)
+		Cmd_SelectEntity,          // SelectEntity (1)
+		Cmd_SelectEntityAndShowMenu, // SelectEntityAndShowMenu (2)
+		Cmd_RmbMenu_ManualEditing, // (3)
+		Cmd_RmbMenu_Attachment,    // (4)
+		Cmd_RmbMenu_TaskSequence,  // (5)
+		Cmd_RmbMenu_Wardrobe,      // (6)
+		Cmd_RmbMenu_Animations,    // (7)
+		Cmd_RmbMenu_Frozen,        // (8)
+		Cmd_RmbMenu_Collision,     // (9)
+		Cmd_RmbMenu_Copy,          // (10)
+		Cmd_RmbMenu_Delete,        // (11)
+		Cmd_RmbMenu_PlaceOnGround, // (12)
+		Cmd_RmbMenu_DbToggle,      // (13)
+		Cmd_RmbMenu_Detach,        // (14)
+		Cmd_RmbMenu_Engine,        // (15)
+		Cmd_RmbMenu_Lights,        // (16)
+		Cmd_RmbMenu_Repair,        // (17)
+		Cmd_RmbMenu_MenyooCustoms, // (18)
+		Cmd_EmptyMenu_PlaceEntityHere, // EmptyMenu_PlaceEntityHere (19)
+		Cmd_World_TimePreset,      // (20)
+		Cmd_World_WeatherSet,      // (21)
+		Cmd_World_WeatherReset,    // (22)
+		Cmd_World_SpeedSet,        // (23)
+		Cmd_SpawnFavourite,        // (24)
+		Cmd_View_GridSnap,         // (25)
+		Cmd_View_RotationSnap,     // (26)
+		Cmd_View_ModeSwitch,       // (27)
+		Cmd_View_DrawGrid,         // (28)
+		Cmd_CloseSpooner,          // (29)
+	};
+	static const int s_cmdHandlerCount = sizeof(s_cmdHandlers) / sizeof(s_cmdHandlers[0]);
+
+	static void ProcessCursorCommand(CursorCommand cmd, SharedState& s)
+	{
+		if (cmd == CursorCommand::None) return;
+		int idx = static_cast<int>(cmd);
+		if (idx >= 0 && idx < s_cmdHandlerCount)
+		{
+			if (auto handler = s_cmdHandlers[idx])
+				handler(s);
+		}
+	}
+
+// ═══════════════════════════════════════════════════════════════════
+//  Main Tick
+// ═══════════════════════════════════════════════════════════════════
 
 	void Tick()
 	{
-		bool suppressGameInput = false;
+		std::vector<CursorCommand> pendingCmds;
+		std::vector<SharedState> pendingSnapshots;
+		bool capturedGizmoOver = false, capturedGizmoUsing = false, capturedCtxSearch = false;
+		SpoonerMode::eEditMode capturedEditMode = SpoonerMode::eEditMode::Disabled;
+
+		auto freshFav = RefreshCaches_ScriptThread();
+
 		{
 			std::lock_guard<std::mutex> lock(g_Mutex);
+
+			// 
+			DrainQueue_ScriptThread(g_Shared, pendingCmds, pendingSnapshots);
+			g_Shared.cmds = {};
+
+			// Write any pending gizmo changes to selected entity
 			DrainPending_ScriptThread(g_Shared);
+			// Update current state cache
 			RefreshSnapshot_ScriptThread(g_Shared);
 
-			suppressGameInput = g_Visible && (
-				(g_Shared.editingState.mode == SpoonerMode::eEditMode::Gizmo && g_Shared.editingState.cameraLocked) ||
-				g_Shared.gizmoOver ||
-				g_Shared.gizmoUsing);
-		}
+			if (freshFav)
+			{
+				g_Shared.favouriteCache = std::move(*freshFav);
+				RefreshDbCache_ScriptThread(g_Shared);
+			}
 
-		if (suppressGameInput)
+			capturedGizmoOver = g_Shared.render.gizmoOver;
+			capturedGizmoUsing = g_Shared.render.gizmoUsing;
+			capturedCtxSearch = g_Shared.render.ctxSearchFocused;
+			capturedEditMode = g_Shared.render.editingState.mode;
+		}
+		
+		// Process any pending cursor commands
+		for (size_t i = 0; i < pendingCmds.size(); i++)
+			ProcessCursorCommand(pendingCmds[i], pendingSnapshots[i]);
+
+		// Processes any entity spawns in queue
+		CheckPendingSpawns_ScriptThread();
+
+		// Disable gizmo when native menu closes in cursor mode
+		if (Settings::bCursorMode && Menu::currentsub == SUB::CLOSED)
+			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+
+		// Disable player controls when using the gizmo or in cursor mode
+		if (g_Visible && (capturedCtxSearch || capturedEditMode == SpoonerMode::eEditMode::Gizmo || capturedGizmoOver || capturedGizmoUsing))
 			PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
 	}
+
+// ═══════════════════════════════════════════════════════════════════
+//  Public API
+// ═══════════════════════════════════════════════════════════════════
 
 	bool Initialize()
 	{
@@ -572,6 +1017,11 @@ namespace sub::Spooner::ImGuiSpooner
 	{
 		g_Visible = visible;
 		D3D11Hook::SetMenuVisible(visible);
+		if (!visible && g_ImGuiInitialized)
+		{
+			ImGui::GetIO().MouseDrawCursor = false;
+			while (ShowCursor(false) >= 0);
+		}
 	}
 
 	bool IsVisible()

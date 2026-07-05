@@ -121,6 +121,7 @@ std::string VkCodeToStr(UINT8 key)
 	case VirtualKey::X:  return ("X"); break;
 	case VirtualKey::Y:  return ("Y"); break;
 	case VirtualKey::Z:  return ("Z"); break;
+	case VirtualKey::Tab:  return ("Tab"); break;
 	case VirtualKey::Shift:  return ("Shift"); break;
 	case VirtualKey::Space:  return ("Space"); break;
 	}

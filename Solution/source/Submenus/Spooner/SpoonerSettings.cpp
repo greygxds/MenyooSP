@@ -47,6 +47,7 @@ namespace sub::Spooner
 		bool bSpawnStillPeds = true;
 		bool bAddToDbAsMissionEntities = true;
 		bool bKeepPositionWhenAttaching = false;
+		bool bCursorMode = false;
 		
 		bool bTeleportToReferenceWhenLoadingFile = true;
 
