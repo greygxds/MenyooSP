@@ -41,6 +41,7 @@ namespace sub::Spooner
 		extern bool bSpawnStillPeds;
 		extern bool bAddToDbAsMissionEntities;
 		extern bool bKeepPositionWhenAttaching;
+		extern bool bCursorMode;
 
 		extern bool bTeleportToReferenceWhenLoadingFile;
 

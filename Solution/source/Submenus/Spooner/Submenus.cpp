@@ -182,9 +182,8 @@ namespace sub
 
 	void Sub_SpoonerMain()
 		{
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
-			SpoonerMode::editingState.cameraLocked = false;
-			selectedEntity.handle = 0;
+		SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+		selectedEntity.handle = 0;
 			_searchStr.clear(); // Sub_SaveFiles _searchStr
 			dict3.clear(); // Sub_SaveFiles _dir
 
@@ -1176,9 +1175,10 @@ namespace sub
 		}*/
 		void Sub_SelectedEntityOps()
 		{
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
-			SpoonerMode::editingState.cameraLocked = false;
-			if (!selectedEntity.handle.Exists())
+			if (SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled) {
+				SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+			}
+		if (!selectedEntity.handle.Exists())
 			{
 				Menu::SetPreviousMenu();
 				return;

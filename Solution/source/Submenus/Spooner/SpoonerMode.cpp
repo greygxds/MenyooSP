@@ -91,6 +91,16 @@ namespace sub::Spooner
 			return false;
 		}
 
+		bool IsCursorKeyPressed()
+		{
+			if (!bEnabled) return false;
+			if (Menu::bitController) return false;
+			bool bInSpoonerMenu = std::find(std::begin(Menu::currentArray), std::end(Menu::currentArray), SUB::SPOONER_MAIN) != std::end(Menu::currentArray);
+			if (!bInSpoonerMenu)
+				return IsKeyJustUp(VirtualKey::Tab);
+			return false;
+		}
+
 		Vector3 SnapPos(Vector3 pos)
 		{
 			if (Settings::bGridSnapEnabled && Settings::gridSnapSize > 0.0f)
@@ -389,7 +399,10 @@ namespace sub::Spooner
 				Vector3 nextRot;
 
 				const Vector3& coordInFrontOfCam = freeCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
-				GTAentity entityInFrontOfCam = freeCam.RaycastForEntity(Vector2(0.0f, 0.0f), 0, 160.0f);
+				// don't raycast when in cursor mode
+				GTAentity entityInFrontOfCam = Settings::bCursorMode
+					? GTAentity()
+					: freeCam.RaycastForEntity(Vector2(0.0f, 0.0f), 0, 160.0f);
 
 				if (Menu::bitController) // If controller
 				{
@@ -674,16 +687,17 @@ namespace sub::Spooner
 					if (IS_DISABLED_CONTROL_PRESSED(0, INPUT_SPRINT))
 						movementSensitivity = 4.0f * movementSensitivity;
 					
-					if (editingState.mode != eEditMode::Keyboard && !(editingState.mode == eEditMode::Gizmo && editingState.cameraLocked))
+					// camera movement and rotation works only when not in Spooner Cursor mode
+					if (!Settings::bCursorMode)
 					{
-						nextOffset.x = GET_DISABLED_CONTROL_NORMAL(0, INPUT_MOVE_LR) * movementSensitivity;
-						nextOffset.y = -GET_DISABLED_CONTROL_NORMAL(0, INPUT_MOVE_UD) * movementSensitivity;
-						nextOffset.z = IsKeyDown(VirtualKey::X) ? movementSensitivity / 2 : IsKeyDown(VirtualKey::Z) ? -movementSensitivity / 2 : 0.0f;
-					}
+						// disable WASD movement when editing entity with keyboard
+						if (editingState.mode != eEditMode::Keyboard)
+						{
+							nextOffset.x = GET_DISABLED_CONTROL_NORMAL(0, INPUT_MOVE_LR) * movementSensitivity;
+							nextOffset.y = -GET_DISABLED_CONTROL_NORMAL(0, INPUT_MOVE_UD) * movementSensitivity;
+							nextOffset.z = IsKeyDown(VirtualKey::X) ? movementSensitivity / 2 : IsKeyDown(VirtualKey::Z) ? -movementSensitivity / 2 : 0.0f;
+						}
 
-					// blocks camera rotation while we are using the gizmo to edit entity pos / rot
-					if (!editingState.cameraLocked || editingState.mode != eEditMode::Gizmo)
-					{
 						float rotationSensitivity = Settings::cameraRotationSensitivityMouse;
 						nextRot.z = -GET_DISABLED_CONTROL_NORMAL(0, INPUT_LOOK_LR) * rotationSensitivity;
 						nextRot.x = -GET_DISABLED_CONTROL_NORMAL(0, INPUT_LOOK_UD) * rotationSensitivity;
@@ -733,6 +747,8 @@ namespace sub::Spooner
 							Menu::currentop = 2;
 						}
 
+						Menu::add_IB(VirtualKey::Tab, Settings::bCursorMode ? "Disable Cursor Mode" : "Enable Cursor Mode");
+
 						if (!bIsSomethingHeld)
 						{
 							Menu::add_IB(VirtualKey::M, "Place Marker");
@@ -754,8 +770,8 @@ namespace sub::Spooner
 						}
 					}
 
-					// does not draw the cursor when inside gizmo entity editing mode.
-					if (editingState.mode != eEditMode::Gizmo && (entityInFrontOfCam.Exists() || bIsSomethingHeld))
+					// does not draw the cursor when inside gizmo entity editing mode or when using spooner cursor mode.
+					if (editingState.mode != eEditMode::Gizmo && (entityInFrontOfCam.Exists() || bIsSomethingHeld) || !Settings::bCursorMode)
 					{
 						DRAW_RECT(0.5f, 0.5f, 0.02f, 0.002f, 0, 255, 0, 255, false);
 						DRAW_RECT(0.5f, 0.5f, 0.001f, 0.03f, 0, 255, 0, 255, false);
@@ -766,7 +782,7 @@ namespace sub::Spooner
 						auto indexInDb = EntityManagement::GetEntityIndexInDb(currentEnt);
 						bool isInDb = indexInDb >= 0;
 
-						if (IS_DISABLED_CONTROL_PRESSED(2, INPUT_CURSOR_ACCEPT))
+						if (!Settings::bCursorMode && IS_DISABLED_CONTROL_PRESSED(2, INPUT_CURSOR_ACCEPT))
 						{
 							if (!bIsSomethingHeld)
 							{
@@ -951,8 +967,8 @@ namespace sub::Spooner
 							Menu::NewSetMenu(SUB::SPOONER_SELECTEDENTITYOPS);
 						}
 					}
-					// does not draw the cursor when inside gizmo entity editing mode.
-					else if (editingState.mode != eEditMode::Gizmo)
+					// does not draw the cursor when inside gizmo entity editing mode or when using spooner cursor mode.
+					else if (editingState.mode != eEditMode::Gizmo && !Settings::bCursorMode)
 					{
 						DRAW_RECT(0.5f, 0.5f, 0.02f, 0.002f, 255, 255, 255, 255, false);
 						DRAW_RECT(0.5f, 0.5f, 0.001f, 0.03f, 255, 255, 255, 255, false);
@@ -980,6 +996,17 @@ namespace sub::Spooner
 		{
 			if (SpoonerMode::IsHotkeyPressed())
 				SpoonerMode::Toggle();
+
+			if (SpoonerMode::IsCursorKeyPressed())
+			{
+				bool wasCursorMode = Settings::bCursorMode;
+				Settings::bCursorMode = !wasCursorMode;
+				if (wasCursorMode && SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled)
+				{
+					Menu::NewSetMenu(SUB::CLOSED);
+					SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+				}
+			}
 
 			sub::Spooner::ImGuiSpooner::Tick();
 
@@ -1034,6 +1061,9 @@ namespace sub::Spooner
 		{
 			SpoonerMode::bEnabled = false;
 			sub::Spooner::ImGuiSpooner::SetVisible(false);
+			Settings::bCursorMode = false;
+			Menu::NewSetMenu(SUB::CLOSED);
+			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
 			auto& info = modelPreviewInfo;
 			for (auto it = info.previousEntities.begin(); it != info.previousEntities.end();)
 			{
@@ -1157,7 +1187,7 @@ namespace sub::Spooner
 				drawText("~y~Gizmo Mode ~s~(" + modeName + " Mode):");
 				drawText("~b~Left Click:~w~ Grab axis handle");
 				drawText("~b~R:~w~ Cycle mode");
-				drawText(editingState.cameraLocked ? "~b~C:~w~ Unlock camera" : "~b~C:~w~ Lock camera");
+				drawText(Settings::bCursorMode ? "~b~Tab:~w~ Disable cursor mode" : "~b~Tab:~w~ Enable cursor mode");
 				drawText(editingState.localSpace ? "~b~L:~w~ Edit in world space" : "~b~L:~w~ Edit in local space");
 				drawText("~b~ALT:~w~ Copy entity");
 				drawText("~b~B:~w~ Disable gizmo mode");
@@ -1183,7 +1213,6 @@ namespace sub::Spooner
 						editingState.mode = eEditMode::Disabled;
 						break;
 					}
-				editingState.cameraLocked = false;
 			}
 			lastBToggle = currentBToggle;
 
@@ -1204,12 +1233,6 @@ namespace sub::Spooner
 				}
 			}
 			lastRToggle = currentRToggle;
-
-			// toggling camera lock
-			if (editingState.mode != eEditMode::Disabled && IsKeyJustUp(VirtualKey::C))
-			{
-				editingState.cameraLocked = !editingState.cameraLocked;
-			}
 
 			// toggling world / local space editing
 			if (editingState.mode != eEditMode::Disabled && IsKeyJustUp(VirtualKey::L))

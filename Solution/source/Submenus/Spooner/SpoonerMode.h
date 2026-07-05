@@ -40,7 +40,6 @@ namespace sub::Spooner
 			eEditMode mode = eEditMode::Disabled;
 			eTransformMode transformMode = eTransformMode::Position;
 			bool localSpace = false;
-			bool cameraLocked = false;
 			float precisionPos = 0.1f;
 			float precisionRot = 1.0f;
 			float precisionScale = 0.1f;
@@ -62,6 +61,7 @@ namespace sub::Spooner
 		SpoonerStats GetSpoonerStats();
 
 		bool IsHotkeyPressed();
+		bool IsCursorKeyPressed();
 
 		struct ModelPreviewInfoStructure
 		{
