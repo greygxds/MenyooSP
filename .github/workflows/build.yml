@@ -107,9 +107,9 @@ jobs:
           $releaseTag = "build-$version"
 
           git fetch --tags
-          $existingSha = git rev-list -n 1 $releaseTag 2>$null
-          if ($existingSha) {
-            $existingSha = $existingSha.Trim()
+          $existingTag = git tag --list $releaseTag
+          if ($existingTag) {
+            $existingSha = (git rev-parse "${releaseTag}^{}").Trim()
             if ($existingSha -ne "${{ github.sha }}") {
               throw "Tag $releaseTag already points to $existingSha, not ${{ github.sha }}"
             }
