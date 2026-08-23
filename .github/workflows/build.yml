@@ -47,7 +47,7 @@ jobs:
           "build_number=$buildNumber" >> $env:GITHUB_OUTPUT
 
       - name: Generate solution
-        run: generate.bat
+        run: .\generate.bat
 
       - name: Verify generated solution
         shell: pwsh
