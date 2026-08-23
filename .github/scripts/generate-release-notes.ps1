@@ -46,7 +46,7 @@ $categories = [ordered]@{
     'Other changes' = @()
 }
 
-foreach ($commit in @(git log --first-parent --no-decorate --format="%H%x09%s" $range)) {
+foreach ($commit in @(git log --no-merges --no-decorate --format="%H%x09%s" $range)) {
     $parts = $commit -split "`t", 2
     if ($parts.Count -ne 2) {
         continue
@@ -68,7 +68,7 @@ foreach ($commit in @(git log --first-parent --no-decorate --format="%H%x09%s" $
     }
 
     $shortSha = $sha.Substring(0, 7)
-    $link = "[`$shortSha`](https://github.com/$repository/commit/$sha)"
+    $link = ('[`{0}`](https://github.com/{1}/commit/{2})' -f $shortSha, $repository, $sha)
     $categories[$category] += "- $link $subject"
 }
 
