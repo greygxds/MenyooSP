@@ -2822,7 +2822,7 @@ namespace sub
 			nodeDecleration.append_attribute("encoding") = "ISO-8859-1";
 
 			auto nodeVehicle = doc.append_child("Vehicle"); // Root
-			nodeVehicle.append_attribute("menyoo_ver") = MENYOO_CURRENT_VER_;
+			nodeVehicle.append_attribute("menyoo_ver") = MENYOO_VERSION_TEXT;
 
 			const Model& eModel = ev.Model();
 			nodeVehicle.append_child("ModelHash").text() = IntToHexString(eModel.hash, true).c_str();

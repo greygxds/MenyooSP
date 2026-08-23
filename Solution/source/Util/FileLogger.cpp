@@ -142,7 +142,7 @@ namespace ige
 			tm t;
 			localtime_s(&t, &now);
 
-			myFile << "Menyoo " << MENYOO_CURRENT_VER_ << std::endl;
+			myFile << "Menyoo " << MENYOO_VERSION_TEXT << " (" << MENYOO_COMMIT_SHA << ")" << std::endl;
 			myFile << "Gameversion " << std::to_string(GTAmemory::GetGameVersion()) << std::endl;
 			//myFile << "Player Name: " << PLAYER::GET_PLAYER_NAME(-1) << std::endl;
 			myFile << "Log file created " << std::setfill('0') << std::setw(2) << t.tm_mday << "/" << std::setfill('0') << std::setw(2) << (t.tm_mon + 1) << "/" << t.tm_year + 1900 << std::endl;

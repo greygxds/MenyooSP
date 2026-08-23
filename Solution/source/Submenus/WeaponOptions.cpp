@@ -1451,7 +1451,7 @@ namespace sub
 			nodeDecleration.append_attribute("encoding") = "ISO-8859-1";
 
 			auto nodeLoadout = doc.append_child("Loadout"); // Root
-			nodeLoadout.append_attribute("menyoo_ver") = MENYOO_CURRENT_VER_;
+			nodeLoadout.append_attribute("menyoo_ver") = MENYOO_VERSION_TEXT;
 
 			std::vector<s_Weapon_Components_Tint> wct;
 			ped.StoreWeaponsInArray(wct);
