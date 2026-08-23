@@ -46,7 +46,7 @@ $categories = [ordered]@{
     'Other changes' = @()
 }
 
-foreach ($commit in @(git log --first-parent --no-decorate --format="%H%x09%s" $range)) {
+foreach ($commit in @(git log --no-merges --no-decorate --format="%H%x09%s" $range)) {
     $parts = $commit -split "`t", 2
     if ($parts.Count -ne 2) {
         continue
