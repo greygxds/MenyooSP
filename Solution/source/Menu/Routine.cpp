@@ -101,7 +101,7 @@ bool defaultPedSet = false;
 
 void Menu::justopened()
 {
-	Game::Print::PrintBottomLeft(oss_ << "Menyoo PC v" << MENYOO_CURRENT_VER_ << " by ItsJustCurtis and MAFINS");
+	Game::Print::PrintBottomLeft(oss_ << "Menyoo PC (" << MENYOO_VERSION_TEXT << ") by ItsJustCurtis and MAFINS (greygods fork)");
 
 	SET_AUDIO_FLAG("IsDirectorModeActive", true);
 

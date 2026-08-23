@@ -1,0 +1,156 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  BUILD_CONFIGURATION: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build_number: ${{ steps.version.outputs.build_number }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Generate build version header
+        id: version
+        shell: pwsh
+        run: |
+          $buildNumber = [int]"${{ github.run_number }}"
+          $buildDate = (Get-Date).ToUniversalTime().ToString('yyyy.MM.dd')
+          $version = "${buildDate}_$buildNumber"
+          $sha = "${{ github.sha }}".Substring(0, 8)
+          @"
+          #pragma once
+          #define MENYOO_BUILD_NUMBER $buildNumber
+          #define MENYOO_VERSION_TEXT "Build $version"
+          #define MENYOO_COMMIT_SHA "$sha"
+          "@ | Set-Content -Encoding ascii Solution/source/build_version.h
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "build_number=$buildNumber" >> $env:GITHUB_OUTPUT
+
+      - name: Generate solution
+        run: generate.bat
+
+      - name: Verify generated solution
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "Solution/Menyoo.sln")) {
+            throw "Generated solution is missing"
+          }
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Build
+        run: >
+          msbuild /m
+          /p:Configuration=${{ env.BUILD_CONFIGURATION }}
+          /p:Platform=x64
+          Solution/Menyoo.sln
+          -verbosity:minimal
+
+      - name: Verify build output
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "Solution/source/_Build/bin/Release/Menyoo.asi")) {
+            throw "Release build did not produce Menyoo.asi"
+          }
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: MenyooSP-build-${{ steps.version.outputs.version }}
+          retention-days: 14
+          path: |
+            Solution/source/_Build/bin/Release/
+            !Solution/source/_Build/bin/Release/Trash/
+            !Solution/source/_Build/bin/Release/*.map
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: windows-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Calculate release identity
+        shell: pwsh
+        run: |
+          $version = "${{ needs.build.outputs.version }}"
+          $buildNumber = "${{ needs.build.outputs.build_number }}"
+          $releaseTag = "build-$version"
+
+          git fetch --tags
+          $existingSha = git rev-list -n 1 $releaseTag 2>$null
+          if ($existingSha) {
+            $existingSha = $existingSha.Trim()
+            if ($existingSha -ne "${{ github.sha }}") {
+              throw "Tag $releaseTag already points to $existingSha, not ${{ github.sha }}"
+            }
+
+            Write-Host "Tag $releaseTag already points to this commit; reusing it"
+          }
+
+          "BUILD_NUMBER=$buildNumber" >> $env:GITHUB_ENV
+          "VERSION=$version" >> $env:GITHUB_ENV
+          "RELEASE_TAG=$releaseTag" >> $env:GITHUB_ENV
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: MenyooSP-build-${{ needs.build.outputs.version }}
+          path: MenyooSP
+
+      - name: Verify downloaded artifact
+        shell: pwsh
+        run: |
+          if (-not (Get-ChildItem -Path "MenyooSP" -Filter "Menyoo.asi" -Recurse -File)) {
+            throw "Downloaded artifact does not contain Menyoo.asi"
+          }
+
+      - name: Package release
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path "MenyooSP/*" `
+            -DestinationPath "MenyooSP.zip"
+
+      - name: Generate release notes
+        shell: pwsh
+        run: .github/scripts/generate-release-notes.ps1
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          target_commitish: ${{ github.sha }}
+          name: Build ${{ env.VERSION }}
+          body_path: release-notes.md
+          overwrite_files: true
+          files: MenyooSP.zip

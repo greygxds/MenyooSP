@@ -1,25 +1,25 @@
-[![GitHub Current Version)](https://img.shields.io/github/v/release/itsjustcurtis/MenyooSP?label=Release%20Version&logo=GitHub)](https://github.com/itsjustcurtis/MenyooSP/releases/latest/download/MenyooSP.zip)
-[![GitHub all releases](https://img.shields.io/github/downloads/itsjustcurtis/MenyooSP/total?label=Total%20Downloads&logo=GitHub)](https://github.com/itsjustcurtis/MenyooSP/releases)
+[![GitHub Current Version)](https://img.shields.io/github/v/release/greygxds/MenyooSP?label=Release%20Version&logo=GitHub)](https://github.com/greygxds/MenyooSP/releases/latest/download/MenyooSP.zip)
+[![GitHub all releases](https://img.shields.io/github/downloads/greygxds/MenyooSP/total?label=Total%20Downloads&logo=GitHub)](https://github.com/greygxds/MenyooSP/releases)
 
-<img width="1280" height="720" alt="banner_FINALB" src="https://github.com/user-attachments/assets/6ce3c340-a0a3-4f47-90a7-37e1f4d674f3" />
+# Menyoo PC (greygods fork)
+## [DOWNLOAD LATEST RELEASE](https://github.com/greygxds/MenyooSP/releases/latest/download/MenyooSP.zip)
+#### Trainer for Grand Theft Auto V.
+This fork is being updated separately from [ItsJustCurtis version (aka the Menyoo 2.0)]((https://github.com/itsjustcurtis/MenyooSP)). Some features from it might be merged into ItsJustCurtis's fork or vice-versa. 
 
-
-# Menyoo PC - [DOWNLOAD LATEST RELEASE](https://github.com/itsjustcurtis/MenyooSP/releases/latest/download/MenyooSP.zip)
-# Menyoo PC - [DOWNLOAD LATEST PRE-RELEASE](https://www.patreon.com/c/ItsJustCurtis)
-### a.k.a. MenyooSP
-#### Trainer for Grand Theft Auto V (Single-player and FiveM).
 ---
-
-## Community
-
-- [Discord](https://discord.gg/v29AwqAemT)
-- [Patreon](https://www.patreon.com/c/ItsJustCurtis)
 
 ## Requirements
 - [OpenIV and its ASI Loader](https://openiv.com/)
 - [ScriptHookV by Alexander Blade](http://www.dev-c.com/gtav/scripthookv/)
 - [Battleye disabled in the Rockstar Launcher Settings](https://staticg.sportskeeda.com/editor/2024/11/bdc35-17305620610616-1920.jpg)
-- GTA V Legacy Version 3095.0 or newer OR GTA V Enhanced
+- GTA V Legacy Version 3095.0 or newer
+    - GTA V Enhanced might work, but it's not officially supported by me and it may just not work at all. [ItsJustCurtis's Menyoo fork](https://github.com/itsjustcurtis/MenyooSP) supports Enhanced.
+
+## Install
+Copy the Menyoo.asi file along with the menyooStuff folder to the Grand Theft Auto V game directory.
+**IMPORTANT:** Please make sure that you have asiloader and ScriptHookV installed and that they are up to date.
+
+# Developer Information
 
 ## Building from Source
 
@@ -32,7 +32,7 @@
 The repo uses git submodules for `pugixml`, `simpleini`, `dirent`, and `MinHook`. Clone recursively so they're pulled in automatically:
 
 ```sh
-git clone --recurse-submodules https://github.com/itsjustcurtis/MenyooSP.git
+git clone --recurse-submodules https://github.com/greygxds/MenyooSP.git
 ```
 
 If you already cloned without `--recurse-submodules`, pull the submodules in afterwards:
@@ -64,22 +64,26 @@ Output:
 ### Runtime requirement
 Menyoo links the dynamic Visual C++ runtime (`/MD`). Targets must have the **Microsoft Visual C++ Redistributable (x64)** installed — Steam-installed GTA V already ships it, so end users normally don't need to install anything extra.
 
-## Install
- Copy the Menyoo.asi file along with the menyooStuff folder to the Grand Theft Auto V game directory.  
- **IMPORTANT:** Please make sure that you have asiloader and ScriptHookV installed and that they are up to date.
-
 ## Versioning
-vM.m.p-a/b/rcN
-- M - Major: Changes to the core running of the script, and may not be compatible with older builds.
-- m - Minor: Feature update that adds functionality to the .asi only
-- p - Patch: Bug fixes with no new features.
-- a - Alpha: Unstable pre-release with new features not fully tested
-- b - Beta: Stable pre-release released for beta testing
-- rc - Release Candidate: Stable pre-release with no planned changes ready for public release
-- N - Iteration: Numerical iteration of pre-release. 
+Releases use monotonically increasing build numbers:
 
-## Download
-Compiled binary material can be found at [releases](https://github.com/itsjustcurtis/MenyooSP/releases).
+```text
+Build YYYY.MM.DD_N
+```
+
+Release tags use the matching `build-YYYY.MM.DD_N` format. Each release contains the
+standard `MenyooSP.zip` archive so the latest-release download link remains
+stable.
+
+Build numbers are assigned by the GitHub Actions build workflow from its run
+number. Every build, including `Development` branch and pull request builds,
+receives a number and uploads a 14-day Actions artifact. A successful push to
+`main` additionally creates a tag and GitHub release. Number gaps are expected
+when a workflow run fails or is cancelled.
+
+The application also records the short Git commit SHA so every build can be
+traced back to its exact source revision. Local builds are shown as
+`Development`.
 
 ## License
 The majority of the source code is licensed under the [GNU GPL v3](LICENSE.txt) license.

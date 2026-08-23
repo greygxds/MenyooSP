@@ -15,9 +15,13 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-
-
-#define MENYOO_CURRENT_VER_ "2.3.1b2"
+#if __has_include("build_version.h")
+#include "build_version.h"
+#else
+#define MENYOO_BUILD_NUMBER 0
+#define MENYOO_VERSION_TEXT "Development"
+#define MENYOO_COMMIT_SHA "local"
+#endif
 
 #define GAME_PLAYERCOUNT 30
 
