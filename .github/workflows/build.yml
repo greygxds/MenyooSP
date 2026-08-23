@@ -26,7 +26,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          submodules: recursive
+          submodules: false
+
+      - name: Validate and initialize submodules
+        shell: pwsh
+        run: |
+          $declaredPaths = [System.Collections.Generic.HashSet[string]]::new()
+          foreach ($line in Get-Content .gitmodules) {
+            if ($line -match '^\s*path\s*=\s*(.+?)\s*$') {
+              [void]$declaredPaths.Add($Matches[1])
+            }
+          }
+
+          $trackedPaths = git ls-files -s | ForEach-Object {
+            $parts = $_ -split '\s+', 4
+            if ($parts.Count -eq 4 -and $parts[0] -eq '160000') {
+              $parts[3]
+            }
+          }
+
+          foreach ($path in $trackedPaths) {
+            if (-not $declaredPaths.Contains($path)) {
+              throw "Tracked submodule '$path' has no matching entry in .gitmodules"
+            }
+          }
+
+          git submodule sync --recursive
+          git submodule update --init --recursive
 
       - name: Generate build version header
         id: version
