@@ -12,7 +12,9 @@
 #include <atomic>
 #include <mutex>
 #include <cmath>
+#include <cstring>
 #include <algorithm>
+#include <optional>
 #include <vector>
 #include <pugixml/src/pugixml.hpp>
 
@@ -20,9 +22,6 @@
 #include "SpoonerMode.h"
 #include "SpoonerSettings.h"
 #include "..\..\Scripting\GTAentity.h"
-#include "..\..\Scripting\GTAprop.h"
-#include "..\..\Scripting\GTAped.h"
-#include "..\..\Scripting\GTAvehicle.h"
 #include "..\..\Scripting\Model.h"
 #include "..\..\Scripting\Camera.h"
 #include "..\..\Scripting\World.h"
@@ -47,11 +46,11 @@ namespace sub::Spooner::ImGuiSpooner
 	static std::mutex g_Mutex;
 	SharedState g_Shared;
 
-	void SetCommand(SharedState& s, CursorCommand cmd, int intP, int dbP, float floatP, FavouriteSpawnPayload spawnP)
+	void SetCommand(SharedState& state, CursorCommand command, int intPayload, int dbPayload, float floatPayload, FavouriteSpawnPayload spawnPayload)
 	{
-		auto& q = s.cmds.queue;
-		if (q.size() >= 16) return;
-		q.push_back(QueuedCommand{cmd, intP, dbP, floatP, spawnP});
+		auto& queue = state.cmds.queue;
+		if (queue.size() >= 16) return;
+		queue.push_back(QueuedCommand{command, intPayload, dbPayload, floatPayload, spawnPayload, state.cursorScreenX, state.cursorScreenY});
 	}
 
 	static std::atomic<bool> g_Visible{ false };
@@ -65,8 +64,8 @@ namespace sub::Spooner::ImGuiSpooner
 	{
 		Hash modelHash = 0;
 		uint8_t category = 0;
+		std::string name;
 		DWORD startTime = 0;
-		Vector3 position{};
 		bool active = false;
 	};
 	static PendingSpawn g_PendingSpawn;
@@ -267,10 +266,10 @@ namespace sub::Spooner::ImGuiSpooner
 			BuildTransformMatrix(s.cache.position, s.cache.rotation, Vector3(1.0f, 1.0f, 1.0f), matrix);
 
 			float deltaMatrix[16]{};
-			float snapMatrix[3] = { Settings::gridSnapSize, Settings::gridSnapSize, Settings::gridSnapSize };
+			float snapMatrix[3] = { s.render.gridSnapSize, s.render.gridSnapSize, s.render.gridSnapSize };
 
 			ImGuizmo::Manipulate(viewMat, projMat, op, gizmoMode, matrix, deltaMatrix,
-				(Settings::bGridSnapEnabled && Settings::gridSnapSize > 0.0f) ? snapMatrix : nullptr);
+				(s.render.gridSnapEnabled && s.render.gridSnapSize > 0.0f) ? snapMatrix : nullptr);
 
 			if (ImGuizmo::IsUsing())
 			{
@@ -303,10 +302,10 @@ namespace sub::Spooner::ImGuiSpooner
 			}
 
 			float oldRot[3] = { s_LastEuler[0], s_LastEuler[1], s_LastEuler[2] };
-			float snapMatrix[3] = { Settings::rotationSnapDegrees, Settings::rotationSnapDegrees, Settings::rotationSnapDegrees };
+			float snapMatrix[3] = { s.render.rotationSnapDegrees, s.render.rotationSnapDegrees, s.render.rotationSnapDegrees };
 			
 			ImGuizmo::Manipulate(viewMat, projMat, op, gizmoMode, s_DragMatrix, nullptr,
-				(Settings::bGridSnapEnabled && Settings::rotationSnapDegrees > 0.0f) ? snapMatrix : nullptr);
+				(s.render.gridSnapEnabled && s.render.rotationSnapDegrees > 0.0f) ? snapMatrix : nullptr);
 
 			if (ImGuizmo::IsUsing())
 			{
@@ -610,6 +609,10 @@ namespace sub::Spooner::ImGuiSpooner
 
 		s.render.editingState = SpoonerMode::editingState;
 		s.render.cursorModeEnabled = Settings::bCursorMode;
+		s.render.gridSnapEnabled = Settings::bGridSnapEnabled;
+		s.render.gridSnapSize = Settings::gridSnapSize;
+		s.render.rotationSnapDegrees = Settings::rotationSnapDegrees;
+		s.render.drawGrid = Settings::bDrawGrid;
 
 		SpoonerEntity& sel = selectedEntity;
 		s.cache.entityHandle = sel.handle.Handle();
@@ -656,7 +659,7 @@ namespace sub::Spooner::ImGuiSpooner
 	}
 
 	// ── Favourite Cache Refresh ────────────────────────────────────
-	// Occurs every 1800 ticks, so on average 30 seconds
+	// Refresh the XML-backed lists immediately, then every 30 seconds.
 
 	static void RefreshFavouriteCache_ScriptThread(FavouriteCache& cache)
 	{
@@ -699,236 +702,281 @@ namespace sub::Spooner::ImGuiSpooner
 		{
 			auto& ent = Databases::EntityDb[i];
 			if (ent.handle.Exists())
-				s.dbEntityCache.push_back({ ent.hashName, i });
+				s.dbEntityCache.push_back({ ent.hashName, ent.handle.Handle() });
 		}
 	}
 
 	static std::optional<FavouriteCache> RefreshCaches_ScriptThread()
 	{
-		static int cacheFrameCounter = 0;
-		if (++cacheFrameCounter < 1800)
+		static DWORD lastRefresh = 0;
+		static bool hasRefreshed = false;
+		const DWORD now = GetTickCount();
+		if (hasRefreshed && now - lastRefresh < 30000)
 			return std::nullopt;
-		cacheFrameCounter = 0;
+		lastRefresh = now;
+		hasRefreshed = true;
 		FavouriteCache cache;
 		RefreshFavouriteCache_ScriptThread(cache);
 		return cache;
 	}
 
-	static void DrainQueue_ScriptThread(SharedState& s, std::vector<CursorCommand>& cmds, std::vector<SharedState>& snapshots)
+	static std::vector<QueuedCommand> DrainQueue_ScriptThread(SharedState& s)
 	{
 		std::vector<QueuedCommand> localQueue;
 		localQueue.swap(s.cmds.queue);
-		cmds.reserve(localQueue.size());
-		snapshots.reserve(localQueue.size());
-		for (auto& qc : localQueue)
-		{
-			s.cmds.commandIntPayload = qc.intPayload;
-			s.cmds.commandDbPayload = qc.dbPayload;
-			s.cmds.commandFloatPayload = qc.floatPayload;
-			s.cmds.spawnPayload = qc.spawnPayload;
-			snapshots.push_back(s);
-			cmds.push_back(qc.cmd);
-		}
+		return localQueue;
 	}
 
 // ═══════════════════════════════════════════════════════════════════
 //  Cursor Command Processing (dispatch table)
 // ═══════════════════════════════════════════════════════════════════
 
-	using CmdHandler = void(*)(const SharedState&);
+	using CmdHandler = void(*)(const QueuedCommand&);
 
-	static void Cmd_None(const SharedState&) {}
+	static void Cmd_None(const QueuedCommand&) {}
 
 	// ── RMB entity commands ──
-	static void Cmd_RmbMenu_ManualEditing(const SharedState&) { Menu::NewSetMenu(SUB::SPOONER_MANUALEDITING); }
-	static void Cmd_RmbMenu_Attachment(const SharedState&)    { Menu::NewSetMenu(SUB::SPOONER_ATTACHMENTOPS); }
-	static void Cmd_RmbMenu_TaskSequence(const SharedState&)  { Menu::NewSetMenu(SUB::SPOONER_TASKSEQUENCE_TASKLIST); }
-	static void Cmd_RmbMenu_Wardrobe(const SharedState&)      { Submenus::SetEnt241(); Menu::NewSetMenu(SUB::COMPONENTS); }
-	static void Cmd_RmbMenu_Animations(const SharedState&)    { Submenus::SetEnt241(); Menu::NewSetMenu(SUB::ANIMATIONSUB); }
-	static void Cmd_RmbMenu_Frozen(const SharedState&)        { if (selectedEntity.handle.Exists()) selectedEntity.handle.FreezePosition(!selectedEntity.handle.IsPositionFrozen()); }
-	static void Cmd_RmbMenu_Collision(const SharedState&)     { if (selectedEntity.handle.Exists()) selectedEntity.handle.SetIsCollisionEnabled(!selectedEntity.handle.GetIsCollisionEnabled()); }
-	static void Cmd_RmbMenu_Copy(const SharedState&)          { if (selectedEntity.handle.Exists()) EntityManagement::CopyEntity(selectedEntity, EntityManagement::GetEntityIndexInDb(selectedEntity) >= 0, true, Submenus::_copyEntTexterValue); }
-	static void Cmd_RmbMenu_Delete(const SharedState&)        { if (selectedEntity.handle.Exists()) { selectedEntity.handle.RequestControl(600); EntityManagement::DeleteEntity(selectedEntity); } }
-	static void Cmd_RmbMenu_PlaceOnGround(const SharedState&) { if (selectedEntity.handle.Exists()) selectedEntity.handle.PlaceOnGround(); }
-	static void Cmd_RmbMenu_DbToggle(const SharedState&)      { SpoonerEntity& sel = selectedEntity; if (!sel.handle.Exists()) return; int idx = EntityManagement::GetEntityIndexInDb(sel); if (idx >= 0) EntityManagement::RemoveEntityFromDb(sel); else EntityManagement::AddEntityToDb(sel, Settings::bAddToDbAsMissionEntities); }
-	static void Cmd_RmbMenu_Detach(const SharedState&)        { auto& sel = selectedEntity; if (!sel.handle.Exists()) return; EntityManagement::DetachEntity(sel); }
-	static void Cmd_RmbMenu_Engine(const SharedState&)        { if (selectedEntity.handle.Exists() && static_cast<EntityType>(selectedEntity.handle.Type()) == EntityType::VEHICLE) { BOOL running = GET_IS_VEHICLE_ENGINE_RUNNING(selectedEntity.handle.Handle()); SET_VEHICLE_ENGINE_ON(selectedEntity.handle.Handle(), !running, true, true); } }
-	static void Cmd_RmbMenu_Lights(const SharedState&)        { if (selectedEntity.handle.Exists() && static_cast<EntityType>(selectedEntity.handle.Type()) == EntityType::VEHICLE) { BOOL lightsOn = FALSE, highbeamsOn = FALSE; GET_VEHICLE_LIGHTS_STATE(selectedEntity.handle.Handle(), &lightsOn, &highbeamsOn); SET_VEHICLE_LIGHTS(selectedEntity.handle.Handle(), lightsOn ? 4 : 3); } }
-	static void Cmd_RmbMenu_Repair(const SharedState&)        { if (selectedEntity.handle.Exists() && static_cast<EntityType>(selectedEntity.handle.Type()) == EntityType::VEHICLE) SET_VEHICLE_FIXED(selectedEntity.handle.Handle()); }
-	static void Cmd_RmbMenu_MenyooCustoms(const SharedState&) { Submenus::SetEnt12(); Menu::NewSetMenu(SUB::MODSHOP); }
+	static void Cmd_RmbMenu_ManualEditing(const QueuedCommand&) { SpoonerMode::OpenMenu(SUB::SPOONER_MANUALEDITING); }
+	static void Cmd_RmbMenu_Attachment(const QueuedCommand&)    { SpoonerMode::OpenMenu(SUB::SPOONER_ATTACHMENTOPS); }
+	static void Cmd_RmbMenu_TaskSequence(const QueuedCommand&)  { SpoonerMode::OpenMenu(SUB::SPOONER_TASKSEQUENCE_TASKLIST); }
+	static void Cmd_RmbMenu_Wardrobe(const QueuedCommand&)      { Submenus::SetSelectedEntityAsActivePed(); SpoonerMode::OpenMenu(SUB::COMPONENTS); }
+	static void Cmd_RmbMenu_Animations(const QueuedCommand&)    { Submenus::SetSelectedEntityAsActivePed(); SpoonerMode::OpenMenu(SUB::ANIMATIONSUB); }
+	static void Cmd_RmbMenu_Frozen(const QueuedCommand&)        { if (selectedEntity.handle.Exists()) selectedEntity.handle.FreezePosition(!selectedEntity.handle.IsPositionFrozen()); }
+	static void Cmd_RmbMenu_Collision(const QueuedCommand&)     { if (selectedEntity.handle.Exists()) selectedEntity.handle.SetIsCollisionEnabled(!selectedEntity.handle.GetIsCollisionEnabled()); }
+	static void Cmd_RmbMenu_Copy(const QueuedCommand&)
+	{
+		if (!selectedEntity.handle.Exists()) return;
+		selectedEntity = EntityManagement::CopyEntity(
+			selectedEntity,
+			EntityManagement::GetEntityIndexInDb(selectedEntity) >= 0,
+			true,
+			Submenus::_copyEntTexterValue);
+	}
+	static void Cmd_RmbMenu_Delete(const QueuedCommand&)
+	{
+		if (!selectedEntity.handle.Exists()) return;
+		selectedEntity.handle.RequestControl(600);
+		EntityManagement::DeleteEntity(selectedEntity);
+		SpoonerMode::ResetSelectedEntity();
+		SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+	}
+	static void Cmd_RmbMenu_PlaceOnGround(const QueuedCommand&) { if (selectedEntity.handle.Exists()) selectedEntity.handle.PlaceOnGround(); }
+	static void Cmd_RmbMenu_DbToggle(const QueuedCommand&)
+	{
+		if (!selectedEntity.handle.Exists()) return;
+		const int index = EntityManagement::GetEntityIndexInDb(selectedEntity);
+		if (index >= 0)
+			EntityManagement::RemoveEntityFromDb(selectedEntity);
+		else
+			EntityManagement::AddEntityToDb(selectedEntity, Settings::bAddToDbAsMissionEntities);
+	}
+	static void Cmd_RmbMenu_Detach(const QueuedCommand&)
+	{
+		if (selectedEntity.handle.Exists())
+			EntityManagement::DetachEntity(selectedEntity);
+	}
+	static void Cmd_RmbMenu_Engine(const QueuedCommand&)
+	{
+		if (!selectedEntity.handle.Exists() || static_cast<EntityType>(selectedEntity.handle.Type()) != EntityType::VEHICLE) return;
+		const BOOL running = GET_IS_VEHICLE_ENGINE_RUNNING(selectedEntity.handle.Handle());
+		SET_VEHICLE_ENGINE_ON(selectedEntity.handle.Handle(), !running, true, true);
+	}
+	static void Cmd_RmbMenu_Lights(const QueuedCommand&)
+	{
+		if (!selectedEntity.handle.Exists() || static_cast<EntityType>(selectedEntity.handle.Type()) != EntityType::VEHICLE) return;
+		BOOL lightsOn = FALSE, highbeamsOn = FALSE;
+		GET_VEHICLE_LIGHTS_STATE(selectedEntity.handle.Handle(), &lightsOn, &highbeamsOn);
+		SET_VEHICLE_LIGHTS(selectedEntity.handle.Handle(), lightsOn ? 4 : 3);
+	}
+	static void Cmd_RmbMenu_Repair(const QueuedCommand&)
+	{
+		if (selectedEntity.handle.Exists() && static_cast<EntityType>(selectedEntity.handle.Type()) == EntityType::VEHICLE)
+			SET_VEHICLE_FIXED(selectedEntity.handle.Handle());
+	}
+	static void Cmd_RmbMenu_MenyooCustoms(const QueuedCommand&) { Submenus::SetSelectedEntityAsVehicleTarget(); SpoonerMode::OpenMenu(SUB::MODSHOP); }
 
 	// ── World commands ──
-	static void Cmd_World_TimePreset(const SharedState& s)
+	static void Cmd_World_TimePreset(const QueuedCommand& command)
 	{
-		static const int timePresets[4][2] = {{6,0},{12,0},{19,0},{23,0}};
-		int idx = s.cmds.commandIntPayload;
-		if (idx >= 0 && idx < 4)
+		static const int timePresets[4][2] = {{6, 0}, {12, 0}, {19, 0}, {23, 0}};
+		const int index = command.intPayload;
+		if (index < 0 || index >= 4) return;
+
+		NETWORK_OVERRIDE_CLOCK_TIME(timePresets[index][0], timePresets[index][1], 0);
+		if (pauseClock)
 		{
-			NETWORK_OVERRIDE_CLOCK_TIME(timePresets[idx][0], timePresets[idx][1], 0);
-			if (pauseClock)
-			{
-				pauseClockH = static_cast<UINT8>(timePresets[idx][0]);
-				pauseClockM = static_cast<UINT8>(timePresets[idx][1]);
-			}
+			pauseClockH = static_cast<UINT8>(timePresets[index][0]);
+			pauseClockM = static_cast<UINT8>(timePresets[index][1]);
 		}
 	}
-	static void Cmd_World_WeatherSet(const SharedState& s)
+	static void Cmd_World_WeatherSet(const QueuedCommand& command)
 	{
-		int idx = s.cmds.commandIntPayload;
-		if (idx >= 0 && idx < (int)World::sWeatherNames.size())
-			World::SetWeather(World::sWeatherNames[idx].second);
+		const int index = command.intPayload;
+		if (index >= 0 && index < static_cast<int>(World::sWeatherNames.size()))
+			World::SetWeather(World::sWeatherNames[index].second);
 	}
-	static void Cmd_World_WeatherReset(const SharedState&) { World::ClearWeatherOverride(); }
-	static void Cmd_World_SpeedSet(const SharedState& s)   { SET_TIME_SCALE(s.cmds.commandFloatPayload); }
+	static void Cmd_World_WeatherReset(const QueuedCommand&) { World::ClearWeatherOverride(); }
+	static void Cmd_World_SpeedSet(const QueuedCommand& command)   { SET_TIME_SCALE(command.floatPayload); }
 
 	// ── Spawn commands ──
-	static void Cmd_SpawnFavourite(const SharedState& s)
+	static void Cmd_SpawnFavourite(const QueuedCommand& command)
 	{
 		if (g_PendingSpawn.active) return;
-		Vector3 pos = SpoonerMode::spoonerModeCamera.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
-		REQUEST_MODEL(s.cmds.spawnPayload.modelHash);
-		g_PendingSpawn = { s.cmds.spawnPayload.modelHash, s.cmds.spawnPayload.category, GetTickCount(), pos, true };
+
+		REQUEST_MODEL(command.spawnPayload.modelHash);
+		g_PendingSpawn = {
+			command.spawnPayload.modelHash,
+			command.spawnPayload.category,
+			command.spawnPayload.name,
+			GetTickCount(),
+			true
+		};
 	}
 
 	static void CheckPendingSpawns_ScriptThread()
 	{
 		if (!g_PendingSpawn.active) return;
 
-		DWORD now = GetTickCount();
-		if (now - g_PendingSpawn.startTime > 3000)
+		if (GetTickCount() - g_PendingSpawn.startTime > 3000)
 		{
+			GTAmodel::Model(g_PendingSpawn.modelHash).Unload();
 			g_PendingSpawn.active = false;
 			Game::Print::PrintBottomLeft("~r~Spawn failed:~s~ model timed out");
 			return;
 		}
 
 		REQUEST_MODEL(g_PendingSpawn.modelHash);
-		if (!HAS_MODEL_LOADED(g_PendingSpawn.modelHash))
-			return;
+		if (!HAS_MODEL_LOADED(g_PendingSpawn.modelHash)) return;
 
-		GTAmodel::Model mdl(g_PendingSpawn.modelHash);
+		const GTAmodel::Model model(g_PendingSpawn.modelHash);
 		switch (g_PendingSpawn.category)
 		{
-		case 0: World::CreateProp(mdl, g_PendingSpawn.position, Vector3(), Settings::bSpawnDynamicProps, false); break;
-		case 1: World::CreatePed(mdl, g_PendingSpawn.position, Vector3(), false); break;
-		case 2: World::CreateVehicle(mdl, g_PendingSpawn.position, Vector3(), false); break;
+		case 0: EntityManagement::AddProp(model, g_PendingSpawn.name); break;
+		case 1: EntityManagement::AddPed(model, g_PendingSpawn.name); break;
+		case 2: EntityManagement::AddVehicle(model, g_PendingSpawn.name); break;
 		}
-		mdl.Unload();
 		g_PendingSpawn.active = false;
 	}
 
-	// ── View commands ──
-	static void Cmd_View_GridSnap(const SharedState& s)
+	// ── Menu and view commands ──
+	static void Cmd_OpenMenu(const QueuedCommand& command)
 	{
-		Settings::bGridSnapEnabled = s.cmds.commandFloatPayload > 0.0f;
-		if (s.cmds.commandFloatPayload > 0.0f)
-			Settings::gridSnapSize = s.cmds.commandFloatPayload;
+		SpoonerMode::OpenMenu(command.intPayload, command.dbPayload);
 	}
-	static void Cmd_View_RotationSnap(const SharedState& s) { Settings::rotationSnapDegrees = s.cmds.commandFloatPayload; }
-	static void Cmd_View_ModeSwitch(const SharedState& s)   { Settings::spoonerModeMode = s.cmds.commandIntPayload != 0 ? eSpoonerModeMode::Precision : eSpoonerModeMode::GroundEase; }
-	static void Cmd_View_DrawGrid(const SharedState&)       { Settings::bDrawGrid = !Settings::bDrawGrid; }
-	static void Cmd_CloseSpooner(const SharedState&)        { SpoonerMode::bEnabled = false; SpoonerMode::TurnOff(); }
+	static void Cmd_View_GridSnap(const QueuedCommand& command)
+	{
+		Settings::bGridSnapEnabled = command.floatPayload > 0.0f;
+		if (Settings::bGridSnapEnabled)
+			Settings::gridSnapSize = command.floatPayload;
+	}
+	static void Cmd_View_RotationSnap(const QueuedCommand& command) { Settings::rotationSnapDegrees = command.floatPayload; }
+	static void Cmd_View_DrawGrid(const QueuedCommand&)       { Settings::bDrawGrid = !Settings::bDrawGrid; }
+	static void Cmd_View_CursorMode(const QueuedCommand& command)
+	{
+		Settings::bCursorMode = command.intPayload != 0;
+		if (!Settings::bCursorMode)
+			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+	}
+	static void Cmd_CloseSpooner(const QueuedCommand&) { SpoonerMode::TurnOff(); }
 
 	// ── Select / click commands ──
-	static void Cmd_SelectEntity(const SharedState& s)
+	static void Cmd_SelectEntity(const QueuedCommand& command)
 	{
-		GTAentity clicked = SpoonerMode::spoonerModeCamera.RaycastForEntity(Vector2(s.cursorScreenX, s.cursorScreenY), 0, 160.0f);
-		if (clicked.Exists())
+		if (!SpoonerCamera::camera.Exists()) return;
+
+		GTAentity clicked = SpoonerCamera::camera.RaycastForEntity(
+			Vector2(command.cursorScreenX, command.cursorScreenY), 0, 160.0f);
+		if (!clicked.Exists())
 		{
-			SpoonerMode::SetAsSelectedEntity(clicked);
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Gizmo;
-			SpoonerMode::editingState.transformMode = SpoonerMode::eTransformMode::Position;
-			memset(Menu::currentArray, 0, sizeof(Menu::currentArray));
-			memset(Menu::currentop_ar, 0, sizeof(Menu::currentop_ar));
-			Menu::currentArray[0] = SUB::MAINMENU;
-			Menu::currentop_ar[0] = 1;
-			Menu::currentArrayIndex = 0;
-			Menu::NewSetMenu(ENTITY::IS_ENTITY_ATTACHED(clicked.GetHandle())
-				? SUB::SPOONER_ATTACHMENTOPS
-				: SUB::SPOONER_MANUALEDITING);
-		}
-		else
-		{
+			SpoonerMode::ResetSelectedEntity();
 			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+			return;
 		}
+
+		SpoonerMode::SetAsSelectedEntity(clicked);
+		SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Gizmo;
+		SpoonerMode::editingState.transformMode = SpoonerMode::eTransformMode::Position;
 	}
-	static void Cmd_SelectEntityAndShowMenu(const SharedState& s)
+	static void Cmd_SelectEntityAndShowMenu(const QueuedCommand& command)
 	{
-		GTAentity clicked = SpoonerMode::spoonerModeCamera.RaycastForEntity(Vector2(s.cursorScreenX, s.cursorScreenY), 0, 160.0f);
+		if (!SpoonerCamera::camera.Exists()) return;
+
+		GTAentity clicked = SpoonerCamera::camera.RaycastForEntity(
+			Vector2(command.cursorScreenX, command.cursorScreenY), 0, 160.0f);
 		if (clicked.Exists())
 		{
 			SpoonerMode::SetAsSelectedEntity(clicked);
 			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
 			g_ContextMenuReady = true;
+			return;
 		}
-		else
-		{
-			g_EmptySpaceMenuReady = true;
-			SpoonerMode::ResetSelectedEntity();
-		}
+
+		SpoonerMode::ResetSelectedEntity();
+		SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+		g_EmptySpaceMenuReady = true;
 	}
-	static void Cmd_EmptyMenu_PlaceEntityHere(const SharedState& s)
+	static void Cmd_EmptyMenu_PlaceEntityHere(const QueuedCommand& command)
 	{
-		int idx = s.cmds.commandDbPayload;
-		if (idx >= 0 && idx < static_cast<int>(Databases::EntityDb.size()))
-		{
-			auto& ent = Databases::EntityDb[idx];
-			if (ent.handle.Exists())
-			{
-				Vector3 cursorPos = SpoonerMode::spoonerModeCamera.RaycastForCoord(
-					Vector2(s.emptyMenuCursorX, s.emptyMenuCursorY), 0, 300.0f, 300.0f);
-				ent.handle.RequestControlOnce();
-				ent.handle.SetPosition(cursorPos);
-				ent.handle.PlaceOnGround();
-				if (ent.attachmentArgs.isAttached)
-					EntityManagement::DetachEntity(ent);
-			}
-		}
+		if (!SpoonerCamera::camera.Exists()) return;
+
+		const int targetHandle = command.dbPayload;
+		auto entity = std::find_if(Databases::EntityDb.begin(), Databases::EntityDb.end(),
+			[targetHandle](const SpoonerEntity& entry) { return entry.handle.GetHandle() == targetHandle; });
+		if (entity == Databases::EntityDb.end() || !entity->handle.Exists()) return;
+
+		if (entity->attachmentArgs.isAttached)
+			EntityManagement::DetachEntity(*entity);
+
+		const Vector3 cursorPosition = SpoonerCamera::camera.RaycastForCoord(
+			Vector2(command.cursorScreenX, command.cursorScreenY), 0, 300.0f, 300.0f);
+		entity->handle.RequestControlOnce();
+		entity->handle.SetPosition(cursorPosition);
+		entity->handle.PlaceOnGround();
 	}
 
 	static const CmdHandler s_cmdHandlers[] = {
-		Cmd_None,                  // None (0)
-		Cmd_SelectEntity,          // SelectEntity (1)
-		Cmd_SelectEntityAndShowMenu, // SelectEntityAndShowMenu (2)
-		Cmd_RmbMenu_ManualEditing, // (3)
-		Cmd_RmbMenu_Attachment,    // (4)
-		Cmd_RmbMenu_TaskSequence,  // (5)
-		Cmd_RmbMenu_Wardrobe,      // (6)
-		Cmd_RmbMenu_Animations,    // (7)
-		Cmd_RmbMenu_Frozen,        // (8)
-		Cmd_RmbMenu_Collision,     // (9)
-		Cmd_RmbMenu_Copy,          // (10)
-		Cmd_RmbMenu_Delete,        // (11)
-		Cmd_RmbMenu_PlaceOnGround, // (12)
-		Cmd_RmbMenu_DbToggle,      // (13)
-		Cmd_RmbMenu_Detach,        // (14)
-		Cmd_RmbMenu_Engine,        // (15)
-		Cmd_RmbMenu_Lights,        // (16)
-		Cmd_RmbMenu_Repair,        // (17)
-		Cmd_RmbMenu_MenyooCustoms, // (18)
-		Cmd_EmptyMenu_PlaceEntityHere, // EmptyMenu_PlaceEntityHere (19)
-		Cmd_World_TimePreset,      // (20)
-		Cmd_World_WeatherSet,      // (21)
-		Cmd_World_WeatherReset,    // (22)
-		Cmd_World_SpeedSet,        // (23)
-		Cmd_SpawnFavourite,        // (24)
-		Cmd_View_GridSnap,         // (25)
-		Cmd_View_RotationSnap,     // (26)
-		Cmd_View_ModeSwitch,       // (27)
-		Cmd_View_DrawGrid,         // (28)
-		Cmd_CloseSpooner,          // (29)
+		Cmd_None,
+		Cmd_SelectEntity,
+		Cmd_SelectEntityAndShowMenu,
+		Cmd_RmbMenu_ManualEditing,
+		Cmd_RmbMenu_Attachment,
+		Cmd_RmbMenu_TaskSequence,
+		Cmd_RmbMenu_Wardrobe,
+		Cmd_RmbMenu_Animations,
+		Cmd_RmbMenu_Frozen,
+		Cmd_RmbMenu_Collision,
+		Cmd_RmbMenu_Copy,
+		Cmd_RmbMenu_Delete,
+		Cmd_RmbMenu_PlaceOnGround,
+		Cmd_RmbMenu_DbToggle,
+		Cmd_RmbMenu_Detach,
+		Cmd_RmbMenu_Engine,
+		Cmd_RmbMenu_Lights,
+		Cmd_RmbMenu_Repair,
+		Cmd_RmbMenu_MenyooCustoms,
+		Cmd_EmptyMenu_PlaceEntityHere,
+		Cmd_World_TimePreset,
+		Cmd_World_WeatherSet,
+		Cmd_World_WeatherReset,
+		Cmd_World_SpeedSet,
+		Cmd_SpawnFavourite,
+		Cmd_OpenMenu,
+		Cmd_View_GridSnap,
+		Cmd_View_RotationSnap,
+		Cmd_View_DrawGrid,
+		Cmd_View_CursorMode,
+		Cmd_CloseSpooner,
 	};
 	static const int s_cmdHandlerCount = sizeof(s_cmdHandlers) / sizeof(s_cmdHandlers[0]);
+	static_assert(s_cmdHandlerCount == static_cast<int>(CursorCommand::CloseSpooner) + 1, "Cursor command table is out of sync");
 
-	static void ProcessCursorCommand(CursorCommand cmd, SharedState& s)
+	static void ProcessCursorCommand(const QueuedCommand& command)
 	{
-		if (cmd == CursorCommand::None) return;
-		int idx = static_cast<int>(cmd);
-		if (idx >= 0 && idx < s_cmdHandlerCount)
-		{
-			if (auto handler = s_cmdHandlers[idx])
-				handler(s);
-		}
+		if (command.cmd == CursorCommand::None) return;
+
+		const int index = static_cast<int>(command.cmd);
+		if (index >= 0 && index < s_cmdHandlerCount)
+			s_cmdHandlers[index](command);
 	}
 
 // ═══════════════════════════════════════════════════════════════════
@@ -937,50 +985,49 @@ namespace sub::Spooner::ImGuiSpooner
 
 	void Tick()
 	{
-		std::vector<CursorCommand> pendingCmds;
-		std::vector<SharedState> pendingSnapshots;
-		bool capturedGizmoOver = false, capturedGizmoUsing = false, capturedCtxSearch = false;
+		if (!g_Visible) return;
+
+		bool capturedGizmoOver = false, capturedGizmoUsing = false, capturedContextSearchFocused = false;
+		bool capturedCursorMode = false;
 		SpoonerMode::eEditMode capturedEditMode = SpoonerMode::eEditMode::Disabled;
 
-		auto freshFav = RefreshCaches_ScriptThread();
+		auto refreshedFavourites = RefreshCaches_ScriptThread();
+		std::vector<QueuedCommand> commands;
 
 		{
 			std::lock_guard<std::mutex> lock(g_Mutex);
 
-			// 
-			DrainQueue_ScriptThread(g_Shared, pendingCmds, pendingSnapshots);
-			g_Shared.cmds = {};
-
 			// Write any pending gizmo changes to selected entity
 			DrainPending_ScriptThread(g_Shared);
+			commands = DrainQueue_ScriptThread(g_Shared);
+		}
+
+		// Execute game-native commands without holding the render-state mutex.
+		// Some commands yield with WAIT(), so keeping the mutex held here would
+		// block the D3D render callback while the script thread is suspended.
+		for (const auto& command : commands)
+			ProcessCursorCommand(command);
+		CheckPendingSpawns_ScriptThread();
+
+		{
+			std::lock_guard<std::mutex> lock(g_Mutex);
+
 			// Update current state cache
 			RefreshSnapshot_ScriptThread(g_Shared);
+			RefreshDbCache_ScriptThread(g_Shared);
 
-			if (freshFav)
-			{
-				g_Shared.favouriteCache = std::move(*freshFav);
-				RefreshDbCache_ScriptThread(g_Shared);
-			}
+			if (refreshedFavourites)
+				g_Shared.favouriteCache = std::move(*refreshedFavourites);
 
 			capturedGizmoOver = g_Shared.render.gizmoOver;
 			capturedGizmoUsing = g_Shared.render.gizmoUsing;
-			capturedCtxSearch = g_Shared.render.ctxSearchFocused;
+			capturedContextSearchFocused = g_Shared.render.ctxSearchFocused;
+			capturedCursorMode = g_Shared.render.cursorModeEnabled;
 			capturedEditMode = g_Shared.render.editingState.mode;
 		}
-		
-		// Process any pending cursor commands
-		for (size_t i = 0; i < pendingCmds.size(); i++)
-			ProcessCursorCommand(pendingCmds[i], pendingSnapshots[i]);
-
-		// Processes any entity spawns in queue
-		CheckPendingSpawns_ScriptThread();
-
-		// Disable gizmo when native menu closes in cursor mode
-		if (Settings::bCursorMode && Menu::currentsub == SUB::CLOSED)
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
 
 		// Disable player controls when using the gizmo or in cursor mode
-		if (g_Visible && (capturedCtxSearch || capturedEditMode == SpoonerMode::eEditMode::Gizmo || capturedGizmoOver || capturedGizmoUsing))
+		if (g_Visible && (capturedCursorMode || capturedContextSearchFocused || capturedEditMode == SpoonerMode::eEditMode::Gizmo || capturedGizmoOver || capturedGizmoUsing))
 			PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
 	}
 

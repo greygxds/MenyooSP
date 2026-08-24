@@ -45,14 +45,15 @@ namespace sub::Spooner::ImGuiSpooner
 		World_WeatherReset,
 		World_SpeedSet,
 		SpawnFavourite,
+		OpenMenu,
 		View_GridSnap,
 		View_RotationSnap,
-		View_ModeSwitch,
 		View_DrawGrid,
+		View_CursorMode,
 		CloseSpooner,
 	};
 	
-	// Favourites (FavouriteAnims.xml, FavouriteProps.xml, FavouritePeds.xml, FavouriteVehicles.xml)
+	// Cached spawn lists from the existing prop, ped, and vehicle XML files.
 	struct FavouriteEntry
 	{
 		std::string name;
@@ -70,6 +71,7 @@ namespace sub::Spooner::ImGuiSpooner
 	{
 		uint8_t category; // 0=prop, 1=ped, 2=veh
 		Hash modelHash;
+		std::string name;
 	};
 
 	// Gizmo writes
@@ -81,7 +83,7 @@ namespace sub::Spooner::ImGuiSpooner
 	};
 
 	// Spooner DB entry cache
-	struct DbEntry { std::string hashName; int dbIndex; };
+	struct DbEntry { std::string hashName; int entityHandle; };
 		
 	struct RenderState
 	{
@@ -93,6 +95,10 @@ namespace sub::Spooner::ImGuiSpooner
 		bool gizmoUsing = false;
 		bool cursorModeEnabled = false;
 		bool ctxSearchFocused = false;
+		bool gridSnapEnabled = false;
+		float gridSnapSize = 1.0f;
+		float rotationSnapDegrees = 0.0f;
+		bool drawGrid = false;
 	};
 
 	struct EntityCache
@@ -120,17 +126,13 @@ namespace sub::Spooner::ImGuiSpooner
 		int dbPayload = -1;
 		float floatPayload = 0.0f;
 		FavouriteSpawnPayload spawnPayload{};
+		float cursorScreenX = 0.0f;
+		float cursorScreenY = 0.0f;
 	};
 
 	struct CommandQueue
 	{
 		std::vector<QueuedCommand> queue;
-
-		// Flat payload fields (set at drain time for ProcessCursorCommand handlers)
-		int commandIntPayload = 0;
-		int commandDbPayload = -1;
-		float commandFloatPayload = 0.0f;
-		FavouriteSpawnPayload spawnPayload{};
 	};
 
 	struct SharedState
@@ -141,8 +143,6 @@ namespace sub::Spooner::ImGuiSpooner
 
 		float cursorScreenX = 0.0f;
 		float cursorScreenY = 0.0f;
-		float emptyMenuCursorX = 0.0f;
-		float emptyMenuCursorY = 0.0f;
 
 		std::vector<DbEntry> dbEntityCache;
 		PendingWrites pending;
@@ -153,7 +153,7 @@ namespace sub::Spooner::ImGuiSpooner
 	extern std::atomic<bool> g_ContextMenuReady;
 	extern std::atomic<bool> g_EmptySpaceMenuReady;
 
-	void SetCommand(SharedState& s, CursorCommand cmd, int intP = 0, int dbP = -1, float floatP = 0.0f, FavouriteSpawnPayload spawnP = {});
+	void SetCommand(SharedState& state, CursorCommand command, int intPayload = 0, int dbPayload = -1, float floatPayload = 0.0f, FavouriteSpawnPayload spawnPayload = {});
 
 	void HandleCursorModeClicks(::ImGuiIO& io);
 	void DrawContextMenu();

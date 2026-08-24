@@ -226,7 +226,6 @@ namespace sub
 		}
 		void Sub_Settings()
 		{
-			bool bSmm_plus = false, bSmm_minus = false;
 			bool movsensK_input = 0, movsensK_plus = 0, movsensK_minus = 0;
 			bool movsensG_input = 0, movsensG_plus = 0, movsensG_minus = 0;
 			bool rotsensK_input = 0, rotsensK_plus = 0, rotsensK_minus = 0;
@@ -239,12 +238,10 @@ namespace sub
 			AddToggle("Spawn Dynamic Objects", Settings::bSpawnDynamicProps);
 			AddToggle("Spawn Dynamic Peds", Settings::bSpawnDynamicPeds);
 			AddToggle("Spawn Dynamic Vehicles", Settings::bSpawnDynamicVehicles);
-			AddToggle("Freeze Entity When Moving It (Spooner Mode)", Settings::bFreezeEntityWhenMovingIt);
 			AddToggle("Spawn Invincible Entities", Settings::bSpawnInvincibleEntities);
 			AddToggle("Spawn Still Peds (Block Fleeing)", Settings::bSpawnStillPeds);
 			AddToggle("Make Added (To DB) Entities Persistent", Settings::bAddToDbAsMissionEntities);
 			AddToggle("Teleport To Reference When Loading File", Settings::bTeleportToReferenceWhenLoadingFile);
-			AddTexter("Spooner Mode Method", static_cast<UINT8>(Settings::spoonerModeMode), spoonerModeModeNames, null, bSmm_plus, bSmm_minus);
 
 			if (Menu::usingControllerInput)
 			{
@@ -260,9 +257,6 @@ namespace sub
 			AddOption("Reload Model List Files", null, PopulateGlobalEntityModelsArrays);
 
 			AddOption("Grid Snap Settings", null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
-
-			if (bSmm_plus) { if ((UINT8)Settings::spoonerModeMode < spoonerModeModeNames.size() - 1) Settings::spoonerModeMode = eSpoonerModeMode((UINT8)Settings::spoonerModeMode + 1); }
-			if (bSmm_minus) { if ((UINT8)Settings::spoonerModeMode > 0) Settings::spoonerModeMode = eSpoonerModeMode((UINT8)Settings::spoonerModeMode - 1); }
 
 			if (movsensK_input || movsensG_input)
 			{
@@ -862,7 +856,7 @@ namespace sub
 					AddBreak(std::get<0>(nas));
 					AddOption("~italic~" + (xNode ? std::get<1>(nas)->ToString() : "Not Set"), null);
 
-					auto& spoocam = SpoonerMode::spoonerModeCamera;
+					auto& spoocam = SpoonerCamera::camera;
 					if (!spoocam.IsActive())
 					{
 						bool bSetPosToMe = false;
@@ -1273,10 +1267,8 @@ namespace sub
 		}*/
 		void Sub_SelectedEntityOps()
 		{
-			if (SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled) {
-				SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
-			}
-		if (!selectedEntity.handle.Exists())
+			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+			if (!selectedEntity.handle.Exists())
 			{
 				Menu::SetPreviousMenu();
 				return;
@@ -1494,9 +1486,9 @@ namespace sub
 			bool bGoToEntityPressed = false;
 			AddOption("Go To Entity", bGoToEntityPressed); if (bGoToEntityPressed)
 			{
-				if (SpoonerMode::spoonerModeCamera.IsActive())
+			if (SpoonerCamera::camera.IsActive())
 				{
-					auto& cam = SpoonerMode::spoonerModeCamera;
+					auto& cam = SpoonerCamera::camera;
 					cam.SetPosition(selectedEntity.handle.GetOffsetInWorldCoords(0, -5.0f - selectedEntity.handle.Dim2().y, 0));
 				}
 				else
@@ -1515,9 +1507,9 @@ namespace sub
 					//entityToTele = entityToTeleMaybe;
 				if (selectedEntity.handle.IsAttached()) EntityManagement::DetachEntity(selectedEntity); // Detach if attached :(
 
-				if (SpoonerMode::spoonerModeCamera.IsActive())
+			if (SpoonerCamera::camera.IsActive())
 				{
-					auto& cam = SpoonerMode::spoonerModeCamera;
+					auto& cam = SpoonerCamera::camera;
 					selectedEntity.handle.SetPosition(cam.GetOffsetInWorldCoords(0, 5.0f + selectedEntity.handle.Dim2().y, 0));
 				}
 				else
@@ -2576,7 +2568,7 @@ namespace sub
 			bool bAddNewMarkerPressed = false;
 			AddTickol("ADD NEW MARKER", true, bAddNewMarkerPressed, bAddNewMarkerPressed, TICKOL::SMALLNEWSTAR); if (bAddNewMarkerPressed)
 			{
-				auto& spoocam = SpoonerMode::spoonerModeCamera;
+				auto& spoocam = SpoonerCamera::camera;
 				if (!spoocam.IsActive())
 				{
 					GTAentity myPed = PLAYER_PED_ID();
@@ -2669,7 +2661,7 @@ namespace sub
 				World::DrawMarker(MarkerType::DebugSphere, helpingSpherePos, Vector3(), Vector3(), Vector3(0.1f, 0.1f, 0.1f), RGBA(SelectedMarker->m_colour, 200));
 			}
 
-			auto& spoocam = SpoonerMode::spoonerModeCamera;
+			auto& spoocam = SpoonerCamera::camera;
 
 			bool bEditNamePressed = false;
 			AddTexter("Name", 0, std::vector<std::string>{SelectedMarker->m_name}, bEditNamePressed); if (bEditNamePressed)
@@ -3024,7 +3016,7 @@ namespace sub
 			bool bAddNewLightPressed = false;
 			AddTickol("ADD NEW LIGHT", true, bAddNewLightPressed, bAddNewLightPressed, TICKOL::SMALLNEWSTAR); if (bAddNewLightPressed)
 			{
-				auto& spoonerCam = SpoonerMode::spoonerModeCamera;
+				auto& spoonerCam = SpoonerCamera::camera;
 				if (!spoonerCam.IsActive())
 				{
 					GTAentity myPed = PLAYER_PED_ID();
@@ -3053,7 +3045,7 @@ namespace sub
 					AddOption(presetLabel, bPresetPressed); if (bPresetPressed)
 					{
 						SpoonerLight copy = p;
-						auto& spoonerCam = SpoonerMode::spoonerModeCamera;
+						auto& spoonerCam = SpoonerCamera::camera;
 						if (spoonerCam.IsActive())
 						{
 							copy.m_position = spoonerCam.GetPosition();
@@ -3119,7 +3111,7 @@ namespace sub
 
 			LightManagement::DrawPreviewMarkers();
 
-			auto& spoonerCam = SpoonerMode::spoonerModeCamera;
+			auto& spoonerCam = SpoonerCamera::camera;
 
 			AddTitle(SelectedLight->m_name);
 
@@ -3290,7 +3282,7 @@ namespace sub
 					AddOption(presetLabel, bPresetPressed); if (bPresetPressed)
 					{
 						SpoonerLight copy = p;
-						auto& spoonerCam = SpoonerMode::spoonerModeCamera;
+						auto& spoonerCam = SpoonerCamera::camera;
 						if (spoonerCam.IsActive())
 						{
 							copy.m_position = spoonerCam.GetPosition();

@@ -1,15 +1,8 @@
-// TODO:
-// - fix camera lock not working correctly with gizmo mode
-
 #include "ImGuiSpooner.h"
 #include "imgui.h"
-#include "SpoonerSettings.h"
 #include "..\..\Scripting\World.h"
 #include "..\..\Menu\Menu.h"
 
-#include <cctype>
-#include <cstring>
-#include <algorithm>
 #include <vector>
 
 namespace sub::Spooner::ImGuiSpooner
@@ -30,7 +23,7 @@ namespace sub::Spooner::ImGuiSpooner
 				for (auto& e : entries)
 				{
 					if (ImGui::MenuItem(e.name.c_str()))
-						SetCommand(s, CursorCommand::SpawnFavourite, 0, -1, 0.0f, FavouriteSpawnPayload{ category, e.modelHash });
+						SetCommand(s, CursorCommand::SpawnFavourite, 0, -1, 0.0f, FavouriteSpawnPayload{ category, e.modelHash, e.name });
 				}
 				ImGui::EndChild();
 			}
@@ -43,15 +36,9 @@ namespace sub::Spooner::ImGuiSpooner
 		if (ImGui::BeginMenu("File"))
 		{
 			if (ImGui::MenuItem("Save Database..."))
-			{
-				SetCommand(s, CursorCommand::None);
-				Menu::NewSetMenu(SUB::SPOONER_SAVEFILES);
-			}
+				SetCommand(s, CursorCommand::OpenMenu, SUB::SPOONER_SAVEFILES, 1);
 			if (ImGui::MenuItem("Load..."))
-			{
-				SetCommand(s, CursorCommand::None);
-				Menu::NewSetMenu(SUB::SPOONER_SAVEFILES);
-			}
+				SetCommand(s, CursorCommand::OpenMenu, SUB::SPOONER_SAVEFILES, 1);
 			if (ImGui::MenuItem("Close Spooner"))
 				SetCommand(s, CursorCommand::CloseSpooner);
 			ImGui::EndMenu();
@@ -111,10 +98,7 @@ namespace sub::Spooner::ImGuiSpooner
 			DrawFavSubmenu(s, s.favouriteCache.vehicles, "Vehicles", 2);
 			ImGui::Separator();
 			if (ImGui::MenuItem("More..."))
-			{
-				SetCommand(s, CursorCommand::None);
-				Menu::NewSetMenu(SUB::SPOONER_SPAWN_CATEGORIES);
-			}
+				SetCommand(s, CursorCommand::OpenMenu, SUB::SPOONER_SPAWN_CATEGORIES, 1);
 			ImGui::EndMenu();
 		}
 	}
@@ -155,10 +139,10 @@ namespace sub::Spooner::ImGuiSpooner
 	{
 		if (ImGui::BeginMenu("View"))
 		{
-			bool gridSnap = Settings::bGridSnapEnabled;
+			bool gridSnap = s.render.gridSnapEnabled;
 			if (ImGui::MenuItem("Grid Snap", nullptr, &gridSnap))
 			{
-				SetCommand(s, CursorCommand::View_GridSnap, 0, -1, gridSnap ? Settings::gridSnapSize : 0.0f);
+				SetCommand(s, CursorCommand::View_GridSnap, 0, -1, gridSnap ? s.render.gridSnapSize : 0.0f);
 			}
 			if (ImGui::BeginMenu("Snap Size"))
 			{
@@ -166,7 +150,7 @@ namespace sub::Spooner::ImGuiSpooner
 				const char* labels[] = {"0.5m", "1.0m", "2.0m", "5.0m"};
 				for (int i = 0; i < 4; i++)
 				{
-					if (ImGui::MenuItem(labels[i], nullptr, Settings::gridSnapSize == sizes[i]))
+					if (ImGui::MenuItem(labels[i], nullptr, s.render.gridSnapSize == sizes[i]))
 					{
 						SetCommand(s, CursorCommand::View_GridSnap, 0, -1, sizes[i]);
 					}
@@ -179,7 +163,7 @@ namespace sub::Spooner::ImGuiSpooner
 				const char* labels[] = {"Off", "15deg", "30deg", "45deg", "90deg"};
 				for (int i = 0; i < 5; i++)
 				{
-					if (ImGui::MenuItem(labels[i], nullptr, Settings::rotationSnapDegrees == angles[i]))
+					if (ImGui::MenuItem(labels[i], nullptr, s.render.rotationSnapDegrees == angles[i]))
 					{
 						SetCommand(s, CursorCommand::View_RotationSnap, 0, -1, angles[i]);
 					}
@@ -187,19 +171,11 @@ namespace sub::Spooner::ImGuiSpooner
 				ImGui::EndMenu();
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem("Display Grid", nullptr, Settings::bDrawGrid))
+			if (ImGui::MenuItem("Display Grid", nullptr, s.render.drawGrid))
 				SetCommand(s, CursorCommand::View_DrawGrid);
-			if (ImGui::BeginMenu("Mode"))
-			{
-				if (ImGui::MenuItem("Ground Ease", nullptr, Settings::spoonerModeMode == eSpoonerModeMode::GroundEase))
-					SetCommand(s, CursorCommand::View_ModeSwitch, 0);
-				if (ImGui::MenuItem("Precision", nullptr, Settings::spoonerModeMode == eSpoonerModeMode::Precision))
-					SetCommand(s, CursorCommand::View_ModeSwitch, 1);
-				ImGui::EndMenu();
-			}
-			bool cursorMode = Settings::bCursorMode;
+			bool cursorMode = s.render.cursorModeEnabled;
 			if (ImGui::MenuItem("Cursor Mode", nullptr, &cursorMode))
-				Settings::bCursorMode = cursorMode;
+				SetCommand(s, CursorCommand::View_CursorMode, cursorMode ? 1 : 0);
 			ImGui::EndMenu();
 		}
 	}
@@ -217,14 +193,12 @@ namespace sub::Spooner::ImGuiSpooner
 	static void DrawStatusIndicators()
 	{
 		float windowWidth = ImGui::GetWindowWidth();
-		ImVec2 tsBase = ImGui::CalcTextSize("· Cursor  |  · GE");
+		ImVec2 tsBase = ImGui::CalcTextSize("· Cursor");
 		float entWidth = g_Shared.cache.entityValid && !g_Shared.cache.entityHashName.empty()
 			? ImGui::CalcTextSize((g_Shared.cache.entityHashName + (g_Shared.cache.entityInDb ? " (DB)" : "")).c_str()).x + 16.0f
 			: 0.0f;
 		ImGui::SetCursorPosX(windowWidth - tsBase.x - entWidth - ImGui::GetStyle().WindowPadding.x);
-		StatusDot("Cursor", Settings::bCursorMode);
-		ImGui::SameLine(0, 4); ImGui::TextDisabled("|"); ImGui::SameLine(0, 4);
-		StatusDot("GE", Settings::spoonerModeMode == eSpoonerModeMode::GroundEase);
+		StatusDot("Cursor", g_Shared.render.cursorModeEnabled);
 		if (g_Shared.cache.entityValid && !g_Shared.cache.entityHashName.empty())
 		{
 			ImGui::SameLine(0, 4); ImGui::TextDisabled("|"); ImGui::SameLine(0, 4);

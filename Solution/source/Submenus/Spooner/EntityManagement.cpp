@@ -43,6 +43,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <optional>
 
 namespace sub::Spooner
 {
@@ -358,7 +359,7 @@ namespace sub::Spooner
 			bool bFreezePos = !bDynamic;
 			bool bCollision = true;
 
-			auto& spoocam = SpoonerMode::spoonerModeCamera;
+			auto& spoocam = SpoonerCamera::camera;
 
 			if (!spoocam.IsActive())
 			{
@@ -442,7 +443,7 @@ namespace sub::Spooner
 			bool bFreezePos = !bDynamic;
 			bool bCollision = true;
 
-			auto& spoocam = SpoonerMode::spoonerModeCamera;
+			auto& spoocam = SpoonerCamera::camera;
 
 			if (!spoocam.IsActive())
 			{
@@ -541,7 +542,7 @@ namespace sub::Spooner
 			bool bFreezePos = !bDynamic;
 			bool bCollision = true;
 
-			auto& spoocam = SpoonerMode::spoonerModeCamera;
+			auto& spoocam = SpoonerCamera::camera;
 
 			if (!spoocam.IsActive())
 			{
@@ -680,6 +681,13 @@ namespace sub::Spooner
 
 				//newEntity.handle = World::CreatePed(orig.handle.Model(), orig.handle.Position_get(), orig.handle.Rotation_get(), false);
 				newEntity.handle = origPed.Clone(origPed.GetHeading(), true, true);
+				if (!newEntity.handle.Exists())
+				{
+					orig.handle.SetMissionEntity(bOrigWasMissionEntity);
+					orig.handle.FreezePosition(bFreezePos);
+					orig.handle.SetDynamic(bDynamic);
+					return SpoonerEntity();
+				}
 				ep = newEntity.handle;
 
 				const auto& movGrpStr = GetPedMovementClipSet(orig.handle);
@@ -744,10 +752,34 @@ namespace sub::Spooner
 			{
 				//newEntity.handle = World::CreateVehicle(orig.handle.Model(), orig.handle.Position_get(), orig.handle.Rotation_get(), false);
 				newEntity.handle = clone_vehicle(orig.handle);
+				if (!newEntity.handle.Exists())
+				{
+					orig.handle.SetMissionEntity(bOrigWasMissionEntity);
+					orig.handle.FreezePosition(bFreezePos);
+					orig.handle.SetDynamic(bDynamic);
+					return SpoonerEntity();
+				}
 				newEntity.handle.SetPosition(orig.handle.GetPosition());
 				newEntity.handle.SetRotation(orig.handle.Rotation_get());
 				SET_NETWORK_ID_CAN_MIGRATE(VEH_TO_NET(newEntity.handle.Handle()), true);
 			}
+			else
+			{
+				orig.handle.SetMissionEntity(bOrigWasMissionEntity);
+				orig.handle.FreezePosition(bFreezePos);
+				orig.handle.SetDynamic(bDynamic);
+				return SpoonerEntity();
+			}
+
+			if (!newEntity.handle.Exists())
+			{
+				orig.handle.SetMissionEntity(bOrigWasMissionEntity);
+				orig.handle.FreezePosition(bFreezePos);
+				orig.handle.SetDynamic(bDynamic);
+				return SpoonerEntity();
+			}
+
+			newEntity.type = static_cast<EntityType>(newEntity.handle.Type());
 
 			newEntity.handle.FreezePosition(bFreezePos);
 			newEntity.handle.SetDynamic(bDynamic);
@@ -778,7 +810,8 @@ namespace sub::Spooner
 			}
 
 			// fx lops
-			for (auto& ptfxlop : sub::PtfxSubs::fxLoops)
+			std::optional<sub::PtfxSubs::PtfxlopS> copiedPtfxLoop;
+			for (const auto& ptfxlop : sub::PtfxSubs::fxLoops)
 			{
 				if (ptfxlop.entity == orig.handle)
 				{
@@ -786,24 +819,30 @@ namespace sub::Spooner
 					newPtfxLop.entity = newEntity.handle;
 					newPtfxLop.asset = ptfxlop.asset.c_str();
 					newPtfxLop.fx = ptfxlop.fx.c_str();
-					sub::PtfxSubs::fxLoops.push_back(newPtfxLop);
+					copiedPtfxLoop = std::move(newPtfxLop);
 					break;
 				}
 			}
+			if (copiedPtfxLoop)
+				sub::PtfxSubs::fxLoops.push_back(std::move(*copiedPtfxLoop));
 
 			if (isInDb && copyAttachments)
 			{
 				std::set<Hash> atirModelHashes;
 				GTAentity attTo;
+				std::vector<SpoonerEntity> attachedEntities;
 				for (auto& e : Databases::EntityDb)
 				{
 					if (GetEntityThisEntityIsAttachedTo(e.handle, attTo) && attTo == orig.handle)
-					{
-						atirModelHashes.insert(e.handle.Model().hash);
-						auto newAtt = CopyEntity(e, true, false, copyAttachments, false, currAtir + 1);
-						EntityManagement::AttachEntity(newAtt, newEntity.handle, e.attachmentArgs.boneIndex, e.attachmentArgs.offset, e.attachmentArgs.rotation);
-						if (addToDb) Databases::EntityDb.push_back(newAtt);
-					}
+						attachedEntities.push_back(e);
+				}
+
+				for (const auto& entity : attachedEntities)
+				{
+					atirModelHashes.insert(entity.handle.Model().hash);
+					auto newAtt = CopyEntity(entity, true, false, copyAttachments, false, currAtir + 1);
+					EntityManagement::AttachEntity(newAtt, newEntity.handle, entity.attachmentArgs.boneIndex, entity.attachmentArgs.offset, entity.attachmentArgs.rotation);
+					if (addToDb) Databases::EntityDb.push_back(newAtt);
 				}
 				if (unloadModel)
 				{

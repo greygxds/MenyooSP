@@ -65,7 +65,7 @@ static int Match_Levenshtein(const char* s, const char* t)
 			int a = curr[static_cast<size_t>(i - 1)] + 1;
 			int b = prev[static_cast<size_t>(i)] + 1;
 			int c = prev[static_cast<size_t>(i - 1)] + cost;
-			curr[static_cast<size_t>(i)] = std::min(a, std::min(b, c));
+			curr[static_cast<size_t>(i)] = (std::min)(a, (std::min)(b, c));
 		}
 		prev.swap(curr);
 	}
@@ -79,7 +79,7 @@ int Match_Score(const char* label, const char* query)
 
 	int dist = Match_Levenshtein(label, query);
 	int qlen = static_cast<int>(std::strlen(query));
-	int threshold = std::max(2, qlen / 3);
+	int threshold = (std::max)(2, qlen / 3);
 	if (dist <= threshold) return dist + 1;
 
 	return -1;
@@ -100,12 +100,10 @@ void HandleCursorModeClicks(ImGuiIO& io)
 		SetCommand(g_Shared, CursorCommand::SelectEntity);
 	}
 	// Handle right click (select entity and show context menu)
-	if (io.MouseClicked[1])
+	if (io.MouseClicked[1] && !io.WantCaptureMouse)
 	{
 		g_Shared.cursorScreenX = (io.MousePos.x / io.DisplaySize.x) * 2.0f - 1.0f;
 		g_Shared.cursorScreenY = (io.MousePos.y / io.DisplaySize.y) * 2.0f - 1.0f;
-		g_Shared.emptyMenuCursorX = g_Shared.cursorScreenX;
-		g_Shared.emptyMenuCursorY = g_Shared.cursorScreenY;
 		SetCommand(g_Shared, CursorCommand::SelectEntityAndShowMenu);
 	}
 }
@@ -181,8 +179,10 @@ static void DrawEmptySpaceMenu()
 		{
 			for (auto& entry : g_Shared.dbEntityCache)
 			{
+				ImGui::PushID(entry.entityHandle);
 				if (ImGui::MenuItem(entry.hashName.c_str()))
-					SetCommand(g_Shared, CursorCommand::EmptyMenu_PlaceEntityHere, 0, entry.dbIndex);
+					SetCommand(g_Shared, CursorCommand::EmptyMenu_PlaceEntityHere, 0, entry.entityHandle);
+				ImGui::PopID();
 			}
 			ImGui::EndMenu();
 		}
@@ -287,15 +287,28 @@ static void DrawContextMenu_Normal()
 
 void DrawContextMenu()
 {
+	enum class PopupKind { None, Entity, EmptySpace };
+	static PopupKind popupKind = PopupKind::None;
+
 	g_Shared.render.ctxSearchFocused = false;
-	bool entityPopup = g_ContextMenuReady.exchange(false) && g_Shared.cache.entityValid;
-	bool emptyPopup = g_EmptySpaceMenuReady.exchange(false);
-	if (entityPopup || emptyPopup)
+	if (g_ContextMenuReady.exchange(false) && g_Shared.cache.entityValid)
+	{
+		popupKind = PopupKind::Entity;
 		ImGui::OpenPopup("spooner_ctx");
+	}
+	else if (g_EmptySpaceMenuReady.exchange(false))
+	{
+		popupKind = PopupKind::EmptySpace;
+		ImGui::OpenPopup("spooner_ctx");
+	}
 
 	ImGui::SetNextWindowSizeConstraints(ImVec2(280, 0), ImVec2(600, 600));
 	if (!ImGui::BeginPopup("spooner_ctx"))
+	{
+		if (!ImGui::IsPopupOpen("spooner_ctx"))
+			popupKind = PopupKind::None;
 		return;
+	}
 
 	if (!g_Shared.render.cursorModeEnabled)
 	{
@@ -304,7 +317,7 @@ void DrawContextMenu()
 		return;
 	}
 
-	if (emptyPopup)
+	if (popupKind == PopupKind::EmptySpace)
 	{
 		DrawEmptySpaceMenu();
 		ImGui::EndPopup();

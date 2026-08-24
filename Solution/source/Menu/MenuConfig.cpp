@@ -185,13 +185,11 @@ void MenuConfig::ConfigRead()
 	sub::Spooner::Settings::bSpawnDynamicProps = ini.GetBoolValue(section_spooner.c_str(), "SpawnDynamicProps", sub::Spooner::Settings::bSpawnDynamicProps);
 	sub::Spooner::Settings::bSpawnDynamicPeds = ini.GetBoolValue(section_spooner.c_str(), "SpawnDynamicPeds", sub::Spooner::Settings::bSpawnDynamicPeds);
 	sub::Spooner::Settings::bSpawnDynamicVehicles = ini.GetBoolValue(section_spooner.c_str(), "SpawnDynamicVehicles", sub::Spooner::Settings::bSpawnDynamicVehicles);
-	sub::Spooner::Settings::bFreezeEntityWhenMovingIt = ini.GetBoolValue(section_spooner.c_str(), "FreezeEntityWhenMovingIt", sub::Spooner::Settings::bFreezeEntityWhenMovingIt);
 	sub::Spooner::Settings::bSpawnInvincibleEntities = ini.GetBoolValue(section_spooner.c_str(), "SpawnInvincibleEntities", sub::Spooner::Settings::bSpawnInvincibleEntities);
 	sub::Spooner::Settings::bSpawnStillPeds = ini.GetBoolValue(section_spooner.c_str(), "SpawnStillPeds", sub::Spooner::Settings::bSpawnStillPeds);
 	sub::Spooner::Settings::bAddToDbAsMissionEntities = ini.GetBoolValue(section_spooner.c_str(), "AddToDbAsMissionEntities", sub::Spooner::Settings::bAddToDbAsMissionEntities);
 	sub::Spooner::Settings::bTeleportToReferenceWhenLoadingFile = ini.GetBoolValue(section_spooner.c_str(), "TeleportToReferenceWhenLoadingFile", sub::Spooner::Settings::bTeleportToReferenceWhenLoadingFile);
 	sub::Spooner::Settings::bKeepPositionWhenAttaching = ini.GetBoolValue(section_spooner.c_str(), "KeepPositionWhenAttaching", sub::Spooner::Settings::bKeepPositionWhenAttaching);
-	sub::Spooner::Settings::spoonerModeMode = (sub::Spooner::eSpoonerModeMode)ini.GetLongValue(section_spooner.c_str(), "SpoonerModeMethod", (UINT8)sub::Spooner::Settings::spoonerModeMode);
 	sub::Spooner::Settings::bAutoSaveDb = ini.GetBoolValue(section_spooner.c_str(), "AutoSaveDb", sub::Spooner::Settings::bAutoSaveDb);
 	sub::Spooner::Settings::autoSaveIntervalMs = (DWORD)ini.GetLongValue(section_spooner.c_str(), "AutoSaveIntervalMs", sub::Spooner::Settings::autoSaveIntervalMs);
 	sub::Spooner::Settings::autoSaveMaxFiles = (int)ini.GetLongValue(section_spooner.c_str(), "AutoSaveMaxFiles", sub::Spooner::Settings::autoSaveMaxFiles);
@@ -449,13 +447,11 @@ void MenuConfig::SaveConfig()
 	ini.SetBoolValue(section_spooner.c_str(), "SpawnDynamicProps", sub::Spooner::Settings::bSpawnDynamicProps);
 	ini.SetBoolValue(section_spooner.c_str(), "SpawnDynamicPeds", sub::Spooner::Settings::bSpawnDynamicPeds);
 	ini.SetBoolValue(section_spooner.c_str(), "SpawnDynamicVehicles", sub::Spooner::Settings::bSpawnDynamicVehicles);
-	ini.SetBoolValue(section_spooner.c_str(), "FreezeEntityWhenMovingIt", sub::Spooner::Settings::bFreezeEntityWhenMovingIt);
 	ini.SetBoolValue(section_spooner.c_str(), "SpawnInvincibleEntities", sub::Spooner::Settings::bSpawnInvincibleEntities);
 	ini.SetBoolValue(section_spooner.c_str(), "SpawnStillPeds", sub::Spooner::Settings::bSpawnStillPeds);
 	ini.SetBoolValue(section_spooner.c_str(), "AddToDbAsMissionEntities", sub::Spooner::Settings::bAddToDbAsMissionEntities);
 	ini.SetBoolValue(section_spooner.c_str(), "TeleportToReferenceWhenLoadingFile", sub::Spooner::Settings::bTeleportToReferenceWhenLoadingFile);
 	ini.SetBoolValue(section_spooner.c_str(), "KeepPositionWhenAttaching", sub::Spooner::Settings::bKeepPositionWhenAttaching);
-	ini.SetLongValue(section_spooner.c_str(), "SpoonerModeMethod", (UINT8)sub::Spooner::Settings::spoonerModeMode);
 	ini.SetBoolValue(section_spooner.c_str(), "AutoSaveDb", sub::Spooner::Settings::bAutoSaveDb);
 	ini.SetLongValue(section_spooner.c_str(), "AutoSaveIntervalMs", sub::Spooner::Settings::autoSaveIntervalMs);
 	ini.SetLongValue(section_spooner.c_str(), "AutoSaveMaxFiles", sub::Spooner::Settings::autoSaveMaxFiles);
