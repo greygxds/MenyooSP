@@ -1,7 +1,8 @@
 #include "ImGuiSpooner.h"
 #include "imgui.h"
-#include "..\..\Scripting\World.h"
-#include "..\..\Menu\Menu.h"
+#include "..\..\..\Scripting\World.h"
+#include "..\..\..\Menu\Menu.h"
+#include "..\..\..\UI\ImGui\ImGuiMenuStyle.h"
 
 #include <vector>
 
@@ -10,7 +11,8 @@ namespace sub::Spooner::ImGuiSpooner
 
 	static void DrawFavSubmenu(SharedState& s, const std::vector<FavouriteEntry>& entries, const char* label, uint8_t category)
 	{
-		ImGui::SetNextWindowSizeConstraints(ImVec2(300.0f, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
+		const float uiScale = ImGui::GetFontSize() / 16.0f;
+		ImGui::SetNextWindowSizeConstraints(ImVec2(300.0f * uiScale, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
 		if (ImGui::BeginMenu(label))
 		{
 			if (entries.empty())
@@ -19,7 +21,9 @@ namespace sub::Spooner::ImGuiSpooner
 			}
 			else
 			{
-				ImGui::BeginChild("favs", ImVec2(0.0f, 400.0f));
+				const std::string childId = std::string("##favs_") + label;
+				ImGui::BeginChild(childId.c_str(), ImVec2(0.0f, 400.0f * uiScale));
+				ImGuiMenuStyle::ScopedRowStyle rowStyle(s.theme);
 				for (auto& e : entries)
 				{
 					if (ImGui::MenuItem(e.name.c_str()))
@@ -182,26 +186,26 @@ namespace sub::Spooner::ImGuiSpooner
 
 	static void StatusDot(const char* label, bool on)
 	{
-		// green dot for on, red dot for off
-		ImGui::PushStyleColor(ImGuiCol_Text, on ? IM_COL32(100, 220, 100, 255) : IM_COL32(220, 100, 100, 255));
+		ImGui::PushStyleColor(ImGuiCol_Text, on ? ImGuiTheme::ToImGuiColor(g_Shared.theme.selectionHighlight) : ImGuiTheme::ToImGuiColor(g_Shared.theme.optionBreaks));
 		ImGui::TextDisabled("·");
 		ImGui::PopStyleColor();
-		ImGui::SameLine(0, 2);
+		ImGui::SameLine(0, 2.0f * (ImGui::GetFontSize() / 16.0f));
 		ImGui::TextDisabled(label);
 	}
 
 	static void DrawStatusIndicators()
 	{
+		const float uiScale = ImGui::GetFontSize() / 16.0f;
 		float windowWidth = ImGui::GetWindowWidth();
 		ImVec2 tsBase = ImGui::CalcTextSize("· Cursor");
 		float entWidth = g_Shared.cache.entityValid && !g_Shared.cache.entityHashName.empty()
-			? ImGui::CalcTextSize((g_Shared.cache.entityHashName + (g_Shared.cache.entityInDb ? " (DB)" : "")).c_str()).x + 16.0f
+			? ImGui::CalcTextSize((g_Shared.cache.entityHashName + (g_Shared.cache.entityInDb ? " (DB)" : "")).c_str()).x + 16.0f * uiScale
 			: 0.0f;
 		ImGui::SetCursorPosX(windowWidth - tsBase.x - entWidth - ImGui::GetStyle().WindowPadding.x);
 		StatusDot("Cursor", g_Shared.render.cursorModeEnabled);
-		if (g_Shared.cache.entityValid && !g_Shared.cache.entityHashName.empty())
+		if (g_Shared.cache.entityValid && !g_Shared.cache.multiSelectActive && !g_Shared.cache.entityHashName.empty())
 		{
-			ImGui::SameLine(0, 4); ImGui::TextDisabled("|"); ImGui::SameLine(0, 4);
+			ImGui::SameLine(0, 4.0f * uiScale); ImGui::TextDisabled("|"); ImGui::SameLine(0, 4.0f * uiScale);
 			std::string entLabel = g_Shared.cache.entityHashName;
 			if (g_Shared.cache.entityInDb)
 				entLabel += " (DB)";
@@ -211,9 +215,14 @@ namespace sub::Spooner::ImGuiSpooner
 
 	void DrawMenuBarWindow()
 	{
+		const bool largeViewport = ImGui::GetIO().DisplaySize.y >= 1200.0f && g_MenuBarFont;
+		if (largeViewport && g_MenuBarFont)
+			ImGui::PushFont(g_MenuBarFont);
+		const float uiScale = ImGui::GetFontSize() / 16.0f;
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6, 3));
+		const ImGuiMenuStyle::Metrics metrics = ImGuiMenuStyle::Metrics::FromFontSize(ImGui::GetFontSize());
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(metrics.framePaddingX, metrics.framePaddingY));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0, 0));
 
@@ -230,9 +239,7 @@ namespace sub::Spooner::ImGuiSpooner
 
 		if (ImGui::BeginMenuBar())
 		{
-			ImGui::TextColored(ImVec4(0.4f, 0.7f, 1.0f, 1.0f), "Spooner"); ImGui::SameLine();
-			ImGui::TextDisabled("|"); ImGui::SameLine();
-
+			ImGuiMenuStyle::ScopedRowStyle rowStyle(g_Shared.theme);
 			DrawMenu_File(g_Shared);
 			DrawMenu_World(g_Shared);
 			DrawMenu_Spawn(g_Shared);
@@ -246,6 +253,8 @@ namespace sub::Spooner::ImGuiSpooner
 		}
 		ImGui::End();
 		ImGui::PopStyleVar(2);
+		if (largeViewport && g_MenuBarFont)
+			ImGui::PopFont();
 	}
 
 }

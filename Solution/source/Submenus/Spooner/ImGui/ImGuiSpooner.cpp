@@ -1,4 +1,5 @@
-#include "ImGuiSpooner.h"
+#include "ImGuiSpooner_Internal.h"
+#include "..\..\..\UI\ImGui\EmbeddedFonts.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
@@ -14,27 +15,32 @@
 #include <cmath>
 #include <cstring>
 #include <algorithm>
+#include <array>
 #include <optional>
+#include <utility>
 #include <vector>
 #include <pugixml/src/pugixml.hpp>
 
-#include "SpoonerEntity.h"
-#include "SpoonerMode.h"
-#include "SpoonerSettings.h"
-#include "..\..\Scripting\GTAentity.h"
-#include "..\..\Scripting\Model.h"
-#include "..\..\Scripting\Camera.h"
-#include "..\..\Scripting\World.h"
-#include "..\..\Scripting\Game.h"
-#include "..\..\Util\GTAmath.h"
-#include "..\..\Natives\natives.h"
-#include "..\..\Natives\natives2.h"
-#include "..\..\Menu\Menu.h"
-#include "..\..\Menu\Routine.h"
-#include "..\..\Util\ExePath.h"
-#include "Submenus.h"
-#include "EntityManagement.h"
-#include "Databases.h"
+#include "..\SpoonerMode.h"
+#include "..\..\..\Scripting\Game.h"
+#include "..\..\..\UI\ImGui\ImGuiMenuStyle.h"
+#include "..\SpoonerSettings.h"
+#include "..\..\..\Scripting\GTAentity.h"
+#include "..\..\..\Scripting\GTAvehicle.h"
+#include "..\..\..\Scripting\Model.h"
+#include "..\..\..\Scripting\Camera.h"
+#include "..\..\..\Scripting\World.h"
+#include "..\..\..\Util\GTAmath.h"
+#include "..\..\..\Util\ExePath.h"
+#include "..\..\..\Util\FileLogger.h"
+#include "..\..\..\Natives\natives.h"
+#include "..\..\..\Natives\natives2.h"
+#include "..\..\..\Menu\Menu.h"
+#include "..\Databases.h"
+#include "..\EntityManagement.h"
+#include "..\Submenus.h"
+#include "..\FavouritesManagement.h"
+#include "..\..\PedModelChanger.h"
 
 
 namespace sub::Spooner::ImGuiSpooner
@@ -43,32 +49,24 @@ namespace sub::Spooner::ImGuiSpooner
 //  Shared State
 // ═══════════════════════════════════════════════════════════════════
 
-	static std::mutex g_Mutex;
+	std::mutex g_Mutex;
 	SharedState g_Shared;
+	ImFont* g_IconFont = nullptr;
+	ImFont* g_HeaderIconFont = nullptr;
+	ImFont* g_SmallFont = nullptr;
+	ImFont* g_MenuBarFont = nullptr;
 
-	void SetCommand(SharedState& state, CursorCommand command, int intPayload, int dbPayload, float floatPayload, FavouriteSpawnPayload spawnPayload)
+	void SetCommand(SharedState& state, CursorCommand command, int intPayload, int dbPayload, float floatPayload, FavouriteSpawnPayload spawnPayload, SelectionRectangle selectionRectangle)
 	{
 		auto& queue = state.cmds.queue;
 		if (queue.size() >= 16) return;
-		queue.push_back(QueuedCommand{command, intPayload, dbPayload, floatPayload, spawnPayload, state.cursorScreenX, state.cursorScreenY});
+		queue.push_back(QueuedCommand{command, state.cache.entityHandle, intPayload, dbPayload, floatPayload, spawnPayload, state.cursorScreenX, state.cursorScreenY, selectionRectangle});
 	}
 
 	static std::atomic<bool> g_Visible{ false };
 	static std::atomic<bool> g_ShuttingDown{ false };
-	std::atomic<bool> g_ContextMenuReady{ false };
-	std::atomic<bool> g_EmptySpaceMenuReady{ false };
-	static bool g_ImGuiInitialized = false;
+	static std::atomic<bool> g_ImGuiInitialized{ false };
 
-	// ── Async spawn state ──
-	struct PendingSpawn
-	{
-		Hash modelHash = 0;
-		uint8_t category = 0;
-		std::string name;
-		DWORD startTime = 0;
-		bool active = false;
-	};
-	static PendingSpawn g_PendingSpawn;
 
 // ═══════════════════════════════════════════════════════════════════
 //  Gizmo Math
@@ -283,6 +281,7 @@ namespace sub::Spooner::ImGuiSpooner
 					fabsf(newPos.y - s.cache.position.y) > FLT_EPSILON ||
 					fabsf(newPos.z - s.cache.position.z) > FLT_EPSILON)
 				{
+					s.pending.entityHandle = s.cache.entityHandle;
 					s.pending.positionDirty = true;
 					s.pending.positionVal = newPos;
 				}
@@ -320,6 +319,7 @@ namespace sub::Spooner::ImGuiSpooner
 					fabsf(newRot.y - oldRot[1]) > FLT_EPSILON ||
 					fabsf(newRot.z - oldRot[2]) > FLT_EPSILON)
 				{
+					s.pending.entityHandle = s.cache.entityHandle;
 					s.pending.rotationDirty = true;
 					s.pending.rotationVal = newRot;
 				}
@@ -353,6 +353,7 @@ namespace sub::Spooner::ImGuiSpooner
 					fabsf(newScale.y - s.cache.scale.y) > FLT_EPSILON ||
 					fabsf(newScale.z - s.cache.scale.z) > FLT_EPSILON)
 				{
+					s.pending.entityHandle = s.cache.entityHandle;
 					s.pending.scaleDirty = true;
 					s.pending.scaleVal = newScale;
 				}
@@ -367,69 +368,21 @@ namespace sub::Spooner::ImGuiSpooner
 //  Context Menu & Theme
 // ═══════════════════════════════════════════════════════════════════
 
-	// Adapted from Vulkan-RTX by wpsimon09
-	// https://github.com/wpsimon09/Vulkan-RTX/blob/main/Internal/Editor/UIContext/UIContext.cpp#L172
-	static void SetColourThemePabloDark()
+	static void SetImGuiStyleDefaults()
 	{
-		ImGuiStyle& style  = ImGui::GetStyle();
-		ImVec4*     colors = style.Colors;
-
-		style.WindowRounding    = 8.0f;
-		style.ChildRounding     = 8.0f;
-		style.FrameRounding     = 6.0f;
-		style.PopupRounding     = 6.0f;
+		ImGui::StyleColorsDark();
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.WindowRounding = 8.0f;
+		style.ChildRounding = 8.0f;
+		style.FrameRounding = 6.0f;
+		style.PopupRounding = 6.0f;
 		style.ScrollbarRounding = 6.0f;
-		style.GrabRounding      = 6.0f;
-		style.TabRounding       = 6.0f;
-
-		colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
-		colors[ImGuiCol_TextDisabled]          = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-		colors[ImGuiCol_WindowBg]              = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-		colors[ImGuiCol_ChildBg]               = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-		colors[ImGuiCol_PopupBg]               = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
-		colors[ImGuiCol_Border]                = ImVec4(0.25f, 0.25f, 0.25f, 0.70f);
-		colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-		colors[ImGuiCol_FrameBg]               = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-		colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-		colors[ImGuiCol_FrameBgActive]         = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
-		colors[ImGuiCol_TitleBg]               = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-		colors[ImGuiCol_TitleBgActive]         = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-		colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-		colors[ImGuiCol_MenuBarBg]             = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
-		colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
-		colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
-		colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-		colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
-		colors[ImGuiCol_CheckMark]             = ImVec4(0.80f, 0.80f, 0.80f, 1.00f);
-		colors[ImGuiCol_SliderGrab]            = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
-		colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.85f, 0.85f, 0.85f, 1.00f);
-		colors[ImGuiCol_Button]                = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-		colors[ImGuiCol_ButtonHovered]         = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
-		colors[ImGuiCol_ButtonActive]          = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-		colors[ImGuiCol_Header]                = ImVec4(0.25f, 0.25f, 0.25f, 0.55f);
-		colors[ImGuiCol_HeaderHovered]         = ImVec4(0.35f, 0.35f, 0.35f, 0.80f);
-		colors[ImGuiCol_HeaderActive]          = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
-		colors[ImGuiCol_Separator]             = ImVec4(0.30f, 0.30f, 0.30f, 0.50f);
-		colors[ImGuiCol_SeparatorHovered]      = ImVec4(0.45f, 0.45f, 0.45f, 0.78f);
-		colors[ImGuiCol_SeparatorActive]       = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-		colors[ImGuiCol_ResizeGrip]            = ImVec4(0.30f, 0.30f, 0.30f, 0.25f);
-		colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.45f, 0.45f, 0.45f, 0.67f);
-		colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.50f, 0.50f, 0.50f, 0.95f);
-		colors[ImGuiCol_Tab]                   = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
-		colors[ImGuiCol_TabHovered]            = ImVec4(0.30f, 0.30f, 0.30f, 0.80f);
-		colors[ImGuiCol_TabActive]             = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-		colors[ImGuiCol_TabUnfocused]          = ImVec4(0.10f, 0.10f, 0.10f, 0.97f);
-		colors[ImGuiCol_TabUnfocusedActive]    = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-		colors[ImGuiCol_PlotLines]             = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
-		colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.90f, 0.50f, 0.50f, 1.00f);
-		colors[ImGuiCol_PlotHistogram]         = ImVec4(0.80f, 0.65f, 0.00f, 1.00f);
-		colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(0.90f, 0.50f, 0.00f, 1.00f);
-		colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.50f, 0.50f, 0.50f, 0.35f);
-		colors[ImGuiCol_DragDropTarget]        = ImVec4(1.00f, 0.00f, 0.00f, 0.90f);
-		colors[ImGuiCol_NavHighlight]          = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
-		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-		colors[ImGuiCol_NavWindowingDimBg]     = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-		colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+		style.GrabRounding = 6.0f;
+		style.TabRounding = 6.0f;
+		style.WindowPadding = ImVec2(10.0f, 8.0f);
+		style.FramePadding = ImVec2(7.0f, 4.0f);
+		style.ItemSpacing = ImVec2(8.0f, 4.0f);
+		style.PopupBorderSize = 1.0f;
 	}
 
 // ═══════════════════════════════════════════════════════════════════
@@ -446,7 +399,69 @@ namespace sub::Spooner::ImGuiSpooner
 		ImGuiIO& io = ImGui::GetIO();
 		io.IniFilename = nullptr;
 		io.MouseDrawCursor = false;
-		SetColourThemePabloDark();
+
+		bool fontLoaded = false;
+		if (ImFont* chalet = io.Fonts->AddFontFromMemoryCompressedTTF(
+			ChaletLondon_compressed_data,
+			static_cast<int>(ChaletLondon_compressed_size),
+			ImGuiMenuStyle::FontSizes::Main))
+		{
+			io.FontDefault = chalet;
+			fontLoaded = true;
+			g_SmallFont = io.Fonts->AddFontFromMemoryCompressedTTF(
+				ChaletLondon_compressed_data,
+				static_cast<int>(ChaletLondon_compressed_size),
+				ImGuiMenuStyle::FontSizes::Small);
+			g_MenuBarFont = io.Fonts->AddFontFromMemoryCompressedTTF(
+				ChaletLondon_compressed_data,
+				static_cast<int>(ChaletLondon_compressed_size),
+				ImGuiMenuStyle::FontSizes::MenuBar);
+		}
+
+		if (!fontLoaded)
+		{
+			const std::array<std::string, 2> fontPaths = {
+				GetPathffA(Pathff::Main, true) + "Fonts\\ClearSans-Regular.ttf",
+				GetPathffA(Pathff::Main, true) + "Fonts\\PublicSans-Variable.ttf"
+			};
+			for (const std::string& fontPath : fontPaths)
+			{
+				if (!does_file_exist(fontPath))
+					continue;
+
+				if (ImFont* defaultFont = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), ImGuiMenuStyle::FontSizes::Main))
+				{
+					io.FontDefault = defaultFont;
+					g_SmallFont = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), ImGuiMenuStyle::FontSizes::Small);
+					g_MenuBarFont = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), ImGuiMenuStyle::FontSizes::MenuBar);
+					fontLoaded = true;
+					break;
+				}
+			}
+		}
+
+		// Keep icons in a separate, slightly smaller face so they do not inflate row height.
+		if (fontLoaded)
+		{
+			static const ImWchar iconRanges[] = { 0xe000, 0xe8ff, 0xf000, 0xf8ff, 0 };
+			ImFontConfig iconConfig{};
+			iconConfig.FontDataOwnedByAtlas = false;
+			iconConfig.PixelSnapH = true;
+			g_IconFont = io.Fonts->AddFontFromMemoryTTF(
+				const_cast<unsigned char*>(FontAwesomeSolid_otf_data),
+				static_cast<int>(FontAwesomeSolid_otf_size),
+				ImGuiMenuStyle::FontSizes::Icon, &iconConfig, iconRanges);
+			g_HeaderIconFont = io.Fonts->AddFontFromMemoryTTF(
+				const_cast<unsigned char*>(FontAwesomeSolid_otf_data),
+				static_cast<int>(FontAwesomeSolid_otf_size),
+				ImGuiMenuStyle::FontSizes::HeaderIcon, &iconConfig, iconRanges);
+		}
+		if (!fontLoaded)
+		{
+			addlog(ige::LogType::LOG_WARNING, "Embedded and fallback ImGui fonts could not be loaded");
+		}
+
+		SetImGuiStyleDefaults();
 
 		if (!ImGui_ImplWin32_Init(hWnd)) { ImGui::DestroyContext(); return false; }
 		if (!ImGui_ImplDX11_Init(device, context)) { ImGui_ImplWin32_Shutdown(); ImGui::DestroyContext(); return false; }
@@ -458,6 +473,8 @@ namespace sub::Spooner::ImGuiSpooner
 	{
 		if (g_ShuttingDown || !g_Visible)
 		{
+			if (g_ImGuiInitialized)
+				ImGui::GetIO().MouseDrawCursor = false;
 			D3D11Hook::SetMenuVisible(false);
 			return;
 		}
@@ -468,13 +485,17 @@ namespace sub::Spooner::ImGuiSpooner
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
+		ImGuiTheme::ThemeSnapshot theme;
 
 		{
 			std::lock_guard<std::mutex> lock(g_Mutex);
+			theme = g_Shared.theme;
+			ImGuiTheme::ApplyToImGui(theme);
 
 			bool cursorMode = g_Shared.render.cursorModeEnabled;
 			ImGuiIO& io = ImGui::GetIO();
 
+			// draw cursor only when using gizmo or cursor mode
 			io.MouseDrawCursor = cursorMode ||
 				(g_Shared.render.editingState.mode == SpoonerMode::eEditMode::Gizmo);
 
@@ -482,11 +503,12 @@ namespace sub::Spooner::ImGuiSpooner
 
 			if (cursorMode)
 				HandleCursorModeClicks(io);
+			else
+				CancelDragSelection();
 
 			DrawContextMenu();
 
-			if (cursorMode)
-				DrawMenuBarWindow();
+			DrawMenuBarWindow();
 		}
 
 		ImGui::Render();
@@ -529,9 +551,12 @@ namespace sub::Spooner::ImGuiSpooner
 //  Script Thread Ticks
 // ═══════════════════════════════════════════════════════════════════
 
-	static void DrainPending_ScriptThread(SharedState& s)
+	static void ApplyPending_ScriptThread(PendingWrites pending)
 	{
 		SpoonerEntity& sel = selectedEntity;
+		const bool targetsCurrentEntity = pending.entityHandle == 0 || pending.entityHandle == sel.handle.GetHandle();
+		if (!targetsCurrentEntity)
+			return;
 		if (sel.handle.Exists())
 		{
 			GTAentity parentEntity(ENTITY::GET_ENTITY_ATTACHED_TO(sel.handle.Handle()));
@@ -539,19 +564,19 @@ namespace sub::Spooner::ImGuiSpooner
 			// Normal entity (not attached)
 			if (!sel.attachmentArgs.isAttached)
 			{
-				if (s.pending.positionDirty) sel.handle.SetPosition(SpoonerMode::SnapPos(s.pending.positionVal));
-				if (s.pending.rotationDirty) sel.handle.SetRotation(SpoonerMode::SnapRot(s.pending.rotationVal));
+				if (pending.positionDirty) sel.handle.SetPosition(SpoonerMode::SnapPos(pending.positionVal));
+				if (pending.rotationDirty) sel.handle.SetRotation(SpoonerMode::SnapRot(pending.rotationVal));
 			}
 			// Attached entity - converting to local offsets
 			else if (parentEntity.Exists())
 			{
-				if (s.pending.positionDirty) GetAttachmentOffset(sel, parentEntity, s.pending.positionVal);
-				if (s.pending.rotationDirty)
+				if (pending.positionDirty) GetAttachmentOffset(sel, parentEntity, pending.positionVal);
+				if (pending.rotationDirty)
 				{
 					float oldWorldM[16], newWorldM[16], oldLocalM[16];
 					Vector3 curWorldRot = sel.handle.Rotation_get();
 					BuildTransformMatrix(Vector3(), curWorldRot, Vector3(1.0f, 1.0f, 1.0f), oldWorldM);
-					BuildTransformMatrix(Vector3(), s.pending.rotationVal, Vector3(1.0f, 1.0f, 1.0f), newWorldM);
+					BuildTransformMatrix(Vector3(), pending.rotationVal, Vector3(1.0f, 1.0f, 1.0f), newWorldM);
 					BuildTransformMatrix(Vector3(), sel.attachmentArgs.rotation, Vector3(1.0f, 1.0f, 1.0f), oldLocalM);
 
 					float worldT[16], temp[16], newLocalM[16];
@@ -564,14 +589,14 @@ namespace sub::Spooner::ImGuiSpooner
 					sel.attachmentArgs.rotation = newLocalRot;
 				}
 
-				if (s.pending.positionDirty || s.pending.rotationDirty)
+				if (pending.positionDirty || pending.rotationDirty)
 				{
 					sel.handle.AttachTo(parentEntity, sel.attachmentArgs.boneIndex, sel.handle.GetIsCollisionEnabled(), sel.attachmentArgs.offset, sel.attachmentArgs.rotation);
 				}
 			}
 
-			if (s.pending.scaleDirty) {
-				sel.handle.SetScale(s.pending.scaleVal);
+			if (pending.scaleDirty) {
+				sel.handle.SetScale(pending.scaleVal);
 				// syncing scale so that it doesn't reset every time we grab the gizmo
 				Entity entHandle = sel.handle.GetHandle();
 				Submenus::EntityScaleState& state = [&]() -> Submenus::EntityScaleState& {
@@ -583,10 +608,9 @@ namespace sub::Spooner::ImGuiSpooner
 					}
 				}();
 				state.handle = entHandle;
-				state.scale = s.pending.scaleVal;
+				state.scale = pending.scaleVal;
 			}
 		}
-		s.pending = PendingWrites{};
 	}
 
 	// ── Snapshot ──────────────────────────────────────────────────
@@ -626,10 +650,11 @@ namespace sub::Spooner::ImGuiSpooner
 			s.cache.entityCollision = true;
 			s.cache.entityType = 0;
 			s.cache.entityInDb = false;
+			s.cache.entityFavourite = false;
 			s.cache.entityHashName.clear();
 			s.cache.entityAttached = false;
-			s.cache.vehicleEngineOn = false;
-			s.cache.vehicleLightsOn = false;
+			std::fill(std::begin(s.cache.vehicleDoorOpen), std::end(s.cache.vehicleDoorOpen), false);
+			s.cache.multiSelectActive = false;
 			return;
 		}
 
@@ -643,19 +668,26 @@ namespace sub::Spooner::ImGuiSpooner
 		s.cache.entityType = static_cast<int>(sel.handle.Type());
 		s.cache.entityHashName = sel.hashName;
 		s.cache.entityInDb = EntityManagement::GetEntityIndexInDb(sel) >= 0;
+		const GTAmodel::Model model = sel.handle.Model();
+		s.cache.entityFavourite = [&]()
+		{
+			switch (static_cast<EntityType>(s.cache.entityType))
+			{
+			case EntityType::PROP: return FavouritesManagement::IsPropAFavourite(sel.hashName, model.hash);
+			case EntityType::PED: return PedFavourites::IsPedAFavourite(model);
+			case EntityType::VEHICLE: return FavouritesManagement::IsVehicleAFavourite(model);
+			default: return false;
+			}
+		}();
 		s.cache.entityAttached = ENTITY::IS_ENTITY_ATTACHED(sel.handle.Handle());
-		if (s.cache.entityType == 2)
+		std::fill(std::begin(s.cache.vehicleDoorOpen), std::end(s.cache.vehicleDoorOpen), false);
+		if (static_cast<EntityType>(s.cache.entityType) == EntityType::VEHICLE)
 		{
-			s.cache.vehicleEngineOn = GET_IS_VEHICLE_ENGINE_RUNNING(sel.handle.Handle());
-			BOOL lightsOn = FALSE, highbeamsOn = FALSE;
-			GET_VEHICLE_LIGHTS_STATE(sel.handle.Handle(), &lightsOn, &highbeamsOn);
-			s.cache.vehicleLightsOn = lightsOn != FALSE;
+			const GTAvehicle vehicle = sel.handle;
+			for (int i = 0; i < 6; ++i)
+				s.cache.vehicleDoorOpen[i] = vehicle.IsDoorOpen(static_cast<VehicleDoor>(i));
 		}
-		else
-		{
-			s.cache.vehicleEngineOn = false;
-			s.cache.vehicleLightsOn = false;
-		}
+		s.cache.multiSelectActive = Submenus::MultiSelect::HasActivePivot();
 	}
 
 	// ── Favourite Cache Refresh ────────────────────────────────────
@@ -728,258 +760,6 @@ namespace sub::Spooner::ImGuiSpooner
 	}
 
 // ═══════════════════════════════════════════════════════════════════
-//  Cursor Command Processing (dispatch table)
-// ═══════════════════════════════════════════════════════════════════
-
-	using CmdHandler = void(*)(const QueuedCommand&);
-
-	static void Cmd_None(const QueuedCommand&) {}
-
-	// ── RMB entity commands ──
-	static void Cmd_RmbMenu_ManualEditing(const QueuedCommand&) { SpoonerMode::OpenMenu(SUB::SPOONER_MANUALEDITING); }
-	static void Cmd_RmbMenu_Attachment(const QueuedCommand&)    { SpoonerMode::OpenMenu(SUB::SPOONER_ATTACHMENTOPS); }
-	static void Cmd_RmbMenu_TaskSequence(const QueuedCommand&)  { SpoonerMode::OpenMenu(SUB::SPOONER_TASKSEQUENCE_TASKLIST); }
-	static void Cmd_RmbMenu_Wardrobe(const QueuedCommand&)      { Submenus::SetSelectedEntityAsActivePed(); SpoonerMode::OpenMenu(SUB::COMPONENTS); }
-	static void Cmd_RmbMenu_Animations(const QueuedCommand&)    { Submenus::SetSelectedEntityAsActivePed(); SpoonerMode::OpenMenu(SUB::ANIMATIONSUB); }
-	static void Cmd_RmbMenu_Frozen(const QueuedCommand&)        { if (selectedEntity.handle.Exists()) selectedEntity.handle.FreezePosition(!selectedEntity.handle.IsPositionFrozen()); }
-	static void Cmd_RmbMenu_Collision(const QueuedCommand&)     { if (selectedEntity.handle.Exists()) selectedEntity.handle.SetIsCollisionEnabled(!selectedEntity.handle.GetIsCollisionEnabled()); }
-	static void Cmd_RmbMenu_Copy(const QueuedCommand&)
-	{
-		if (!selectedEntity.handle.Exists()) return;
-		selectedEntity = EntityManagement::CopyEntity(
-			selectedEntity,
-			EntityManagement::GetEntityIndexInDb(selectedEntity) >= 0,
-			true,
-			Submenus::_copyEntTexterValue);
-	}
-	static void Cmd_RmbMenu_Delete(const QueuedCommand&)
-	{
-		if (!selectedEntity.handle.Exists()) return;
-		selectedEntity.handle.RequestControl(600);
-		EntityManagement::DeleteEntity(selectedEntity);
-		SpoonerMode::ResetSelectedEntity();
-		SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
-	}
-	static void Cmd_RmbMenu_PlaceOnGround(const QueuedCommand&) { if (selectedEntity.handle.Exists()) selectedEntity.handle.PlaceOnGround(); }
-	static void Cmd_RmbMenu_DbToggle(const QueuedCommand&)
-	{
-		if (!selectedEntity.handle.Exists()) return;
-		const int index = EntityManagement::GetEntityIndexInDb(selectedEntity);
-		if (index >= 0)
-			EntityManagement::RemoveEntityFromDb(selectedEntity);
-		else
-			EntityManagement::AddEntityToDb(selectedEntity, Settings::bAddToDbAsMissionEntities);
-	}
-	static void Cmd_RmbMenu_Detach(const QueuedCommand&)
-	{
-		if (selectedEntity.handle.Exists())
-			EntityManagement::DetachEntity(selectedEntity);
-	}
-	static void Cmd_RmbMenu_Engine(const QueuedCommand&)
-	{
-		if (!selectedEntity.handle.Exists() || static_cast<EntityType>(selectedEntity.handle.Type()) != EntityType::VEHICLE) return;
-		const BOOL running = GET_IS_VEHICLE_ENGINE_RUNNING(selectedEntity.handle.Handle());
-		SET_VEHICLE_ENGINE_ON(selectedEntity.handle.Handle(), !running, true, true);
-	}
-	static void Cmd_RmbMenu_Lights(const QueuedCommand&)
-	{
-		if (!selectedEntity.handle.Exists() || static_cast<EntityType>(selectedEntity.handle.Type()) != EntityType::VEHICLE) return;
-		BOOL lightsOn = FALSE, highbeamsOn = FALSE;
-		GET_VEHICLE_LIGHTS_STATE(selectedEntity.handle.Handle(), &lightsOn, &highbeamsOn);
-		SET_VEHICLE_LIGHTS(selectedEntity.handle.Handle(), lightsOn ? 4 : 3);
-	}
-	static void Cmd_RmbMenu_Repair(const QueuedCommand&)
-	{
-		if (selectedEntity.handle.Exists() && static_cast<EntityType>(selectedEntity.handle.Type()) == EntityType::VEHICLE)
-			SET_VEHICLE_FIXED(selectedEntity.handle.Handle());
-	}
-	static void Cmd_RmbMenu_MenyooCustoms(const QueuedCommand&) { Submenus::SetSelectedEntityAsVehicleTarget(); SpoonerMode::OpenMenu(SUB::MODSHOP); }
-
-	// ── World commands ──
-	static void Cmd_World_TimePreset(const QueuedCommand& command)
-	{
-		static const int timePresets[4][2] = {{6, 0}, {12, 0}, {19, 0}, {23, 0}};
-		const int index = command.intPayload;
-		if (index < 0 || index >= 4) return;
-
-		NETWORK_OVERRIDE_CLOCK_TIME(timePresets[index][0], timePresets[index][1], 0);
-		if (pauseClock)
-		{
-			pauseClockH = static_cast<UINT8>(timePresets[index][0]);
-			pauseClockM = static_cast<UINT8>(timePresets[index][1]);
-		}
-	}
-	static void Cmd_World_WeatherSet(const QueuedCommand& command)
-	{
-		const int index = command.intPayload;
-		if (index >= 0 && index < static_cast<int>(World::sWeatherNames.size()))
-			World::SetWeather(World::sWeatherNames[index].second);
-	}
-	static void Cmd_World_WeatherReset(const QueuedCommand&) { World::ClearWeatherOverride(); }
-	static void Cmd_World_SpeedSet(const QueuedCommand& command)   { SET_TIME_SCALE(command.floatPayload); }
-
-	// ── Spawn commands ──
-	static void Cmd_SpawnFavourite(const QueuedCommand& command)
-	{
-		if (g_PendingSpawn.active) return;
-
-		REQUEST_MODEL(command.spawnPayload.modelHash);
-		g_PendingSpawn = {
-			command.spawnPayload.modelHash,
-			command.spawnPayload.category,
-			command.spawnPayload.name,
-			GetTickCount(),
-			true
-		};
-	}
-
-	static void CheckPendingSpawns_ScriptThread()
-	{
-		if (!g_PendingSpawn.active) return;
-
-		if (GetTickCount() - g_PendingSpawn.startTime > 3000)
-		{
-			GTAmodel::Model(g_PendingSpawn.modelHash).Unload();
-			g_PendingSpawn.active = false;
-			Game::Print::PrintBottomLeft("~r~Spawn failed:~s~ model timed out");
-			return;
-		}
-
-		REQUEST_MODEL(g_PendingSpawn.modelHash);
-		if (!HAS_MODEL_LOADED(g_PendingSpawn.modelHash)) return;
-
-		const GTAmodel::Model model(g_PendingSpawn.modelHash);
-		switch (g_PendingSpawn.category)
-		{
-		case 0: EntityManagement::AddProp(model, g_PendingSpawn.name); break;
-		case 1: EntityManagement::AddPed(model, g_PendingSpawn.name); break;
-		case 2: EntityManagement::AddVehicle(model, g_PendingSpawn.name); break;
-		}
-		g_PendingSpawn.active = false;
-	}
-
-	// ── Menu and view commands ──
-	static void Cmd_OpenMenu(const QueuedCommand& command)
-	{
-		SpoonerMode::OpenMenu(command.intPayload, command.dbPayload);
-	}
-	static void Cmd_View_GridSnap(const QueuedCommand& command)
-	{
-		Settings::bGridSnapEnabled = command.floatPayload > 0.0f;
-		if (Settings::bGridSnapEnabled)
-			Settings::gridSnapSize = command.floatPayload;
-	}
-	static void Cmd_View_RotationSnap(const QueuedCommand& command) { Settings::rotationSnapDegrees = command.floatPayload; }
-	static void Cmd_View_DrawGrid(const QueuedCommand&)       { Settings::bDrawGrid = !Settings::bDrawGrid; }
-	static void Cmd_View_CursorMode(const QueuedCommand& command)
-	{
-		Settings::bCursorMode = command.intPayload != 0;
-		if (!Settings::bCursorMode)
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
-	}
-	static void Cmd_CloseSpooner(const QueuedCommand&) { SpoonerMode::TurnOff(); }
-
-	// ── Select / click commands ──
-	static void Cmd_SelectEntity(const QueuedCommand& command)
-	{
-		if (!SpoonerCamera::camera.Exists()) return;
-
-		GTAentity clicked = SpoonerCamera::camera.RaycastForEntity(
-			Vector2(command.cursorScreenX, command.cursorScreenY), 0, 160.0f);
-		if (!clicked.Exists())
-		{
-			SpoonerMode::ResetSelectedEntity();
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
-			return;
-		}
-
-		SpoonerMode::SetAsSelectedEntity(clicked);
-		SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Gizmo;
-		SpoonerMode::editingState.transformMode = SpoonerMode::eTransformMode::Position;
-	}
-	static void Cmd_SelectEntityAndShowMenu(const QueuedCommand& command)
-	{
-		if (!SpoonerCamera::camera.Exists()) return;
-
-		GTAentity clicked = SpoonerCamera::camera.RaycastForEntity(
-			Vector2(command.cursorScreenX, command.cursorScreenY), 0, 160.0f);
-		if (clicked.Exists())
-		{
-			SpoonerMode::SetAsSelectedEntity(clicked);
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
-			g_ContextMenuReady = true;
-			return;
-		}
-
-		SpoonerMode::ResetSelectedEntity();
-		SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
-		g_EmptySpaceMenuReady = true;
-	}
-	static void Cmd_EmptyMenu_PlaceEntityHere(const QueuedCommand& command)
-	{
-		if (!SpoonerCamera::camera.Exists()) return;
-
-		const int targetHandle = command.dbPayload;
-		auto entity = std::find_if(Databases::EntityDb.begin(), Databases::EntityDb.end(),
-			[targetHandle](const SpoonerEntity& entry) { return entry.handle.GetHandle() == targetHandle; });
-		if (entity == Databases::EntityDb.end() || !entity->handle.Exists()) return;
-
-		if (entity->attachmentArgs.isAttached)
-			EntityManagement::DetachEntity(*entity);
-
-		const Vector3 cursorPosition = SpoonerCamera::camera.RaycastForCoord(
-			Vector2(command.cursorScreenX, command.cursorScreenY), 0, 300.0f, 300.0f);
-		entity->handle.RequestControlOnce();
-		entity->handle.SetPosition(cursorPosition);
-		entity->handle.PlaceOnGround();
-	}
-
-	static const CmdHandler s_cmdHandlers[] = {
-		Cmd_None,
-		Cmd_SelectEntity,
-		Cmd_SelectEntityAndShowMenu,
-		Cmd_RmbMenu_ManualEditing,
-		Cmd_RmbMenu_Attachment,
-		Cmd_RmbMenu_TaskSequence,
-		Cmd_RmbMenu_Wardrobe,
-		Cmd_RmbMenu_Animations,
-		Cmd_RmbMenu_Frozen,
-		Cmd_RmbMenu_Collision,
-		Cmd_RmbMenu_Copy,
-		Cmd_RmbMenu_Delete,
-		Cmd_RmbMenu_PlaceOnGround,
-		Cmd_RmbMenu_DbToggle,
-		Cmd_RmbMenu_Detach,
-		Cmd_RmbMenu_Engine,
-		Cmd_RmbMenu_Lights,
-		Cmd_RmbMenu_Repair,
-		Cmd_RmbMenu_MenyooCustoms,
-		Cmd_EmptyMenu_PlaceEntityHere,
-		Cmd_World_TimePreset,
-		Cmd_World_WeatherSet,
-		Cmd_World_WeatherReset,
-		Cmd_World_SpeedSet,
-		Cmd_SpawnFavourite,
-		Cmd_OpenMenu,
-		Cmd_View_GridSnap,
-		Cmd_View_RotationSnap,
-		Cmd_View_DrawGrid,
-		Cmd_View_CursorMode,
-		Cmd_CloseSpooner,
-	};
-	static const int s_cmdHandlerCount = sizeof(s_cmdHandlers) / sizeof(s_cmdHandlers[0]);
-	static_assert(s_cmdHandlerCount == static_cast<int>(CursorCommand::CloseSpooner) + 1, "Cursor command table is out of sync");
-
-	static void ProcessCursorCommand(const QueuedCommand& command)
-	{
-		if (command.cmd == CursorCommand::None) return;
-
-		const int index = static_cast<int>(command.cmd);
-		if (index >= 0 && index < s_cmdHandlerCount)
-			s_cmdHandlers[index](command);
-	}
-
-// ═══════════════════════════════════════════════════════════════════
 //  Main Tick
 // ═══════════════════════════════════════════════════════════════════
 
@@ -993,28 +773,37 @@ namespace sub::Spooner::ImGuiSpooner
 
 		auto refreshedFavourites = RefreshCaches_ScriptThread();
 		std::vector<QueuedCommand> commands;
+		PendingWrites pending;
+		PopupRequest popupRequest = PopupRequest::None;
 
 		{
 			std::lock_guard<std::mutex> lock(g_Mutex);
 
-			// Write any pending gizmo changes to selected entity
-			DrainPending_ScriptThread(g_Shared);
+			pending = std::move(g_Shared.pending);
+			g_Shared.pending = PendingWrites{};
 			commands = DrainQueue_ScriptThread(g_Shared);
 		}
 
+		ApplyPending_ScriptThread(std::move(pending));
 		// Execute game-native commands without holding the render-state mutex.
 		// Some commands yield with WAIT(), so keeping the mutex held here would
 		// block the D3D render callback while the script thread is suspended.
-		for (const auto& command : commands)
-			ProcessCursorCommand(command);
+		popupRequest = ProcessCursorCommands(commands);
 		CheckPendingSpawns_ScriptThread();
+
+		SharedState snapshot;
+		snapshot.theme = ImGuiTheme::CaptureFromMenyoo();
+		RefreshSnapshot_ScriptThread(snapshot);
+		RefreshDbCache_ScriptThread(snapshot);
 
 		{
 			std::lock_guard<std::mutex> lock(g_Mutex);
 
-			// Update current state cache
-			RefreshSnapshot_ScriptThread(g_Shared);
-			RefreshDbCache_ScriptThread(g_Shared);
+			g_Shared.render = std::move(snapshot.render);
+			g_Shared.cache = std::move(snapshot.cache);
+			g_Shared.dbEntityCache = std::move(snapshot.dbEntityCache);
+			if (popupRequest != PopupRequest::None)
+				g_Shared.popupRequest = popupRequest;
 
 			if (refreshedFavourites)
 				g_Shared.favouriteCache = std::move(*refreshedFavourites);
@@ -1041,6 +830,10 @@ namespace sub::Spooner::ImGuiSpooner
 			return true;
 
 		g_ShuttingDown = false;
+		{
+			std::lock_guard<std::mutex> lock(g_Mutex);
+			g_Shared.theme = ImGuiTheme::CaptureFromMenyoo();
+		}
 		return D3D11Hook::Initialize(OnRender);
 	}
 
@@ -1048,6 +841,10 @@ namespace sub::Spooner::ImGuiSpooner
 	{
 		g_ShuttingDown = true;
 		g_Visible = false;
+		D3D11Hook::SetMenuVisible(false);
+
+		for (int i = 0; D3D11Hook::IsRenderingFrame() && i < 100; ++i)
+			Sleep(10);
 
 		if (g_ImGuiInitialized)
 		{
@@ -1063,11 +860,34 @@ namespace sub::Spooner::ImGuiSpooner
 	void SetVisible(bool visible)
 	{
 		g_Visible = visible;
-		D3D11Hook::SetMenuVisible(visible);
-		if (!visible && g_ImGuiInitialized)
+		if (visible)
+			D3D11Hook::SetMenuVisible(true);
+		else
 		{
-			ImGui::GetIO().MouseDrawCursor = false;
-			while (ShowCursor(false) >= 0);
+			std::lock_guard<std::mutex> lock(g_Mutex);
+			g_Shared.cmds.queue.clear();
+			g_Shared.pending = PendingWrites{};
+			g_Shared.popupRequest = PopupRequest::None;
+		}
+	}
+
+	void SetCursorModeEnabled(bool enabled)
+	{
+		{
+			std::lock_guard<std::mutex> lock(g_Mutex);
+			g_Shared.render.cursorModeEnabled = enabled;
+		}
+
+		static bool initialized = false;
+		static bool lastState = false;
+		if (!initialized || lastState != enabled)
+		{
+			initialized = true;
+			lastState = enabled;
+			if (enabled)
+				Game::Print::ShowNotification("Cursor Mode Enabled", "Cursor mode enabled. You can now use your left mouse button to grab entities or right mouse button to open a context menu with quick actions");
+			else
+				Game::Print::ShowNotification("Cursor Mode Disabled", "Cursor mode disabled. Mouse clicks are no longer used for entity selection or context menus");
 		}
 	}
 

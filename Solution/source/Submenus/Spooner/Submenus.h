@@ -42,6 +42,7 @@ namespace sub
 			void Remove(int index);
 			void Remove(GTAentity handle);
 			bool IsSelected(GTAentity handle);
+			bool HasActivePivot();
 			void Clear();
 			void DestroyPivot();
 			void CreatePivot();

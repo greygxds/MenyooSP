@@ -143,6 +143,11 @@ namespace sub
 				return false;
 			}
 
+			bool HasActivePivot()
+			{
+				return g_multiSelectPivot.GetHandle() != 0 && g_multiSelectPivot.Exists();
+			}
+
 			void Clear()
 			{
 				MultiSelect::g_selectedEntities.clear();
@@ -2086,6 +2091,13 @@ namespace sub
 		}
 		void Sub_MultiSelect()
 		{
+			// show in-game indicator of which entities are selected
+			for (const auto& entity : MultiSelect::g_selectedEntities)
+			{
+				if (entity.handle.Exists())
+					EntityManagement::ShowArrowAboveEntity(entity.handle, RGBA(127, 0, 255, 200));
+			}
+
 			if (!g_multiSelectEditActive)
 			{
 				g_multiSelectPrevSelected = selectedEntity;

@@ -3,22 +3,28 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <atomic>
-#include "..\..\Util\GTAmath.h"
-#include "SpoonerMode.h"
+#include "..\..\..\Util\GTAmath.h"
+#include "..\SpoonerMode.h"
+#include "..\..\..\UI\ImGui\MenyooTheme.h"
 
 typedef unsigned long DWORD, Hash;
 
 struct ImGuiIO;
+struct ImFont;
 
 namespace sub::Spooner::ImGuiSpooner
 {
+	extern ImFont* g_IconFont;
+	extern ImFont* g_HeaderIconFont;
+	extern ImFont* g_SmallFont;
+	extern ImFont* g_MenuBarFont;
 	enum class CursorCommand : uint8_t
 	{
 		// Context menu commands (when clicking on an entity)
 		None,
 		SelectEntity,
 		SelectEntityAndShowMenu,
+		SelectEntitiesInRectangle,
 		RmbMenu_ManualEditing,
 		RmbMenu_Attachment,
 		RmbMenu_TaskSequence,
@@ -30,11 +36,19 @@ namespace sub::Spooner::ImGuiSpooner
 		RmbMenu_Delete,
 		RmbMenu_PlaceOnGround,
 		RmbMenu_DbToggle,
+		RmbMenu_FavouriteToggle,
 		RmbMenu_Detach,
 		RmbMenu_Engine,
 		RmbMenu_Lights,
 		RmbMenu_Repair,
 		RmbMenu_MenyooCustoms,
+		RmbMenu_SelectRadius,
+		RmbMenu_WindowAction,
+		RmbMenu_DoorAction,
+		RmbMenu_LightToggle,
+		RmbMenu_ExtraToggle,
+		RmbMenu_NeonToggle,
+		RmbMenu_HealthSet,
 
 		//  Context menu commands (when clicking on empty space)
 		EmptyMenu_PlaceEntityHere,
@@ -74,9 +88,26 @@ namespace sub::Spooner::ImGuiSpooner
 		std::string name;
 	};
 
+	struct SelectionRectangle
+	{
+		float minX = 0.0f;
+		float minY = 0.0f;
+		float maxX = 0.0f;
+		float maxY = 0.0f;
+		bool additive = false;
+	};
+
+	enum class PopupRequest : uint8_t
+	{
+		None,
+		Entity,
+		EmptySpace,
+	};
+
 	// Gizmo writes
 	struct PendingWrites
 	{
+		int entityHandle = 0;
 		bool positionDirty = false;  Vector3 positionVal{};
 		bool rotationDirty = false;  Vector3 rotationVal{};
 		bool scaleDirty = false;     Vector3 scaleVal{1.0f, 1.0f, 1.0f};
@@ -112,22 +143,25 @@ namespace sub::Spooner::ImGuiSpooner
 		bool entityCollision = true;
 		int  entityType = 0; // 0=unk, 1=ped, 2=veh, 3=prop
 		bool entityInDb = false;
+		bool entityFavourite = false;
 		std::string entityHashName;
 		bool entityAttached = false;
-		bool vehicleEngineOn = false;
-		bool vehicleLightsOn = false;
+		bool vehicleDoorOpen[6] = {};
+		bool multiSelectActive = false;
 	};
 
 	// Queued command for processing in the main thread
 	struct QueuedCommand
 	{
 		CursorCommand cmd = CursorCommand::None;
+		int targetEntityHandle = 0;
 		int intPayload = 0;
 		int dbPayload = -1;
 		float floatPayload = 0.0f;
 		FavouriteSpawnPayload spawnPayload{};
 		float cursorScreenX = 0.0f;
 		float cursorScreenY = 0.0f;
+		SelectionRectangle selectionRectangle{};
 	};
 
 	struct CommandQueue
@@ -137,6 +171,8 @@ namespace sub::Spooner::ImGuiSpooner
 
 	struct SharedState
 	{
+		PopupRequest popupRequest = PopupRequest::None;
+		ImGuiTheme::ThemeSnapshot theme;
 		RenderState render;
 		EntityCache cache;
 		CommandQueue cmds;
@@ -150,12 +186,11 @@ namespace sub::Spooner::ImGuiSpooner
 	};
 
 	extern SharedState g_Shared;
-	extern std::atomic<bool> g_ContextMenuReady;
-	extern std::atomic<bool> g_EmptySpaceMenuReady;
 
-	void SetCommand(SharedState& state, CursorCommand command, int intPayload = 0, int dbPayload = -1, float floatPayload = 0.0f, FavouriteSpawnPayload spawnPayload = {});
+	void SetCommand(SharedState& state, CursorCommand command, int intPayload = 0, int dbPayload = -1, float floatPayload = 0.0f, FavouriteSpawnPayload spawnPayload = {}, SelectionRectangle selectionRectangle = {});
 
 	void HandleCursorModeClicks(::ImGuiIO& io);
+	void CancelDragSelection();
 	void DrawContextMenu();
 
 	bool Initialize();
@@ -164,6 +199,7 @@ namespace sub::Spooner::ImGuiSpooner
 	void Tick();
 
 	void SetVisible(bool visible);
+	void SetCursorModeEnabled(bool enabled);
 	bool IsVisible();
 
 	int Match_Score(const char* label, const char* query);
