@@ -76,7 +76,6 @@ namespace sub::Spooner
 			bool ShouldDrawNativeCursor()
 			{
 				return bEnabled && !Settings::bCursorMode &&
-					Menu::activeSubmenu == SUB::CLOSED &&
 					editingState.mode == eEditMode::Disabled &&
 					SpoonerCamera::camera.Exists();
 			}
