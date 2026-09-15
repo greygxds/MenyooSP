@@ -212,7 +212,7 @@ namespace sub
 
 	void Sub_SpoonerMain()
 		{
-		SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+		SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
 		selectedEntity.handle = 0;
 			_searchStr.clear(); // Sub_SaveFiles _searchStr
 			dict3.clear(); // Sub_SaveFiles _dir
@@ -1272,7 +1272,7 @@ namespace sub
 		}*/
 		void Sub_SelectedEntityOps()
 		{
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+			SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
 			if (!selectedEntity.handle.Exists())
 			{
 				Menu::SetPreviousMenu();
@@ -1721,7 +1721,7 @@ namespace sub
 				AddBreak("---Options---");
 				AddOption("Snapping", null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
 
-				SpoonerMode::editingState.mode = static_cast<SpoonerMode::eEditMode>(AddTexterCycler("Entity manipulation mode", (int)SpoonerMode::editingState.mode, {"None", "Keyboard", "Gizmo"}));
+				SpoonerMode::editingState.SetMode(static_cast<SpoonerMode::eEditMode>(AddTexterCycler("Entity manipulation mode", (int)SpoonerMode::editingState.mode, {"None", "Keyboard", "Gizmo"})));
 				if (SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled && SpoonerMode::editingState.transformMode != SpoonerMode::eTransformMode::Scale)
 					AddToggle("Local Space", SpoonerMode::editingState.localSpace);
 			}
@@ -1973,7 +1973,7 @@ namespace sub
 			AddOption("Snapping", null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
 			
 
-			SpoonerMode::editingState.mode = static_cast<SpoonerMode::eEditMode>(AddTexterCycler("Entity manipulation mode", (int)SpoonerMode::editingState.mode, { "None", "Keyboard", "Gizmo" }));
+			SpoonerMode::editingState.SetMode(static_cast<SpoonerMode::eEditMode>(AddTexterCycler("Entity manipulation mode", (int)SpoonerMode::editingState.mode, { "None", "Keyboard", "Gizmo" })));
 
 			// don't show if not in editing mode or if in scale mode (because scaling is always local-space)
 			if (SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled && SpoonerMode::editingState.transformMode != SpoonerMode::eTransformMode::Scale)

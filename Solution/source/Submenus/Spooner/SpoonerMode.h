@@ -37,9 +37,25 @@ namespace sub::Spooner
 			eEditMode mode = eEditMode::Disabled;
 			eTransformMode transformMode = eTransformMode::Position;
 			bool localSpace = false;
+			bool cameraLocked = false;
 			float precisionPos = 0.1f;
 			float precisionRot = 1.0f;
 			float precisionScale = 0.1f;
+
+			void SetMode(eEditMode newMode)
+			{
+				if (mode == newMode) return;
+				mode = newMode;
+				cameraLocked = false;
+			}
+			bool BlocksCameraTranslation() const
+			{
+				return mode == eEditMode::Keyboard || (mode == eEditMode::Gizmo && cameraLocked);
+			}
+			bool BlocksCameraRotation() const
+			{
+				return mode == eEditMode::Gizmo && cameraLocked;
+			}
 		};
 		extern EditingState editingState;
 
@@ -73,6 +89,7 @@ namespace sub::Spooner
 		void SetAsSelectedEntity(GTAentity& entity);
 		Vector3 SnapPos(Vector3 pos);
 		Vector3 SnapRot(Vector3 rot);
+		float GetGroundOffset(const GTAmodel::ModelDimensions& dimensions, const Vector3& rotation);
 		void DrawSnappingGrid();
 
 		void Tick();

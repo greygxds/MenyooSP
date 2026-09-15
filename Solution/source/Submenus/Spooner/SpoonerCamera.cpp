@@ -83,23 +83,28 @@ namespace sub::Spooner::SpoonerCamera
 	static Input ReadKeyboardInput()
 	{
 		Input input;
-		if (Settings::bCursorMode || SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled)
-			return input;
+		const SpoonerMode::EditingState& editingState = SpoonerMode::editingState;
 
-		float movementSensitivity = Settings::cameraMovementSensitivityKeyboard;
-		if (IS_DISABLED_CONTROL_PRESSED(0, INPUT_SPRINT))
-			movementSensitivity *= 4.0f;
-		movementSensitivity *= speed;
+		if (!editingState.BlocksCameraTranslation())
+		{
+			float movementSensitivity = Settings::cameraMovementSensitivityKeyboard;
+			if (IS_DISABLED_CONTROL_PRESSED(0, INPUT_SPRINT))
+				movementSensitivity *= 4.0f;
+			movementSensitivity *= speed;
 
-		input.translation.x = GET_DISABLED_CONTROL_NORMAL(0, INPUT_MOVE_LR) * movementSensitivity;
-		input.translation.y = -GET_DISABLED_CONTROL_NORMAL(0, INPUT_MOVE_UD) * movementSensitivity;
-		input.translation.z = IsKeyDown(VirtualKey::X) ? movementSensitivity / 2.0f
-			: IsKeyDown(VirtualKey::Z) ? -movementSensitivity / 2.0f
-			: 0.0f;
+			input.translation.x = GET_DISABLED_CONTROL_NORMAL(0, INPUT_MOVE_LR) * movementSensitivity;
+			input.translation.y = -GET_DISABLED_CONTROL_NORMAL(0, INPUT_MOVE_UD) * movementSensitivity;
+			input.translation.z = IsKeyDown(VirtualKey::X) ? movementSensitivity / 2.0f
+				: IsKeyDown(VirtualKey::Z) ? -movementSensitivity / 2.0f
+				: 0.0f;
+		}
 
-		const float rotationSensitivity = Settings::cameraRotationSensitivityMouse;
-		input.rotation.x = -GET_DISABLED_CONTROL_NORMAL(0, INPUT_LOOK_UD) * rotationSensitivity;
-		input.rotation.z = -GET_DISABLED_CONTROL_NORMAL(0, INPUT_LOOK_LR) * rotationSensitivity;
+		if (!editingState.BlocksCameraRotation())
+		{
+			const float rotationSensitivity = Settings::cameraRotationSensitivityMouse;
+			input.rotation.x = -GET_DISABLED_CONTROL_NORMAL(0, INPUT_LOOK_UD) * rotationSensitivity;
+			input.rotation.z = -GET_DISABLED_CONTROL_NORMAL(0, INPUT_LOOK_LR) * rotationSensitivity;
+		}
 		input.rotation.y = -camera.GetRotation().y;
 		return input;
 	}
@@ -196,8 +201,6 @@ namespace sub::Spooner::SpoonerCamera
 
 		UpdateSpeed();
 		ApplyInput(input);
-		if (Settings::bShowModelPreviews)
-			SpoonerMode::SpawnModelPreview();
 		HandleShortcuts();
 		DrawDistanceWarning(playerPed);
 	}

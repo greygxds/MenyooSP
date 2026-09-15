@@ -10,6 +10,7 @@
 #include "SpoonerMode.h"
 
 #include "ImGui/ImGuiSpooner.h"
+#include "SpoonerCursor.h"
 #include "..\..\macros.h"
 
 #include "..\..\Menu\Menu.h"
@@ -52,219 +53,6 @@ namespace sub::Spooner
 {
 	namespace SpoonerMode
 	{
-		namespace
-		{
-			struct NativeCursorState
-			{
-				int hoveredEntityHandle = 0;
-				std::string hoveredEntityName;
-				bool dragging = false;
-				int draggedEntityHandle = 0;
-				bool draggedEntityHadCollision = true;
-				float visibilityOpacity = 0.0f;
-				float hoverOpacity = 0.0f;
-				float textOpacity = 0.0f;
-				DWORD lastUpdateTime = 0;
-			};
-
-			NativeCursorState nativeCursor;
-
-			constexpr float nativeCursorDotSize = 0.008f;
-			constexpr float nativeCursorTextY = 0.515f;
-			constexpr float nativeCursorInstructionY = 0.54f;
-
-			bool ShouldDrawNativeCursor()
-			{
-				return bEnabled && !Settings::bCursorMode &&
-					editingState.mode == eEditMode::Disabled &&
-					SpoonerCamera::camera.Exists();
-			}
-
-			GTAentity GetNativeCursorEntity()
-			{
-				return ShouldDrawNativeCursor()
-					? SpoonerCamera::camera.RaycastForEntity(Vector2(0.0f, 0.0f), 0, 160.0f)
-					: GTAentity();
-			}
-
-			std::string GetNativeCursorEntityName(GTAentity entity)
-			{
-				SpoonerEntity* entityInfo = nullptr;
-				const bool isInDatabase = GetEntityPtr(entity, entityInfo);
-				const std::string name = entityInfo != nullptr ? entityInfo->hashName : std::string();
-				if (!isInDatabase)
-					delete entityInfo;
-				return name;
-			}
-
-			float AnimateNativeCursorOpacity(float current, float target, float deltaSeconds, float duration)
-			{
-				const float step = duration > 0.0f ? deltaSeconds / duration : 1.0f;
-				return current < target
-					? (std::min)(target, current + step)
-					: (std::max)(target, current - step);
-			}
-
-			void BeginNativeEntityDrag(GTAentity entity)
-			{
-				if (nativeCursor.dragging || !entity.Exists()) return;
-
-				nativeCursor.dragging = true;
-				nativeCursor.draggedEntityHandle = entity.Handle();
-				SetAsSelectedEntity(entity);
-				nativeCursor.draggedEntityHadCollision = selectedEntity.handle.GetIsCollisionEnabled();
-				selectedEntity.handle.RequestControl();
-				selectedEntity.handle.SetIsCollisionEnabled(false);
-			}
-
-			void UpdateNativeEntityDrag()
-			{
-				if (!nativeCursor.dragging) return;
-
-				GTAentity entity(nativeCursor.draggedEntityHandle);
-				if (!entity.Exists()) return;
-
-				entity.RequestControl();
-				const Vector3 rotation = entity.Rotation_get();
-				const ModelDimensions& dimensions = entity.ModelDimensions();
-				float groundOffset = dimensions.Dim1.z;
-				if (fabs(rotation.x) > 150.0f || fabs(rotation.y) > 150.0f)
-					groundOffset = dimensions.Dim2.z;
-				else if (fabs(rotation.x) > 70.0f && fabs(rotation.y) > 70.0f)
-					groundOffset = (dimensions.Dim1.y + dimensions.Dim1.x) / 2.0f;
-				else if (fabs(rotation.x) > 70.0f)
-					groundOffset = dimensions.Dim1.y;
-				else if (fabs(rotation.y) > 70.0f)
-					groundOffset = dimensions.Dim1.x;
-
-				const Vector3 position = SpoonerCamera::camera.RaycastForCoord(
-					Vector2(0.0f, 0.0f), entity, 90.0f, 15.0f + dimensions.Dim2.y);
-				entity.SetPosition(SnapPos(position + Vector3(0.0f, 0.0f, groundOffset)));
-			}
-
-			void EndNativeEntityDrag()
-			{
-				if (!nativeCursor.dragging) return;
-
-				GTAentity entity(nativeCursor.draggedEntityHandle);
-				if (entity.Exists())
-				{
-					entity.RequestControl();
-					entity.SetIsCollisionEnabled(nativeCursor.draggedEntityHadCollision);
-				}
-
-				nativeCursor.dragging = false;
-				nativeCursor.draggedEntityHandle = 0;
-				nativeCursor.draggedEntityHadCollision = true;
-			}
-
-			void UpdateNativeCursorState(DWORD now, const GTAentity& activeEntity)
-			{
-				const float deltaSeconds = nativeCursor.lastUpdateTime == 0
-					? 0.0f
-					: static_cast<float>(now - nativeCursor.lastUpdateTime) / 1000.0f;
-				nativeCursor.lastUpdateTime = now;
-
-				const bool visible = ShouldDrawNativeCursor();
-				const bool hasEntity = visible && activeEntity.Exists();
-				nativeCursor.visibilityOpacity = AnimateNativeCursorOpacity(nativeCursor.visibilityOpacity, visible ? 1.0f : 0.0f, deltaSeconds, 0.20f);
-				nativeCursor.hoverOpacity = AnimateNativeCursorOpacity(nativeCursor.hoverOpacity, hasEntity ? 1.0f : 0.0f, deltaSeconds, 0.16f);
-				nativeCursor.textOpacity = AnimateNativeCursorOpacity(nativeCursor.textOpacity, hasEntity ? 1.0f : 0.0f, deltaSeconds, hasEntity ? 0.16f : 0.06f);
-
-				const int activeHandle = hasEntity ? activeEntity.GetHandle() : 0;
-				if (activeHandle != nativeCursor.hoveredEntityHandle)
-				{
-					nativeCursor.hoveredEntityHandle = activeHandle;
-					nativeCursor.hoveredEntityName = hasEntity
-						? GetNativeCursorEntityName(activeEntity)
-						: std::string();
-				}
-			}
-
-			void HandleNativeCursorInput(const GTAentity& hoveredEntity)
-			{
-				if (!ShouldDrawNativeCursor())
-				{
-					EndNativeEntityDrag();
-					return;
-				}
-
-				GTAentity activeEntity = nativeCursor.dragging
-					? GTAentity(nativeCursor.draggedEntityHandle)
-					: hoveredEntity;
-
-				if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_CURSOR_CANCEL) && activeEntity.Exists())
-				{
-					if (!nativeCursor.dragging)
-						SetAsSelectedEntity(activeEntity);
-					OpenMenu(SUB::SPOONER_SELECTEDENTITYOPS);
-					return;
-				}
-
-				if (!nativeCursor.dragging && hoveredEntity.Exists() && IS_DISABLED_CONTROL_PRESSED(2, INPUT_CURSOR_ACCEPT))
-					BeginNativeEntityDrag(hoveredEntity);
-
-				if (nativeCursor.dragging)
-				{
-					if (IS_DISABLED_CONTROL_PRESSED(2, INPUT_CURSOR_ACCEPT))
-						UpdateNativeEntityDrag();
-					else
-						EndNativeEntityDrag();
-				}
-			}
-
-			void DrawNativeCursor()
-			{
-				if (nativeCursor.visibilityOpacity <= 0.0f) return;
-				if (!HAS_STREAMED_TEXTURE_DICT_LOADED("mpinventory"))
-				{
-					REQUEST_STREAMED_TEXTURE_DICT("mpinventory", false);
-					return;
-				}
-
-				const int whiteAlpha = static_cast<int>(255.0f * nativeCursor.visibilityOpacity * (1.0f - nativeCursor.hoverOpacity));
-				const int greenAlpha = static_cast<int>(255.0f * nativeCursor.visibilityOpacity * nativeCursor.hoverOpacity);
-				int screenWidth = 0, screenHeight = 0;
-				GET_SCREEN_RESOLUTION(&screenWidth, &screenHeight);
-				const float aspectRatio = screenHeight > 0 ? static_cast<float>(screenWidth) / screenHeight : 1.0f;
-				const float dotWidth = nativeCursorDotSize / aspectRatio;
-				if (whiteAlpha > 0)
-					DRAW_SPRITE("mpinventory", "in_world_circle", 0.5f, 0.5f, dotWidth, nativeCursorDotSize, 0.0f, 255, 255, 255, whiteAlpha, false, 0);
-				if (greenAlpha > 0)
-					DRAW_SPRITE("mpinventory", "in_world_circle", 0.5f, 0.5f, dotWidth, nativeCursorDotSize, 0.0f, 0, 255, 0, greenAlpha, false, 0);
-
-				if (nativeCursor.hoveredEntityName.empty() || nativeCursor.textOpacity <= 0.0f)
-					return;
-
-				const UINT8 textAlpha = static_cast<UINT8>(255.0f * nativeCursor.visibilityOpacity * nativeCursor.textOpacity);
-				Game::Print::SetupDraw(GTAfont::Arial, Vector2(0.35f, 0.35f), true, false, true, RGBA(255, 255, 255, textAlpha));
-				Game::Print::drawstring(nativeCursor.hoveredEntityName, 0.5f, nativeCursorTextY);
-				Game::Print::SetupDraw(GTAfont::Arial, Vector2(0.22f, 0.22f), true, false, true, RGBA(195, 195, 195, static_cast<UINT8>(textAlpha * 0.75f)));
-				Game::Print::drawstring("Right click to manage this entity", 0.5f, nativeCursorInstructionY);
-			}
-
-			void TickNativeCursor()
-			{
-				if (!ShouldDrawNativeCursor())
-				{
-					HandleNativeCursorInput(GTAentity());
-					UpdateNativeCursorState(GetTickCount(), GTAentity());
-					DrawNativeCursor();
-					return;
-				}
-
-				const GTAentity hoveredEntity = nativeCursor.dragging
-					? GTAentity(nativeCursor.draggedEntityHandle)
-					: GetNativeCursorEntity();
-				HandleNativeCursorInput(hoveredEntity);
-				const GTAentity activeEntity = nativeCursor.dragging
-					? GTAentity(nativeCursor.draggedEntityHandle)
-					: hoveredEntity;
-				UpdateNativeCursorState(GetTickCount(), activeEntity);
-				DrawNativeCursor();
-			}
-		}
-
 		BYTE bindsKeyboard = VirtualKey::F9;
 		std::pair<UINT16, UINT16> bindsGamepad = { INPUT_FRONTEND_RB, INPUT_FRONTEND_RIGHT };
 
@@ -288,6 +76,8 @@ namespace sub::Spooner
 
 		static bool IsHotkeyPressed()
 		{
+			if (SpoonerCursor::IsDragging()) return false;
+
 			UINT8 index1 = bindsGamepad.first < 50 ? 0 : 2;
 			UINT8 index2 = bindsGamepad.second < 50 ? 0 : 2;
 			return Menu::usingControllerInput
@@ -330,6 +120,18 @@ namespace sub::Spooner
 				rot.z = round(rot.z / r) * r;
 			}
 			return rot;
+		}
+		float GetGroundOffset(const GTAmodel::ModelDimensions& dimensions, const Vector3& rotation)
+		{
+			if (fabs(rotation.x) > 150.0f || fabs(rotation.y) > 150.0f)
+				return dimensions.Dim2.z;
+			if (fabs(rotation.x) > 70.0f && fabs(rotation.y) > 70.0f)
+				return (dimensions.Dim1.y + dimensions.Dim1.x) / 2.0f;
+			if (fabs(rotation.x) > 70.0f)
+				return dimensions.Dim1.y;
+			if (fabs(rotation.y) > 70.0f)
+				return dimensions.Dim1.x;
+			return dimensions.Dim1.z;
 		}
 
 		void DrawSnappingGrid()
@@ -444,21 +246,7 @@ namespace sub::Spooner
 
 					Vector3 spawnRot(0, 0, SpoonerCamera::camera.GetRotation().z + previewYawOffset);
 
-					const Vector3& geSep = info.entity.GetPosition();
-					//auto& geGroundRay = RaycastResult::Raycast(geSep, Vector3::WorldDown(), max(max(dimensions.Dim1.x, dimensions.Dim2.x), max(max(dimensions.Dim1.y, dimensions.Dim2.y), max(dimensions.Dim1.z, dimensions.Dim2.z))) + 2.0f, IntersectOptions::Everything, info.entity);
-					float geGroundZ = dimensions.Dim1.z;
-					//if (geGroundRay.DidHitAnything()){
-					//float oldYaw = spawnRot.z;
-					//geGroundZ = geGroundRay.HitCoords().DistanceTo(geSep);
-					//Vector3 spawnRot;
-					//spawnRot = Vector3::DirectionToRotation(geGroundRay.SurfaceNormal());
-					//spawnRot.x += 90.0f;
-					//spawnRot.z = oldYaw;
-					//}
-					if (abs(spawnRot.x) > 150.0f || abs(spawnRot.y) > 150.0f) geGroundZ = dimensions.Dim2.z;
-					else if (abs(spawnRot.x) > 70.0f && abs(spawnRot.y) > 70.0f) geGroundZ = (dimensions.Dim1.y + dimensions.Dim1.x) / 2;
-					else if (abs(spawnRot.x) > 70.0f) geGroundZ = dimensions.Dim1.y;
-					else if (abs(spawnRot.y) > 70.0f) geGroundZ = dimensions.Dim1.x;
+					const float geGroundZ = GetGroundOffset(dimensions, spawnRot);
 					Vector3 spawnPos(SpoonerCamera::camera.RaycastForCoord(Vector2(0.0f, 0.0f), info.entity, 120.0f, 23.0f + dimensions.Dim2.y) + Vector3(0, 0, geGroundZ));
 
 					spawnPos = SnapPos(spawnPos);
@@ -588,7 +376,15 @@ namespace sub::Spooner
 			Settings::bCursorMode = !Settings::bCursorMode;
 			ImGuiSpooner::SetCursorModeEnabled(Settings::bCursorMode);
 			if (!Settings::bCursorMode)
-				editingState.mode = eEditMode::Disabled;
+				editingState.SetMode(eEditMode::Disabled);
+		}
+
+		static void TickModelPreview()
+		{
+			if (!bEnabled || !Settings::bShowModelPreviews || IS_PAUSE_MENU_ACTIVE()) return;
+			if (SpoonerCursor::IsDragging()) return;
+
+			SpawnModelPreview();
 		}
 
 		static void DrawSpoonerOverlays()
@@ -667,7 +463,8 @@ namespace sub::Spooner
 			ImGuiSpooner::Tick();
 			UpdatePreviewRotation();
 			SpoonerCamera::Tick();
-			TickNativeCursor();
+			TickModelPreview();
+			SpoonerCursor::Tick();
 			UpdateCursorEditingState();
 			DrawSpoonerOverlays();
 			TickEntityTasks();
@@ -691,14 +488,13 @@ namespace sub::Spooner
 		}
 		void TurnOff()
 		{
-			EndNativeEntityDrag();
-			nativeCursor = NativeCursorState{};
+			SpoonerCursor::Reset();
 			SpoonerMode::bEnabled = false;
 			sub::Spooner::ImGuiSpooner::SetVisible(false);
 			Settings::bCursorMode = false;
 			if (Menu::activeSubmenu != SUB::CLOSED)
 				Menu::SetSub_closed();
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+			SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
 			auto& info = modelPreviewInfo;
 			for (auto it = info.previousEntities.begin(); it != info.previousEntities.end();)
 			{
@@ -823,6 +619,8 @@ namespace sub::Spooner
 				drawText("~b~Left Click:~w~ Grab axis handle");
 				drawText("~b~R:~w~ Cycle mode");
 				drawText(Settings::bCursorMode ? "~b~Tab:~w~ Disable cursor mode" : "~b~Tab:~w~ Enable cursor mode");
+				if (!Settings::bCursorMode)
+					drawText(editingState.cameraLocked ? "~b~C:~w~ Unlock camera" : "~b~C:~w~ Lock camera");
 				drawText(editingState.localSpace ? "~b~L:~w~ Edit in world space" : "~b~L:~w~ Edit in local space");
 				drawText("~b~ALT:~w~ Copy entity");
 				drawText(Settings::bCursorMode ? "~b~Click empty space:~w~ Deselect entity" : "~b~B:~w~ Disable gizmo mode");
@@ -839,13 +637,13 @@ namespace sub::Spooner
 				switch (editingState.mode)
 				{
 					case eEditMode::Disabled:
-						editingState.mode = eEditMode::Keyboard;
+						editingState.SetMode(eEditMode::Keyboard);
 						break;
 					case eEditMode::Keyboard:
-						editingState.mode = eEditMode::Gizmo;
+						editingState.SetMode(eEditMode::Gizmo);
 						break;
 					case eEditMode::Gizmo:
-						editingState.mode = eEditMode::Disabled;
+						editingState.SetMode(eEditMode::Disabled);
 						break;
 					}
 			}
@@ -868,6 +666,11 @@ namespace sub::Spooner
 				}
 			}
 			lastRToggle = currentRToggle;
+
+			if (editingState.mode == eEditMode::Gizmo && !Settings::bCursorMode && IsKeyJustUp(VirtualKey::C))
+			{
+				editingState.cameraLocked = !editingState.cameraLocked;
+			}
 
 			// toggling world / local space editing
 			if (editingState.mode != eEditMode::Disabled && IsKeyJustUp(VirtualKey::L))

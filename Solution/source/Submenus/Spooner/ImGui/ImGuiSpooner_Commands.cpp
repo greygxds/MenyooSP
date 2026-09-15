@@ -71,7 +71,7 @@ namespace sub::Spooner::ImGuiSpooner
 			selectedEntity.handle.RequestControl(600);
 			EntityManagement::DeleteEntity(selectedEntity);
 			SpoonerMode::ResetSelectedEntity();
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+			SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
 		}
 		void Cmd_RmbMenu_PlaceOnGround(const QueuedCommand&)
 		{
@@ -256,7 +256,7 @@ namespace sub::Spooner::ImGuiSpooner
 		{
 			Settings::bCursorMode = command.intPayload != 0;
 			SetCursorModeEnabled(Settings::bCursorMode);
-			if (!Settings::bCursorMode) SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+			if (!Settings::bCursorMode) SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
 		}
 		void Cmd_CloseSpooner(const QueuedCommand&) { SpoonerMode::TurnOff(); }
 
@@ -267,11 +267,11 @@ namespace sub::Spooner::ImGuiSpooner
 			if (!clicked.Exists())
 			{
 				SpoonerMode::ResetSelectedEntity();
-				SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+				SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
 				return;
 			}
 			SpoonerMode::SetAsSelectedEntity(clicked);
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Gizmo;
+			SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Gizmo);
 			SpoonerMode::editingState.transformMode = SpoonerMode::eTransformMode::Position;
 		}
 		void Cmd_SelectEntitiesInRectangle(const QueuedCommand& command)
@@ -308,11 +308,11 @@ namespace sub::Spooner::ImGuiSpooner
 			if (clicked.Exists())
 			{
 				SpoonerMode::SetAsSelectedEntity(clicked);
-				SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+				SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
 				return;
 			}
 			SpoonerMode::ResetSelectedEntity();
-			SpoonerMode::editingState.mode = SpoonerMode::eEditMode::Disabled;
+			SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
 		}
 		void Cmd_EmptyMenu_PlaceEntityHere(const QueuedCommand& command)
 		{
