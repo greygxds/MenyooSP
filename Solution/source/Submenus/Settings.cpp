@@ -29,6 +29,7 @@ namespace sub
 		AddOption("Menu Colours", null, nullFunc, SUB::SETTINGS_COLOURS);
 		AddOption("Menu Fonts", null, nullFunc, SUB::SETTINGS_FONTS);
 		AddOption("Menu Position", null, nullFunc, SUB::SETTINGS_MENUPOS);
+		AddToggle("Notification Background", MenuConfig::bShowNotificationBackground, MenuConfig::SaveConfig, MenuConfig::SaveConfig);
 		AddToggle("Mouse Support", Menu::usingMouseInput);
 		AddToggle("Gradients", Menu::useGradientBackgrounds);
 		AddToggle("Titlebox Globe", Menu::enableGlareEffect);
@@ -37,6 +38,7 @@ namespace sub
 		AddToggle("Centre Breaks", Menu::centerBreakText);
 		AddToggle("Reset Player Model Upon Death (SP)", checkSelfDeathModel);
 		AddToggle("Sync Menyoo With Config File", bSyncWithConfig, MenuConfig::SaveConfig, MenuConfig::SaveConfig);
+		AddToggle("LSC Style Part Selection", g_LSCCustoms);
 		AddOption("Reset Toggles (Most Of Them)", null, MenuConfig::ConfigResetHaxValues);
 
 	}

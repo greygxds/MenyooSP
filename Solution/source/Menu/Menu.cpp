@@ -20,7 +20,8 @@
 #include "..\Scripting\Game.h"
 #include "..\Scripting\GameplayCamera.h"
 #include "..\Scripting\ModelNames.h" // _vNeonColours
-#include "Routine.h" // (loop_no_clip_toggle, loop_hide_hud)
+#include "Routine.h" // (loop_hide_hud)
+#include "..\Misc\FreeCam.h"
 #include "Language.h"
 #include "..\Util\FileLogger.h"
 #include "..\Menu\Menu.h"
@@ -138,6 +139,7 @@ void MenuInput::UpdateDeltaCursorNormal()
 bool titleBarStripeVisible;
 bool numberInputActive = false;
 bool menuHasNotOpened = true;
+bool ignoreMenuToggleUntilRelease = false;
 
 Vector2 menuPos;
 Vector2 g_deltaCursorNormal;
@@ -479,7 +481,25 @@ bool Menu::isBinds()
 	// Open menu - RB + Left / F8
 	UINT8 index1 = menubindsGamepad.first < 50 ? 0 : 2;
 	UINT8 index2 = menubindsGamepad.second < 50 ? 0 : 2;
-	return usingControllerInput ? (IS_DISABLED_CONTROL_PRESSED(index1, menubindsGamepad.first) && IS_DISABLED_CONTROL_JUST_PRESSED(index2, menubindsGamepad.second)) : IsKeyJustUp(menuToggleKey); // F8
+	// fixes a bug that occured when the menu is initializing and user presses F8 multiple times
+	if (ignoreMenuToggleUntilRelease)
+	{
+		bool toggleHeld = usingControllerInput
+			? (IS_DISABLED_CONTROL_PRESSED(index1, menubindsGamepad.first) || IS_DISABLED_CONTROL_PRESSED(index2, menubindsGamepad.second))
+			: IsKeyDown(menuToggleKey);
+		if (!toggleHeld)
+		{
+			if (!usingControllerInput)
+				ResetKeyState(menuToggleKey);
+			ignoreMenuToggleUntilRelease = false;
+		}
+		return false;
+	}
+
+	if (usingControllerInput)
+		return IS_DISABLED_CONTROL_PRESSED(index1, menubindsGamepad.first) && IS_DISABLED_CONTROL_JUST_PRESSED(index2, menubindsGamepad.second);
+	else 
+		return IsKeyJustUp(menuToggleKey); // F8
 }
 void Menu::while_closed()
 {
@@ -490,6 +510,7 @@ void Menu::while_closed()
 		if (menuHasNotOpened) {
 			justopened();
 			GTAmemory::InitEnhancedPools();
+			ignoreMenuToggleUntilRelease = true;
 		}
 		else
 			addlog(ige::LogType::LOG_TRACE, "Menu has been opened before, skipping initialization");
@@ -691,7 +712,7 @@ void Menu::SetSub_closed()
 
 void Menu::glare_test()
 {
-	if (noClipToggle)
+	if (FreeCamMode::IsActive())
 	{
 		//Label_unloadglare:;
 		scaleform_menuGlare.Unload();
@@ -1230,7 +1251,6 @@ void AddOption(std::string text, bool& option_code_bool, void(&callback)(), int 
 
 	if (show_arrow || submenu_index != -1)
 	{
-		//Menu::possibleNameOfCurrentSubmenu = text;
 		if (!gxt)
 			text += tempChar;
 	}

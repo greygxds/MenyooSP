@@ -24,6 +24,7 @@
 #include "..\Submenus\Spooner\SpoonerSettings.h"
 #include "..\Misc\ManualRespawn.h"
 #include "..\Misc\FpsCounter.h"
+#include "..\Misc\FreeCam.h"
 #include "..\Submenus\MiscOptions.h"
 #include "..\Misc\JumpAroundMode.h"
 #include "..\Memory\GTAmemory.h"
@@ -42,6 +43,7 @@
 
 CSimpleIniA MenuConfig::iniFile;
 bool MenuConfig::bSaveAtIntervals = true;
+bool MenuConfig::bShowNotificationBackground = true;
 
 // Initialize the default camera parameters
 namespace MenuConfig {
@@ -83,6 +85,7 @@ void MenuConfig::ConfigRead()
 	std::string section_settings = "settings";/////////
 
 	MenuConfig::bSaveAtIntervals = ini.GetBoolValue(section_settings.c_str(), "sync_with_config_at_intervals", MenuConfig::bSaveAtIntervals);
+	MenuConfig::bShowNotificationBackground = ini.GetBoolValue(section_settings.c_str(), "show_notification_background", MenuConfig::bShowNotificationBackground);
 	checkSelfDeathModel = ini.GetBoolValue(section_settings.c_str(), "DeathModelReset", checkSelfDeathModel);
 	menuToggleKey = ini.GetLongValue(section_settings.c_str(), "open_key", menuToggleKey);
 	menubindsGamepad.first = ini.GetLongValue(section_settings.c_str(), "open_button_for_gamepad_1", menubindsGamepad.first);
@@ -191,7 +194,6 @@ void MenuConfig::ConfigRead()
 	sub::Spooner::Settings::bAddToDbAsMissionEntities = ini.GetBoolValue(section_spooner.c_str(), "AddToDbAsMissionEntities", sub::Spooner::Settings::bAddToDbAsMissionEntities);
 	sub::Spooner::Settings::bTeleportToReferenceWhenLoadingFile = ini.GetBoolValue(section_spooner.c_str(), "TeleportToReferenceWhenLoadingFile", sub::Spooner::Settings::bTeleportToReferenceWhenLoadingFile);
 	sub::Spooner::Settings::bKeepPositionWhenAttaching = ini.GetBoolValue(section_spooner.c_str(), "KeepPositionWhenAttaching", sub::Spooner::Settings::bKeepPositionWhenAttaching);
-	sub::Spooner::Settings::spoonerModeMode = (sub::Spooner::eSpoonerModeMode)ini.GetLongValue(section_spooner.c_str(), "SpoonerModeMethod", (UINT8)sub::Spooner::Settings::spoonerModeMode);
 	sub::Spooner::Settings::bAutoSaveDb = ini.GetBoolValue(section_spooner.c_str(), "AutoSaveDb", sub::Spooner::Settings::bAutoSaveDb);
 	sub::Spooner::Settings::autoSaveIntervalMs = (DWORD)ini.GetLongValue(section_spooner.c_str(), "AutoSaveIntervalMs", sub::Spooner::Settings::autoSaveIntervalMs);
 	sub::Spooner::Settings::autoSaveMaxFiles = (int)ini.GetLongValue(section_spooner.c_str(), "AutoSaveMaxFiles", sub::Spooner::Settings::autoSaveMaxFiles);
@@ -202,7 +204,7 @@ void MenuConfig::ConfigRead()
 	 //loop_hide_hud = ini.GetBoolValue(section_haxValues.c_str(), "hide_hud", loop_hide_hud);
 	showFullHUD = ini.GetBoolValue(section_haxValues.c_str(), "show_full_hud", showFullHUD);
 	ManualRespawn::g_manualRespawn.Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "manual_respawn", ManualRespawn::g_manualRespawn.Enabled());
-	noClip = ini.GetBoolValue(section_haxValues.c_str(), "freecam", noClip);
+	FreeCamMode::bEnabled = ini.GetBoolValue(section_haxValues.c_str(), "freecam", FreeCamMode::bEnabled);
 	bDisplayXyzhCoords = ini.GetBoolValue(section_haxValues.c_str(), "display_xyzh_coords", bDisplayXyzhCoords);
 	sub::Spooner::Settings::bDisplaySpoonerInfo = ini.GetBoolValue(section_spooner.c_str(), "DisplaySpoonerInfo", sub::Spooner::Settings::bDisplaySpoonerInfo);
 	FPSCounter::bDisplayFps = ini.GetBoolValue(section_haxValues.c_str(), "display_fps", FPSCounter::bDisplayFps);
@@ -330,6 +332,8 @@ void MenuConfig::ConfigRead()
     std::string section_freecam = "free-camera";
     FreeCam::defaultSpeed = (float)ini.GetDoubleValue(section_freecam.c_str(), "default_speed", FreeCam::defaultSpeed);
     FreeCam::defaultFov = (float)ini.GetDoubleValue(section_freecam.c_str(), "default_fov", FreeCam::defaultFov);
+	// older versions saved this as "right_click_slow_speed"
+	FreeCam::defaultSlowSpeed = (float)ini.GetDoubleValue(section_freecam.c_str(), "right_click_slow_speed", FreeCam::defaultSlowSpeed);
 	FreeCam::defaultSlowSpeed = (float)ini.GetDoubleValue(section_freecam.c_str(), "default_slow_speed", FreeCam::defaultSlowSpeed);
     FreeCam::speedAdjustStep = (float)ini.GetDoubleValue(section_freecam.c_str(), "speed_adjust_step", FreeCam::speedAdjustStep); 
     FreeCam::fovAdjustStep = (float)ini.GetDoubleValue(section_freecam.c_str(), "fov_adjust_step", FreeCam::fovAdjustStep);
@@ -348,6 +352,7 @@ void MenuConfig::SaveConfig()
 
 
 	ini.SetBoolValue(section_settings.c_str(), "sync_with_config_at_intervals", MenuConfig::bSaveAtIntervals);
+	ini.SetBoolValue(section_settings.c_str(), "show_notification_background", MenuConfig::bShowNotificationBackground);
 	ini.SetBoolValue(section_settings.c_str(), "DeathModelReset", checkSelfDeathModel);
 	ini.SetLongValue(section_settings.c_str(), "open_key", menuToggleKey);
 	ini.SetLongValue(section_settings.c_str(), "open_button_for_gamepad_1", menubindsGamepad.first);
@@ -455,7 +460,6 @@ void MenuConfig::SaveConfig()
 	ini.SetBoolValue(section_spooner.c_str(), "AddToDbAsMissionEntities", sub::Spooner::Settings::bAddToDbAsMissionEntities);
 	ini.SetBoolValue(section_spooner.c_str(), "TeleportToReferenceWhenLoadingFile", sub::Spooner::Settings::bTeleportToReferenceWhenLoadingFile);
 	ini.SetBoolValue(section_spooner.c_str(), "KeepPositionWhenAttaching", sub::Spooner::Settings::bKeepPositionWhenAttaching);
-	ini.SetLongValue(section_spooner.c_str(), "SpoonerModeMethod", (UINT8)sub::Spooner::Settings::spoonerModeMode);
 	ini.SetBoolValue(section_spooner.c_str(), "AutoSaveDb", sub::Spooner::Settings::bAutoSaveDb);
 	ini.SetLongValue(section_spooner.c_str(), "AutoSaveIntervalMs", sub::Spooner::Settings::autoSaveIntervalMs);
 	ini.SetLongValue(section_spooner.c_str(), "AutoSaveMaxFiles", sub::Spooner::Settings::autoSaveMaxFiles);
@@ -466,7 +470,7 @@ void MenuConfig::SaveConfig()
 										   //ini.SetBoolValue(section_haxValues.c_str(), "hide_hud", loop_hide_hud);
 	ini.SetBoolValue(section_haxValues.c_str(), "show_full_hud", showFullHUD);
 	ini.SetBoolValue(section_haxValues.c_str(), "manual_respawn", ManualRespawn::g_manualRespawn.Enabled());
-	ini.SetBoolValue(section_haxValues.c_str(), "freecam", noClip);
+	ini.SetBoolValue(section_haxValues.c_str(), "freecam", FreeCamMode::bEnabled);
 	ini.SetBoolValue(section_haxValues.c_str(), "display_xyzh_coords", bDisplayXyzhCoords);
 	ini.SetBoolValue(section_haxValues.c_str(), "display_fps", FPSCounter::bDisplayFps);
 	ini.SetBoolValue(section_haxValues.c_str(), "basic_tv_player", sub::TVChannelStuff::loopBasicTV);
@@ -591,7 +595,7 @@ void MenuConfig::SaveConfig()
     std::string section_freecam = "free-camera";
     ini.SetDoubleValue(section_freecam.c_str(), "default_speed", FreeCam::defaultSpeed);
     ini.SetDoubleValue(section_freecam.c_str(), "default_fov", FreeCam::defaultFov); 
-	ini.SetDoubleValue(section_freecam.c_str(), "right_click_slow_speed", FreeCam::defaultSlowSpeed);
+	ini.SetDoubleValue(section_freecam.c_str(), "default_slow_speed", FreeCam::defaultSlowSpeed);
     ini.SetDoubleValue(section_freecam.c_str(), "speed_adjust_step", FreeCam::speedAdjustStep);
     ini.SetDoubleValue(section_freecam.c_str(), "fov_adjust_step", FreeCam::fovAdjustStep);
     ini.SetDoubleValue(section_freecam.c_str(), "min_speed", FreeCam::minSpeed);
@@ -600,6 +604,28 @@ void MenuConfig::SaveConfig()
     ini.SetDoubleValue(section_freecam.c_str(), "max_fov", FreeCam::maxFov);
 
 	ini.SaveFile((GetPathffA(Pathff::Main, true) + "menyooConfig.ini").c_str());
+}
+
+namespace
+{
+	constexpr DWORD pendingSaveDelayMs = 1000;
+	bool savePending = false;
+	DWORD lastSaveRequest = 0;
+}
+
+void MenuConfig::RequestSave()
+{
+	savePending = true;
+	lastSaveRequest = GetTickCount();
+}
+
+void MenuConfig::FlushPendingSave(bool force)
+{
+	if (!savePending) return;
+	if (!force && GetTickCount() - lastSaveRequest < pendingSaveDelayMs) return;
+
+	savePending = false;
+	SaveConfig();
 }
 
 void MenuConfig::ConfigResetHaxValues()

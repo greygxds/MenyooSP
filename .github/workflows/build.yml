@@ -3,8 +3,11 @@ name: Build
 on:
   push:
     branches:
-      - "**"
+      - Development
+      - main
   pull_request:
+    branches:
+      - Development
 
 permissions:
   contents: read
