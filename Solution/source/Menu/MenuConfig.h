@@ -15,6 +15,7 @@ namespace MenuConfig
 {
 	extern CSimpleIniA iniFile;
 	extern bool bSaveAtIntervals;
+	extern bool bShowNotificationBackground;
 
 // Camera configuration parameters
 namespace FreeCam {
@@ -32,6 +33,9 @@ namespace FreeCam {
 	void ConfigInit();
 	void ConfigRead();
 	void SaveConfig();
+	// Debounced save: RequestSave marks the config dirty, FlushPendingSave writes it once changes settle (or immediately when forced)
+	void RequestSave();
+	void FlushPendingSave(bool force = false);
 	void ConfigResetHaxValues();
 }
 

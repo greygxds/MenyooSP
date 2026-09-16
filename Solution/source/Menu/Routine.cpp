@@ -43,6 +43,7 @@
 
 #include "..\Misc\FlameThrower.h"
 #include "..\Misc\FpsCounter.h"
+#include "..\Misc\FreeCam.h"
 #include "..\Misc\Gta2Cam.h"
 #include "..\Misc\JumpAroundMode.h"
 #include "..\Misc\MagnetGun.h"
@@ -153,7 +154,7 @@ void Menu::justopened()
 				<< "				    Note: this issue can be ignored if bugged content has been fixed by a mod" << std::endl;
 		}
 	}
-
+	addlog(ige::LogType::LOG_DEBUG, "Populate All Paint IDs");
 	sub::PopulateAllPaintIDs();
 
 	menuHasNotOpened = false;
@@ -678,8 +679,6 @@ bool explosiveMelee = false;
 bool superJump = false;
 bool selfRefillHealthInCover = false;
 bool playerInvincibility = false;
-bool noClip = false;
-bool noClipToggle = false; 
 bool superRun = false;
 bool bDisplayXyzhCoords = false; 
 bool ignoredByEveryone = false; 
@@ -756,14 +755,6 @@ float forgeDist = 6.0f;
 float g_forgeGunPrecision = 0.2f;
 float g_forgeGunShootForce = 300.0f;
 bool objectSpawnForgeAssistance = false;
-
-DWORD g_lastSpeedDisplayTime = 0;
-DWORD g_lastFOVDisplayTime = 0;
-float g_lastSpeedValue = 0.0f;
-float g_lastFOVValue = 0.0f;
-
-DWORD g_lastHeightLockMessageTime = 0;
-const char* g_lastHeightLockMessage = nullptr;
 
 bool g_unlockMaxIDs = false;
 UINT8 max_shapeAndSkinIDs = 46;
@@ -880,7 +871,7 @@ void SetPTFXLopTick()
 			case EntityType::PED:
 				if (IS_PED_A_PLAYER(it->entity.Handle()) && it->entity.Handle() != PLAYER_PED_ID())
 				{
-					PTFX::TriggerPTFX(it->asset, it->fx, NULL, GET_PED_BONE_COORDS(it->entity.Handle(), Bone::SKEL_Head, 0.0f, 0.0f, 0.0f), it->entity.Rotation_get(), GET_RANDOM_FLOAT_IN_RANGE(0.76f, 1.4f));
+					PTFX::TriggerPTFX(it->asset, it->fx, NULL, GET_PED_BONE_COORDS(it->entity.Handle(), Bone::SKEL_Head, 0.0f, 0.0f, 0.0f), it->entity.GetRotation(), GET_RANDOM_FLOAT_IN_RANGE(0.76f, 1.4f));
 				}
 				else
 				{
@@ -1842,265 +1833,6 @@ void SetPedSeatbeltOff(Ped ped)
 	SET_PED_CONFIG_FLAG(ped, ePedConfigFlags::WillFlyThruWindscreen, true);
 }
 
-bool bitNoclipAlreadyInvisible = true;
-bool bitNoclipAlreadyCollision = true;
-bool bitNoclipShowHelp = true;
-Camera g_cam_noClip;
-bool g_freecamHeightLocked = false;  
-float g_freecamLockedHeight = 0.0f;
-float g_freecamSpeed = MenuConfig::FreeCam::defaultSpeed; // Modify the default value
-
-void SetNoclipOff1()
-{
-	GTAentity myPed = PLAYER_PED_ID();
-	GTAentity ent = IS_PED_IN_ANY_VEHICLE(myPed.Handle(), false) ? GET_VEHICLE_PED_IS_IN(myPed.Handle(), false) : myPed;
-
-	ent.RequestControl();
-	ent.SetVisible(!bitNoclipAlreadyInvisible);
-	ent.SetIsCollisionEnabled(bitNoclipAlreadyCollision);
-	ent.FreezePosition(false);
-	ENABLE_CONTROL_ACTION(2, INPUT_VEH_HORN, TRUE);
-	ENABLE_CONTROL_ACTION(2, INPUT_LOOK_BEHIND, TRUE);
-	ENABLE_CONTROL_ACTION(2, INPUT_VEH_LOOK_BEHIND, TRUE);
-	ENABLE_CONTROL_ACTION(2, INPUT_SELECT_WEAPON, TRUE);
-	bitNoclipShowHelp = true;
-}
-void SetNoclipOff2()
-{
-	auto& cam = g_cam_noClip;
-	if (cam.Exists())
-	{
-		cam.SetActive(false);
-		cam.Destroy();
-		World::SetRenderingCamera(0);
-	}
-}
-void SetNoclip()
-{
-	if (sub::Spooner::SpoonerMode::bEnabled)
-	{
-		return;
-	}
-
-	auto& cam = g_cam_noClip;
-	GTAentity myPed = PLAYER_PED_ID();
-	GTAplayer myPlayer = PLAYER_ID();
-	GTAentity ent = IS_PED_IN_ANY_VEHICLE(myPed.Handle(), false) ? GET_VEHICLE_PED_IS_IN(myPed.Handle(), false) : myPed;
-
-	if (ent.Exists())
-	{
-		if (Menu::usingControllerInput ? (IS_CONTROL_PRESSED(2, INPUT_FRONTEND_X) && IS_CONTROL_JUST_PRESSED(2, INPUT_FRONTEND_LS)) : IsKeyJustUp(BindNoClip))
-		{
-			noClipToggle = !noClipToggle;
-			if (!noClipToggle)
-			{
-				SetNoclipOff1();
-			}
-			else
-			{
-				if (bitNoclipShowHelp)
-				{
-					bitNoclipShowHelp = false;
-					if (Menu::usingControllerInput)
-					{
-						Game::CustomHelpText::ShowTimedText(oss_ << "FreeCam:~n~~INPUT_MOVE_UD~ = " << Game::GetGXTEntry("ITEM_MOV_CAM")
-							<< "~n~~INPUT_LOOK_LR~ = " << Game::GetGXTEntry("ITEM_MOVE") << "~n~~INPUT_FRONTEND_RT~/~INPUT_FRONTEND_LT~ = " << "Ascend/Descend" << "~n~~INPUT_FRONTEND_RB~ = " << "Hasten", 6000);
-					}
-					else 
-					{
-						Game::CustomHelpText::ShowTimedText(oss_ << "FreeCam:~n~~INPUT_MOVE_UD~/~INPUT_MOVE_LR~ = " << Game::GetGXTEntry("ITEM_MOV_CAM")
-							<< "~n~~INPUT_LOOK_LR~ = " << Game::GetGXTEntry("ITEM_MOVE") << "~n~~INPUT_PARACHUTE_BRAKE_RIGHT~/~INPUT_PARACHUTE_BRAKE_LEFT~ = " << "Ascend/Descend" << "~n~~INPUT_SPRINT~ = " << "Hasten", 6000);
-					}
-					bitNoclipShowHelp = false;
-				}
-				bitNoclipAlreadyInvisible = !ent.IsVisible();
-				bitNoclipAlreadyCollision = ent.GetIsCollisionEnabled();
-			}
-		}
-
-		if (!noClipToggle)
-		{
-			SetNoclipOff2();
-			return;
-		}
-
-		DISABLE_CONTROL_ACTION(2, INPUT_VEH_HORN, TRUE);
-		DISABLE_CONTROL_ACTION(2, INPUT_LOOK_BEHIND, TRUE);
-		DISABLE_CONTROL_ACTION(2, INPUT_VEH_LOOK_BEHIND, TRUE);
-		DISABLE_CONTROL_ACTION(2, INPUT_SELECT_WEAPON, TRUE);
-		DISABLE_CONTROL_ACTION(2, INPUT_VEH_ACCELERATE, TRUE);
-		DISABLE_CONTROL_ACTION(2, INPUT_VEH_BRAKE, TRUE);
-		DISABLE_CONTROL_ACTION(2, INPUT_VEH_RADIO_WHEEL, TRUE);
-
-		const Vector3& entPos = ent.GetPosition();
-		const Vector3& camOffset = Vector3();
-
-		if (!cam.Exists())
-		{
-			ent.RequestControl();
-			cam = World::CreateCamera();
-			cam.SetPosition(GameplayCamera::GetPosition());
-			cam.SetRotation(GameplayCamera::GetRotation());
-			cam.AttachTo(ent, camOffset);
-			cam.SetFieldOfView(MenuConfig::FreeCam::defaultFov); // Use configured FOV
-			cam.SetDepthOfFieldStrength(0.0f);
-			World::SetRenderingCamera(cam);
-		}
-
-		ent.RequestControl();
-		ent.FreezePosition(true);
-		ent.SetIsCollisionEnabled(false);
-		ent.SetVisible(false);
-		myPed.SetVisible(false);
-
-		Vector3 nextRot = cam.GetRotation() - Vector3(GET_DISABLED_CONTROL_NORMAL(0, INPUT_LOOK_UD), 0, GET_DISABLED_CONTROL_NORMAL(0, INPUT_LOOK_LR)) * (Menu::usingControllerInput ? 2.5f : 11.0f);
-		nextRot.y = 0.0f; // No roll
-		ent.SetRotation(Vector3(0, 0, nextRot.z));
-		cam.SetRotation(nextRot);
-		if (!myPlayer.IsFreeAiming() && !myPlayer.IsTargetingAnything())
-		{
-			SET_GAMEPLAY_CAM_RELATIVE_HEADING(0.0f);
-		}
-
-		if (Menu::usingControllerInput)
-		{
-			DISABLE_CONTROL_ACTION(0, INPUT_VEH_HORN, TRUE);
-
-			if (ent == myPed)
-			{
-				if (GET_PED_STEALTH_MOVEMENT(myPed.Handle()))
-				{
-					SET_PED_STEALTH_MOVEMENT(myPed.Handle(), false, 0);
-				}
-				if (GET_PED_COMBAT_MOVEMENT(myPed.Handle()))
-				{
-					SET_PED_COMBAT_MOVEMENT(myPed.Handle(), 0);
-				}
-			}
-
-			float noclipPrecisionLevel = IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_RB) ? 1.8f : 0.8f;
-			Vector3 offset;
-			offset.x = GET_CONTROL_NORMAL(0, INPUT_MOVE_LR) * noclipPrecisionLevel;
-			offset.y = -GET_CONTROL_NORMAL(0, INPUT_MOVE_UD) * noclipPrecisionLevel;
-			offset.z = (GET_DISABLED_CONTROL_NORMAL(2, INPUT_FRONTEND_RT) - GET_DISABLED_CONTROL_NORMAL(2, INPUT_FRONTEND_LT)) * noclipPrecisionLevel;
-			if (!offset.IsZero())
-			{
-				ent.SetPosition(cam.GetOffsetInWorldCoords(offset - camOffset));
-			}
-
-		}
-		else
-		{
-			// TAB to toggle height lock
-			if (!IsKeyDown(VK_SPACE))
-			{
-				if (IsKeyJustUp(VK_TAB))
-				{
-					g_freecamHeightLocked = !g_freecamHeightLocked;
-					if (g_freecamHeightLocked)
-					{
-						g_freecamLockedHeight = ent.GetPosition().z;
-						g_lastHeightLockMessage = "Height Locked";
-					}
-					else
-					{
-						g_lastHeightLockMessage = "Height Unlocked";
-					}
-					g_lastHeightLockMessageTime = GetTickCount();
-				}
-
-				// Mouse wheel to adjust speed
-				if (IS_DISABLED_CONTROL_PRESSED(2, INPUT_CURSOR_SCROLL_UP))
-				{
-					g_freecamSpeed = min(g_freecamSpeed + MenuConfig::FreeCam::speedAdjustStep, MenuConfig::FreeCam::maxSpeed);
-					MenuConfig::FreeCam::defaultSpeed = g_freecamSpeed;
-					MenuConfig::SaveConfig();
-					g_lastSpeedValue = g_freecamSpeed;
-					g_lastSpeedDisplayTime = GetTickCount();
-				}
-				if (IS_DISABLED_CONTROL_PRESSED(2, INPUT_CURSOR_SCROLL_DOWN))
-				{
-					g_freecamSpeed = max(g_freecamSpeed - MenuConfig::FreeCam::speedAdjustStep, MenuConfig::FreeCam::minSpeed);
-					MenuConfig::FreeCam::defaultSpeed = g_freecamSpeed;
-					MenuConfig::SaveConfig();
-					g_lastSpeedValue = g_freecamSpeed;
-					g_lastSpeedDisplayTime = GetTickCount();
-				}
-
-				if (GetTickCount() - g_lastSpeedDisplayTime < 1000)
-				{
-					Game::Print::SetupDraw(GTAfont::Impact, Vector2(0.4f, 0.4f), true, false, false);
-					Game::Print::DrawString(oss_ << "FreeCam Speed: " << g_lastSpeedValue, 0.5f, 0.95f);
-				}
-			}
-
-			float currentSpeed = IS_DISABLED_CONTROL_PRESSED(2, INPUT_VEH_ATTACK2) ? MenuConfig::FreeCam::defaultSlowSpeed : g_freecamSpeed;
-			float noclipPrecisionLevel = IS_DISABLED_CONTROL_PRESSED(0, INPUT_SPRINT) ? currentSpeed * 2.0f : currentSpeed;
-
-			Vector3 offset;
-			offset.x = GET_CONTROL_NORMAL(0, INPUT_MOVE_LR) * noclipPrecisionLevel;
-			offset.y = -GET_CONTROL_NORMAL(0, INPUT_MOVE_UD) * noclipPrecisionLevel;
-
-			if (g_freecamHeightLocked)
-			{
-				float zOffset = IS_DISABLED_CONTROL_PRESSED(2, INPUT_PARACHUTE_BRAKE_RIGHT) ? noclipPrecisionLevel : IS_DISABLED_CONTROL_PRESSED(2, INPUT_PARACHUTE_BRAKE_LEFT) ? -noclipPrecisionLevel : 0.0f;
-				if (zOffset != 0.0f)
-				{
-					g_freecamLockedHeight += zOffset;
-				}
-
-				Vector3 newPos = cam.GetOffsetInWorldCoords(offset - camOffset);
-				newPos.z = g_freecamLockedHeight;
-				ent.SetPosition(newPos);
-			}
-			else
-			{
-				offset.z = IS_DISABLED_CONTROL_PRESSED(2, INPUT_PARACHUTE_BRAKE_RIGHT) ? noclipPrecisionLevel : IS_DISABLED_CONTROL_PRESSED(2, INPUT_PARACHUTE_BRAKE_LEFT) ? -noclipPrecisionLevel : 0.0f;
-				if (!offset.IsZero())
-				{
-					ent.SetPosition(cam.GetOffsetInWorldCoords(offset - camOffset));
-				}
-			}
-
-			// Space + scroll wheel to control camera FOV
-			if (IsKeyDown(VK_SPACE))
-			{
-				float currentFov = cam.GetFieldOfView();
-				if (IS_DISABLED_CONTROL_PRESSED(2, INPUT_CURSOR_SCROLL_UP))
-				{
-					currentFov = min(currentFov + MenuConfig::FreeCam::fovAdjustStep, MenuConfig::FreeCam::maxFov);
-					cam.SetFieldOfView(currentFov);
-					MenuConfig::FreeCam::defaultFov = currentFov;
-					MenuConfig::SaveConfig();
-					g_lastFOVValue = currentFov;
-					g_lastFOVDisplayTime = GetTickCount();
-				}
-				if (IS_DISABLED_CONTROL_PRESSED(2, INPUT_CURSOR_SCROLL_DOWN))
-				{
-					currentFov = max(currentFov - MenuConfig::FreeCam::fovAdjustStep, MenuConfig::FreeCam::minFov);
-					cam.SetFieldOfView(currentFov);
-					MenuConfig::FreeCam::defaultFov = currentFov;
-					MenuConfig::SaveConfig();
-					g_lastFOVValue = currentFov;
-					g_lastFOVDisplayTime = GetTickCount();
-				}
-
-				if (GetTickCount() - g_lastFOVDisplayTime < 1000)
-				{
-					Game::Print::SetupDraw(GTAfont::Impact, Vector2(0.4f, 0.4f), true, false, false);
-					Game::Print::DrawString(oss_ << "Camera FOV: " << g_lastFOVValue, 0.5f, 0.95f);
-				}
-			}
-		}
-	}
-
-	// Height lock status display
-	if (g_lastHeightLockMessage != nullptr && GetTickCount() - g_lastHeightLockMessageTime < 1000)
-	{
-		Game::Print::SetupDraw(GTAfont::Impact, Vector2(0.4f, 0.4f), true, false, false);
-		Game::Print::drawstring(g_lastHeightLockMessage, 0.5f, 0.95f);
-	}
-}
 
 void SetLocalButtonSuperRun()
 {
@@ -2313,7 +2045,7 @@ void SetVehicleNosPTFXThisFrame(GTAvehicle vehicle)
 	}
 	else
 	{
-		const Vector3& otherWayRot = vehicle.Rotation_get() + Vector3(0, 0, -90.0f);
+		const Vector3& otherWayRot = vehicle.GetRotation() + Vector3(0, 0, -90.0f);
 		for (auto& exh : { VBone::exhaust, VBone::exhaust_2 })
 		{
 			muzzleFlash.Start(vehicle.GetBoneCoords(vehicle.GetBoneIndex(exh)), 1.0f, otherWayRot);
@@ -2667,7 +2399,7 @@ void SetVehicleFlip(GTAvehicle vehicle)
 		if (!vehicle.IsInAir() && !vehicle.IsInWater() && !model.IsPlane() && !model.IsHeli())
 		{
 			vehicle.RequestControlOnce();
-			vehicle.SetRotation(Vector3(0, 0, vehicle.Rotation_get().z));
+			vehicle.SetRotation(Vector3(0, 0, vehicle.GetRotation().z));
 		}
 	}
 }
@@ -3356,7 +3088,9 @@ float NormalizeHSV(int h, int s, int v)
 
 static void TickSubsystems()
 {
+	sub::WardrobeCamera::Tick();
 	sub::Spooner::SpoonerMode::Tick();
+	FreeCamMode::Tick();
 	sub::GhostRiderMode::Tick();
 	sub::VehicleAutoDrive::Tick();
 	sub::GravityGun_catind::Tick();
@@ -3579,11 +3313,6 @@ static void TickPlayerAbilities()
 	if (superJump)
 	{
 		SET_SUPER_JUMP_THIS_FRAME(myPlayer);
-	}
-
-	if (noClip)
-	{
-		SetNoclip();
 	}
 
 	if (superRun)
