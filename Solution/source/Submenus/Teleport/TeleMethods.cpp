@@ -77,8 +77,8 @@ void TeleportNetPed(GTAentity ped, float X, float Y, float Z, bool bWait, bool b
 
 	if (ped.Equals(myPed) || ped.Equals(myVeh))
 	{
-		if (sub::Spooner::SpoonerMode::spoonerModeCamera.Exists())
-			sub::Spooner::SpoonerMode::spoonerModeCamera.SetPosition(X, Y, Z + 3.0f);
+		if (sub::Spooner::SpoonerCamera::camera.Exists())
+			sub::Spooner::SpoonerCamera::camera.SetPosition(X, Y, Z + 3.0f);
 	}
 
 	//LOAD_ALL_OBJECTS_NOW();
@@ -123,7 +123,7 @@ void TeleportToMissionBlip(GTAped ped)
 				(colour == BlipColour::Blue && icon == BlipIcon::Standard))
 
 			{
-				//Vector3 coord = blip.Position_get();
+				//Vector3 coord = blip.GetPosition();
 				Vector3 coord = Vector3(blip->x, blip->y, blip->z);
 				addlog(ige::LogType::LOG_DEBUG, "Mission Blip Found - Co-ord: " + std::to_string(coord.x)+"," + std::to_string(coord.y) + "," + std::to_string(coord.z));
 				if (ped.IsInVehicle())
