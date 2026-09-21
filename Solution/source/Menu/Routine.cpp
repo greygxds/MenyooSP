@@ -3733,6 +3733,7 @@ static void TickVehicleEffects(bool gameIsPaused)
 
 void Menu::loops()
 {
+    TickDeferredMenuInit();
     bool gameIsPaused = IS_PAUSE_MENU_ACTIVE() != 0;
 
     // Apply default outfit on first load
