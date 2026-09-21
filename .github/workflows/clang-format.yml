@@ -1,0 +1,34 @@
+name: clang-format
+
+on:
+  pull_request:
+    branches:
+      - Development
+  push:
+    branches:
+      - Development
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install pinned clang-format
+        run: |
+          VERSION=$(cat tools/clang-format.version)
+          pip install "clang-format==$VERSION"
+          clang-format --version
+
+      - name: Check formatting
+        run: |
+          mapfile -t FILES < <(find Solution/source \
+            \( -path '*/_Build/*' -o -path '*/bin/*' -o -path '*/tmp/*' \) -prune -o \
+            -type f \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) \
+            -not -name 'build_version.h' -print)
+          clang-format --dry-run --Werror --style=file "${FILES[@]}"

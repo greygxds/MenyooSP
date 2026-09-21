@@ -1,0 +1,8 @@
+#!/bin/sh
+# Rejects commits with clang-format violations in staged C++ files.
+# Install once per clone: powershell -ExecutionPolicy Bypass -File tools/install-hooks.ps1
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(cpp|h|hpp)$' | grep '^Solution/source/' | grep -v -E '(^|/)(_Build|bin|tmp)/' | grep -v 'build_version\.h$')
+[ -z "$STAGED" ] && exit 0
+for f in $STAGED; do
+  powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tools/format.ps1 -Check -Path "$f" || exit 1
+done
