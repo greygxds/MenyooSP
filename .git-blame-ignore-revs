@@ -1,0 +1,4 @@
+# Bulk clang-format of all files (style-only, no logic changes).
+# Ignored by `git blame` on GitHub automatically; for local clones run once:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+761634fe8409b28f3b7032ef002f487dfe52e944
