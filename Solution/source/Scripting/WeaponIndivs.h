@@ -22,59 +22,76 @@ using PCHAR = char*;
 
 class GTAentity;
 
-struct WeaponS { std::string label, name; };
+struct WeaponS
+{
+    std::string label, name;
+};
 
 class s_Weapon_Components_Tint
 {
-public:
-	Hash weaponHash;
-	std::vector<std::pair<Hash, int>> componentHashes;
-	int tint;
+  public:
+    Hash weaponHash;
+    std::vector<std::pair<Hash, int>> componentHashes;
+    int tint;
 };
 
 struct NamedWeaponComponent
 {
-	std::string name; Hash hash;
+    std::string name;
+    Hash hash;
 };
 
 class WeaponAndComponents
 {
-public:
-	Hash weaponHash;
-	std::vector<NamedWeaponComponent> components;
-	const std::vector<std::string>* tintCaptions;
-	template<typename WH> WeaponAndComponents(WH pWeaponHash, std::vector<NamedWeaponComponent> pComponents, const std::vector<std::string>* pTintCaptions = nullptr)
-		: weaponHash(pWeaponHash), tintCaptions(pTintCaptions)
-	{
-		this->components = pComponents;
-	}
+  public:
+    Hash weaponHash;
+    std::vector<NamedWeaponComponent> components;
+    const std::vector<std::string>* tintCaptions;
+
+    template <typename WH>
+    WeaponAndComponents(WH pWeaponHash, std::vector<NamedWeaponComponent> pComponents, const std::vector<std::string>* pTintCaptions = nullptr) : weaponHash(pWeaponHash), tintCaptions(pTintCaptions)
+    {
+        this->components = pComponents;
+    }
 };
 
 namespace WeaponIndivs
 {
-	enum WEAPONTYPE{ WEAPE_CURRENTLYHELD = -3, WEAPE_MELEE = 0, WEAPE_PISTOLS, WEAPE_SMGS, WEAPE_MGS, WEAPE_ASSAULTRIFLES, WEAPE_SHOTGUNS, WEAPE_SNIPERS, WEAPE_HEAVY, WEAPE_THROWABLES };
-	extern const std::vector<std::string> vCategoryNames;
-	extern const std::vector<std::string> vCaptions_Tints;
-	extern const std::vector<std::string> vCaptions_TintsMk2;
-	extern const std::vector<std::string> vCaptions_ChuteTints;
-	extern std::vector<WeaponAndComponents> wc_MELEE;
-	extern std::vector<WeaponAndComponents> wc_PISTOLS;
-	extern std::vector<WeaponAndComponents> wc_SMGS;
-	extern std::vector<WeaponAndComponents> wc_MGS;
-	extern std::vector<WeaponAndComponents> wc_ASSAULTRIFLES;
-	extern std::vector<WeaponAndComponents> wc_SHOTGUNS;
-	extern std::vector<WeaponAndComponents> wc_SNIPERS;
-	extern std::vector<WeaponAndComponents> wc_HEAVY;
-	extern std::vector<WeaponAndComponents> wc_THROWABLES;
-	extern std::vector<WeaponAndComponents> wc_ADDON;
-	extern std::map<Hash, std::string> vWeaponLabels;
-	extern std::array<std::vector<WeaponAndComponents>*, 10> vAllWeapons;
-	const WeaponAndComponents* get_weapon(Hash weaponHash);
-	bool get_weapon_components(Hash weaponHash, std::vector<NamedWeaponComponent>& result);
-	UINT8 get_weapon_components_count(Hash weaponHash);
-	bool is_weapon_tintable(Hash weaponHash);
-}
+enum WEAPONTYPE
+{
+    WEAPE_CURRENTLYHELD = -3,
+    WEAPE_MELEE = 0,
+    WEAPE_PISTOLS,
+    WEAPE_SMGS,
+    WEAPE_MGS,
+    WEAPE_ASSAULTRIFLES,
+    WEAPE_SHOTGUNS,
+    WEAPE_SNIPERS,
+    WEAPE_HEAVY,
+    WEAPE_THROWABLES
+};
 
+extern const std::vector<std::string> vCategoryNames;
+extern const std::vector<std::string> vCaptions_Tints;
+extern const std::vector<std::string> vCaptions_TintsMk2;
+extern const std::vector<std::string> vCaptions_ChuteTints;
+extern std::vector<WeaponAndComponents> wc_MELEE;
+extern std::vector<WeaponAndComponents> wc_PISTOLS;
+extern std::vector<WeaponAndComponents> wc_SMGS;
+extern std::vector<WeaponAndComponents> wc_MGS;
+extern std::vector<WeaponAndComponents> wc_ASSAULTRIFLES;
+extern std::vector<WeaponAndComponents> wc_SHOTGUNS;
+extern std::vector<WeaponAndComponents> wc_SNIPERS;
+extern std::vector<WeaponAndComponents> wc_HEAVY;
+extern std::vector<WeaponAndComponents> wc_THROWABLES;
+extern std::vector<WeaponAndComponents> wc_ADDON;
+extern std::map<Hash, std::string> vWeaponLabels;
+extern std::array<std::vector<WeaponAndComponents>*, 10> vAllWeapons;
+const WeaponAndComponents* get_weapon(Hash weaponHash);
+bool get_weapon_components(Hash weaponHash, std::vector<NamedWeaponComponent>& result);
+UINT8 get_weapon_components_count(Hash weaponHash);
+bool is_weapon_tintable(Hash weaponHash);
+} // namespace WeaponIndivs
 
 // Weapon - labels
 std::string GetWeaponLabel(Hash hash, bool gxt);
@@ -83,5 +100,3 @@ std::string GetWeaponLabel(Hash hash, bool gxt);
 void GivePedParachute(GTAentity ped);
 void GivePedMaxAmmo(GTAentity ped);
 void GiveAllWeaponsToPed(GTAentity ped, bool bInfAmmo = false);
-
-

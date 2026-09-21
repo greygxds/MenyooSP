@@ -16,7 +16,6 @@ http://dev-c.com
 //#pragma comment(lib, "..\external\ScriptHookV\SDK\lib\ScriptHookV.lib")
 
 
-
 /* textures */
 
 // Create texture
@@ -49,14 +48,31 @@ __declspec(dllimport) int createTexture(const char *texFileName);
 //	Can be called only in the same thread as natives
 
 ///extern void(*drawTexture)(int id, int index, int level, int time,float sizeX, float sizeY, float centerX, float centerY,float posX, float posY, float rotation, float screenHeightScaleFactor,float r, float g, float b, float a);
-__declspec(dllimport) void drawTexture(int id, int index, int level, int time,float sizeX, float sizeY, float centerX, float centerY,float posX, float posY, float rotation, float screenHeightScaleFactor,float r, float g, float b, float a);
+__declspec(dllimport) void drawTexture(
+    int id,
+    int index,
+    int level,
+    int time,
+    float sizeX,
+    float sizeY,
+    float centerX,
+    float centerY,
+    float posX,
+    float posY,
+    float rotation,
+    float screenHeightScaleFactor,
+    float r,
+    float g,
+    float b,
+    float a
+);
 
 // IDXGISwapChain::Present callback
 // Called right before the actual Present method call, render test calls don't trigger callbacks
 // When the game uses DX10 it actually uses DX11 with DX10 feature level
 // Remember that you can't call natives inside
 // void OnPresent(IDXGISwapChain *swapChain);
-typedef void(*PresentCallback)(void *);
+typedef void (*PresentCallback)(void *);
 
 // Register IDXGISwapChain::Present callback
 // must be called on dll attach
@@ -71,7 +87,7 @@ __declspec(dllimport) void presentCallbackUnregister(PresentCallback cb);
 /* keyboard */
 
 // DWORD key, WORD repeats, BYTE scanCode, BOOL isExtended, BOOL isWithAlt, BOOL wasDownBefore, BOOL isUpNow
-typedef void(*KeyboardHandler)(DWORD, WORD, BYTE, BOOL, BOOL, BOOL, BOOL);
+typedef void (*KeyboardHandler)(DWORD, WORD, BYTE, BOOL, BOOL, BOOL, BOOL);
 
 // Register keyboard handler
 // must be called on dll attach
@@ -88,13 +104,13 @@ __declspec(dllimport) void keyboardHandlerUnregister(KeyboardHandler handler);
 ///extern void(*scriptWait)(DWORD time);
 __declspec(dllimport) void scriptWait(DWORD time);
 ///extern void(*scriptRegister)(HMODULE module, void(*LP_SCRIPT_MAIN)());
-__declspec(dllimport) void scriptRegister(HMODULE module, void(*LP_SCRIPT_MAIN)());
+__declspec(dllimport) void scriptRegister(HMODULE module, void (*LP_SCRIPT_MAIN)());
 ///extern void(*scriptRegisterAdditionalThread)(HMODULE module, void(*LP_SCRIPT_MAIN)());
-__declspec(dllimport) void scriptRegisterAdditionalThread(HMODULE module, void(*LP_SCRIPT_MAIN)());
+__declspec(dllimport) void scriptRegisterAdditionalThread(HMODULE module, void (*LP_SCRIPT_MAIN)());
 /////extern void(*scriptUnregister)(HMODULE module);
 __declspec(dllimport) void scriptUnregister(HMODULE module);
 ///extern void(*scriptUnregister)(void(*LP_SCRIPT_MAIN)());
-__declspec(dllimport) void scriptUnregister(void(*LP_SCRIPT_MAIN)()); // deprecated
+__declspec(dllimport) void scriptUnregister(void (*LP_SCRIPT_MAIN)()); // deprecated
 
 ///extern void(*nativeInit)(UINT64 hash);
 __declspec(dllimport) void nativeInit(UINT64 hash);
@@ -139,8 +155,7 @@ __declspec(dllimport) BYTE *getScriptHandleBaseAddress(int handle);
 
 enum eGameVersion : int
 {
-	GAME_VERSION_LIST
-	VER_SIZE
+    GAME_VERSION_LIST VER_SIZE
 };
 
 #undef X

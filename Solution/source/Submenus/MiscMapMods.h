@@ -34,10 +34,10 @@ typedef unsigned long DWORD, Hash;
 
 namespace sub
 {
-	namespace MapMods
-	{
-		void UnloadAllMapMods();
-		void MapMods();
-		void MapMods2();
-	}
-}
+namespace MapMods
+{
+void UnloadAllMapMods();
+void MapMods();
+void MapMods2();
+} // namespace MapMods
+} // namespace sub

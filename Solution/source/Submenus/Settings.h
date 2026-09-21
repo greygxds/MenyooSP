@@ -32,25 +32,21 @@ class RGBA;
 
 namespace sub
 {
-	void Settings();
+void Settings();
 
-	void SettingsMenuPos();
-	extern UINT8 settingsHUDColor;
+void SettingsMenuPos();
+extern UINT8 settingsHUDColor;
 
-	void AddsettingscolOption(const std::string& text, RGBA& feature);
-	void SettingsColours();
-	void SettingsColours2();
+void AddsettingscolOption(const std::string& text, RGBA& feature);
+void SettingsColours();
+void SettingsColours2();
 
-	bool HexToRGBA(const std::string& hex, RGBA& colour);
+bool HexToRGBA(const std::string& hex, RGBA& colour);
 
-	void AddsettingsfonOption(const std::string& text, int font_index, INT8& feature);
-	void SettingsFonts();
-	void SettingsFonts2();
+void AddsettingsfonOption(const std::string& text, int font_index, INT8& feature);
+void SettingsFonts();
+void SettingsFonts2();
 
-	void SettingsLanguage();
-	void SettingsThemesMain();
-}
-
-
-
-
+void SettingsLanguage();
+void SettingsThemesMain();
+} // namespace sub

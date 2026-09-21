@@ -25,48 +25,46 @@
 
 enum class IntersectOptions : int
 {
-	Everything = -1,        // Hit any kind of entity / surface
-	Map = 1,                // Static world geometry / map
-	Mission_Entities = 2,   // Mission-flagged entities
-	Peds1 = 12,             // Peds (4|8 -- both bits seem to refer to peds)
-	Objects = 16,           // Props / dynamic objects
-	Unk1 = 32,              // Unknown flag
-	Unk2 = 64,              // Unknown flag
-	Unk3 = 128,             // Unknown flag
-	Vegetation = 256,       // Trees / foliage
-	Unk4 = 512              // Unknown flag
+    Everything = -1,      // Hit any kind of entity / surface
+    Map = 1,              // Static world geometry / map
+    Mission_Entities = 2, // Mission-flagged entities
+    Peds1 = 12,           // Peds (4|8 -- both bits seem to refer to peds)
+    Objects = 16,         // Props / dynamic objects
+    Unk1 = 32,            // Unknown flag
+    Unk2 = 64,            // Unknown flag
+    Unk3 = 128,           // Unknown flag
+    Vegetation = 256,     // Trees / foliage
+    Unk4 = 512            // Unknown flag
 };
 
 class RaycastResult
 {
-public:
-	RaycastResult();
-	RaycastResult(const RaycastResult& handle);
-	RaycastResult(int handle);
+  public:
+    RaycastResult();
+    RaycastResult(const RaycastResult& handle);
+    RaycastResult(int handle);
 
-	int Result() const;
+    int Result() const;
 
-	bool DidHitEntity() const;
+    bool DidHitEntity() const;
 
-	bool DidHitAnything() const;
+    bool DidHitAnything() const;
 
-	GTAentity HitEntity() const;
+    GTAentity HitEntity() const;
 
-	Vector3 HitCoords() const;
+    Vector3 HitCoords() const;
 
-	Vector3 SurfaceNormal() const;
+    Vector3 SurfaceNormal() const;
 
-	static RaycastResult Raycast(const Vector3& source, const Vector3& target, IntersectOptions options, GTAentity ignoreEntity = 0);
-	static RaycastResult Raycast(const Vector3& source, const Vector3& direction, float maxDistance, IntersectOptions options, GTAentity ignoreEntity = 0);
-	static RaycastResult RaycastCapsule(const Vector3& source, const Vector3& target, float radius, IntersectOptions options, GTAentity ignoreEntity = 0);
-	static RaycastResult RaycastCapsule(const Vector3& source, const Vector3& direction, float maxDistance, float radius, IntersectOptions options, GTAentity ignoreEntity = 0);
+    static RaycastResult Raycast(const Vector3& source, const Vector3& target, IntersectOptions options, GTAentity ignoreEntity = 0);
+    static RaycastResult Raycast(const Vector3& source, const Vector3& direction, float maxDistance, IntersectOptions options, GTAentity ignoreEntity = 0);
+    static RaycastResult RaycastCapsule(const Vector3& source, const Vector3& target, float radius, IntersectOptions options, GTAentity ignoreEntity = 0);
+    static RaycastResult RaycastCapsule(const Vector3& source, const Vector3& direction, float maxDistance, float radius, IntersectOptions options, GTAentity ignoreEntity = 0);
 
-private:
-	int mResult;
-	bool mDidHit;
-	GTAentity mHitEntity;
-	Vector3 mHitCoords;
-	Vector3 mSurfaceNormal;
+  private:
+    int mResult;
+    bool mDidHit;
+    GTAentity mHitEntity;
+    Vector3 mHitCoords;
+    Vector3 mSurfaceNormal;
 };
-
-

@@ -27,42 +27,39 @@ typedef unsigned __int8 UINT8;
 
 namespace sub
 {
-	namespace SpStatManager
-	{
-		enum class StatDataType_t : UINT8
-		{
-			UNKNOWN,
-			BOOL,
-			INT,
-			FLOAT
-		};
+namespace SpStatManager
+{
+enum class StatDataType_t : UINT8
+{
+    UNKNOWN,
+    BOOL,
+    INT,
+    FLOAT
+};
 
-		struct CharStat_t 
-		{ 
-			std::string name;
-			std::string caption; 
-			StatDataType_t type; 
-			float min;
-			float max; 
-		};
+struct CharStat_t
+{
+    std::string name;
+    std::string caption;
+    StatDataType_t type;
+    float min;
+    float max;
+};
 
-		int StatGetInt(const std::string& name);
-		bool StatGetBool(const std::string& name);
-		float StatGetFloat(const std::string& name);
-		std::string StatGetString(const std::string& name);
-		void StatSetInt(const std::string& name, int value);
-		void StatSetBool(const std::string& name, bool value);
-		void StatSetFloat(const std::string& name, float value);
-		void StatSetString(const std::string& name, const std::string& value);
+int StatGetInt(const std::string& name);
+bool StatGetBool(const std::string& name);
+float StatGetFloat(const std::string& name);
+std::string StatGetString(const std::string& name);
+void StatSetInt(const std::string& name, int value);
+void StatSetBool(const std::string& name, bool value);
+void StatSetFloat(const std::string& name, float value);
+void StatSetString(const std::string& name, const std::string& value);
 
-		void AddOptionStats(const CharStat_t& stat);
-		void SPStatsManagerMenu();
-		void SPStatsInCharMenu();
-		void InCharInListMenu();
+void AddOptionStats(const CharStat_t& stat);
+void SPStatsManagerMenu();
+void SPStatsInCharMenu();
+void InCharInListMenu();
 
-	}
+} // namespace SpStatManager
 
-}
-
-
-
+} // namespace sub

@@ -13,31 +13,27 @@
 
 namespace VehicleCruise
 {
-	class VehicleCruise final : public GenericLoopedMode
-	{
-	private:
-		float cruiseSpeed;
-	public:
-		VehicleCruise();
+class VehicleCruise final : public GenericLoopedMode
+{
+  private:
+    float cruiseSpeed;
 
-		void TurnOn() override;
-		void TurnOff() override;
+  public:
+    VehicleCruise();
 
-		void BeginCruise();
-		void EndCruise();
+    void TurnOn() override;
+    void TurnOff() override;
 
-		void Tick() override;
-		void DoCruiseTick();
+    void BeginCruise();
+    void EndCruise();
 
-		void PrintCruiseText(bool working);
+    void Tick() override;
+    void DoCruiseTick();
 
-	};
+    void PrintCruiseText(bool working);
+};
 
+extern VehicleCruise g_vehicleCruise;
 
-	extern VehicleCruise g_vehicleCruise;
-
-	void ToggleOnOff();
-}
-
-
-
+void ToggleOnOff();
+} // namespace VehicleCruise

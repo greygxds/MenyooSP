@@ -12,40 +12,35 @@
 // Not used
 void GenericLoopedMode::TickAll()
 {
-
 }
 
-
-GenericLoopedMode::GenericLoopedMode()
-	: bEnabled(false)
+GenericLoopedMode::GenericLoopedMode() : bEnabled(false)
 {
 }
 
 bool& GenericLoopedMode::Enabled()
 {
-	return bEnabled;
+    return bEnabled;
 }
 
 void GenericLoopedMode::Toggle()
 {
-	if (bEnabled)
-	{
-		TurnOff();
-	}
-	else
-	{
-		TurnOn();
-	}
+    if (bEnabled)
+    {
+        TurnOff();
+    }
+    else
+    {
+        TurnOn();
+    }
 }
+
 void GenericLoopedMode::TurnOn()
 {
-	bEnabled = true;
+    bEnabled = true;
 }
+
 void GenericLoopedMode::TurnOff()
 {
-	bEnabled = false;
+    bEnabled = false;
 }
-
-
-
-

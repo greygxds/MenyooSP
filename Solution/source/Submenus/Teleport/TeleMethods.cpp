@@ -31,79 +31,79 @@
 #include <Windows.h> //GetTickCount
 #include <string>
 
-
 void TeleportNetPed(GTAentity ped, float X, float Y, float Z, bool bWait, bool bPtfx)
 {
-	GTAped myPed = Game::PlayerPed();
-	GTAvehicle myVeh = myPed.CurrentVehicle();
+    GTAped myPed = Game::PlayerPed();
+    GTAvehicle myVeh = myPed.CurrentVehicle();
 
-	GTAvehicle vehicle = GTAped(ped).CurrentVehicle();
+    GTAvehicle vehicle = GTAped(ped).CurrentVehicle();
 
-	if (!vehicle.Exists())
-	{
-		if (bWait)
-		{
-			Game::RequestControlOfId(ped.NetID());
-			ped.RequestControl();
-		}
-		else
-			ped.RequestControlOnce();
-		//if (NETWORK_HAS_CONTROL_OF_ENTITY(ped))
-		{
-			ped.SetPosition(Vector3(X, Y, Z));
-			if (bPtfx && ped.IsVisible())
-			{
-				const PTFX::sFxData ptfx = { "scr_rcbarry2", "scr_clown_death" };
-				if (!HAS_NAMED_PTFX_ASSET_LOADED(ptfx.asset.c_str()))
-					REQUEST_NAMED_PTFX_ASSET(ptfx.asset.c_str());
-				else
-				{
-					USE_PARTICLE_FX_ASSET(ptfx.asset.c_str());
-					SET_PARTICLE_FX_NON_LOOPED_COLOUR(GET_RANDOM_FLOAT_IN_RANGE(0, 1), GET_RANDOM_FLOAT_IN_RANGE(0, 1), GET_RANDOM_FLOAT_IN_RANGE(0, 1));
-					SET_PARTICLE_FX_NON_LOOPED_ALPHA(0.7f);
-					START_NETWORKED_PARTICLE_FX_NON_LOOPED_AT_COORD(ptfx.effect.c_str(), X, Y, Z, 0.0f, 0.0f, 0.0f, 1.0f, 0, 0, 0, false);
-				}
-			}
-		}
-	}
-	else
-	{
-		if (bWait)
-			vehicle.RequestControl(1000);
-		else
-			vehicle.RequestControlOnce();
-		vehicle.SetPosition(Vector3(X, Y, Z));
-	}
+    if (!vehicle.Exists())
+    {
+        if (bWait)
+        {
+            Game::RequestControlOfId(ped.NetID());
+            ped.RequestControl();
+        }
+        else
+            ped.RequestControlOnce();
+        //if (NETWORK_HAS_CONTROL_OF_ENTITY(ped))
+        {
+            ped.SetPosition(Vector3(X, Y, Z));
+            if (bPtfx && ped.IsVisible())
+            {
+                const PTFX::sFxData ptfx = {"scr_rcbarry2", "scr_clown_death"};
+                if (!HAS_NAMED_PTFX_ASSET_LOADED(ptfx.asset.c_str()))
+                    REQUEST_NAMED_PTFX_ASSET(ptfx.asset.c_str());
+                else
+                {
+                    USE_PARTICLE_FX_ASSET(ptfx.asset.c_str());
+                    SET_PARTICLE_FX_NON_LOOPED_COLOUR(GET_RANDOM_FLOAT_IN_RANGE(0, 1), GET_RANDOM_FLOAT_IN_RANGE(0, 1), GET_RANDOM_FLOAT_IN_RANGE(0, 1));
+                    SET_PARTICLE_FX_NON_LOOPED_ALPHA(0.7f);
+                    START_NETWORKED_PARTICLE_FX_NON_LOOPED_AT_COORD(ptfx.effect.c_str(), X, Y, Z, 0.0f, 0.0f, 0.0f, 1.0f, 0, 0, 0, false);
+                }
+            }
+        }
+    }
+    else
+    {
+        if (bWait)
+            vehicle.RequestControl(1000);
+        else
+            vehicle.RequestControlOnce();
+        vehicle.SetPosition(Vector3(X, Y, Z));
+    }
 
-	if (ped.Equals(myPed) || ped.Equals(myVeh))
-	{
-		if (sub::Spooner::SpoonerCamera::camera.Exists())
-			sub::Spooner::SpoonerCamera::camera.SetPosition(X, Y, Z + 3.0f);
-	}
+    if (ped.Equals(myPed) || ped.Equals(myVeh))
+    {
+        if (sub::Spooner::SpoonerCamera::camera.Exists())
+            sub::Spooner::SpoonerCamera::camera.SetPosition(X, Y, Z + 3.0f);
+    }
 
-	//LOAD_ALL_OBJECTS_NOW();
-	//LOAD_SCENE(X, Y, Z);
-	//SET_STREAMING(TRUE);
-
+    //LOAD_ALL_OBJECTS_NOW();
+    //LOAD_SCENE(X, Y, Z);
+    //SET_STREAMING(TRUE);
 }
+
 void TeleportNetPed(GTAentity ped, const Vector3& pos, bool bWait, bool bPtfx)
 {
-	TeleportNetPed(ped, pos.x, pos.y, pos.z, bWait, bPtfx);
+    TeleportNetPed(ped, pos.x, pos.y, pos.z, bWait, bPtfx);
 }
+
 void TeleportToMissionBlip(GTAped ped)
 {
-	//GTAblip blip;
-	addlog(ige::LogType::LOG_DEBUG, "Teleporting to Mission Objective");
-	//for (int i = 0; i <= 521; i++)
-	BlipList* blipList = GTAmemory::GetBlipList();
-	for (UINT16 i = 0; i <= 1000; i++)
-	{
-		addlog(ige::LogType::LOG_TRACE, "Iterating Blip ID: " + std::to_string(i));
-		Blipx* blip = blipList->m_Blips[i];
+    //GTAblip blip;
+    addlog(ige::LogType::LOG_DEBUG, "Teleporting to Mission Objective");
+    //for (int i = 0; i <= 521; i++)
+    BlipList* blipList = GTAmemory::GetBlipList();
+    for (UINT16 i = 0; i <= 1000; i++)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Iterating Blip ID: " + std::to_string(i));
+        Blipx* blip = blipList->m_Blips[i];
 
-		if (blip)
-		{
-			/*blip.Handle() = GET_FIRST_BLIP_INFO_ID(i);
+        if (blip)
+        {
+            /*blip.Handle() = GET_FIRST_BLIP_INFO_ID(i);
 			if (!blip.Exists()) // Idek
 			{
 			blip.Handle() = GET_NEXT_BLIP_INFO_ID(i);
@@ -111,191 +111,192 @@ void TeleportToMissionBlip(GTAped ped)
 			}
 			auto colour = blip.Colour();
 			auto icon = blip.Icon();*/
-			auto colour = blip->dwColor;
-			auto icon = blip->iIcon;
-			addlog(ige::LogType::LOG_TRACE, "Blip Found - Colour: " + std::to_string(colour) + ", Icon: " + std::to_string(icon));
-			if ((icon == BlipIcon::CrateDrop) ||
-				(colour == BlipColour::Yellow && icon == BlipIcon::Standard) ||
-				(colour == BlipColour::Yellow3 && icon == BlipIcon::Standard) ||
-				(colour == BlipColour::Yellow2 && icon == BlipIcon::Standard) ||
-				(colour == BlipColour::White && icon == BlipIcon::RaceFinish) ||
-				(colour == BlipColour::Green && icon == BlipIcon::Standard) ||
-				(colour == BlipColour::Blue && icon == BlipIcon::Standard))
+            auto colour = blip->dwColor;
+            auto icon = blip->iIcon;
+            addlog(ige::LogType::LOG_TRACE, "Blip Found - Colour: " + std::to_string(colour) + ", Icon: " + std::to_string(icon));
+            if ((icon == BlipIcon::CrateDrop) || (colour == BlipColour::Yellow && icon == BlipIcon::Standard) || (colour == BlipColour::Yellow3 && icon == BlipIcon::Standard) ||
+                (colour == BlipColour::Yellow2 && icon == BlipIcon::Standard) || (colour == BlipColour::White && icon == BlipIcon::RaceFinish) ||
+                (colour == BlipColour::Green && icon == BlipIcon::Standard) || (colour == BlipColour::Blue && icon == BlipIcon::Standard))
 
-			{
-				//Vector3 coord = blip.GetPosition();
-				Vector3 coord = Vector3(blip->x, blip->y, blip->z);
-				addlog(ige::LogType::LOG_DEBUG, "Mission Blip Found - Co-ord: " + std::to_string(coord.x)+"," + std::to_string(coord.y) + "," + std::to_string(coord.z));
-				if (ped.IsInVehicle())
-				{
-					addlog(ige::LogType::LOG_TRACE, "Teleporting Vehicle");
-					auto vehicle = ped.CurrentVehicle();
-					if (vehicle.RequestControl(1000))
-						vehicle.SetPosition(coord);
-				}
-				else
-				{
-					addlog(ige::LogType::LOG_TRACE, "Teleporting Ped");
-					if (ped.RequestControl(1000))
-						ped.SetPosition(coord);
-				}
-				break;
-			}
-		}
-	}
-	addlog(ige::LogType::LOG_DEBUG, "Teleported to Mission Objective");
+            {
+                //Vector3 coord = blip.GetPosition();
+                Vector3 coord = Vector3(blip->x, blip->y, blip->z);
+                addlog(ige::LogType::LOG_DEBUG, "Mission Blip Found - Co-ord: " + std::to_string(coord.x) + "," + std::to_string(coord.y) + "," + std::to_string(coord.z));
+                if (ped.IsInVehicle())
+                {
+                    addlog(ige::LogType::LOG_TRACE, "Teleporting Vehicle");
+                    auto vehicle = ped.CurrentVehicle();
+                    if (vehicle.RequestControl(1000))
+                        vehicle.SetPosition(coord);
+                }
+                else
+                {
+                    addlog(ige::LogType::LOG_TRACE, "Teleporting Ped");
+                    if (ped.RequestControl(1000))
+                        ped.SetPosition(coord);
+                }
+                break;
+            }
+        }
+    }
+    addlog(ige::LogType::LOG_DEBUG, "Teleported to Mission Objective");
 }
 
 namespace sub::TeleportLocations_catind
 {
-	namespace TeleMethods
-	{
-		float ____gtaGroundCheckHeight[] = {
-			100.0, 150.0, 50.0, 0.0, 200.0, 250.0, 300.0, 350.0, 400.0,
-			450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0
-		};
+namespace TeleMethods
+{
+float ____gtaGroundCheckHeight[] = {100.0, 150.0, 50.0, 0.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0};
 
-		void ToWaypoint(GTAped ped)
-		{
-			if (IS_WAYPOINT_ACTIVE())
-			{
-				Vector3 blipCoords = GTAblip(GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint)).GetPosition();
+void ToWaypoint(GTAped ped)
+{
+    if (IS_WAYPOINT_ACTIVE())
+    {
+        Vector3 blipCoords = GTAblip(GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint)).GetPosition();
 
-				GTAentity e = ped;
-				if (ped.IsInVehicle())
-					e = ped.CurrentVehicle();
+        GTAentity e = ped;
+        if (ped.IsInVehicle())
+            e = ped.CurrentVehicle();
 
-				if (!e.Exists())
-				{
-					Game::Print::ShowNotification("~r~Error:", "Entity is no longer valid.");
-					return;
-				}
+        if (!e.Exists())
+        {
+            Game::Print::ShowNotification("~r~Error:", "Entity is no longer valid.");
+            return;
+        }
 
-				GET_GROUND_Z_FOR_3D_COORD(blipCoords.x, blipCoords.y, 810.0, &blipCoords.z, 0, 0);
+        GET_GROUND_Z_FOR_3D_COORD(blipCoords.x, blipCoords.y, 810.0, &blipCoords.z, 0, 0);
 
-				Game::RequestControlOfId(e.NetID());
-				e.RequestControl(1000);
+        Game::RequestControlOfId(e.NetID());
+        e.RequestControl(1000);
 
-				for (int height : ____gtaGroundCheckHeight)
-				{
-					SET_ENTITY_COORDS(e.Handle(), blipCoords.x, blipCoords.y, height, 0, 0, 0, 1);
-					WAIT(100);
-					if (GET_GROUND_Z_FOR_3D_COORD(blipCoords.x, blipCoords.y, height, &blipCoords.z, 0, 0))
-						break;
-				}
-				SET_ENTITY_COORDS(e.Handle(), blipCoords.x, blipCoords.y, blipCoords.z, 0, 0, 0, 1);
-			}
-			else {
-				Game::Print::ShowNotification("~r~Error:", "No Waypoint set.");
-			}
-		}
-		void ToWaypoint241()
-		{
-			TeleMethods::ToWaypoint(PLAYER_PED_ID());
-		}
-		void ToMissionBlip241()
-		{
-			TeleportToMissionBlip(PLAYER_PED_ID());
-		}
-		void ToForward241()
-		{
-			GTAentity entityToTeleport = PLAYER_PED_ID();
-			Vector3 yoffsetforward = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entityToTeleport.Handle(), 0.0f, 3.5f, 0.0f);
-			TeleportNetPed(entityToTeleport, yoffsetforward.x, yoffsetforward.y, yoffsetforward.z, true, false);
-		}
-		void ToCoordinates241(const Vector3& coord)
-		{
-			TeleportNetPed(PLAYER_PED_ID(), coord.x, coord.y, coord.z);
-		}
-		void ToTeleLocation241(const TeleLocation& loc)
-		{
-			GTAentity entityToTeleport = PLAYER_PED_ID();
-
-			bool isOnline = NETWORK_IS_IN_SESSION() != 0;
-			if (loc.bOnTheLine && loc.bOffTheLine)
-			{
-				if (isOnline)
-				{
-					SET_INSTANCE_PRIORITY_MODE(true);
-					ON_ENTER_SP();
-					ON_ENTER_MP();
-				}
-				else
-				{
-					SET_INSTANCE_PRIORITY_MODE(true);
-					ON_ENTER_MP();
-					ON_ENTER_SP();
-				}
-			}
-			else
-			{
-				if (loc.bOnTheLine)
-				{
-					SET_INSTANCE_PRIORITY_MODE(true);
-					ON_ENTER_MP();
-				}
-				else if (loc.bOffTheLine)
-				{
-					SET_INSTANCE_PRIORITY_MODE(true);
-					ON_ENTER_SP();
-				}
-			}
-
-			for (auto& ipl : loc.iplsToRemove)
-			{
-				if (IS_IPL_ACTIVE((char*)ipl.data())) REMOVE_IPL((char*)ipl.data());
-			}
-			for (auto& ipl : loc.iplsToLoad)
-			{
-				if (!IS_IPL_ACTIVE((char*)ipl.data())) REQUEST_IPL((char*)ipl.data());
-			}
-
-			if (loc.bInterior)
-			{
-				int interior = GET_INTERIOR_AT_COORDS(loc.x, loc.y, loc.z);
-				if (IS_VALID_INTERIOR(interior))
-				{
-					if (IS_INTERIOR_DISABLED(interior))
-					{
-						PIN_INTERIOR_IN_MEMORY(interior);
-						SET_INTERIOR_ACTIVE(interior, true);
-						DISABLE_INTERIOR(interior, false);
-					}
-					for (auto& propName : loc.interiorProps)
-					{
-						ACTIVATE_INTERIOR_ENTITY_SET(interior, (char*)propName.data());
-
-						for (DWORD timeOut = GetTickCount() + 250; GetTickCount() < timeOut;)
-						{
-							if (IS_INTERIOR_ENTITY_SET_ACTIVE(interior, (char*)propName.data()))
-									break;
-							WAIT(0);
-						}
-						SET_INTERIOR_ENTITY_SET_TINT_INDEX(interior, (char*)propName.data(), 1);
-					}
-					REFRESH_INTERIOR(interior);
-				}
-			}
-
-			TeleportNetPed(entityToTeleport, loc.x, loc.y, loc.z);
-
-			if (loc.bOnTheLine || loc.bOffTheLine)
-			{
-				SET_INSTANCE_PRIORITY_MODE(false);
-			}
-
-			static bool _bNorthYanktonMiniMapEnabled = false;
-			if (loc.name.find("Yankton") != std::string::npos)
-			{
-				_bNorthYanktonMiniMapEnabled = true;
-				SET_MINIMAP_IN_PROLOGUE(true);
-			}
-			else if (_bNorthYanktonMiniMapEnabled)
-			{
-				_bNorthYanktonMiniMapEnabled = false;
-				SET_MINIMAP_IN_PROLOGUE(false);
-			}
-		}
-	}
-
+        for (int height : ____gtaGroundCheckHeight)
+        {
+            SET_ENTITY_COORDS(e.Handle(), blipCoords.x, blipCoords.y, height, 0, 0, 0, 1);
+            WAIT(100);
+            if (GET_GROUND_Z_FOR_3D_COORD(blipCoords.x, blipCoords.y, height, &blipCoords.z, 0, 0))
+                break;
+        }
+        SET_ENTITY_COORDS(e.Handle(), blipCoords.x, blipCoords.y, blipCoords.z, 0, 0, 0, 1);
+    }
+    else
+    {
+        Game::Print::ShowNotification("~r~Error:", "No Waypoint set.");
+    }
 }
+
+void ToWaypoint241()
+{
+    TeleMethods::ToWaypoint(PLAYER_PED_ID());
+}
+
+void ToMissionBlip241()
+{
+    TeleportToMissionBlip(PLAYER_PED_ID());
+}
+
+void ToForward241()
+{
+    GTAentity entityToTeleport = PLAYER_PED_ID();
+    Vector3 yoffsetforward = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entityToTeleport.Handle(), 0.0f, 3.5f, 0.0f);
+    TeleportNetPed(entityToTeleport, yoffsetforward.x, yoffsetforward.y, yoffsetforward.z, true, false);
+}
+
+void ToCoordinates241(const Vector3& coord)
+{
+    TeleportNetPed(PLAYER_PED_ID(), coord.x, coord.y, coord.z);
+}
+
+void ToTeleLocation241(const TeleLocation& loc)
+{
+    GTAentity entityToTeleport = PLAYER_PED_ID();
+
+    bool isOnline = NETWORK_IS_IN_SESSION() != 0;
+    if (loc.bOnTheLine && loc.bOffTheLine)
+    {
+        if (isOnline)
+        {
+            SET_INSTANCE_PRIORITY_MODE(true);
+            ON_ENTER_SP();
+            ON_ENTER_MP();
+        }
+        else
+        {
+            SET_INSTANCE_PRIORITY_MODE(true);
+            ON_ENTER_MP();
+            ON_ENTER_SP();
+        }
+    }
+    else
+    {
+        if (loc.bOnTheLine)
+        {
+            SET_INSTANCE_PRIORITY_MODE(true);
+            ON_ENTER_MP();
+        }
+        else if (loc.bOffTheLine)
+        {
+            SET_INSTANCE_PRIORITY_MODE(true);
+            ON_ENTER_SP();
+        }
+    }
+
+    for (auto& ipl : loc.iplsToRemove)
+    {
+        if (IS_IPL_ACTIVE((char*)ipl.data()))
+            REMOVE_IPL((char*)ipl.data());
+    }
+    for (auto& ipl : loc.iplsToLoad)
+    {
+        if (!IS_IPL_ACTIVE((char*)ipl.data()))
+            REQUEST_IPL((char*)ipl.data());
+    }
+
+    if (loc.bInterior)
+    {
+        int interior = GET_INTERIOR_AT_COORDS(loc.x, loc.y, loc.z);
+        if (IS_VALID_INTERIOR(interior))
+        {
+            if (IS_INTERIOR_DISABLED(interior))
+            {
+                PIN_INTERIOR_IN_MEMORY(interior);
+                SET_INTERIOR_ACTIVE(interior, true);
+                DISABLE_INTERIOR(interior, false);
+            }
+            for (auto& propName : loc.interiorProps)
+            {
+                ACTIVATE_INTERIOR_ENTITY_SET(interior, (char*)propName.data());
+
+                for (DWORD timeOut = GetTickCount() + 250; GetTickCount() < timeOut;)
+                {
+                    if (IS_INTERIOR_ENTITY_SET_ACTIVE(interior, (char*)propName.data()))
+                        break;
+                    WAIT(0);
+                }
+                SET_INTERIOR_ENTITY_SET_TINT_INDEX(interior, (char*)propName.data(), 1);
+            }
+            REFRESH_INTERIOR(interior);
+        }
+    }
+
+    TeleportNetPed(entityToTeleport, loc.x, loc.y, loc.z);
+
+    if (loc.bOnTheLine || loc.bOffTheLine)
+    {
+        SET_INSTANCE_PRIORITY_MODE(false);
+    }
+
+    static bool _bNorthYanktonMiniMapEnabled = false;
+    if (loc.name.find("Yankton") != std::string::npos)
+    {
+        _bNorthYanktonMiniMapEnabled = true;
+        SET_MINIMAP_IN_PROLOGUE(true);
+    }
+    else if (_bNorthYanktonMiniMapEnabled)
+    {
+        _bNorthYanktonMiniMapEnabled = false;
+        SET_MINIMAP_IN_PROLOGUE(false);
+    }
+}
+} // namespace TeleMethods
+
+} // namespace sub::TeleportLocations_catind

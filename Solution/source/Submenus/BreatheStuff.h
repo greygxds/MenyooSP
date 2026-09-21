@@ -28,28 +28,29 @@
 
 typedef unsigned __int8 UINT8;
 
-namespace PTFX 
+namespace PTFX
 {
-	class LoopedPTFX;
+class LoopedPTFX;
 }
 
 namespace sub
 {
-	namespace BreatheStuff
-	{
-		enum class BreathePtfxType : UINT8 { None, Blood, Fire, };
-		extern const std::vector<std::pair<std::string, BreathePtfxType>> captionsBreatheStuff;
-		extern PTFX::LoopedPTFX g_breatheStuffPTFX;
-		extern BreathePtfxType playerBreatheStuff;
+namespace BreatheStuff
+{
+enum class BreathePtfxType : UINT8
+{
+    None,
+    Blood,
+    Fire,
+};
+extern const std::vector<std::pair<std::string, BreathePtfxType>> captionsBreatheStuff;
+extern PTFX::LoopedPTFX g_breatheStuffPTFX;
+extern BreathePtfxType playerBreatheStuff;
 
-		void SetSelfBreathePTFX(const BreathePtfxType& type);
-		void AddOption(const std::string& text, const BreathePtfxType& type);
-		void BreatheStuffMenu();
+void SetSelfBreathePTFX(const BreathePtfxType& type);
+void AddOption(const std::string& text, const BreathePtfxType& type);
+void BreatheStuffMenu();
 
-	}
+} // namespace BreatheStuff
 
-}
-
-
-
-
+} // namespace sub

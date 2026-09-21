@@ -47,60 +47,63 @@ class Vector2;
 
 namespace sub
 {
-	
-	void VehicleMenu();
 
-	void PVMenu();
+void VehicleMenu();
 
-	namespace VehicleAutoDrive
-	{
-		void ToggleOnOff();
-		void Tick();
+void PVMenu();
 
-		void AutoDriveMenu();
-	}
+namespace VehicleAutoDrive
+{
+void ToggleOnOff();
+void Tick();
 
-	namespace VehicleSlam
-	{
-		void InitSub(GTAvehicle veh, float* val);
+void AutoDriveMenu();
+} // namespace VehicleAutoDrive
 
-		void VehicleSlamMenu();
-	}
+namespace VehicleSlam
+{
+void InitSub(GTAvehicle veh, float *val);
 
-	void VehicleWeaponsMenu();
+void VehicleSlamMenu();
+} // namespace VehicleSlam
 
-	void VehicleMultipliersMenu();
+void VehicleWeaponsMenu();
 
-	void VehicleMultiPlatNeonsMenu();
+void VehicleMultipliersMenu();
 
-	namespace Speedo
-	{
-		struct SpeedoImage
-		{
-			std::string fileName;
-			DxHookIMG::DxTexture id;
-		};
+void VehicleMultiPlatNeonsMenu();
 
-		extern SpeedoImage currentSpeedoBG;
-		extern SpeedoImage currentSpeedoNeedle;
-		extern UINT8 speedoAlpha;
-		extern Vector2 speedoPosition;
+namespace Speedo
+{
+struct SpeedoImage
+{
+    std::string fileName;
+    DxHookIMG::DxTexture id;
+};
 
-		enum eSpeedoMode : UINT8 { SPEEDOMODE_OFF, SPEEDOMODE_DIGITAL, SPEEDOMODE_ANALOGUE };
-		extern UINT8 loopSpeedo;
-		extern bool speedoMPH;
+extern SpeedoImage currentSpeedoBG;
+extern SpeedoImage currentSpeedoNeedle;
+extern UINT8 speedoAlpha;
+extern Vector2 speedoPosition;
 
-		void SetCurrentBgIdFromBgNameForConfig();
-		void LoadSpeedoImages();
+enum eSpeedoMode : UINT8
+{
+    SPEEDOMODE_OFF,
+    SPEEDOMODE_DIGITAL,
+    SPEEDOMODE_ANALOGUE
+};
 
-		void SpeedoTick();
+extern UINT8 loopSpeedo;
+extern bool speedoMPH;
 
-		void SpeedoMainMenu();
-		void SpeedoThemesLight();
-		void SpeedoThemesDark();
-	}
+void SetCurrentBgIdFromBgNameForConfig();
+void LoadSpeedoImages();
 
-}
+void SpeedoTick();
 
+void SpeedoMainMenu();
+void SpeedoThemesLight();
+void SpeedoThemesDark();
+} // namespace Speedo
 
-
+} // namespace sub

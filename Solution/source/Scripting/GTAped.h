@@ -25,8 +25,10 @@ enum class ParachuteState : int;
 enum class PedSubTask : int;
 enum class NMString : int;
 enum VehicleSeat : int;
-namespace FiringPattern {
-	enum FiringPattern : DWORD;
+
+namespace FiringPattern
+{
+enum FiringPattern : DWORD;
 }
 class s_Weapon_Components_Tint;
 //class GTAentity;
@@ -34,374 +36,394 @@ class s_Weapon_Components_Tint;
 
 enum class Gender
 {
-	Male,
-	Female
+    Male,
+    Female
 };
 enum class FormationType
 {
-	Default = 0,
-	Circle1 = 1,
-	Circle2 = 2,
-	Line = 3
+    Default = 0,
+    Circle1 = 1,
+    Circle2 = 2,
+    Line = 3
 };
 enum class PedHeadOverlay : int
 {
-	SkinRash = 0,
-	Beard = 1,
-	Eyebrows = 2,
-	Wrinkles = 3,
-	Makeup = 4,
-	Blush = 5,
-	Pigment1 = 6,
-	Pigment2 = 7,
-	Lipstick = 8,
-	Spots = 9,
-	ChestHair = 10,
-	Chest1 = 11,
-	Chest2 = 12,
+    SkinRash = 0,
+    Beard = 1,
+    Eyebrows = 2,
+    Wrinkles = 3,
+    Makeup = 4,
+    Blush = 5,
+    Pigment1 = 6,
+    Pigment2 = 7,
+    Lipstick = 8,
+    Spots = 9,
+    ChestHair = 10,
+    Chest1 = 11,
+    Chest2 = 12,
 };
 enum class PedFacialFeature
 {
-	NoseWidth = 0,
-	NoseBottomHeight = 1,
-	NoseTipLength = 2,
-	NoseBridgeDepth = 3,
-	NoseTipHeight = 4,
-	NoseBroken = 5,
-	BrowHeight = 6,
-	BrowDepth = 7,
-	CheekboneHeight = 8,
-	CheekboneWidth = 9,
-	CheekDepth = 10,
-	EyeSize = 11,
-	LipThickness = 12,
-	JawWidth = 13,
-	JawShape = 14,
-	ChinHeight = 15,
-	ChinDepth = 16,
-	ChinWidth = 17,
-	ChinIndent = 18,
-	NeckWidth = 19,
+    NoseWidth = 0,
+    NoseBottomHeight = 1,
+    NoseTipLength = 2,
+    NoseBridgeDepth = 3,
+    NoseTipHeight = 4,
+    NoseBroken = 5,
+    BrowHeight = 6,
+    BrowDepth = 7,
+    CheekboneHeight = 8,
+    CheekboneWidth = 9,
+    CheekDepth = 10,
+    EyeSize = 11,
+    LipThickness = 12,
+    JawWidth = 13,
+    JawShape = 14,
+    ChinHeight = 15,
+    ChinDepth = 16,
+    ChinWidth = 17,
+    ChinIndent = 18,
+    NeckWidth = 19,
 };
 
 class PedHeadBlendData
 {
-public:
-	int shapeFirstID;
-private:
-	DWORD _padding0;
-public:
-	int shapeSecondID;
-private:
-	DWORD _padding1;
-public:
-	int shapeThirdID;
-private:
-	DWORD _padding2;
-public:
-	int skinFirstID;
-private:
-	DWORD _padding3;
-public:
-	int skinSecondID;
-private:
-	DWORD _padding4;
-public:
-	int skinThirdID;
-private:
-	DWORD _padding5;
-public:
-	float shapeMix;
-private:
-	DWORD _padding6;
-public:
-	float skinMix;
-private:
-	DWORD _padding7;
-public:
-	float thirdMix;
-private:
-	DWORD _padding8;
-public:
-	BOOL isParent;
-private:
-	DWORD _padding9;
+  public:
+    int shapeFirstID;
+
+  private:
+    DWORD _padding0;
+
+  public:
+    int shapeSecondID;
+
+  private:
+    DWORD _padding1;
+
+  public:
+    int shapeThirdID;
+
+  private:
+    DWORD _padding2;
+
+  public:
+    int skinFirstID;
+
+  private:
+    DWORD _padding3;
+
+  public:
+    int skinSecondID;
+
+  private:
+    DWORD _padding4;
+
+  public:
+    int skinThirdID;
+
+  private:
+    DWORD _padding5;
+
+  public:
+    float shapeMix;
+
+  private:
+    DWORD _padding6;
+
+  public:
+    float skinMix;
+
+  private:
+    DWORD _padding7;
+
+  public:
+    float thirdMix;
+
+  private:
+    DWORD _padding8;
+
+  public:
+    BOOL isParent;
+
+  private:
+    DWORD _padding9;
 };
 
 class PedGroup
 {
-public:
-	PedGroup();
-	PedGroup(int handle);
-	//~PedGroup();
+  public:
+    PedGroup();
+    PedGroup(int handle);
+    //~PedGroup();
 
-	PedGroup operator =(const PedGroup& right);
-	bool operator ==(const PedGroup& right) const;
-	bool operator !=(const PedGroup& right) const;
+    PedGroup operator=(const PedGroup& right);
+    bool operator==(const PedGroup& right) const;
+    bool operator!=(const PedGroup& right) const;
 
-	static PedGroup CreateNewGroup();
+    static PedGroup CreateNewGroup();
 
-	int& Handle();
-	int GetHandle() const noexcept;
+    int& Handle();
+    int GetHandle() const noexcept;
 
-	GTAentity GetLeader() const;
-	void SetLeader(GTAentity ped);
+    GTAentity GetLeader() const;
+    void SetLeader(GTAentity ped);
 
-	int MemberCount() const;
+    int MemberCount() const;
 
-	void SetSeparationRange(float range);
+    void SetSeparationRange(float range);
 
-	void SetFormationSpacing(float spacing);
-	void ResetFormationSpacing();
+    void SetFormationSpacing(float spacing);
+    void ResetFormationSpacing();
 
-	void SetFormationType(FormationType value);
+    void SetFormationType(FormationType value);
 
-	void Add(GTAentity ped, bool leader, bool teleportWithLeader = false);
-	void Remove(GTAentity ped);
+    void Add(GTAentity ped, bool leader, bool teleportWithLeader = false);
+    void Remove(GTAentity ped);
 
-	bool Exists() const;
-	static bool Exists(PedGroup pedGroup);
+    bool Exists() const;
+    static bool Exists(PedGroup pedGroup);
 
-	GTAentity GetMember(int index) const;
+    GTAentity GetMember(int index) const;
 
-	bool Contains(GTAentity ped) const;
+    bool Contains(GTAentity ped) const;
 
-	void ToVector(std::vector<GTAentity>& result, bool includeLeader) const;
+    void ToVector(std::vector<GTAentity>& result, bool includeLeader) const;
 
-private:
-	int _handle;
+  private:
+    int _handle;
 };
 
-namespace PedBloodDecals {
-	extern const std::vector<std::string> vBloodDecals;
+namespace PedBloodDecals
+{
+extern const std::vector<std::string> vBloodDecals;
 }
-namespace PedDamageDecals {
-	extern const std::vector<std::string> vDamageDecals;
+
+namespace PedDamageDecals
+{
+extern const std::vector<std::string> vDamageDecals;
 }
-namespace PedDamagePacks {
-	extern const std::vector<std::string> vDamagePacks;
+
+namespace PedDamagePacks
+{
+extern const std::vector<std::string> vDamagePacks;
 }
 
 class GTAped : public GTAentity
 {
-public:
-	GTAped();
-	GTAped(int handle);
-	GTAped(GTAentity handle);
+  public:
+    GTAped();
+    GTAped(int handle);
+    GTAped(GTAentity handle);
 
-	GTAped& operator = (const GTAped& value);
-	friend bool operator == (const GTAped& left, const GTAped& right);
+    GTAped& operator=(const GTAped& value);
+    friend bool operator==(const GTAped& left, const GTAped& right);
 
-	void Delete(bool tele = false) override;
+    void Delete(bool tele = false) override;
 
-	int NetID() const override;
+    int NetID() const override;
 
-	void GiveNM(const NMString& messageid);
+    void GiveNM(const NMString& messageid);
 
-	GTAentity Clone(float heading, bool createNetH, bool createPedH);
+    GTAentity Clone(float heading, bool createNetH, bool createPedH);
 
-	bool IsSubTaskActive(const PedSubTask& taskType);
+    bool IsSubTaskActive(const PedSubTask& taskType);
 
-	PedHeadBlendData GetHeadBlendData() const;
-	void SetHeadBlendData(const PedHeadBlendData& blendData);
+    PedHeadBlendData GetHeadBlendData() const;
+    void SetHeadBlendData(const PedHeadBlendData& blendData);
 
-	void SetVoiceName(const std::string& value);
+    void SetVoiceName(const std::string& value);
 
-	int PedType() const;
+    int PedType() const;
 
-	void PlaySpeechWithVoice(const std::string& speechName, const std::string& voiceName, const std::string& speechParam, bool unk = 0);
+    void PlaySpeechWithVoice(const std::string& speechName, const std::string& voiceName, const std::string& speechParam, bool unk = 0);
 
-	Hash GetWeapon() const;
-	void SetWeapon(Hash weaponHash);
-	void RemoveAllWeapons();
+    Hash GetWeapon() const;
+    void SetWeapon(Hash weaponHash);
+    void RemoveAllWeapons();
 
-	Vector3 LastWeaponImpactCoord() const;
+    Vector3 LastWeaponImpactCoord() const;
 
-	ParachuteState GetParachuteState() const;
-	
-	int GetAccuracy() const;
-	void SetAccuracy(int value);
+    ParachuteState GetParachuteState() const;
 
-	void SetAlwaysDiesWhenInjured(bool value);
+    int GetAccuracy() const;
+    void SetAccuracy(int value);
 
-	void SetAlwaysKeepTask(bool value);
+    void SetAlwaysDiesWhenInjured(bool value);
 
-	int GetArmour() const;
-	void SetArmour(int value);
+    void SetAlwaysKeepTask(bool value);
 
-	void SetBlockPermanentEvent(bool value);
+    int GetArmour() const;
+    void SetArmour(int value);
 
-	bool GetCanRagdoll() const;
-	void SetCanRagdoll(bool value);
+    void SetBlockPermanentEvent(bool value);
 
-	void SetCanSwitchWeapons(bool value);
+    bool GetCanRagdoll() const;
+    void SetCanRagdoll(bool value);
 
-	void SetCanSufferCriticalHits(bool value);
+    void SetCanSwitchWeapons(bool value);
 
-	bool GetCanFlyThroughWindscreen() const;
-	void SetCanFlyThroughWindscreen(bool value);
+    void SetCanSufferCriticalHits(bool value);
 
-	void SetCanBeKnockedOffBike(int state);
+    bool GetCanFlyThroughWindscreen() const;
+    void SetCanFlyThroughWindscreen(bool value);
 
-	void SetCanBeDraggedOutOfVehicle(bool value);
+    void SetCanBeKnockedOffBike(int state);
 
-	void SetCanBeTargetted(bool value);
+    void SetCanBeDraggedOutOfVehicle(bool value);
 
-	void SetCanPlayGestures(bool value);
+    void SetCanBeTargetted(bool value);
 
-	bool IsInGroup() const;
-	PedGroup GetCurrentPedGroup() const;
-	void SetNeverLeavesGroup(bool value);
-	void SetTeleportsWithGroupLeader(bool value, const PedGroup& grp = 0);
+    void SetCanPlayGestures(bool value);
 
-	void SetDiesInstantlyInWater(bool value);
-	void SetDrownsInWater(bool value);
-	void SetDrownsInSinkingVehicle(bool value);
+    bool IsInGroup() const;
+    PedGroup GetCurrentPedGroup() const;
+    void SetNeverLeavesGroup(bool value);
+    void SetTeleportsWithGroupLeader(bool value, const PedGroup& grp = 0);
 
-	void SetDrivingSpeed(float value);
-	void SetMaxDrivingSpeed(float value);
+    void SetDiesInstantlyInWater(bool value);
+    void SetDrownsInWater(bool value);
+    void SetDrownsInSinkingVehicle(bool value);
 
-	void SetDrivingStyle(int value);
+    void SetDrivingSpeed(float value);
+    void SetMaxDrivingSpeed(float value);
 
-	//NaturalMotion::Euphoria Euphoria_get() const;
+    void SetDrivingStyle(int value);
 
-	void SetFiringPattern(FiringPattern::FiringPattern value);
+    //NaturalMotion::Euphoria Euphoria_get() const;
 
-	Gender GetGender() const;
+    void SetFiringPattern(FiringPattern::FiringPattern value);
 
-	bool IsAimingFromCover() const;
+    Gender GetGender() const;
 
-	bool IsBeingJacked() const;
+    bool IsAimingFromCover() const;
 
-	bool IsBeingStealthKilled() const;
-	bool IsPerformingStealthKill() const;
+    bool IsBeingJacked() const;
 
-	bool IsBeingStunned() const;
+    bool IsBeingStealthKilled() const;
+    bool IsPerformingStealthKill() const;
 
-	bool IsDoingDriveBy() const;
+    bool IsBeingStunned() const;
 
-	bool IsDucking() const;
-	void SetDucking(bool value);
+    bool IsDoingDriveBy() const;
 
-	void SetAsEnemy(bool value);
+    bool IsDucking() const;
+    void SetDucking(bool value);
 
-	bool IsHuman() const;
+    void SetAsEnemy(bool value);
 
-	bool IsIdle() const;
+    bool IsHuman() const;
 
-	bool IsProne() const;
+    bool IsIdle() const;
 
-	bool IsGettingUp() const;
+    bool IsProne() const;
 
-	bool IsGettingIntoAVehicle() const;
+    bool IsGettingUp() const;
 
-	bool IsGoingIntoCover() const;
+    bool IsGettingIntoAVehicle() const;
 
-	bool IsInjured() const;
+    bool IsGoingIntoCover() const;
 
-	bool IsInBoat() const;
+    bool IsInjured() const;
 
-	bool IsInCombat() const;
-	bool IsInCombatWith(const GTAped& target) const;
+    bool IsInBoat() const;
 
-	bool IsInCoverFacingLeft() const;
+    bool IsInCombat() const;
+    bool IsInCombatWith(const GTAped& target) const;
 
-	bool IsInFlyingVehicle() const;
+    bool IsInCoverFacingLeft() const;
 
-	bool IsInHeli() const;
-	bool IsInPlane() const;
-	bool IsInPoliceVehicle() const;
-	bool IsInSub() const;
-	bool IsInTrain() const;
-	bool IsOnBike() const;
-	bool IsOnFoot() const;
+    bool IsInFlyingVehicle() const;
 
-	bool IsInMeleeCombat() const;
+    bool IsInHeli() const;
+    bool IsInPlane() const;
+    bool IsInPoliceVehicle() const;
+    bool IsInSub() const;
+    bool IsInTrain() const;
+    bool IsOnBike() const;
+    bool IsOnFoot() const;
 
-	bool IsJacking() const;
+    bool IsInMeleeCombat() const;
 
-	bool IsPlayer() const;
+    bool IsJacking() const;
 
-	void SetPriorityTargetForEnemies(bool value);
+    bool IsPlayer() const;
 
-	bool IsRagdoll() const;
+    void SetPriorityTargetForEnemies(bool value);
 
-	bool IsWalking() const;
-	bool IsRunning() const;
-	bool IsSprinting() const;
-	bool IsJumping() const;
+    bool IsRagdoll() const;
 
-	bool IsShooting() const;
-	bool IsReloading() const;
+    bool IsWalking() const;
+    bool IsRunning() const;
+    bool IsSprinting() const;
+    bool IsJumping() const;
 
-	bool IsStopped() const;
+    bool IsShooting() const;
+    bool IsReloading() const;
 
-	bool IsSwimming() const;
-	bool IsSwimmingUnderWater() const;
+    bool IsStopped() const;
 
-	bool IsTryingToEnterALockedVehicle() const;
+    bool IsSwimming() const;
+    bool IsSwimmingUnderWater() const;
 
-	int GetMoney() const;
-	void SetMoney(int value);
+    bool IsTryingToEnterALockedVehicle() const;
 
-	Hash GetRelationshipGroup() const;
-	void SetRelationshipGroup(Hash grpHash);
-	void SetRelationshipGroup(const std::string& grpName);
+    int GetMoney() const;
+    void SetMoney(int value);
 
-	void SetShootRate(int value);
+    Hash GetRelationshipGroup() const;
+    void SetRelationshipGroup(Hash grpHash);
+    void SetRelationshipGroup(const std::string& grpName);
 
-	void SetHasGravity(bool value) override;
+    void SetShootRate(int value);
 
-	Tasks Task();
-	int GetTaskSequenceProgress() const;
-	bool IsPerformingAnyTaskSequence() const;
+    void SetHasGravity(bool value) override;
 
-	bool WasKilledByStealth() const;
-	bool WasKilledByTakedown() const;
+    Tasks Task();
+    int GetTaskSequenceProgress() const;
+    bool IsPerformingAnyTaskSequence() const;
 
-	void SetWetnessHeight(float value);
+    bool WasKilledByStealth() const;
+    bool WasKilledByTakedown() const;
 
-	bool IsInVehicle() const;
-	bool IsInVehicle(GTAvehicle vehicle) const;
-	GTAvehicle CurrentVehicle() const;
+    void SetWetnessHeight(float value);
 
-	VehicleSeat GetCurrentVehicleSeat();
+    bool IsInVehicle() const;
+    bool IsInVehicle(GTAvehicle vehicle) const;
+    GTAvehicle CurrentVehicle() const;
 
-	int GetRelationshipWithPed(GTAentity otherPed) const;
+    VehicleSeat GetCurrentVehicleSeat();
 
-	void SetIntoVehicle(GTAvehicle vehicle, VehicleSeat seat);
+    int GetRelationshipWithPed(GTAentity otherPed) const;
 
-	bool IsInCover() const;
-	bool IsInCover(bool expectUseWeapon) const;
+    void SetIntoVehicle(GTAvehicle vehicle, VehicleSeat seat);
 
-	GTAentity GetJacker() const;
-	GTAentity GetJackTarget() const;
-	GTAentity GetSourceOfDeath() const;
-	void Kill();
-	void ExplodeHead(Hash weaponHash);
+    bool IsInCover() const;
+    bool IsInCover(bool expectUseWeapon) const;
 
-	void ResetVisibleDamage();
-	void ClearBloodDamage();
-	void ApplyDamage(int damageAmount);
+    GTAentity GetJacker() const;
+    GTAentity GetJackTarget() const;
+    GTAentity GetSourceOfDeath() const;
+    void Kill();
+    void ExplodeHead(Hash weaponHash);
 
-	Vector3 GetBoneCoord(int boneID) const;
-	Vector3 GetBoneCoord(int boneID, const Vector3& offset) const;
-	int GetBoneIndex(int boneID) const;
+    void ResetVisibleDamage();
+    void ClearBloodDamage();
+    void ApplyDamage(int damageAmount);
 
-	void ApplyBlood(const std::string& bloodDecalName, int boneID);
-	void ApplyBlood(const std::string& bloodDecalName, int boneID, const Vector3& rotation);
+    Vector3 GetBoneCoord(int boneID) const;
+    Vector3 GetBoneCoord(int boneID, const Vector3& offset) const;
+    int GetBoneIndex(int boneID) const;
 
-	void ApplyDamageDecal(const std::string& damageDecalName, int boneID, const Vector3& rotation, float damageScale, float multiplier, int state, bool b1);
-	void ApplyDamagePack(const std::string& damagePackName, float damageAmount, float multiplier);
+    void ApplyBlood(const std::string& bloodDecalName, int boneID);
+    void ApplyBlood(const std::string& bloodDecalName, int boneID, const Vector3& rotation);
 
-	void StoreWeaponsInArray(std::vector<s_Weapon_Components_Tint>& result);
-	void GiveWeaponsFromArray(const std::vector<s_Weapon_Components_Tint>& value);
+    void ApplyDamageDecal(const std::string& damageDecalName, int boneID, const Vector3& rotation, float damageScale, float multiplier, int state, bool b1);
+    void ApplyDamagePack(const std::string& damagePackName, float damageAmount, float multiplier);
 
-private:
-	Tasks _tasks;
-	//NaturalMotion::Euphoria _euphoria;
+    void StoreWeaponsInArray(std::vector<s_Weapon_Components_Tint>& result);
+    void GiveWeaponsFromArray(const std::vector<s_Weapon_Components_Tint>& value);
 
+  private:
+    Tasks _tasks;
+    //NaturalMotion::Euphoria _euphoria;
 };
-
-
-

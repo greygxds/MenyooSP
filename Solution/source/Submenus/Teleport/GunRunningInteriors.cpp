@@ -24,301 +24,350 @@
 
 namespace sub::TeleportLocations_catind
 {
-	namespace GunRunningInteriors
-	{
-		namespace Bunkers
-		{
-			struct BunkerLocation { const std::string name; Vector3 pos; const std::string ipl; };
-			const std::vector<BunkerLocation> vLocations
-			{
-				{ "Regular",{ 938.3077f, -3196.1120f, -98.0000f }, "gr_grdlc_interior_placement_interior_1_grdlc_int_02_milo_" },
-			};
+namespace GunRunningInteriors
+{
+namespace Bunkers
+{
+struct BunkerLocation
+{
+    const std::string name;
+    Vector3 pos;
+    const std::string ipl;
+};
 
-			struct BunkerInteriorOption { const std::string name; const std::string value; };
-			const std::vector<BunkerInteriorOption> vStyleOptions
-			{
-				{ "A", "bunker_style_a" },
-				{ "B", "bunker_style_b" },
-				{ "C", "bunker_style_c" },
-			};
-			const std::vector<BunkerInteriorOption> vSetOptions
-			{
-				{ "Standard", "standard_bunker_set" },
-				{ "Upgraded", "upgrade_bunker_set" },
-			};
-			const std::vector<BunkerInteriorOption> vSecurityOptions
-			{
-				{ "Standard", "standard_security_set" },
-				{ "Upgraded", "security_upgrade" },
-			};
-			const std::vector<BunkerInteriorOption> vOfficeOptions
-			{
-				{ "Blocked", "Office_blocker_set" },
-				{ "Upgraded", "Office_Upgrade_set" },
-			};
-			const std::vector<BunkerInteriorOption> vGunRangeOptions
-			{
-				{ "Blcoked Section", "gun_range_blocker_set" },
-				{ "Blocked Gun Range", "gun_wall_blocker" },
-				{ "Present", "gun_range_lights" },
-			};
-			const std::vector<BunkerInteriorOption> vGunLockerOptions
-			{
-				{ "None", "" },
-				{ "Present", "gun_locker_upgrade" },
-			};
-			const std::vector<BunkerInteriorOption> vGunSchematicOptions
-			{
-				{ "None", "" },
-				{ "Present", "Gun_schematic_set" },
-			};
+const std::vector<BunkerLocation> vLocations{
+    {"Regular", {938.3077f, -3196.1120f, -98.0000f}, "gr_grdlc_interior_placement_interior_1_grdlc_int_02_milo_"},
+};
 
-			struct BunkerInfoStructure
-			{
-				BunkerLocation const * location;
-				UINT8 styleOption;
-				UINT8 setOption;
-				UINT8 securityOption;
-				UINT8 officeOption;
-				UINT8 gunRangeOption;
-				UINT8 gunLockerOption;
-				UINT8 gunSchematicOption;
+struct BunkerInteriorOption
+{
+    const std::string name;
+    const std::string value;
+};
 
-				void operator = (const BunkerInfoStructure& right)
-				{
-					this->location = right.location;
-					this->styleOption = right.styleOption;
-					this->setOption = right.setOption;
-					this->securityOption = right.securityOption;
-					this->officeOption = right.officeOption;
-					this->gunRangeOption = right.gunRangeOption;
-					this->gunLockerOption = right.gunLockerOption;
-					this->gunSchematicOption = right.gunSchematicOption;
-				}
-			};
-			BunkerInfoStructure currentBunkerInfo = { nullptr, 0, 0, 0, 0, 0, 0, 0 };
+const std::vector<BunkerInteriorOption> vStyleOptions{
+    {"A", "bunker_style_a"},
+    {"B", "bunker_style_b"},
+    {"C", "bunker_style_c"},
+};
+const std::vector<BunkerInteriorOption> vSetOptions{
+    {"Standard", "standard_bunker_set"},
+    {"Upgraded", "upgrade_bunker_set"},
+};
+const std::vector<BunkerInteriorOption> vSecurityOptions{
+    {"Standard", "standard_security_set"},
+    {"Upgraded", "security_upgrade"},
+};
+const std::vector<BunkerInteriorOption> vOfficeOptions{
+    {"Blocked", "Office_blocker_set"},
+    {"Upgraded", "Office_Upgrade_set"},
+};
+const std::vector<BunkerInteriorOption> vGunRangeOptions{
+    {"Blcoked Section", "gun_range_blocker_set"},
+    {"Blocked Gun Range", "gun_wall_blocker"},
+    {"Present", "gun_range_lights"},
+};
+const std::vector<BunkerInteriorOption> vGunLockerOptions{
+    {"None", ""},
+    {"Present", "gun_locker_upgrade"},
+};
+const std::vector<BunkerInteriorOption> vGunSchematicOptions{
+    {"None", ""},
+    {"Present", "Gun_schematic_set"},
+};
 
-			struct BunkerInteriorOptionArray {
-				const std::string name; UINT8* ptr; const std::vector<BunkerInteriorOption>* arr;
-			} vOptionArrays[]{
-				{ "Style", &currentBunkerInfo.styleOption, &vStyleOptions },
-				{ "Set", &currentBunkerInfo.setOption, &vSetOptions },
-				{ "Security", &currentBunkerInfo.securityOption, &vSecurityOptions },
-				{ "Office", &currentBunkerInfo.officeOption, &vOfficeOptions },
-				{ "Gun Range", &currentBunkerInfo.gunRangeOption, &vGunRangeOptions },
-				{ "Gun Locker", &currentBunkerInfo.gunLockerOption, &vGunLockerOptions },
-				{ "Gun Schematics", &currentBunkerInfo.gunSchematicOption, &vGunSchematicOptions },
-			};
+struct BunkerInfoStructure
+{
+    BunkerLocation const* location;
+    UINT8 styleOption;
+    UINT8 setOption;
+    UINT8 securityOption;
+    UINT8 officeOption;
+    UINT8 gunRangeOption;
+    UINT8 gunLockerOption;
+    UINT8 gunSchematicOption;
 
-			void CreateBunker(BunkerInfoStructure& info)
-			{
-				// online maps, load and enable interior, enable props, refresh interior, teleport
-				if (info.location != nullptr)
-				{
-					auto& loc = *info.location;
-					auto& pos = loc.pos;
+    void operator=(const BunkerInfoStructure& right)
+    {
+        this->location = right.location;
+        this->styleOption = right.styleOption;
+        this->setOption = right.setOption;
+        this->securityOption = right.securityOption;
+        this->officeOption = right.officeOption;
+        this->gunRangeOption = right.gunRangeOption;
+        this->gunLockerOption = right.gunLockerOption;
+        this->gunSchematicOption = right.gunSchematicOption;
+    }
+};
 
-					SET_INSTANCE_PRIORITY_MODE(true);
-					ON_ENTER_MP();
-					REQUEST_IPL(loc.ipl.c_str());
-					int interior = GET_INTERIOR_AT_COORDS(pos.x, pos.y, pos.z);
-					DISABLE_INTERIOR(interior, true);
-					PIN_INTERIOR_IN_MEMORY(interior);
-					DISABLE_INTERIOR(interior, false);
-					SET_INSTANCE_PRIORITY_MODE(false);
-					WAIT(200);
+BunkerInfoStructure currentBunkerInfo = {nullptr, 0, 0, 0, 0, 0, 0, 0};
 
-					for (auto& oa : vOptionArrays)
-					{
-						for (auto& o : *oa.arr)
-							DEACTIVATE_INTERIOR_ENTITY_SET(interior, o.value.c_str());
-					}
-					for (auto& oa : vOptionArrays)
-					{
-						ACTIVATE_INTERIOR_ENTITY_SET(interior, oa.arr->at(*oa.ptr).value.c_str());
-					}
-					REFRESH_INTERIOR(interior);
-				}
-			}
-			void TeleportPedToBunker(GTAentity ped, BunkerInfoStructure& info)
-			{
-				if (info.location != nullptr)
-				{
-					TeleportNetPed(ped, info.location->pos);
-				}
-			}
+struct BunkerInteriorOptionArray
+{
+    const std::string name;
+    UINT8* ptr;
+    const std::vector<BunkerInteriorOption>* arr;
+} vOptionArrays[]{
+    {"Style", &currentBunkerInfo.styleOption, &vStyleOptions},
+    {"Set", &currentBunkerInfo.setOption, &vSetOptions},
+    {"Security", &currentBunkerInfo.securityOption, &vSecurityOptions},
+    {"Office", &currentBunkerInfo.officeOption, &vOfficeOptions},
+    {"Gun Range", &currentBunkerInfo.gunRangeOption, &vGunRangeOptions},
+    {"Gun Locker", &currentBunkerInfo.gunLockerOption, &vGunLockerOptions},
+    {"Gun Schematics", &currentBunkerInfo.gunSchematicOption, &vGunSchematicOptions},
+};
 
-			void Sub_Bunkers()
-			{
-				AddTitle("Bunkers");
+void CreateBunker(BunkerInfoStructure& info)
+{
+    // online maps, load and enable interior, enable props, refresh interior, teleport
+    if (info.location != nullptr)
+    {
+        auto& loc = *info.location;
+        auto& pos = loc.pos;
 
-				for (auto& loc : vLocations)
-				{
-					bool bGrpLocPressed = false;
-					AddOption(loc.name, bGrpLocPressed, nullFunc, SUB::TELEPORTOPS_BUNKERS_INLOC); if (bGrpLocPressed)
-					{
-						currentBunkerInfo.location = &loc;
-					}
-				}
-			}
-			void Sub_Bunkers_InLoc()
-			{
-				if (currentBunkerInfo.location == nullptr)
-				{
-					Menu::SetPreviousMenu();
-					return;
-				}
-				GTAped ped = g_activePedHandle;
-				AddTitle(currentBunkerInfo.location->name);
+        SET_INSTANCE_PRIORITY_MODE(true);
+        ON_ENTER_MP();
+        REQUEST_IPL(loc.ipl.c_str());
+        int interior = GET_INTERIOR_AT_COORDS(pos.x, pos.y, pos.z);
+        DISABLE_INTERIOR(interior, true);
+        PIN_INTERIOR_IN_MEMORY(interior);
+        DISABLE_INTERIOR(interior, false);
+        SET_INSTANCE_PRIORITY_MODE(false);
+        WAIT(200);
 
-				for (auto& o : vOptionArrays)
-				{
-					bool bOption_plus = false, bOption_minus = false;
-					AddTexter(o.name, 0, std::vector<std::string>{ o.arr->at(*o.ptr).name }, null, bOption_plus, bOption_minus);
-					if (bOption_plus) { if (*o.ptr < o.arr->size() - 1) { (*o.ptr)++; } }
-					if (bOption_minus) { if (*o.ptr > 0) { (*o.ptr)--; } }
-				}
-
-				bool bCreateBunkerPressed = false;
-				AddOption("Build Bunker", bCreateBunkerPressed);
-				AddOptionDescription("Loads the bunker with the options above and teleports you inside.");
-				if (bCreateBunkerPressed)
-				{
-					DO_SCREEN_FADE_OUT(50);
-					CreateBunker(currentBunkerInfo);
-					TeleportPedToBunker(ped, currentBunkerInfo);
-					//Menu::SetPreviousMenu();
-					DO_SCREEN_FADE_IN(200);
-					return;
-				}
-			}
-		}
-
-		namespace Moc
-		{
-			struct MocLocation { const std::string name; Vector3 pos; const std::string ipl; };
-			const std::vector<MocLocation> vLocations
-			{
-				{ "Regular",{ 1103.5620f, -3000.00000f, -38.0000f }, "gr_grdlc_interior_placement_interior_0_grdlc_int_01_milo_" },
-			};
-
-			struct MocInteriorOption { const std::string name; const std::string value; };
-			const std::vector<MocInteriorOption> vStyleOptions
-			{
-				{ "", "" },
-			};
-
-			struct MocInfoStructure
-			{
-				MocLocation const * location;
-				UINT8 styleOption;
-
-				void operator = (const MocInfoStructure& right)
-				{
-					this->location = right.location;
-					this->styleOption = right.styleOption;
-				}
-			};
-			MocInfoStructure currentMocInfo = { nullptr, 0 };
-
-			struct MocInteriorOptionArray {
-				const std::string name; UINT8* ptr; const std::vector<MocInteriorOption>* arr;
-			} vOptionArrays[]{
-				{ "~italics~no options available yet", &currentMocInfo.styleOption, &vStyleOptions },
-			};
-
-			void CreateMoc(MocInfoStructure& info)
-			{
-				// online maps, load and enable interior, enable props, refresh interior, teleport
-				if (info.location != nullptr)
-				{
-					auto& loc = *info.location;
-					auto& pos = loc.pos;
-
-					SET_INSTANCE_PRIORITY_MODE(true);
-					ON_ENTER_MP();
-					REQUEST_IPL(loc.ipl.c_str());
-					int interior = GET_INTERIOR_AT_COORDS(pos.x, pos.y, pos.z);
-					DISABLE_INTERIOR(interior, true);
-					PIN_INTERIOR_IN_MEMORY(interior);
-					DISABLE_INTERIOR(interior, false);
-					SET_INSTANCE_PRIORITY_MODE(false);
-					WAIT(200);
-
-					for (auto& oa : vOptionArrays)
-					{
-						for (auto& o : *oa.arr)
-							DEACTIVATE_INTERIOR_ENTITY_SET(interior, o.value.c_str());
-					}
-					for (auto& oa : vOptionArrays)
-					{
-						ACTIVATE_INTERIOR_ENTITY_SET(interior, oa.arr->at(*oa.ptr).value.c_str());
-					}
-					REFRESH_INTERIOR(interior);
-				}
-			}
-			void TeleportPedToMoc(GTAentity ped, MocInfoStructure& info)
-			{
-				if (info.location != nullptr)
-				{
-					TeleportNetPed(ped, info.location->pos);
-				}
-			}
-
-			void Sub_Moc()
-			{
-				AddTitle("MOCs");
-
-				for (auto& loc : vLocations)
-				{
-					bool bGrpLocPressed = false;
-					AddOption(loc.name, bGrpLocPressed, nullFunc, SUB::TELEPORTOPS_MOC_INLOC); if (bGrpLocPressed)
-					{
-						currentMocInfo.location = &loc;
-					}
-				}
-			}
-			void Sub_Moc_InLoc()
-			{
-				if (currentMocInfo.location == nullptr)
-				{
-					Menu::SetPreviousMenu();
-					return;
-				}
-				GTAped ped = g_activePedHandle;
-				AddTitle(currentMocInfo.location->name);
-
-				for (auto& o : vOptionArrays)
-				{
-					bool bOption_plus = false, bOption_minus = false;
-					AddTexter(o.name, 0, std::vector<std::string>{ o.arr->at(*o.ptr).name }, null, bOption_plus, bOption_minus);
-					if (bOption_plus) { if (*o.ptr < o.arr->size() - 1) { (*o.ptr)++; } }
-					if (bOption_minus) { if (*o.ptr > 0) { (*o.ptr)--; } }
-				}
-
-				bool bCreateBunkerPressed = false;
-				AddOption("Build MOC", bCreateBunkerPressed);
-				AddOptionDescription("Loads the Mobile Operations Center with the options above and teleports you inside.");
-				if (bCreateBunkerPressed)
-				{
-					DO_SCREEN_FADE_OUT(50);
-					CreateMoc(currentMocInfo);
-					TeleportPedToMoc(ped, currentMocInfo);
-					//Menu::SetPreviousMenu();
-					DO_SCREEN_FADE_IN(200);
-					return;
-				}
-			}
-		}
-
-	}
-
+        for (auto& oa : vOptionArrays)
+        {
+            for (auto& o : *oa.arr)
+                DEACTIVATE_INTERIOR_ENTITY_SET(interior, o.value.c_str());
+        }
+        for (auto& oa : vOptionArrays)
+        {
+            ACTIVATE_INTERIOR_ENTITY_SET(interior, oa.arr->at(*oa.ptr).value.c_str());
+        }
+        REFRESH_INTERIOR(interior);
+    }
 }
 
+void TeleportPedToBunker(GTAentity ped, BunkerInfoStructure& info)
+{
+    if (info.location != nullptr)
+    {
+        TeleportNetPed(ped, info.location->pos);
+    }
+}
+
+void Sub_Bunkers()
+{
+    AddTitle("Bunkers");
+
+    for (auto& loc : vLocations)
+    {
+        bool bGrpLocPressed = false;
+        AddOption(loc.name, bGrpLocPressed, nullFunc, SUB::TELEPORTOPS_BUNKERS_INLOC);
+        if (bGrpLocPressed)
+        {
+            currentBunkerInfo.location = &loc;
+        }
+    }
+}
+
+void Sub_Bunkers_InLoc()
+{
+    if (currentBunkerInfo.location == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+    GTAped ped = g_activePedHandle;
+    AddTitle(currentBunkerInfo.location->name);
+
+    for (auto& o : vOptionArrays)
+    {
+        bool bOption_plus = false, bOption_minus = false;
+        AddTexter(o.name, 0, std::vector<std::string>{o.arr->at(*o.ptr).name}, null, bOption_plus, bOption_minus);
+        if (bOption_plus)
+        {
+            if (*o.ptr < o.arr->size() - 1)
+            {
+                (*o.ptr)++;
+            }
+        }
+        if (bOption_minus)
+        {
+            if (*o.ptr > 0)
+            {
+                (*o.ptr)--;
+            }
+        }
+    }
+
+    bool bCreateBunkerPressed = false;
+    AddOption("Build Bunker", bCreateBunkerPressed);
+    AddOptionDescription("Loads the bunker with the options above and teleports you inside.");
+    if (bCreateBunkerPressed)
+    {
+        DO_SCREEN_FADE_OUT(50);
+        CreateBunker(currentBunkerInfo);
+        TeleportPedToBunker(ped, currentBunkerInfo);
+        //Menu::SetPreviousMenu();
+        DO_SCREEN_FADE_IN(200);
+        return;
+    }
+}
+} // namespace Bunkers
+
+namespace Moc
+{
+struct MocLocation
+{
+    const std::string name;
+    Vector3 pos;
+    const std::string ipl;
+};
+
+const std::vector<MocLocation> vLocations{
+    {"Regular", {1103.5620f, -3000.00000f, -38.0000f}, "gr_grdlc_interior_placement_interior_0_grdlc_int_01_milo_"},
+};
+
+struct MocInteriorOption
+{
+    const std::string name;
+    const std::string value;
+};
+
+const std::vector<MocInteriorOption> vStyleOptions{
+    {"", ""},
+};
+
+struct MocInfoStructure
+{
+    MocLocation const* location;
+    UINT8 styleOption;
+
+    void operator=(const MocInfoStructure& right)
+    {
+        this->location = right.location;
+        this->styleOption = right.styleOption;
+    }
+};
+
+MocInfoStructure currentMocInfo = {nullptr, 0};
+
+struct MocInteriorOptionArray
+{
+    const std::string name;
+    UINT8* ptr;
+    const std::vector<MocInteriorOption>* arr;
+} vOptionArrays[]{
+    {"~italics~no options available yet", &currentMocInfo.styleOption, &vStyleOptions},
+};
+
+void CreateMoc(MocInfoStructure& info)
+{
+    // online maps, load and enable interior, enable props, refresh interior, teleport
+    if (info.location != nullptr)
+    {
+        auto& loc = *info.location;
+        auto& pos = loc.pos;
+
+        SET_INSTANCE_PRIORITY_MODE(true);
+        ON_ENTER_MP();
+        REQUEST_IPL(loc.ipl.c_str());
+        int interior = GET_INTERIOR_AT_COORDS(pos.x, pos.y, pos.z);
+        DISABLE_INTERIOR(interior, true);
+        PIN_INTERIOR_IN_MEMORY(interior);
+        DISABLE_INTERIOR(interior, false);
+        SET_INSTANCE_PRIORITY_MODE(false);
+        WAIT(200);
+
+        for (auto& oa : vOptionArrays)
+        {
+            for (auto& o : *oa.arr)
+                DEACTIVATE_INTERIOR_ENTITY_SET(interior, o.value.c_str());
+        }
+        for (auto& oa : vOptionArrays)
+        {
+            ACTIVATE_INTERIOR_ENTITY_SET(interior, oa.arr->at(*oa.ptr).value.c_str());
+        }
+        REFRESH_INTERIOR(interior);
+    }
+}
+
+void TeleportPedToMoc(GTAentity ped, MocInfoStructure& info)
+{
+    if (info.location != nullptr)
+    {
+        TeleportNetPed(ped, info.location->pos);
+    }
+}
+
+void Sub_Moc()
+{
+    AddTitle("MOCs");
+
+    for (auto& loc : vLocations)
+    {
+        bool bGrpLocPressed = false;
+        AddOption(loc.name, bGrpLocPressed, nullFunc, SUB::TELEPORTOPS_MOC_INLOC);
+        if (bGrpLocPressed)
+        {
+            currentMocInfo.location = &loc;
+        }
+    }
+}
+
+void Sub_Moc_InLoc()
+{
+    if (currentMocInfo.location == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+    GTAped ped = g_activePedHandle;
+    AddTitle(currentMocInfo.location->name);
+
+    for (auto& o : vOptionArrays)
+    {
+        bool bOption_plus = false, bOption_minus = false;
+        AddTexter(o.name, 0, std::vector<std::string>{o.arr->at(*o.ptr).name}, null, bOption_plus, bOption_minus);
+        if (bOption_plus)
+        {
+            if (*o.ptr < o.arr->size() - 1)
+            {
+                (*o.ptr)++;
+            }
+        }
+        if (bOption_minus)
+        {
+            if (*o.ptr > 0)
+            {
+                (*o.ptr)--;
+            }
+        }
+    }
+
+    bool bCreateBunkerPressed = false;
+    AddOption("Build MOC", bCreateBunkerPressed);
+    AddOptionDescription("Loads the Mobile Operations Center with the options above and teleports you inside.");
+    if (bCreateBunkerPressed)
+    {
+        DO_SCREEN_FADE_OUT(50);
+        CreateMoc(currentMocInfo);
+        TeleportPedToMoc(ped, currentMocInfo);
+        //Menu::SetPreviousMenu();
+        DO_SCREEN_FADE_IN(200);
+        return;
+    }
+}
+} // namespace Moc
+
+} // namespace GunRunningInteriors
+
+} // namespace sub::TeleportLocations_catind
 
 #include "..\..\Menu\submenu_switch.h"
 #include "..\..\Menu\submenu_enum.h"
-REGISTER_SUBMENU(TELEPORTOPS_BUNKERS,                   sub::TeleportLocations_catind::GunRunningInteriors::Bunkers::Sub_Bunkers)
-REGISTER_SUBMENU(TELEPORTOPS_BUNKERS_INLOC,             sub::TeleportLocations_catind::GunRunningInteriors::Bunkers::Sub_Bunkers_InLoc)
-REGISTER_SUBMENU(TELEPORTOPS_MOC,                       sub::TeleportLocations_catind::GunRunningInteriors::Moc::Sub_Moc)
-REGISTER_SUBMENU(TELEPORTOPS_MOC_INLOC,                 sub::TeleportLocations_catind::GunRunningInteriors::Moc::Sub_Moc_InLoc)
+REGISTER_SUBMENU(TELEPORTOPS_BUNKERS, sub::TeleportLocations_catind::GunRunningInteriors::Bunkers::Sub_Bunkers)
+REGISTER_SUBMENU(TELEPORTOPS_BUNKERS_INLOC, sub::TeleportLocations_catind::GunRunningInteriors::Bunkers::Sub_Bunkers_InLoc)
+REGISTER_SUBMENU(TELEPORTOPS_MOC, sub::TeleportLocations_catind::GunRunningInteriors::Moc::Sub_Moc)
+REGISTER_SUBMENU(TELEPORTOPS_MOC_INLOC, sub::TeleportLocations_catind::GunRunningInteriors::Moc::Sub_Moc_InLoc)

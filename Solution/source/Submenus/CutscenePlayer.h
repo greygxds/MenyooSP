@@ -28,10 +28,10 @@ typedef char *PCHAR;
 
 namespace sub
 {
-	namespace CutscenePlayer
-	{
-		void PopulateCutsceneLabels();
-		void EndCutscene();
-		void CutsceneListMenu();
-	}
-}
+namespace CutscenePlayer
+{
+void PopulateCutsceneLabels();
+void EndCutscene();
+void CutsceneListMenu();
+} // namespace CutscenePlayer
+} // namespace sub

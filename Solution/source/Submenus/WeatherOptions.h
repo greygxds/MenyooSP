@@ -25,11 +25,11 @@
 
 namespace sub
 {
-	void WeatherMenu();
+void WeatherMenu();
 
-	namespace WeatherClouds
-	{
-		extern const std::array<std::string, 20> cloudNames;
-		void CloudMenu();
-	}
-}
+namespace WeatherClouds
+{
+extern const std::array<std::string, 20> cloudNames;
+void CloudMenu();
+} // namespace WeatherClouds
+} // namespace sub

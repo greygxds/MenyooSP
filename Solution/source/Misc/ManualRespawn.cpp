@@ -31,161 +31,158 @@
 
 namespace ManualRespawn
 {
-	ManualRespawn::ManualRespawn() : inRespawn(false)
-	{
-	}
-
-	bool ManualRespawn::InRespawn()
-	{
-		return inRespawn;
-	}
-
-	void ManualRespawn::TurnOff()
-	{
-		GenericLoopedMode::TurnOff();
-
-		PAUSE_DEATH_ARREST_RESTART(false);
-		SET_NO_LOADING_SCREEN(false);
-		SET_FADE_OUT_AFTER_DEATH(true);
-		SET_FADE_OUT_AFTER_ARREST(true);
-	}
-
-	bool ManualRespawn::IsSkipPressed()
-	{
-		return IS_DISABLED_CONTROL_JUST_PRESSED(0, respawnKey) != 0;
-	}
-
-	inline void ManualRespawn::ShowRespawnHelpText()
-	{
-		std::string bindsname = "button";
-		try { bindsname = ControllerInputs::vNames.at(respawnKey); }
-		catch (...) 
-		{
-			addlog(ige::LogType::LOG_ERROR, "Unable to set new binding name, respawnKey = " + std::to_string(respawnKey));
-		}
-
-		Game::Print::SetupDraw(GTAfont::Arial, Vector2(0, 0.4f), false, true, false, RGBA(255, 255, 255, 190));
-		Game::Print::drawstring("Press ~b~[" + bindsname + "]~s~ to respawn.", NULL, 0.1f);
-	}
-
-	void ManualRespawn::Tick()
-	{
-		if (bEnabled)
-		{
-			DoManualRespawnTick();
-		}
-	}
-	inline void ManualRespawn::DoManualRespawnTick()
-	{
-		auto player = PLAYER_ID();
-
-		if (IS_PLAYER_DEAD(player))
-		{
-			if (IsSkipPressed())
-			{
-				PAUSE_DEATH_ARREST_RESTART(false);
-				SET_NO_LOADING_SCREEN(false);
-				SET_FADE_OUT_AFTER_DEATH(true);
-				SET_FADE_OUT_AFTER_ARREST(true);
-				DO_SCREEN_FADE_OUT(4000);
-				inRespawn = true;
-			}
-			else if (!inRespawn)
-			{
-				PAUSE_DEATH_ARREST_RESTART(true);
-				SET_NO_LOADING_SCREEN(true);
-				SET_FADE_OUT_AFTER_DEATH(false);
-				SET_FADE_OUT_AFTER_ARREST(false);
-				if (IS_SCREEN_FADING_OUT()) DO_SCREEN_FADE_IN(100);
-				ShowRespawnHelpText();
-			}
-		}
-		else
-		{
-			inRespawn = false;
-		}
-
-	}
-
-
-	ManualRespawn g_manualRespawn;
-
-	void ToggleOnOff()
-	{
-		g_manualRespawn.Toggle();
-	}
-
-
-	void CheckSelfDealthModel()
-	{
-		GTAped playerPed = PLAYER_PED_ID();
-		
-		if (!playerPed.Exists())
-			return;
-
-		GTAplayer player = PLAYER_ID();
-
-		bool is_death = playerPed.IsDead();
-		bool is_arrest = IS_PLAYER_BEING_ARRESTED(player.Handle(), true) != 0;
-
-		if ((!is_death && !is_arrest) || g_manualRespawn.InRespawn())
-			return;
-		if (GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(0xCAC8014F) > 0)//director_mode.ysc
-			return;
-
-		Model model = playerPed.Model();
-		Model orig_model;
-
-
-		if (model.hash != PedHash::Michael && model.hash != PedHash::Franklin && model.hash != PedHash::Trevor)
-		{
-			std::vector<s_Weapon_Components_Tint> weaponsBackup;
-			playerPed.StoreWeaponsInArray(weaponsBackup);
-
-			const std::string& ofn = GetPathffA(Pathff::Outfit, true) + "_reserved.xml";
-			sub::ComponentChangerOutfit::Create(PLAYER_PED_ID(), ofn);
-
-
-			if (is_death)
-				WAIT(8500); // wait until screen turns black
-			else // is_arrest
-				WAIT(10000); // wait until screen turns black
-
-			// load a default model
-			orig_model = PedHash::Michael;
-			orig_model.LoadAndWait();
-			SET_PLAYER_MODEL(PLAYER_ID(), orig_model.hash);
-			SET_PED_DEFAULT_COMPONENT_VARIATION(PLAYER_PED_ID());
-			orig_model.Unload();
-
-			// wait until player has resurrected
-			if (is_death)
-				while (GET_TIME_SINCE_LAST_DEATH() <= 0 || GET_TIME_SINCE_LAST_DEATH() > 6000)
-					WAIT(0);
-			else
-				while (GET_TIME_SINCE_LAST_ARREST() <= 0 || GET_TIME_SINCE_LAST_ARREST() > 6000)
-					WAIT(0);
-
-			while (!player.IsControlOn())
-				WAIT(0);
-
-			// change back the model
-			sub::ComponentChangerOutfit::Apply(PLAYER_PED_ID(), ofn, true, true, true, true, true, false);
-
-			WAIT(0);
-
-			player = PLAYER_ID();
-			playerPed = PLAYER_PED_ID();
-
-			playerPed.GiveWeaponsFromArray(weaponsBackup);
-
-			Game::CustomHelpText::ShowTimedText("If you are having issues at this point, load a saved game.", 7000);
-		}
-
-
-	}
-
+ManualRespawn::ManualRespawn() : inRespawn(false)
+{
 }
 
+bool ManualRespawn::InRespawn()
+{
+    return inRespawn;
+}
+
+void ManualRespawn::TurnOff()
+{
+    GenericLoopedMode::TurnOff();
+
+    PAUSE_DEATH_ARREST_RESTART(false);
+    SET_NO_LOADING_SCREEN(false);
+    SET_FADE_OUT_AFTER_DEATH(true);
+    SET_FADE_OUT_AFTER_ARREST(true);
+}
+
+bool ManualRespawn::IsSkipPressed()
+{
+    return IS_DISABLED_CONTROL_JUST_PRESSED(0, respawnKey) != 0;
+}
+
+inline void ManualRespawn::ShowRespawnHelpText()
+{
+    std::string bindsname = "button";
+    try
+    {
+        bindsname = ControllerInputs::vNames.at(respawnKey);
+    }
+    catch (...)
+    {
+        addlog(ige::LogType::LOG_ERROR, "Unable to set new binding name, respawnKey = " + std::to_string(respawnKey));
+    }
+
+    Game::Print::SetupDraw(GTAfont::Arial, Vector2(0, 0.4f), false, true, false, RGBA(255, 255, 255, 190));
+    Game::Print::drawstring("Press ~b~[" + bindsname + "]~s~ to respawn.", NULL, 0.1f);
+}
+
+void ManualRespawn::Tick()
+{
+    if (bEnabled)
+    {
+        DoManualRespawnTick();
+    }
+}
+
+inline void ManualRespawn::DoManualRespawnTick()
+{
+    auto player = PLAYER_ID();
+
+    if (IS_PLAYER_DEAD(player))
+    {
+        if (IsSkipPressed())
+        {
+            PAUSE_DEATH_ARREST_RESTART(false);
+            SET_NO_LOADING_SCREEN(false);
+            SET_FADE_OUT_AFTER_DEATH(true);
+            SET_FADE_OUT_AFTER_ARREST(true);
+            DO_SCREEN_FADE_OUT(4000);
+            inRespawn = true;
+        }
+        else if (!inRespawn)
+        {
+            PAUSE_DEATH_ARREST_RESTART(true);
+            SET_NO_LOADING_SCREEN(true);
+            SET_FADE_OUT_AFTER_DEATH(false);
+            SET_FADE_OUT_AFTER_ARREST(false);
+            if (IS_SCREEN_FADING_OUT())
+                DO_SCREEN_FADE_IN(100);
+            ShowRespawnHelpText();
+        }
+    }
+    else
+    {
+        inRespawn = false;
+    }
+}
+
+ManualRespawn g_manualRespawn;
+
+void ToggleOnOff()
+{
+    g_manualRespawn.Toggle();
+}
+
+void CheckSelfDealthModel()
+{
+    GTAped playerPed = PLAYER_PED_ID();
+
+    if (!playerPed.Exists())
+        return;
+
+    GTAplayer player = PLAYER_ID();
+
+    bool is_death = playerPed.IsDead();
+    bool is_arrest = IS_PLAYER_BEING_ARRESTED(player.Handle(), true) != 0;
+
+    if ((!is_death && !is_arrest) || g_manualRespawn.InRespawn())
+        return;
+    if (GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(0xCAC8014F) > 0) //director_mode.ysc
+        return;
+
+    Model model = playerPed.Model();
+    Model orig_model;
 
 
+    if (model.hash != PedHash::Michael && model.hash != PedHash::Franklin && model.hash != PedHash::Trevor)
+    {
+        std::vector<s_Weapon_Components_Tint> weaponsBackup;
+        playerPed.StoreWeaponsInArray(weaponsBackup);
+
+        const std::string& ofn = GetPathffA(Pathff::Outfit, true) + "_reserved.xml";
+        sub::ComponentChangerOutfit::Create(PLAYER_PED_ID(), ofn);
+
+
+        if (is_death)
+            WAIT(8500);  // wait until screen turns black
+        else             // is_arrest
+            WAIT(10000); // wait until screen turns black
+
+        // load a default model
+        orig_model = PedHash::Michael;
+        orig_model.LoadAndWait();
+        SET_PLAYER_MODEL(PLAYER_ID(), orig_model.hash);
+        SET_PED_DEFAULT_COMPONENT_VARIATION(PLAYER_PED_ID());
+        orig_model.Unload();
+
+        // wait until player has resurrected
+        if (is_death)
+            while (GET_TIME_SINCE_LAST_DEATH() <= 0 || GET_TIME_SINCE_LAST_DEATH() > 6000)
+                WAIT(0);
+        else
+            while (GET_TIME_SINCE_LAST_ARREST() <= 0 || GET_TIME_SINCE_LAST_ARREST() > 6000)
+                WAIT(0);
+
+        while (!player.IsControlOn())
+            WAIT(0);
+
+        // change back the model
+        sub::ComponentChangerOutfit::Apply(PLAYER_PED_ID(), ofn, true, true, true, true, true, false);
+
+        WAIT(0);
+
+        player = PLAYER_ID();
+        playerPed = PLAYER_PED_ID();
+
+        playerPed.GiveWeaponsFromArray(weaponsBackup);
+
+        Game::CustomHelpText::ShowTimedText("If you are having issues at this point, load a saved game.", 7000);
+    }
+}
+
+} // namespace ManualRespawn

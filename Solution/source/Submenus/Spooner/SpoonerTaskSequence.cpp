@@ -24,206 +24,326 @@
 
 namespace sub::Spooner
 {
-	SpoonerTaskSequence::SpoonerTaskSequence()
-	{
-		this->bJustJumpedToNext = false;
-		this->progress = -1;
-		this->timer = GetTickCount();
-	}
-	SpoonerTaskSequence::~SpoonerTaskSequence()
-	{
-		this->Reset(true);
-	}
+SpoonerTaskSequence::SpoonerTaskSequence()
+{
+    this->bJustJumpedToNext = false;
+    this->progress = -1;
+    this->timer = GetTickCount();
+}
 
-	void SpoonerTaskSequence::operator = (const SpoonerTaskSequence& right)
-	{
-		this->Reset(true);
-		this->bJustJumpedToNext = right.bJustJumpedToNext;
-		this->progress = right.progress;
-		this->timer = right.timer;
-		this->tasks.reserve(right.tasks.size());
-		for (auto* tsk : right.tasks)
-		{
-			if (tsk != nullptr)
-			{
-				STSTask* copy = this->AddTask(tsk->type);
-				if (copy != nullptr)
-					copy->Assign(tsk);
-			}
-		}
-	}
+SpoonerTaskSequence::~SpoonerTaskSequence()
+{
+    this->Reset(true);
+}
 
-	bool SpoonerTaskSequence::ContainsType(const STSTaskType& value)
-	{
-		for (auto& t : this->tasks)
-		{
-			if (t != nullptr)
-			{
-				if (t->type == value)
-					return true;
-			}
-		}
-		return false;
-	}
+void SpoonerTaskSequence::operator=(const SpoonerTaskSequence& right)
+{
+    this->Reset(true);
+    this->bJustJumpedToNext = right.bJustJumpedToNext;
+    this->progress = right.progress;
+    this->timer = right.timer;
+    this->tasks.reserve(right.tasks.size());
+    for (auto* tsk : right.tasks)
+    {
+        if (tsk != nullptr)
+        {
+            STSTask* copy = this->AddTask(tsk->type);
+            if (copy != nullptr)
+                copy->Assign(tsk);
+        }
+    }
+}
 
-	UINT16 SpoonerTaskSequence::TaskCount() const
-	{
-		return (UINT16)this->tasks.size();
-	}
-	bool SpoonerTaskSequence::empty() const
-	{
-		return this->tasks.empty();
-	}
+bool SpoonerTaskSequence::ContainsType(const STSTaskType& value)
+{
+    for (auto& t : this->tasks)
+    {
+        if (t != nullptr)
+        {
+            if (t->type == value)
+                return true;
+        }
+    }
+    return false;
+}
 
-	inline void SpoonerTaskSequence::AddTask(STSTask* tskPtr)
-	{
-		this->tasks.push_back(tskPtr);
-	}
-	STSTask* SpoonerTaskSequence::AddTask(const STSTaskType& ofType)
-	{
-		STSTask* tskPtr = nullptr;
-		switch (ofType)
-		{
-		case STSTaskType::Nothing: tskPtr = (new STSTasks::Nothing); break;
-		case STSTaskType::SetHealth: tskPtr = (new STSTasks::SetHealth); break;
-		case STSTaskType::AddBlip: tskPtr = (new STSTasks::AddBlip); break;
-		case STSTaskType::RemoveBlip: tskPtr = (new STSTasks::RemoveBlip); break;
-		case STSTaskType::Pause: tskPtr = (new STSTasks::Pause); break;
-		case STSTaskType::UsePhone: tskPtr = (new STSTasks::UsePhone); break;
-		case STSTaskType::ThrowProjectile: tskPtr = (new STSTasks::ThrowProjectile); break;
-		case STSTaskType::Writhe: tskPtr = (new STSTasks::Writhe); break;
-		case STSTaskType::FaceDirection: tskPtr = (new STSTasks::FaceDirection); break;
-		case STSTaskType::FaceEntity: tskPtr = (new STSTasks::FaceEntity); break;
-		case STSTaskType::LookAtCoord: tskPtr = (new STSTasks::LookAtCoord); break;
-		case STSTaskType::LookAtEntity: tskPtr = (new STSTasks::LookAtEntity); break;
-		case STSTaskType::LookAtCoordEyesOnly: tskPtr = (new STSTasks::LookAtCoordEyesOnly); break;
-		case STSTaskType::LookAtEntityEyesOnly: tskPtr = (new STSTasks::LookAtEntityEyesOnly); break;
-		case STSTaskType::TeleportToCoord: tskPtr = (new STSTasks::TeleportToCoord); break;
-		case STSTaskType::SeekCoverAtCoord: tskPtr = (new STSTasks::SeekCoverAtCoord); break;
-		case STSTaskType::SlideToCoord: tskPtr = (new STSTasks::SlideToCoord); break;
-		case STSTaskType::GoToCoord: tskPtr = (new STSTasks::GoToCoord); break;
-		case STSTaskType::FollowRoute: tskPtr = (new STSTasks::FollowRoute); break;
-		case STSTaskType::FollowEntity: tskPtr = (new STSTasks::FollowEntity); break;
-		case STSTaskType::PatrolInRange: tskPtr = (new STSTasks::PatrolInRange); break;
-		case STSTaskType::WanderFreely: tskPtr = (new STSTasks::WanderFreely); break;
-		case STSTaskType::FleeFromCoord: tskPtr = (new STSTasks::FleeFromCoord); break;
-		case STSTaskType::NearestAppropriateAction: tskPtr = (new STSTasks::NearestAppropriateAction); break;
-		case STSTaskType::ScenarioAction: tskPtr = (new STSTasks::ScenarioAction); break;
-		case STSTaskType::PlayAnimation: tskPtr = (new STSTasks::PlayAnimation); break;
-		case STSTaskType::SetActiveWeapon: tskPtr = (new STSTasks::SetActiveWeapon); break;
-		case STSTaskType::AimAtCoord: tskPtr = (new STSTasks::AimAtCoord); break;
-		case STSTaskType::AimAtEntity: tskPtr = (new STSTasks::AimAtEntity); break;
-		case STSTaskType::ShootAtCoord: tskPtr = (new STSTasks::ShootAtCoord); break;
-		case STSTaskType::ShootAtEntity: tskPtr = (new STSTasks::ShootAtEntity); break;
-		case STSTaskType::FightHatedTargets: tskPtr = (new STSTasks::FightHatedTargets); break;
-		case STSTaskType::FightPed: tskPtr = (new STSTasks::FightPed); break;
-		case STSTaskType::SpeakToPed: tskPtr = (new STSTasks::SpeakToPed); break;
-		case STSTaskType::PlaySpeechWithVoice: tskPtr = (new STSTasks::PlaySpeechWithVoice); break;
+UINT16 SpoonerTaskSequence::TaskCount() const
+{
+    return (UINT16)this->tasks.size();
+}
 
-		case STSTaskType::WarpIntoVehicle: tskPtr = (new STSTasks::WarpIntoVehicle); break;
-		case STSTaskType::EnterVehicle: tskPtr = (new STSTasks::EnterVehicle); break;
-		case STSTaskType::ExitVehicle: tskPtr = (new STSTasks::ExitVehicle); break;
-		case STSTaskType::DriveWander: tskPtr = (new STSTasks::DriveWander); break;
-		case STSTaskType::DriveToCoord: tskPtr = (new STSTasks::DriveToCoord); break;
-		case STSTaskType::DriveFollowEntity: tskPtr = (new STSTasks::DriveFollowEntity); break;
-		case STSTaskType::DriveLandPlane: tskPtr = (new STSTasks::DriveLandPlane); break;
+bool SpoonerTaskSequence::empty() const
+{
+    return this->tasks.empty();
+}
 
-		case STSTaskType::AchieveVehicleForwardSpeed: tskPtr = (new STSTasks::AchieveVehicleForwardSpeed); break;
-		case STSTaskType::EmptyVehicle: tskPtr = (new STSTasks::EmptyVehicle); break;
+inline void SpoonerTaskSequence::AddTask(STSTask* tskPtr)
+{
+    this->tasks.push_back(tskPtr);
+}
 
-		case STSTaskType::ChangeTextureVariation: tskPtr = (new STSTasks::ChangeTextureVariation); break;
+STSTask* SpoonerTaskSequence::AddTask(const STSTaskType& ofType)
+{
+    STSTask* tskPtr = nullptr;
+    switch (ofType)
+    {
+    case STSTaskType::Nothing:
+        tskPtr = (new STSTasks::Nothing);
+        break;
+    case STSTaskType::SetHealth:
+        tskPtr = (new STSTasks::SetHealth);
+        break;
+    case STSTaskType::AddBlip:
+        tskPtr = (new STSTasks::AddBlip);
+        break;
+    case STSTaskType::RemoveBlip:
+        tskPtr = (new STSTasks::RemoveBlip);
+        break;
+    case STSTaskType::Pause:
+        tskPtr = (new STSTasks::Pause);
+        break;
+    case STSTaskType::UsePhone:
+        tskPtr = (new STSTasks::UsePhone);
+        break;
+    case STSTaskType::ThrowProjectile:
+        tskPtr = (new STSTasks::ThrowProjectile);
+        break;
+    case STSTaskType::Writhe:
+        tskPtr = (new STSTasks::Writhe);
+        break;
+    case STSTaskType::FaceDirection:
+        tskPtr = (new STSTasks::FaceDirection);
+        break;
+    case STSTaskType::FaceEntity:
+        tskPtr = (new STSTasks::FaceEntity);
+        break;
+    case STSTaskType::LookAtCoord:
+        tskPtr = (new STSTasks::LookAtCoord);
+        break;
+    case STSTaskType::LookAtEntity:
+        tskPtr = (new STSTasks::LookAtEntity);
+        break;
+    case STSTaskType::LookAtCoordEyesOnly:
+        tskPtr = (new STSTasks::LookAtCoordEyesOnly);
+        break;
+    case STSTaskType::LookAtEntityEyesOnly:
+        tskPtr = (new STSTasks::LookAtEntityEyesOnly);
+        break;
+    case STSTaskType::TeleportToCoord:
+        tskPtr = (new STSTasks::TeleportToCoord);
+        break;
+    case STSTaskType::SeekCoverAtCoord:
+        tskPtr = (new STSTasks::SeekCoverAtCoord);
+        break;
+    case STSTaskType::SlideToCoord:
+        tskPtr = (new STSTasks::SlideToCoord);
+        break;
+    case STSTaskType::GoToCoord:
+        tskPtr = (new STSTasks::GoToCoord);
+        break;
+    case STSTaskType::FollowRoute:
+        tskPtr = (new STSTasks::FollowRoute);
+        break;
+    case STSTaskType::FollowEntity:
+        tskPtr = (new STSTasks::FollowEntity);
+        break;
+    case STSTaskType::PatrolInRange:
+        tskPtr = (new STSTasks::PatrolInRange);
+        break;
+    case STSTaskType::WanderFreely:
+        tskPtr = (new STSTasks::WanderFreely);
+        break;
+    case STSTaskType::FleeFromCoord:
+        tskPtr = (new STSTasks::FleeFromCoord);
+        break;
+    case STSTaskType::NearestAppropriateAction:
+        tskPtr = (new STSTasks::NearestAppropriateAction);
+        break;
+    case STSTaskType::ScenarioAction:
+        tskPtr = (new STSTasks::ScenarioAction);
+        break;
+    case STSTaskType::PlayAnimation:
+        tskPtr = (new STSTasks::PlayAnimation);
+        break;
+    case STSTaskType::SetActiveWeapon:
+        tskPtr = (new STSTasks::SetActiveWeapon);
+        break;
+    case STSTaskType::AimAtCoord:
+        tskPtr = (new STSTasks::AimAtCoord);
+        break;
+    case STSTaskType::AimAtEntity:
+        tskPtr = (new STSTasks::AimAtEntity);
+        break;
+    case STSTaskType::ShootAtCoord:
+        tskPtr = (new STSTasks::ShootAtCoord);
+        break;
+    case STSTaskType::ShootAtEntity:
+        tskPtr = (new STSTasks::ShootAtEntity);
+        break;
+    case STSTaskType::FightHatedTargets:
+        tskPtr = (new STSTasks::FightHatedTargets);
+        break;
+    case STSTaskType::FightPed:
+        tskPtr = (new STSTasks::FightPed);
+        break;
+    case STSTaskType::SpeakToPed:
+        tskPtr = (new STSTasks::SpeakToPed);
+        break;
+    case STSTaskType::PlaySpeechWithVoice:
+        tskPtr = (new STSTasks::PlaySpeechWithVoice);
+        break;
 
-		case STSTaskType::AchieveVelocity: tskPtr = (new STSTasks::AchieveVelocity); break;
-		case STSTaskType::AchievePushForce: tskPtr = (new STSTasks::AchievePushForce); break;
-		case STSTaskType::OscillateToPoint: tskPtr = (new STSTasks::OscillateToPoint); break;
-		case STSTaskType::OscillateToEntity: tskPtr = (new STSTasks::OscillateToEntity); break;
-		case STSTaskType::FreezeInPlace: tskPtr = (new STSTasks::FreezeInPlace); break;
-		case STSTaskType::SetRotation: tskPtr = (new STSTasks::SetRotation); break;
-		case STSTaskType::ChangeOpacity: tskPtr = (new STSTasks::ChangeOpacity); break;
-		case STSTaskType::TriggerFx: tskPtr = (new STSTasks::TriggerFx); break;
+    case STSTaskType::WarpIntoVehicle:
+        tskPtr = (new STSTasks::WarpIntoVehicle);
+        break;
+    case STSTaskType::EnterVehicle:
+        tskPtr = (new STSTasks::EnterVehicle);
+        break;
+    case STSTaskType::ExitVehicle:
+        tskPtr = (new STSTasks::ExitVehicle);
+        break;
+    case STSTaskType::DriveWander:
+        tskPtr = (new STSTasks::DriveWander);
+        break;
+    case STSTaskType::DriveToCoord:
+        tskPtr = (new STSTasks::DriveToCoord);
+        break;
+    case STSTaskType::DriveFollowEntity:
+        tskPtr = (new STSTasks::DriveFollowEntity);
+        break;
+    case STSTaskType::DriveLandPlane:
+        tskPtr = (new STSTasks::DriveLandPlane);
+        break;
 
-		case STSTaskType::SnapTasks: tskPtr = (new STSTasks::SnapTasks); break;
-		case STSTaskType::EndSequence: tskPtr = (new STSTasks::EndSequence); break;
+    case STSTaskType::AchieveVehicleForwardSpeed:
+        tskPtr = (new STSTasks::AchieveVehicleForwardSpeed);
+        break;
+    case STSTaskType::EmptyVehicle:
+        tskPtr = (new STSTasks::EmptyVehicle);
+        break;
 
-		case STSTaskType::LightMoveWithEntity: tskPtr = (new STSTasks::LightMoveWithEntity); break;
-		case STSTaskType::LightPointAtEntity: tskPtr = (new STSTasks::LightPointAtEntity); break;
-		}
+    case STSTaskType::ChangeTextureVariation:
+        tskPtr = (new STSTasks::ChangeTextureVariation);
+        break;
 
-		if (tskPtr != nullptr)
-			this->tasks.push_back(tskPtr);
-		return tskPtr;
-	}
+    case STSTaskType::AchieveVelocity:
+        tskPtr = (new STSTasks::AchieveVelocity);
+        break;
+    case STSTaskType::AchievePushForce:
+        tskPtr = (new STSTasks::AchievePushForce);
+        break;
+    case STSTaskType::OscillateToPoint:
+        tskPtr = (new STSTasks::OscillateToPoint);
+        break;
+    case STSTaskType::OscillateToEntity:
+        tskPtr = (new STSTasks::OscillateToEntity);
+        break;
+    case STSTaskType::FreezeInPlace:
+        tskPtr = (new STSTasks::FreezeInPlace);
+        break;
+    case STSTaskType::SetRotation:
+        tskPtr = (new STSTasks::SetRotation);
+        break;
+    case STSTaskType::ChangeOpacity:
+        tskPtr = (new STSTasks::ChangeOpacity);
+        break;
+    case STSTaskType::TriggerFx:
+        tskPtr = (new STSTasks::TriggerFx);
+        break;
 
-	void SpoonerTaskSequence::DeallocTask(STSTask* tskPtr)
-	{
-		if (tskPtr != nullptr)
-		{
-			delete tskPtr;
-			tskPtr = nullptr;
-		}
-	}
-	void SpoonerTaskSequence::RemoveTask(UINT16 index)
-	{
-		if (this->tasks.size() < 2) // 1 or 0
-		{
-			this->Reset(true);
-		}
-		else
-		{
-			STSTask* tskPtr = this->tasks[index];
-			DeallocTask(tskPtr);
-			this->tasks.erase(this->tasks.begin() + index);
-			//return this->tasks.erase(this->tasks.begin() + index);
-		}
-	}
+    case STSTaskType::SnapTasks:
+        tskPtr = (new STSTasks::SnapTasks);
+        break;
+    case STSTaskType::EndSequence:
+        tskPtr = (new STSTasks::EndSequence);
+        break;
 
-	void SpoonerTaskSequence::SwapTasks(UINT16 index1, UINT16 index2)
-	{
-		if (index1 >= 0 && index1 < this->tasks.size()
-			&& index2 >= 0 && index2 < this->tasks.size())
-		{
-			STSTask* t1 = this->tasks[index1];
-			this->tasks[index1] = this->tasks[index2];
-			this->tasks[index2] = t1;
-		}
-	}
+    case STSTaskType::LightMoveWithEntity:
+        tskPtr = (new STSTasks::LightMoveWithEntity);
+        break;
+    case STSTaskType::LightPointAtEntity:
+        tskPtr = (new STSTasks::LightPointAtEntity);
+        break;
+    }
 
-	std::vector<STSTask*>& SpoonerTaskSequence::AllTasks()
-	{
-		return this->tasks;
-	}
+    if (tskPtr != nullptr)
+        this->tasks.push_back(tskPtr);
+    return tskPtr;
+}
 
-	bool SpoonerTaskSequence::IsActive() const
-	{
-		return this->progress >= 0;
-	}
-	void SpoonerTaskSequence::Start()
-	{
-		if (!this->tasks.empty())
-		{
-			this->bJustJumpedToNext = true;
-			this->progress = 0;
-			this->timer = GetTickCount() + this->tasks[0]->duration;
-		}
-	}
-	void SpoonerTaskSequence::Reset(bool deleteTasks)
-	{
-		///CLEAR_PED_TASKS_IMMEDIATELY(ep.Handle()); // NO
-		//this->bJustJumpedToNext = true;
-		this->progress = -1;
-		//this->timer = GetTickCount();
-		if (deleteTasks)
-		{
-			for (STSTask* tskPtr : this->tasks)
-			{
-				DeallocTask(tskPtr);
-			}
-			this->tasks.clear();
-		}
-	}
-	void SpoonerTaskSequence::Tick(void* ev)
-	{
-		/*Game::Print::setupdraw(GTAfont::Arial, Vector2(0.34f, 0.34f), false, true, true);
+void SpoonerTaskSequence::DeallocTask(STSTask* tskPtr)
+{
+    if (tskPtr != nullptr)
+    {
+        delete tskPtr;
+        tskPtr = nullptr;
+    }
+}
+
+void SpoonerTaskSequence::RemoveTask(UINT16 index)
+{
+    if (this->tasks.size() < 2) // 1 or 0
+    {
+        this->Reset(true);
+    }
+    else
+    {
+        STSTask* tskPtr = this->tasks[index];
+        DeallocTask(tskPtr);
+        this->tasks.erase(this->tasks.begin() + index);
+        //return this->tasks.erase(this->tasks.begin() + index);
+    }
+}
+
+void SpoonerTaskSequence::SwapTasks(UINT16 index1, UINT16 index2)
+{
+    if (index1 >= 0 && index1 < this->tasks.size() && index2 >= 0 && index2 < this->tasks.size())
+    {
+        STSTask* t1 = this->tasks[index1];
+        this->tasks[index1] = this->tasks[index2];
+        this->tasks[index2] = t1;
+    }
+}
+
+std::vector<STSTask*>& SpoonerTaskSequence::AllTasks()
+{
+    return this->tasks;
+}
+
+bool SpoonerTaskSequence::IsActive() const
+{
+    return this->progress >= 0;
+}
+
+void SpoonerTaskSequence::Start()
+{
+    if (!this->tasks.empty())
+    {
+        this->bJustJumpedToNext = true;
+        this->progress = 0;
+        this->timer = GetTickCount() + this->tasks[0]->duration;
+    }
+}
+
+void SpoonerTaskSequence::Reset(bool deleteTasks)
+{
+    ///CLEAR_PED_TASKS_IMMEDIATELY(ep.Handle()); // NO
+    //this->bJustJumpedToNext = true;
+    this->progress = -1;
+    //this->timer = GetTickCount();
+    if (deleteTasks)
+    {
+        for (STSTask* tskPtr : this->tasks)
+        {
+            DeallocTask(tskPtr);
+        }
+        this->tasks.clear();
+    }
+}
+
+void SpoonerTaskSequence::Tick(void* ev)
+{
+    /*Game::Print::setupdraw(GTAfont::Arial, Vector2(0.34f, 0.34f), false, true, true);
 		Game::Print::drawstring(oss_ << "Task count = " << (int)this->tasks.size(), 0.9f, 0.23f);
 		Game::Print::setupdraw(GTAfont::Arial, Vector2(0.34f, 0.34f), false, true, true);
 		Game::Print::drawstring(oss_ << "Task index = " << (int)this->progress, 0.9f, 0.2f);
@@ -239,48 +359,47 @@ namespace sub::Spooner
 		Game::Print::setupdraw(GTAfont::Arial, Vector2(0.34f, 0.34f), false, true, true);
 		Game::Print::drawstring(oss_ << "TickCount = " << (int)GetTickCount(), 0.9f, 0.35f);*/
 
-		if (this->progress < 0 || this->tasks.empty())
-		{
-			return;
-			//goto label_returnPls;
-		}
-		else if (this->progress >= this->tasks.size()) { this->progress = 0; }
+    if (this->progress < 0 || this->tasks.empty())
+    {
+        return;
+        //goto label_returnPls;
+    }
+    else if (this->progress >= this->tasks.size())
+    {
+        this->progress = 0;
+    }
 
-		STSTask* task = this->tasks[this->progress];
+    STSTask* task = this->tasks[this->progress];
 
-		if (this->bJustJumpedToNext || task->isLoopedTask)
-		{
-			task->Run(ev);
-			this->bJustJumpedToNext = false;
-			if (task->type == STSTaskType::EndSequence)
-			{
-				this->Reset();
-				return;
-				//goto label_returnPls;
-			}
-		}
+    if (this->bJustJumpedToNext || task->isLoopedTask)
+    {
+        task->Run(ev);
+        this->bJustJumpedToNext = false;
+        if (task->type == STSTaskType::EndSequence)
+        {
+            this->Reset();
+            return;
+            //goto label_returnPls;
+        }
+    }
 
-		if (GetTickCount() > this->timer)
-		{
-			if (task->durationAfterLife <= 0)
-				task->End(ev);
-			INT16 nextTaskIndex = (this->progress + 1 >= this->tasks.size()) ?
-				0 : this->progress + 1;
-			STSTask* nextTask = this->tasks[nextTaskIndex];
-			this->bJustJumpedToNext = true;
-			this->progress++;
-			this->timer = GetTickCount() + (nextTask->duration);
-		}
+    if (GetTickCount() > this->timer)
+    {
+        if (task->durationAfterLife <= 0)
+            task->End(ev);
+        INT16 nextTaskIndex = (this->progress + 1 >= this->tasks.size()) ? 0 : this->progress + 1;
+        STSTask* nextTask = this->tasks[nextTaskIndex];
+        this->bJustJumpedToNext = true;
+        this->progress++;
+        this->timer = GetTickCount() + (nextTask->duration);
+    }
 
-		if (this->progress >= this->tasks.size())
-		{
-			this->Start(); // Repeat
-		}
+    if (this->progress >= this->tasks.size())
+    {
+        this->Start(); // Repeat
+    }
 
-		//label_returnPls:;
-	}
-
+    //label_returnPls:;
 }
 
-
-
+} // namespace sub::Spooner

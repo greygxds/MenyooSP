@@ -47,44 +47,44 @@ typedef unsigned short UINT16;
 
 namespace sub
 {
-	void MiscOps();
-	void Timecycles();
-	void ClearAreaSub();
-	void DrawToolsMenu();
-	void RadioMenu();
+void MiscOps();
+void Timecycles();
+void ClearAreaSub();
+void DrawToolsMenu();
+void RadioMenu();
 
-	namespace WaterHack
-	{
-		void Tick();
-		void Sub_WaterHack();
-	}
+namespace WaterHack
+{
+void Tick();
+void Sub_WaterHack();
+} // namespace WaterHack
 
-	namespace TVChannelStuff
-	{
-		extern bool loopBasicTV;
-		extern std::string currentTvChannelLabel;
-		extern std::map<std::string, std::string> tvPlaylists;
+namespace TVChannelStuff
+{
+extern bool loopBasicTV;
+extern std::string currentTvChannelLabel;
+extern std::map<std::string, std::string> tvPlaylists;
 
-		void DrawTvWhereItsSupposedToBe();
-		void TVMenu();
-	}
+void DrawTvWhereItsSupposedToBe();
+void TVMenu();
+} // namespace TVChannelStuff
 
-	namespace HudOptions
-	{
-		extern bool revealMinimap;
-		void HudOptionsMenu();
-	}
+namespace HudOptions
+{
+extern bool revealMinimap;
+void HudOptionsMenu();
+} // namespace HudOptions
 
-	namespace GameCamOptions
-	{
-		extern float shakeAmplitude;
-		extern INT8 shakeID;
+namespace GameCamOptions
+{
+extern float shakeAmplitude;
+extern INT8 shakeID;
 
-		void GameCamOptionsMenu();
-	}
+void GameCamOptionsMenu();
+} // namespace GameCamOptions
 
-	namespace FreeCamSettings
-	{
-		void FreeCamSettingsMenu();
-	}
+namespace FreeCamSettings
+{
+void FreeCamSettingsMenu();
 }
+} // namespace sub

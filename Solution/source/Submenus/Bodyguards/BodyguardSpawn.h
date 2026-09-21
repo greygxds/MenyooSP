@@ -10,24 +10,25 @@ typedef unsigned char UINT8;
 typedef unsigned long DWORD;
 typedef unsigned long Hash;
 
-namespace GTAmodel {
-    class Model;
+namespace GTAmodel
+{
+class Model;
 }
 
 namespace sub::BodyguardMenu
 {
-    extern int health;
-    extern int armor;
-    extern bool godmode;
+extern int health;
+extern int armor;
+extern bool godmode;
 
-    extern std::string _searchStr;
+extern std::string _searchStr;
 
-    void BodyguardSpawn();
+void BodyguardSpawn();
 
-    namespace BodyguardManagement
-    {
-        extern std::vector<Ped> s_bodyguards;
-        static constexpr size_t MAX_BODYGUARDS = 7;
-        void AddOptionBodyGuardPed(const std::string& text, const GTAmodel::Model& model);
-    }
-}
+namespace BodyguardManagement
+{
+extern std::vector<Ped> s_bodyguards;
+static constexpr size_t MAX_BODYGUARDS = 7;
+void AddOptionBodyGuardPed(const std::string& text, const GTAmodel::Model& model);
+} // namespace BodyguardManagement
+} // namespace sub::BodyguardMenu

@@ -21,120 +21,117 @@
 
 namespace VehicleCruise
 {
-	VehicleCruise::VehicleCruise()
-		: cruiseSpeed(0.0f)
-	{
-	}
-
-	void VehicleCruise::TurnOn()
-	{
-		GenericLoopedMode::TurnOn();
-
-		BeginCruise();
-	}
-	void VehicleCruise::TurnOff()
-	{
-		GenericLoopedMode::TurnOff();
-
-		EndCruise();
-	}
-
-	void VehicleCruise::BeginCruise()
-	{
-		cruiseSpeed = GTAped(PLAYER_PED_ID()).CurrentVehicle().GetSpeedVector(true).y;
-	}
-	void VehicleCruise::EndCruise()
-	{
-		bEnabled = false;
-		cruiseSpeed = 0.0f;
-	}
-
-	void VehicleCruise::Tick()
-	{
-		if (bEnabled)
-		{
-			if (cruiseSpeed == 0.0f) BeginCruise();
-
-			DoCruiseTick();
-		}
-	}
-	void VehicleCruise::DoCruiseTick()
-	{
-		GTAplayer player = PLAYER_ID();
-		GTAped ped = PLAYER_PED_ID();
-
-		if (!ped.IsInVehicle())
-		{
-			EndCruise();
-			return;
-		}
-
-		GTAvehicle vehicle = ped.CurrentVehicle();
-		const Model& vehicleModel = vehicle.Model();
-
-		if (vehicleModel.IsHeli())
-		{
-			EndCruise();
-			return;
-		}
-
-		bool isPlane = vehicleModel.IsPlane();
-
-		float speed = vehicle.GetSpeedVector(true).y;
-
-		if (cruiseSpeed < 0.01f)
-		{
-			EndCruise();
-			return;
-		}
-
-		bool inSeat = isPlane ? true : vehicle.GetPedOnSeat(VehicleSeat::SEAT_DRIVER) == ped.Handle();
-		bool isInAirOrUpsideDownIfCar = isPlane ? false : (!vehicle.IsOnAllWheels() || vehicle.IsInWater());
-
-		if (!inSeat || isInAirOrUpsideDownIfCar)
-		{
-			PrintCruiseText(false);
-			return;
-		}
-
-		if (vehicle.Exists())
-		{
-			vehicle.SetForwardSpeed(cruiseSpeed);
-
-			if (IS_CONTROL_JUST_PRESSED(2, INPUT_VEH_BRAKE))
-			{
-				cruiseSpeed -= 2.0f / 3.6f;
-			}
-
-			if (IS_CONTROL_JUST_PRESSED(2, INPUT_VEH_ACCELERATE))
-			{
-				cruiseSpeed += 2.0f / 3.6f;
-			}
-		}
-
-		PrintCruiseText(true);
-
-	}
-
-	void VehicleCruise::PrintCruiseText(bool working)
-	{
-		Game::Print::SetupDraw(GTAfont::Impact, Vector2(0.30f, 0.30f), false, true, true);
-		if (working)
-			Game::Print::DrawString(oss_ << "Cruise Speed: ~b~" << int(cruiseSpeed * 3.6f) << " KM/H", 0.95f, 0.24f);
-		else
-			Game::Print::drawstring("Cruise Status: ~r~Inactive.", 0.95f, 0.24f);
-	}
-
-
-	VehicleCruise g_vehicleCruise;
-
-	void ToggleOnOff()
-	{
-		g_vehicleCruise.Toggle();
-	}
-
+VehicleCruise::VehicleCruise() : cruiseSpeed(0.0f)
+{
 }
 
+void VehicleCruise::TurnOn()
+{
+    GenericLoopedMode::TurnOn();
 
+    BeginCruise();
+}
 
+void VehicleCruise::TurnOff()
+{
+    GenericLoopedMode::TurnOff();
 
+    EndCruise();
+}
+
+void VehicleCruise::BeginCruise()
+{
+    cruiseSpeed = GTAped(PLAYER_PED_ID()).CurrentVehicle().GetSpeedVector(true).y;
+}
+
+void VehicleCruise::EndCruise()
+{
+    bEnabled = false;
+    cruiseSpeed = 0.0f;
+}
+
+void VehicleCruise::Tick()
+{
+    if (bEnabled)
+    {
+        if (cruiseSpeed == 0.0f)
+            BeginCruise();
+
+        DoCruiseTick();
+    }
+}
+
+void VehicleCruise::DoCruiseTick()
+{
+    GTAplayer player = PLAYER_ID();
+    GTAped ped = PLAYER_PED_ID();
+
+    if (!ped.IsInVehicle())
+    {
+        EndCruise();
+        return;
+    }
+
+    GTAvehicle vehicle = ped.CurrentVehicle();
+    const Model& vehicleModel = vehicle.Model();
+
+    if (vehicleModel.IsHeli())
+    {
+        EndCruise();
+        return;
+    }
+
+    bool isPlane = vehicleModel.IsPlane();
+
+    float speed = vehicle.GetSpeedVector(true).y;
+
+    if (cruiseSpeed < 0.01f)
+    {
+        EndCruise();
+        return;
+    }
+
+    bool inSeat = isPlane ? true : vehicle.GetPedOnSeat(VehicleSeat::SEAT_DRIVER) == ped.Handle();
+    bool isInAirOrUpsideDownIfCar = isPlane ? false : (!vehicle.IsOnAllWheels() || vehicle.IsInWater());
+
+    if (!inSeat || isInAirOrUpsideDownIfCar)
+    {
+        PrintCruiseText(false);
+        return;
+    }
+
+    if (vehicle.Exists())
+    {
+        vehicle.SetForwardSpeed(cruiseSpeed);
+
+        if (IS_CONTROL_JUST_PRESSED(2, INPUT_VEH_BRAKE))
+        {
+            cruiseSpeed -= 2.0f / 3.6f;
+        }
+
+        if (IS_CONTROL_JUST_PRESSED(2, INPUT_VEH_ACCELERATE))
+        {
+            cruiseSpeed += 2.0f / 3.6f;
+        }
+    }
+
+    PrintCruiseText(true);
+}
+
+void VehicleCruise::PrintCruiseText(bool working)
+{
+    Game::Print::SetupDraw(GTAfont::Impact, Vector2(0.30f, 0.30f), false, true, true);
+    if (working)
+        Game::Print::DrawString(oss_ << "Cruise Speed: ~b~" << int(cruiseSpeed * 3.6f) << " KM/H", 0.95f, 0.24f);
+    else
+        Game::Print::drawstring("Cruise Status: ~r~Inactive.", 0.95f, 0.24f);
+}
+
+VehicleCruise g_vehicleCruise;
+
+void ToggleOnOff()
+{
+    g_vehicleCruise.Toggle();
+}
+
+} // namespace VehicleCruise

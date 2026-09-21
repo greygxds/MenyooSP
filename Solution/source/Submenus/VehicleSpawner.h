@@ -48,67 +48,90 @@
 typedef unsigned __int8 UINT8;
 typedef int INT, Vehicle, Entity, Ped;
 typedef unsigned long DWORD, Hash;
-typedef char *PCHAR;
+typedef char* PCHAR;
 
 class GTAentity;
 class GTAvehicle;
 class GTAped;
+
 namespace GTAmodel
 {
-	class Model;
+class Model;
 }
 
 namespace sub
 {
-	int SpawnVehicle(GTAmodel::Model model, GTAped ped, bool deleteOld = false, bool warpIntoVehicle = true);
+int SpawnVehicle(GTAmodel::Model model, GTAped ped, bool deleteOld = false, bool warpIntoVehicle = true);
 
-	namespace VehicleSpawner
-	{
-		extern UINT8 spawnVehicleIndex;
+namespace VehicleSpawner
+{
+extern UINT8 spawnVehicleIndex;
 
-		enum Indices
-		{
-			COMPACT, SEDAN, SUV, COUPE, MUSCLE, SPORTSCLASSIC, SPORT, SUPER,
-			MOTORCYCLE, OFFROAD, INDUSTRIAL, UTILITY, VAN, BICYCLE, BOAT, HELICOPTER,
-			PLANE, SERVICE, EMERGENCY, MILITARY, COMMERCIAL, TRAIN, OPENWHEEL, OTHER, DRIFT
-		};
+enum Indices
+{
+    COMPACT,
+    SEDAN,
+    SUV,
+    COUPE,
+    MUSCLE,
+    SPORTSCLASSIC,
+    SPORT,
+    SUPER,
+    MOTORCYCLE,
+    OFFROAD,
+    INDUSTRIAL,
+    UTILITY,
+    VAN,
+    BICYCLE,
+    BOAT,
+    HELICOPTER,
+    PLANE,
+    SERVICE,
+    EMERGENCY,
+    MILITARY,
+    COMMERCIAL,
+    TRAIN,
+    OPENWHEEL,
+    OTHER,
+    DRIFT
+};
 
-		void PopulateVehicleBmps();
-		void AddVehicleCategoryOption(const std::string& text, UINT8 index, bool *extra_option_code = nullptr);
-		std::string GetVehicleClassName(int classId);
-		void DrawVehicleStats(const GTAmodel::Model& vehModel);
+void PopulateVehicleBmps();
+void AddVehicleCategoryOption(const std::string& text, UINT8 index, bool* extra_option_code = nullptr);
+std::string GetVehicleClassName(int classId);
+void DrawVehicleStats(const GTAmodel::Model& vehModel);
 
-	}
+} // namespace VehicleSpawner
 
-	void SpawnVehicleMenu();
-	void SpawnVehicleSearchMenu();
-	void SpawnVehicleOptions();
+void SpawnVehicleMenu();
+void SpawnVehicleSearchMenu();
+void SpawnVehicleOptions();
 
-	bool SpawnVehicleIsVehicleModelAFavourite(GTAmodel::Model vehModel);
-	bool SpawnVehicleAddVehicleModelToFavourites(GTAmodel::Model vehModel, const std::string& customName);
-	bool SpawnVehicleRemoveVehicleModelFromFavourites(GTAmodel::Model vehModel);
+bool SpawnVehicleIsVehicleModelAFavourite(GTAmodel::Model vehModel);
+bool SpawnVehicleAddVehicleModelToFavourites(GTAmodel::Model vehModel, const std::string& customName);
+bool SpawnVehicleRemoveVehicleModelFromFavourites(GTAmodel::Model vehModel);
 
-	void SaveVehiclePropsToNode(pugi::xml_node& node, GTAvehicle ev);
-	void ApplyVehiclePropsFromNode(pugi::xml_node& node, GTAvehicle ev);
+void SaveVehiclePropsToNode(pugi::xml_node& node, GTAvehicle ev);
+void ApplyVehiclePropsFromNode(pugi::xml_node& node, GTAvehicle ev);
 
-	void SpawnVehicleDLC();
-	void SpawnVehicleDLCSelection();
-	void SpawnVehicleAllCategoriesMenu();
-	void SpawnVehicleFavouritesMenu();
+void SpawnVehicleDLC();
+void SpawnVehicleDLCSelection();
+void SpawnVehicleAllCategoriesMenu();
+void SpawnVehicleFavouritesMenu();
 
-	namespace VehicleSaver
-	{
-		extern UINT8 _persistentAttachmentsTexterIndex;
-		extern UINT8 _driverVisibilityTexterIndex;
+namespace VehicleSaver
+{
+extern UINT8 _persistentAttachmentsTexterIndex;
+extern UINT8 _driverVisibilityTexterIndex;
 
-		void VehicleSaveToFile(std::string filePath, GTAvehicle ev);
-		void VehicleReadFromFile(std::string filePath, GTAentity ped);
+void VehicleSaveToFile(std::string filePath, GTAvehicle ev);
+void VehicleReadFromFile(std::string filePath, GTAentity ped);
 
-		void VehicleSaverMenu();
-		void VehSaverInItemMenu();
-		int saveCarVars();
-		void saveColourVals();
+void VehicleSaverMenu();
+void VehSaverInItemMenu();
+int saveCarVars();
+void saveColourVals();
 
-	}
+} // namespace VehicleSaver
 
-}
+} // namespace sub

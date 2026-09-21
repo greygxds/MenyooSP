@@ -12,127 +12,123 @@
 
 namespace sub
 {
-	void PlayersMenu()
-	{
-		AddTitle("Players");
+void PlayersMenu()
+{
+    AddTitle("Players");
 
-		for (int i = 0; i < GAME_PLAYERCOUNT; i++)
-		{
-			if (NETWORK_IS_PLAYER_ACTIVE(i))
-			{
-				const char* name = GET_PLAYER_NAME(i);
-				if (!name) continue;
-				bool bPlayerPressed = false;
-				AddOption(name, bPlayerPressed);
-				if (bPlayerPressed)
-				{
-					g_activePlayerId = i;
-					g_activePedHandle = GET_PLAYER_PED(g_activePlayerId);
-					g_playerName = name;
-					Menu::NewSetMenu(SUB::PLAYERSSUBAMENU);
-				}
-			}
-		}
-	}
-
-	void PlayersAMenu()
-	{
-		bool spectateOn = false;
-		bool spectateOff = false;
-		bool setWaypoint = false;
-
-		std::string spectatePlayerStr = "CM_SPECTATE";
-		if (Game::DoesGXTEntryExist(spectatePlayerStr))
-		{
-			spectatePlayerStr = Game::GetGXTEntry(spectatePlayerStr);
-			spectatePlayerStr = spectatePlayerStr.substr(0, spectatePlayerStr.find('('));
-		}
-		else 
-		{
-			spectatePlayerStr = "Spectate Player";
-		}
-
-		AddTitle(g_playerName); // Title = player name
-		AddOption("Set Waypoint To Player", setWaypoint);
-		AddLocal(spectatePlayerStr, spectatePlayer == g_activePlayerId, spectateOn, spectateOff); // Spectate Player
-		AddOptionDescription("Watch this player through their camera.");
-
-		if (spectateOn)
-		{
-			Ped ped;
-			spectatePlayer = g_activePlayerId;
-			for (int i = 0; i < GAME_PLAYERCOUNT; i++)
-			{
-				if (!NETWORK_IS_PLAYER_ACTIVE(i)) 
-				{
-					continue;
-				}
-				ped = GET_PLAYER_PED(i);
-				if (!DOES_ENTITY_EXIST(ped)) 
-				{
-					continue;
-				}
-				NETWORK_SET_IN_SPECTATOR_MODE_EXTENDED(0, ped, 1);
-				NETWORK_SET_IN_SPECTATOR_MODE(false, ped);
-			}
-			ped = GET_PLAYER_PED(spectatePlayer);
-			if (DOES_ENTITY_EXIST(ped))
-			{
-				STAT_SET_BOOL(GET_HASH_KEY("MPPLY_CAN_SPECTATE"), true, true);
-				NETWORK_SET_IN_SPECTATOR_MODE(true, ped);
-			}
-		}
-		if (spectateOff)
-		{
-			Ped ped;
-			for (int i = 0; i < GAME_PLAYERCOUNT; i++)
-			{
-				if (!NETWORK_IS_PLAYER_ACTIVE(i)) 
-				{
-					continue;
-				}
-				ped = GET_PLAYER_PED(i);
-				if (!DOES_ENTITY_EXIST(ped)) 
-				{
-					continue;
-				}
-				NETWORK_SET_IN_SPECTATOR_MODE_EXTENDED(0, ped, 1);
-				NETWORK_SET_IN_SPECTATOR_MODE(false, ped);
-			}
-			NETWORK_SET_ACTIVITY_SPECTATOR(false);
-			spectatePlayer = -1;
-		}
-
-		if (setWaypoint)
-		{
-			GTAplayer player = g_activePlayerId;
-			if (player.IsActive())
-			{
-				const GTAped& playerPed = player.GetPed();
-				if (playerPed.IsAlive())
-				{
-					const Vector3& pos = playerPed.GetPosition();
-					SET_NEW_WAYPOINT(pos.x, pos.y);
-				}
-				else
-				{
-					SET_WAYPOINT_OFF();
-				}
-			}
-			else
-			{
-				SET_WAYPOINT_OFF();
-			}
-		}
-	}
+    for (int i = 0; i < GAME_PLAYERCOUNT; i++)
+    {
+        if (NETWORK_IS_PLAYER_ACTIVE(i))
+        {
+            const char* name = GET_PLAYER_NAME(i);
+            if (!name)
+                continue;
+            bool bPlayerPressed = false;
+            AddOption(name, bPlayerPressed);
+            if (bPlayerPressed)
+            {
+                g_activePlayerId = i;
+                g_activePedHandle = GET_PLAYER_PED(g_activePlayerId);
+                g_playerName = name;
+                Menu::NewSetMenu(SUB::PLAYERSSUBAMENU);
+            }
+        }
+    }
 }
 
+void PlayersAMenu()
+{
+    bool spectateOn = false;
+    bool spectateOff = false;
+    bool setWaypoint = false;
+
+    std::string spectatePlayerStr = "CM_SPECTATE";
+    if (Game::DoesGXTEntryExist(spectatePlayerStr))
+    {
+        spectatePlayerStr = Game::GetGXTEntry(spectatePlayerStr);
+        spectatePlayerStr = spectatePlayerStr.substr(0, spectatePlayerStr.find('('));
+    }
+    else
+    {
+        spectatePlayerStr = "Spectate Player";
+    }
+
+    AddTitle(g_playerName); // Title = player name
+    AddOption("Set Waypoint To Player", setWaypoint);
+    AddLocal(spectatePlayerStr, spectatePlayer == g_activePlayerId, spectateOn, spectateOff); // Spectate Player
+    AddOptionDescription("Watch this player through their camera.");
+
+    if (spectateOn)
+    {
+        Ped ped;
+        spectatePlayer = g_activePlayerId;
+        for (int i = 0; i < GAME_PLAYERCOUNT; i++)
+        {
+            if (!NETWORK_IS_PLAYER_ACTIVE(i))
+            {
+                continue;
+            }
+            ped = GET_PLAYER_PED(i);
+            if (!DOES_ENTITY_EXIST(ped))
+            {
+                continue;
+            }
+            NETWORK_SET_IN_SPECTATOR_MODE_EXTENDED(0, ped, 1);
+            NETWORK_SET_IN_SPECTATOR_MODE(false, ped);
+        }
+        ped = GET_PLAYER_PED(spectatePlayer);
+        if (DOES_ENTITY_EXIST(ped))
+        {
+            STAT_SET_BOOL(GET_HASH_KEY("MPPLY_CAN_SPECTATE"), true, true);
+            NETWORK_SET_IN_SPECTATOR_MODE(true, ped);
+        }
+    }
+    if (spectateOff)
+    {
+        Ped ped;
+        for (int i = 0; i < GAME_PLAYERCOUNT; i++)
+        {
+            if (!NETWORK_IS_PLAYER_ACTIVE(i))
+            {
+                continue;
+            }
+            ped = GET_PLAYER_PED(i);
+            if (!DOES_ENTITY_EXIST(ped))
+            {
+                continue;
+            }
+            NETWORK_SET_IN_SPECTATOR_MODE_EXTENDED(0, ped, 1);
+            NETWORK_SET_IN_SPECTATOR_MODE(false, ped);
+        }
+        NETWORK_SET_ACTIVITY_SPECTATOR(false);
+        spectatePlayer = -1;
+    }
+
+    if (setWaypoint)
+    {
+        GTAplayer player = g_activePlayerId;
+        if (player.IsActive())
+        {
+            const GTAped& playerPed = player.GetPed();
+            if (playerPed.IsAlive())
+            {
+                const Vector3& pos = playerPed.GetPosition();
+                SET_NEW_WAYPOINT(pos.x, pos.y);
+            }
+            else
+            {
+                SET_WAYPOINT_OFF();
+            }
+        }
+        else
+        {
+            SET_WAYPOINT_OFF();
+        }
+    }
+}
+} // namespace sub
 
 #include "..\Menu\submenu_switch.h"
 #include "..\Menu\submenu_enum.h"
-REGISTER_SUBMENU(PLAYERSSUB,  		sub::PlayersMenu)
-REGISTER_SUBMENU(PLAYERSSUBAMENU, 	sub::PlayersAMenu)
-
-
-
-
+REGISTER_SUBMENU(PLAYERSSUB, sub::PlayersMenu)
+REGISTER_SUBMENU(PLAYERSSUBAMENU, sub::PlayersAMenu)

@@ -17,29 +17,26 @@
 
 namespace sub::TeleportLocations_catind
 {
-	class TeleLocation;
-	class NamedTeleLocationList;
+class TeleLocation;
+class NamedTeleLocationList;
 
-	namespace IplNames
-	{
-		extern const std::vector<std::string_view> vYacht_Smboat1;
-		extern const std::vector<std::string_view> vYacht_Heist1;
-		extern const std::vector<std::string_view> vYacht_Heist2;
-		extern const std::vector<std::string_view> vAircraftCarrier1;
-		extern const std::vector<std::string_view> vNorthYankton;
-		extern const std::vector<std::string_view> vAllCustomisableApartments1;
-		extern const std::vector<std::string_view> vAllOffices1;
-		extern const std::vector<std::string_view> vAllOfficeGarages1;
-	}
+namespace IplNames
+{
+extern const std::vector<std::string_view> vYacht_Smboat1;
+extern const std::vector<std::string_view> vYacht_Heist1;
+extern const std::vector<std::string_view> vYacht_Heist2;
+extern const std::vector<std::string_view> vAircraftCarrier1;
+extern const std::vector<std::string_view> vNorthYankton;
+extern const std::vector<std::string_view> vAllCustomisableApartments1;
+extern const std::vector<std::string_view> vAllOffices1;
+extern const std::vector<std::string_view> vAllOfficeGarages1;
+} // namespace IplNames
 
-	namespace Locations
-	{
-		extern const std::vector<TeleLocation> vApartmentInteriors;
+namespace Locations
+{
+extern const std::vector<TeleLocation> vApartmentInteriors;
 
-		extern const std::vector<NamedTeleLocationList> vAllCategories;
-	}
+extern const std::vector<NamedTeleLocationList> vAllCategories;
+} // namespace Locations
 
-}
-
-
-
+} // namespace sub::TeleportLocations_catind

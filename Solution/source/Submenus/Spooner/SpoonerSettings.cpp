@@ -18,38 +18,35 @@
 
 namespace sub::Spooner
 {
-	namespace Settings
-	{
+namespace Settings
+{
 //#define GTA_MAX_ENTITIES 2048
 
-		bool bInvertScrollSensitivity = false; // false = left multiplies Scroll Sensitivity, true = right multiplies
+bool bInvertScrollSensitivity = false; // false = left multiplies Scroll Sensitivity, true = right multiplies
 
-		bool bShowModelPreviews = true;
-		bool bDisplaySpoonerInfo = true;
-		bool bShowBoxAroundSelectedEntity = false;
-		bool bSpawnDynamicProps = false;
-		bool bSpawnDynamicPeds = true;
-		bool bSpawnDynamicVehicles = true;
-		bool bFreezeEntityWhenMovingIt = false;
-		bool bSpawnInvincibleEntities = false;
-		bool bSpawnStillPeds = true;
-		bool bAddToDbAsMissionEntities = true;
-		bool bKeepPositionWhenAttaching = false;
-		
-		bool bTeleportToReferenceWhenLoadingFile = true;
+bool bShowModelPreviews = true;
+bool bDisplaySpoonerInfo = true;
+bool bShowBoxAroundSelectedEntity = false;
+bool bSpawnDynamicProps = false;
+bool bSpawnDynamicPeds = true;
+bool bSpawnDynamicVehicles = true;
+bool bFreezeEntityWhenMovingIt = false;
+bool bSpawnInvincibleEntities = false;
+bool bSpawnStillPeds = true;
+bool bAddToDbAsMissionEntities = true;
+bool bKeepPositionWhenAttaching = false;
 
-		bool bGridSnapEnabled = false; // use SnapPos / SnapRot to get the snapped position / rotation Vector3
-		float gridSnapSize = 1.0f;
-		float rotationSnapDegrees = 0.0f;
-		bool bSnapToGround = false; // use SnapPos to get the snapped position Vector3
-		bool bDrawGrid = false;
+bool bTeleportToReferenceWhenLoadingFile = true;
 
-		bool bAutoSaveDb = false;
-		DWORD autoSaveIntervalMs = 180000;
-		int autoSaveMaxFiles = 10;
-	}
+bool bGridSnapEnabled = false; // use SnapPos / SnapRot to get the snapped position / rotation Vector3
+float gridSnapSize = 1.0f;
+float rotationSnapDegrees = 0.0f;
+bool bSnapToGround = false; // use SnapPos to get the snapped position Vector3
+bool bDrawGrid = false;
 
-}
+bool bAutoSaveDb = false;
+DWORD autoSaveIntervalMs = 180000;
+int autoSaveMaxFiles = 10;
+} // namespace Settings
 
-
-
+} // namespace sub::Spooner

@@ -24,50 +24,47 @@ class GTAprop;
 
 namespace RopeGun
 {
-	class EntitiesAndRope
-	{
-	public:
-		Rope rope;
-		GTAentity e1;
-		GTAentity e2;
-		float initialDistance;
+class EntitiesAndRope
+{
+  public:
+    Rope rope;
+    GTAentity e1;
+    GTAentity e2;
+    float initialDistance;
 
-		EntitiesAndRope();
-		EntitiesAndRope(const Rope& ropeP, const GTAentity& e1P, const GTAentity& e2P, float initialDistanceP);
-		EntitiesAndRope(const EntitiesAndRope& obj);
+    EntitiesAndRope();
+    EntitiesAndRope(const Rope& ropeP, const GTAentity& e1P, const GTAentity& e2P, float initialDistanceP);
+    EntitiesAndRope(const EntitiesAndRope& obj);
 
-		EntitiesAndRope& operator = (const EntitiesAndRope& right);
-	};
+    EntitiesAndRope& operator=(const EntitiesAndRope& right);
+};
 
-	class RopeGun final : public GenericLoopedMode
-	{
-	private:
-		const Hash whash;
-		UINT8 shootCount;
-		GTAentity _thing1, _thing2;
-		std::vector<EntitiesAndRope> allRopes;
-	public:
-		RopeGun();
+class RopeGun final : public GenericLoopedMode
+{
+  private:
+    const Hash whash;
+    UINT8 shootCount;
+    GTAentity _thing1, _thing2;
+    std::vector<EntitiesAndRope> allRopes;
 
-		void TurnOn() override;
-		void TurnOff() override;
+  public:
+    RopeGun();
 
-		void Tick() override;
-		void DoRopeGunTick();
-		void DoRopeEntitiesTick();
+    void TurnOn() override;
+    void TurnOff() override;
 
-		void CreateRopeFor2(GTAentity& entity1, GTAentity& entity2);
-		GTAprop CreateAFake(const Vector3& pos);
+    void Tick() override;
+    void DoRopeGunTick();
+    void DoRopeEntitiesTick();
 
-		void PrintGunInstructions();
-		void PrintShootCountHelpText();
+    void CreateRopeFor2(GTAentity& entity1, GTAentity& entity2);
+    GTAprop CreateAFake(const Vector3& pos);
 
-	};
+    void PrintGunInstructions();
+    void PrintShootCountHelpText();
+};
 
+extern RopeGun g_ropeGun;
 
-	extern RopeGun g_ropeGun;
-
-	void ToggleOnOff();
-}
-
-
+void ToggleOnOff();
+} // namespace RopeGun

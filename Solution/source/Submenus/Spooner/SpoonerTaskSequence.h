@@ -19,53 +19,51 @@ typedef unsigned long DWORD;
 
 namespace sub::Spooner
 {
-	class SpoonerTaskSequence final // Dtor deallocates used memory blocks
-	{
-	private:
-		bool bJustJumpedToNext;
-		std::vector<STSTask*> tasks;
-		INT16 progress;
-		DWORD timer;
-	public:
-		SpoonerTaskSequence();
-		~SpoonerTaskSequence();
+class SpoonerTaskSequence final // Dtor deallocates used memory blocks
+{
+  private:
+    bool bJustJumpedToNext;
+    std::vector<STSTask*> tasks;
+    INT16 progress;
+    DWORD timer;
 
-		void operator = (const SpoonerTaskSequence& right);
+  public:
+    SpoonerTaskSequence();
+    ~SpoonerTaskSequence();
 
-		template<typename R = STSTask> inline R* GetTask(UINT16 index)
-		{
-			return reinterpret_cast<R*>(this->tasks[index]); // Note: no outofbounds check
-		}
+    void operator=(const SpoonerTaskSequence& right);
 
-		bool ContainsType(const STSTaskType& value);
+    template <typename R = STSTask> inline R* GetTask(UINT16 index)
+    {
+        return reinterpret_cast<R*>(this->tasks[index]); // Note: no outofbounds check
+    }
 
-		UINT16 TaskCount() const;
-		bool empty() const;
+    bool ContainsType(const STSTaskType& value);
 
-		inline void AddTask(STSTask* tskPtr);
-		STSTask* AddTask(const STSTaskType& ofType);
+    UINT16 TaskCount() const;
+    bool empty() const;
 
-		static void DeallocTask(STSTask* tskPtr);
-		void RemoveTask(UINT16 index);
+    inline void AddTask(STSTask* tskPtr);
+    STSTask* AddTask(const STSTaskType& ofType);
 
-		void SwapTasks(UINT16 index1, UINT16 index2);
+    static void DeallocTask(STSTask* tskPtr);
+    void RemoveTask(UINT16 index);
 
-		std::vector<STSTask*>& AllTasks();
+    void SwapTasks(UINT16 index1, UINT16 index2);
 
-		bool IsActive() const;
-		void Start();
-		void Reset(bool deleteTasks = false);
-		void Tick(void* ev);
-	};
+    std::vector<STSTask*>& AllTasks();
 
-	/// Spooner ped options sub goes to task sequence (taskList) submenu.
-	// In taskList submenu, show name of each task in AllTasks() and have ADD NEW option at bottom. Should be a START[Start()] / STOP[Reset(false) and ClearPedTasksImm] button right below it.
-	/// AddNew submenu should name all tasks and pressing should take back to taskList submenu with added task.
-	// X/B to delete selected task. Show in button instructions on the bottom right.
-	/// Press task for task settings. Settings should be a [one to many funcs] submenu with 'Duration' in the main submenu func. Custom appropriate settings in each sub.
-	// Save to Spooner xml k
+    bool IsActive() const;
+    void Start();
+    void Reset(bool deleteTasks = false);
+    void Tick(void* ev);
+};
 
-}
+/// Spooner ped options sub goes to task sequence (taskList) submenu.
+// In taskList submenu, show name of each task in AllTasks() and have ADD NEW option at bottom. Should be a START[Start()] / STOP[Reset(false) and ClearPedTasksImm] button right below it.
+/// AddNew submenu should name all tasks and pressing should take back to taskList submenu with added task.
+// X/B to delete selected task. Show in button instructions on the bottom right.
+/// Press task for task settings. Settings should be a [one to many funcs] submenu with 'Duration' in the main submenu func. Custom appropriate settings in each sub.
+// Save to Spooner xml k
 
-
-
+} // namespace sub::Spooner

@@ -32,36 +32,32 @@ class Vector2;
 
 namespace sub
 {
-	void TimeMenu();
+void TimeMenu();
 
-	namespace Clock
-	{
-		extern UINT8 loopClock;
-		extern UINT8 analogueClockIndex;
-		extern Vector2 analogueClockPosition;
+namespace Clock
+{
+extern UINT8 loopClock;
+extern UINT8 analogueClockIndex;
+extern Vector2 analogueClockPosition;
 
-		inline void DisplayClockDigital();
+inline void DisplayClockDigital();
 
-		struct ClockImage 
-		{ 
-			std::string name; 
-			DxHookIMG::DxTexture faceId;
-			DxHookIMG::DxTexture hourId;
-			DxHookIMG::DxTexture minuteId; 
-		};
+struct ClockImage
+{
+    std::string name;
+    DxHookIMG::DxTexture faceId;
+    DxHookIMG::DxTexture hourId;
+    DxHookIMG::DxTexture minuteId;
+};
 
-		extern std::vector<ClockImage> clockImages;
+extern std::vector<ClockImage> clockImages;
 
-		void LoadClockImages();
-		inline void DisplayClockAnalogue();
+void LoadClockImages();
+inline void DisplayClockAnalogue();
 
-		void DisplayClock();
+void DisplayClock();
 
-		void ClockMenu();
-	}
+void ClockMenu();
+} // namespace Clock
 
-}
-
-
-
-
+} // namespace sub

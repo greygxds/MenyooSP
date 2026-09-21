@@ -14,27 +14,24 @@ typedef char *PCHAR;
 
 namespace sub::TeleportLocations_catind
 {
-	namespace BikerInteriors
-	{
-		namespace Clubhouses
-		{
+namespace BikerInteriors
+{
+namespace Clubhouses
+{
 
-			void Sub_Clubhouses();
-			void Sub_Clubhouses_InLoc();
+void Sub_Clubhouses();
+void Sub_Clubhouses_InLoc();
 
-		}
+} // namespace Clubhouses
 
-		namespace Businesses
-		{
+namespace Businesses
+{
 
-			void Sub_Businesses();
-			void Sub_Businesses_InLoc();
+void Sub_Businesses();
+void Sub_Businesses_InLoc();
 
-		}
+} // namespace Businesses
 
-	}
+} // namespace BikerInteriors
 
-}
-
-
-
+} // namespace sub::TeleportLocations_catind

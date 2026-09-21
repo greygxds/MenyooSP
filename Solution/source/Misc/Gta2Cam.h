@@ -16,30 +16,22 @@ class Camera;
 
 namespace GTA2Cam
 {
-	class Gta2Cam final : public GenericLoopedMode
-	{
-	private:
-	public:
-		const Camera& MainCam();
+class Gta2Cam final : public GenericLoopedMode
+{
+  private:
+  public:
+    const Camera& MainCam();
 
-		void CreateMainCam(GTAentity myPed);
+    void CreateMainCam(GTAentity myPed);
 
-		void TurnOn() override;
-		void TurnOff() override;
+    void TurnOn() override;
+    void TurnOff() override;
 
-		void Tick() override;
-		inline void DoGta2CamTick();
+    void Tick() override;
+    inline void DoGta2CamTick();
+};
 
-	};
+extern Gta2Cam g_gta2Cam;
 
-
-	extern Gta2Cam g_gta2Cam;
-
-	void ToggleOnOff();
-}
-
-
-
-
-
-
+void ToggleOnOff();
+} // namespace GTA2Cam

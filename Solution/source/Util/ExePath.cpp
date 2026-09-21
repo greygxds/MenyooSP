@@ -38,133 +38,134 @@ std::wstring ExePathW(bool lastSlash)
 
 std::string ExePathA(bool lastSlash)
 {
-	static std::string ExePathA_filePathStr;
-	if (ExePathA_filePathStr.empty())
-	{
-		char filePath[FILENAME_MAX];
-		GetModuleFileNameA(nullptr, filePath, FILENAME_MAX);
-		ExePathA_filePathStr = filePath;
-		ExePathA_filePathStr = ExePathA_filePathStr.substr(0, ExePathA_filePathStr.rfind('\\'));
-	}
-	return ExePathA_filePathStr + (lastSlash ? "\\" : "");
+    static std::string ExePathA_filePathStr;
+    if (ExePathA_filePathStr.empty())
+    {
+        char filePath[FILENAME_MAX];
+        GetModuleFileNameA(nullptr, filePath, FILENAME_MAX);
+        ExePathA_filePathStr = filePath;
+        ExePathA_filePathStr = ExePathA_filePathStr.substr(0, ExePathA_filePathStr.rfind('\\'));
+    }
+    return ExePathA_filePathStr + (lastSlash ? "\\" : "");
 }
+
 std::wstring ExePathW(bool lastSlash)
 {
-	static std::wstring ExePathW_filePathStr;
-	if (ExePathW_filePathStr.empty())
-	{
-		wchar_t filePath[FILENAME_MAX];
-		GetModuleFileNameW(nullptr, filePath, FILENAME_MAX);
-		ExePathW_filePathStr = filePath;
-		ExePathW_filePathStr = ExePathW_filePathStr.substr(0, ExePathW_filePathStr.rfind('\\'));
-	}
-	return ExePathW_filePathStr + (lastSlash ? L"\\" : L"");
+    static std::wstring ExePathW_filePathStr;
+    if (ExePathW_filePathStr.empty())
+    {
+        wchar_t filePath[FILENAME_MAX];
+        GetModuleFileNameW(nullptr, filePath, FILENAME_MAX);
+        ExePathW_filePathStr = filePath;
+        ExePathW_filePathStr = ExePathW_filePathStr.substr(0, ExePathW_filePathStr.rfind('\\'));
+    }
+    return ExePathW_filePathStr + (lastSlash ? L"\\" : L"");
 }
 
-
-std::string ffPathArray[] =
-{
-		"",
-		"\\menyooStuff",
-		"\\menyooStuff\\Vehicle",
-		"\\menyooStuff\\Outfit",
-		"\\menyooStuff\\Spooner",
-		"\\menyooStuff\\Audio",
-		"\\menyooStuff\\Graphics",
-		"\\menyooStuff\\Graphics\\Speedo",
-		"\\menyooStuff\\WeaponsLoadout",
-		"\\menyooStuff\\Language"
+std::string ffPathArray[] = {
+    "",
+    "\\menyooStuff",
+    "\\menyooStuff\\Vehicle",
+    "\\menyooStuff\\Outfit",
+    "\\menyooStuff\\Spooner",
+    "\\menyooStuff\\Audio",
+    "\\menyooStuff\\Graphics",
+    "\\menyooStuff\\Graphics\\Speedo",
+    "\\menyooStuff\\WeaponsLoadout",
+    "\\menyooStuff\\Language"
 };
 
 std::wstring GetPathffW(Pathff type, bool lastSlash)
 {
-	auto loc = static_cast<int>(type);
-	std::wstring path(ffPathArray[loc].begin(), ffPathArray[loc].end());
+    auto loc = static_cast<int>(type);
+    std::wstring path(ffPathArray[loc].begin(), ffPathArray[loc].end());
 
-	path = ExePathW(false) + path;
-	if (lastSlash) path += L"\\";
-	
-	return path;
+    path = ExePathW(false) + path;
+    if (lastSlash)
+        path += L"\\";
+
+    return path;
 }
+
 std::string GetPathffA(Pathff type, bool lastSlash)
 {
-	auto loc = static_cast<int>(type);
-	std::string path = ffPathArray[loc];
+    auto loc = static_cast<int>(type);
+    std::string path = ffPathArray[loc];
 
-	path = ExePathA(false) + path;
-	if (lastSlash) path += "\\";
+    path = ExePathA(false) + path;
+    if (lastSlash)
+        path += "\\";
 
-	return path;
+    return path;
 }
 
 bool does_file_exist(const std::string& path)
 {
-	struct stat buffer;
-	return (stat(path.c_str(), &buffer) == 0);
+    struct stat buffer;
+    return (stat(path.c_str(), &buffer) == 0);
 }
 
-void get_all_filenames_with_extension(const std::string& directory, const std::string& extension, std::vector<std::string> &results, bool withExtension)
+void get_all_filenames_with_extension(const std::string& directory, const std::string& extension, std::vector<std::string>& results, bool withExtension)
 {
-	struct stat stinfo;
-	if (stat(directory.c_str(), &stinfo) == 0)
-	{
-		if (stinfo.st_mode & S_IFDIR) // is folder
-		{
-			DIR* dir_point = opendir(directory.c_str());
-			if (dir_point == nullptr)
-				return;
-			dirent* entry = readdir(dir_point);
-			while (entry)
-			{
-				std::string fname = entry->d_name;
-				if (fname.rfind(extension, (fname.length() - extension.length())) != std::string::npos
-					&& fname != "." && fname != "..")
-					results.push_back(withExtension ? fname : fname.substr(0, fname.length() - extension.length()));
-				entry = readdir(dir_point);
-			}
-			closedir(dir_point);
-		}
-	}
+    struct stat stinfo;
+    if (stat(directory.c_str(), &stinfo) == 0)
+    {
+        if (stinfo.st_mode & S_IFDIR) // is folder
+        {
+            DIR* dir_point = opendir(directory.c_str());
+            if (dir_point == nullptr)
+                return;
+            dirent* entry = readdir(dir_point);
+            while (entry)
+            {
+                std::string fname = entry->d_name;
+                if (fname.rfind(extension, (fname.length() - extension.length())) != std::string::npos && fname != "." && fname != "..")
+                    results.push_back(withExtension ? fname : fname.substr(0, fname.length() - extension.length()));
+                entry = readdir(dir_point);
+            }
+            closedir(dir_point);
+        }
+    }
 }
 
 std::string GetClipboardText()
 {
-	// Try opening the clipboard
-	if (!OpenClipboard(nullptr))
-	{
-		return std::string();
-	}
+    // Try opening the clipboard
+    if (!OpenClipboard(nullptr))
+    {
+        return std::string();
+    }
 
-	// Get handle of clipboard object for ANSI text
-	HANDLE hData = GetClipboardData(CF_UNICODETEXT);
-	if (hData == nullptr)
-	{
-		CloseClipboard();
-		return std::string();
-	}
+    // Get handle of clipboard object for ANSI text
+    HANDLE hData = GetClipboardData(CF_UNICODETEXT);
+    if (hData == nullptr)
+    {
+        CloseClipboard();
+        return std::string();
+    }
 
-	// Lock the handle to get the actual text pointer
-	wchar_t* pszText = static_cast<wchar_t*>(GlobalLock(hData));
-	if (pszText == nullptr)
-	{
-		CloseClipboard();
-		return std::string();
-	}
+    // Lock the handle to get the actual text pointer
+    wchar_t* pszText = static_cast<wchar_t*>(GlobalLock(hData));
+    if (pszText == nullptr)
+    {
+        CloseClipboard();
+        return std::string();
+    }
 
-	// Save text in a string class instance
-	std::wstring wtext(pszText);
+    // Save text in a string class instance
+    std::wstring wtext(pszText);
 
-	// Release the lock
-	GlobalUnlock(hData);
+    // Release the lock
+    GlobalUnlock(hData);
 
-	// Release the clipboard
-	CloseClipboard();
+    // Release the clipboard
+    CloseClipboard();
 
-	int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, wtext.c_str(), (int)wtext.size(), nullptr, 0, nullptr, nullptr);
+    int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, wtext.c_str(), (int)wtext.size(), nullptr, 0, nullptr, nullptr);
 
-	std::string result(sizeNeeded, 0);
+    std::string result(sizeNeeded, 0);
 
-	WideCharToMultiByte(CP_UTF8, 0, wtext.c_str(), (int)wtext.size(), &result[0], sizeNeeded, nullptr, nullptr);
+    WideCharToMultiByte(CP_UTF8, 0, wtext.c_str(), (int)wtext.size(), &result[0], sizeNeeded, nullptr, nullptr);
 
-	return result;
+    return result;
 }

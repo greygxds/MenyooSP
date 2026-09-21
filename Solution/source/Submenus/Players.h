@@ -21,6 +21,6 @@
 
 namespace sub
 {
-	void PlayersMenu();
-	void PlayersAMenu();
-}
+void PlayersMenu();
+void PlayersAMenu();
+} // namespace sub

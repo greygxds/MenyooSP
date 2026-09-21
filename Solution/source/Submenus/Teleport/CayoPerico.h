@@ -2,9 +2,9 @@
 
 namespace sub::TeleportLocations_catind
 {
-	namespace CayoPerico
-	{
-		void Sub_CayoPerico();
-		void Tick();
-	}
-}
+namespace CayoPerico
+{
+void Sub_CayoPerico();
+void Tick();
+} // namespace CayoPerico
+} // namespace sub::TeleportLocations_catind

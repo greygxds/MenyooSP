@@ -56,160 +56,158 @@ static std::map<std::string, bool> s_expandedBackup;
 
 static std::string MakeKey(const std::string& label)
 {
-	return std::to_string(Menu::activeSubmenu) + ":" + label;
+    return std::to_string(Menu::activeSubmenu) + ":" + label;
 }
 
 namespace MenuCategory
 {
-	void ResetCategoryState()
-	{
-		if (!categoryHeaderPositions.empty())
-			s_lastCategoryCount = categoryHeaderPositions.size();
-		categoryHeaderPositions.clear();
-		categoryHeaderLabels.clear();
+void ResetCategoryState()
+{
+    if (!categoryHeaderPositions.empty())
+        s_lastCategoryCount = categoryHeaderPositions.size();
+    categoryHeaderPositions.clear();
+    categoryHeaderLabels.clear();
 
-		if (pendingCategoryIndex != -1)
-		{
-			*Menu::activeOptionIndex = pendingCategoryIndex;
-			pendingCategoryIndex = -1;
-		}
-	}
-
-	bool AddCategory(const std::string& label, bool defaultExpanded)
-	{
-		DWORD now = GetTickCount();
-		if (now != s_lastFrameTick)
-		{
-			if (!categoryHeaderPositions.empty())
-				s_lastCategoryCount = categoryHeaderPositions.size();
-			categoryHeaderPositions.clear();
-			categoryHeaderLabels.clear();
-			categoryNavigationHintAdded = false;
-			s_lastFrameTick = now;
-
-			if (pendingCategoryIndex != -1)
-			{
-				*Menu::activeOptionIndex = pendingCategoryIndex;
-				pendingCategoryIndex = -1;
-			}
-		}
-
-		std::string key = MakeKey(label);
-		if (s_expandedState.find(key) == s_expandedState.end())
-			s_expandedState[key] = defaultExpanded;
-		bool& expanded = s_expandedState[key];
-
-		bool catPressed = false;
-		AddTickol(label, expanded, catPressed, catPressed, TICKOL::ARROWRIGHT, TICKOL::ARROWRIGHT, false, 270.0f, 90.0f);
-		if (catPressed)
-			expanded = !expanded;
-		categoryHeaderPositions.push_back(Menu::currentOptionCount);
-		categoryHeaderLabels.push_back(label);
-
-		if ((std::max)(categoryHeaderPositions.size(), s_lastCategoryCount) > 1)
-			AddOptionDescription(Menu::usingControllerInput
-				? "Press to expand or collapse. Press L3 to jump to another category."
-				: "Press to expand or collapse. Press G to jump to another category.");
-		else
-			AddOptionDescription("Press to expand or collapse.");
-
-		if (categoryHeaderPositions.size() > 1)
-		{
-			if (!categoryNavigationHintAdded)
-			{
-				if (Menu::usingControllerInput)
-					Menu::add_IB(INPUT_SPECIAL_ABILITY, "Navigate categories"); // XBOX "l3" (left stick click)
-				else
-					Menu::add_IB(VirtualKey::G, "Navigate categories");
-				categoryNavigationHintAdded = true;
-			}
-
-			if (Menu::usingControllerInput)
-			{
-				if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SPECIAL_ABILITY)) // XBOX "l3" (left stick click)
-					Menu::pendingSubmenu = SUB::CATEGORYNAVIGATOR;
-			}
-			else
-			{
-				if (IsKeyJustUp(VirtualKey::G))
-					Menu::pendingSubmenu = SUB::CATEGORYNAVIGATOR;
-			}
-		}
-
-		return expanded;
-	}
-
-	void ExpandAll()
-	{
-		std::string prefix = std::to_string(Menu::activeSubmenu) + ":";
-		bool alreadyBackedUp = !s_expandedBackup.empty();
-		for (auto& [key, val] : s_expandedState)
-		{
-			if (key.substr(0, prefix.size()) == prefix)
-			{
-				if (!alreadyBackedUp)
-					s_expandedBackup[key] = val;
-				val = true;
-			}
-		}
-	}
-
-	void RestoreExpandedState()
-	{
-		if (s_expandedBackup.empty())
-			return;
-		std::string prefix = std::to_string(Menu::activeSubmenu) + ":";
-		for (auto& [key, val] : s_expandedBackup)
-		{
-			if (key.substr(0, prefix.size()) == prefix)
-				s_expandedState[key] = val;
-		}
-		s_expandedBackup.clear();
-	}
-
-	const std::vector<std::string>& GetCategoryLabels()
-	{
-		return categoryHeaderLabels;
-	}
-
-	const std::vector<int>& GetCategoryPositions()
-	{
-		return categoryHeaderPositions;
-	}
-
-	void JumpToCategory(size_t index)
-	{
-		if (index < categoryHeaderPositions.size())
-			pendingCategoryIndex = categoryHeaderPositions[index];
-	}
+    if (pendingCategoryIndex != -1)
+    {
+        *Menu::activeOptionIndex = pendingCategoryIndex;
+        pendingCategoryIndex = -1;
+    }
 }
+
+bool AddCategory(const std::string& label, bool defaultExpanded)
+{
+    DWORD now = GetTickCount();
+    if (now != s_lastFrameTick)
+    {
+        if (!categoryHeaderPositions.empty())
+            s_lastCategoryCount = categoryHeaderPositions.size();
+        categoryHeaderPositions.clear();
+        categoryHeaderLabels.clear();
+        categoryNavigationHintAdded = false;
+        s_lastFrameTick = now;
+
+        if (pendingCategoryIndex != -1)
+        {
+            *Menu::activeOptionIndex = pendingCategoryIndex;
+            pendingCategoryIndex = -1;
+        }
+    }
+
+    std::string key = MakeKey(label);
+    if (s_expandedState.find(key) == s_expandedState.end())
+        s_expandedState[key] = defaultExpanded;
+    bool& expanded = s_expandedState[key];
+
+    bool catPressed = false;
+    AddTickol(label, expanded, catPressed, catPressed, TICKOL::ARROWRIGHT, TICKOL::ARROWRIGHT, false, 270.0f, 90.0f);
+    if (catPressed)
+        expanded = !expanded;
+    categoryHeaderPositions.push_back(Menu::currentOptionCount);
+    categoryHeaderLabels.push_back(label);
+
+    if ((std::max)(categoryHeaderPositions.size(), s_lastCategoryCount) > 1)
+        AddOptionDescription(Menu::usingControllerInput ? "Press to expand or collapse. Press L3 to jump to another category." : "Press to expand or collapse. Press G to jump to another category.");
+    else
+        AddOptionDescription("Press to expand or collapse.");
+
+    if (categoryHeaderPositions.size() > 1)
+    {
+        if (!categoryNavigationHintAdded)
+        {
+            if (Menu::usingControllerInput)
+                Menu::add_IB(INPUT_SPECIAL_ABILITY, "Navigate categories"); // XBOX "l3" (left stick click)
+            else
+                Menu::add_IB(VirtualKey::G, "Navigate categories");
+            categoryNavigationHintAdded = true;
+        }
+
+        if (Menu::usingControllerInput)
+        {
+            if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SPECIAL_ABILITY)) // XBOX "l3" (left stick click)
+                Menu::pendingSubmenu = SUB::CATEGORYNAVIGATOR;
+        }
+        else
+        {
+            if (IsKeyJustUp(VirtualKey::G))
+                Menu::pendingSubmenu = SUB::CATEGORYNAVIGATOR;
+        }
+    }
+
+    return expanded;
+}
+
+void ExpandAll()
+{
+    std::string prefix = std::to_string(Menu::activeSubmenu) + ":";
+    bool alreadyBackedUp = !s_expandedBackup.empty();
+    for (auto& [key, val] : s_expandedState)
+    {
+        if (key.substr(0, prefix.size()) == prefix)
+        {
+            if (!alreadyBackedUp)
+                s_expandedBackup[key] = val;
+            val = true;
+        }
+    }
+}
+
+void RestoreExpandedState()
+{
+    if (s_expandedBackup.empty())
+        return;
+    std::string prefix = std::to_string(Menu::activeSubmenu) + ":";
+    for (auto& [key, val] : s_expandedBackup)
+    {
+        if (key.substr(0, prefix.size()) == prefix)
+            s_expandedState[key] = val;
+    }
+    s_expandedBackup.clear();
+}
+
+const std::vector<std::string>& GetCategoryLabels()
+{
+    return categoryHeaderLabels;
+}
+
+const std::vector<int>& GetCategoryPositions()
+{
+    return categoryHeaderPositions;
+}
+
+void JumpToCategory(size_t index)
+{
+    if (index < categoryHeaderPositions.size())
+        pendingCategoryIndex = categoryHeaderPositions[index];
+}
+} // namespace MenuCategory
 
 namespace sub
 {
-	void CategoryNavigate()
-	{
-		auto& labels = MenuCategory::GetCategoryLabels();
-		auto& positions = MenuCategory::GetCategoryPositions();
+void CategoryNavigate()
+{
+    auto& labels = MenuCategory::GetCategoryLabels();
+    auto& positions = MenuCategory::GetCategoryPositions();
 
-		if (labels.empty())
-		{
-			Menu::SetPreviousMenu();
-			return;
-		}
+    if (labels.empty())
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
 
-		AddTitle("Jump to Category");
+    AddTitle("Jump to Category");
 
-		for (size_t i = 0; i < labels.size(); i++)
-		{
-			bool pressed = false;
-			AddOption(labels[i], pressed);
-			if (pressed)
-			{
-				MenuCategory::JumpToCategory(i);
-				Menu::SetPreviousMenu();
-				return;
-			}
-		}
-	}
+    for (size_t i = 0; i < labels.size(); i++)
+    {
+        bool pressed = false;
+        AddOption(labels[i], pressed);
+        if (pressed)
+        {
+            MenuCategory::JumpToCategory(i);
+            Menu::SetPreviousMenu();
+            return;
+        }
+    }
 }
+} // namespace sub
 REGISTER_SUBMENU(CATEGORYNAVIGATOR, sub::CategoryNavigate)

@@ -23,25 +23,25 @@ typedef unsigned char UINT8, BYTE;
 typedef int INT, Entity, Ped, Vehicle, Player;
 typedef unsigned long DWORD, Hash;
 typedef float FLOAT;
-typedef char *PCHAR;
-typedef const char *LPCSTR;
+typedef char* PCHAR;
+typedef const char* LPCSTR;
 
 class RgbS;
 class Vector3;
 class Camera;
 
-namespace GTAmodel 
+namespace GTAmodel
 {
-	class Model;
+class Model;
 }
 class GTAplayer;
 class GTAentity;
 class GTAvehicle;
 class GTAped;
 
-namespace PTFX 
+namespace PTFX
 {
-	class sFxData;
+class sFxData;
 }
 
 void ThreadMenyooMain();
@@ -70,7 +70,7 @@ extern Hash g_myWeap;
 extern PTFX::sFxData triggerFXGunData;
 extern Hash kaboomGunHash;
 extern Hash bullet_gun_hash;
-extern GTAmodel::Model pedGunHash; 
+extern GTAmodel::Model pedGunHash;
 extern GTAmodel::Model objectGunHash;
 extern FLOAT currentTimescale;
 
@@ -83,7 +83,7 @@ extern INT bitMSPaintsRGBMode;
 extern bool kaboomGunInvis;
 extern bool kaboomGunRandBit;
 extern bool pedGunRandBit;
-extern bool objectGunRandBitO; 
+extern bool objectGunRandBitO;
 extern bool objectGunRandBitV;
 extern bool bitNightVision;
 
@@ -121,7 +121,7 @@ extern RgbS g_spawnVehicleNeonColor;
 extern bool g_spawnVehicleAutoSit;
 extern bool g_warpNear;
 extern bool g_addBlip;
-extern bool g_spawnVehicleAutoUpgrade; 
+extern bool g_spawnVehicleAutoUpgrade;
 extern bool g_spawnVehicleInvincible;
 extern bool g_spawnVehiclePersistent;
 extern bool g_spawnVehicleDeleteOld;
@@ -352,6 +352,7 @@ enum class WeaponTargetType
 
 inline WeaponTargetType g_WeaponTargetType = WeaponTargetType::TargetPlayer;
 inline Ped g_WeaponTargetPed = 0;
+
 struct ScopedWeaponTargetOverride
 {
     WeaponTargetType oldType;

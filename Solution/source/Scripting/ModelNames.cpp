@@ -59,21 +59,20 @@ std::vector<GTAmodel::Model> g_vehHashes_DRIFT;
 #pragma endregion
 
 #pragma region Named neon colours
-const std::vector<NamedRgbS> _vNeonColours
-{
-	{ "White", RgbS(255, 255, 255) },
-	{ "Black", RgbS(0, 0, 0) },
-	{ "Electric Blue", RgbS(3, 83, 255) },
-	{ "Mint Green", RgbS(0, 255, 140) },
-	{ "Lime Green", RgbS(94, 255, 1) },
-	{ "Yellow", RgbS(255, 255, 0) },
-	{ "Golden Shower", RgbS(255, 150, 5) },
-	{ "Orange", RgbS(255, 62, 0) },
-	{ "Red", RgbS(255, 1, 1) },
-	{ "Pony Pink", RgbS(255, 50, 100) },
-	{ "Hot Pink", RgbS(255, 5, 190) },
-	{ "Purple", RgbS(35, 1, 255) },
-	{ "Blacklight", RgbS(15, 3, 255) },
+const std::vector<NamedRgbS> _vNeonColours{
+    {"White", RgbS(255, 255, 255)},
+    {"Black", RgbS(0, 0, 0)},
+    {"Electric Blue", RgbS(3, 83, 255)},
+    {"Mint Green", RgbS(0, 255, 140)},
+    {"Lime Green", RgbS(94, 255, 1)},
+    {"Yellow", RgbS(255, 255, 0)},
+    {"Golden Shower", RgbS(255, 150, 5)},
+    {"Orange", RgbS(255, 62, 0)},
+    {"Red", RgbS(255, 1, 1)},
+    {"Pony Pink", RgbS(255, 50, 100)},
+    {"Hot Pink", RgbS(255, 5, 190)},
+    {"Purple", RgbS(35, 1, 255)},
+    {"Blacklight", RgbS(15, 3, 255)},
 };
 
 #pragma endregion
@@ -101,271 +100,315 @@ std::vector<std::string> objectModels;
 
 void PopulatePedModelsArray()
 {
-	pugi::xml_document doc;
-	if (doc.load_file((const wchar_t*)(GetPathffW(Pathff::Main, true) + (L"PedList.xml")).c_str()).status == pugi::status_ok)
-	{
-		g_pedModels.clear();
-		auto nodeRoot = doc.document_element();//doc.child("PedList");
-		for (auto& cta : std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::string>>*>>{
-			{ "Player", &g_pedModels_Player },
-			{ "Animal", &g_pedModels_Animal },
-			{ "AmbientFemale", &g_pedModels_AmbientFemale },
-			{ "AmbientMale", &g_pedModels_AmbientMale },
-			{ "Cutscene", &g_pedModels_Cutscene },
-			{ "GangFemale", &g_pedModels_GangFemale },
-			{ "GangMale", &g_pedModels_GangMale },
-			{ "Story", &g_pedModels_Story },
-			{ "Multiplayer", &g_pedModels_Multiplayer },
-			{ "ScenarioFemale", &g_pedModels_ScenarioFemale },
-			{ "ScenarioMale", &g_pedModels_ScenarioMale },
-			{ "StoryScenarioFemale", &g_pedModels_StoryScenarioFemale },
-			{ "StoryScenarioMale", &g_pedModels_StoryScenarioMale },
-			{ "Others", &g_pedModels_Others },
-			})
-		{
-			auto nodeCat = nodeRoot.find_child_by_attribute("name", cta.first.c_str());
-			if (nodeCat)
-			{
-				for (auto nodePed = nodeCat.first_child()/*nodeCat.child("Ped")*/; nodePed; nodePed = nodePed.next_sibling()/*nodeVeh.next_sibling("Ped")*/)
-				{
-					std::string pedModelName = nodePed.attribute("name").as_string();
-					std::string pedDisplayName = nodePed.attribute("caption").as_string();
-					cta.second->push_back({ pedModelName, pedDisplayName });
-					g_pedModels.push_back({ pedModelName, pedDisplayName });
-				}
-			}
-		}
-	}
+    pugi::xml_document doc;
+    if (doc.load_file((const wchar_t*)(GetPathffW(Pathff::Main, true) + (L"PedList.xml")).c_str()).status == pugi::status_ok)
+    {
+        g_pedModels.clear();
+        auto nodeRoot = doc.document_element(); //doc.child("PedList");
+        for (auto& cta : std::vector<std::pair<std::string, std::vector<std::pair<std::string, std::string>>*>>{
+                 {"Player", &g_pedModels_Player},
+                 {"Animal", &g_pedModels_Animal},
+                 {"AmbientFemale", &g_pedModels_AmbientFemale},
+                 {"AmbientMale", &g_pedModels_AmbientMale},
+                 {"Cutscene", &g_pedModels_Cutscene},
+                 {"GangFemale", &g_pedModels_GangFemale},
+                 {"GangMale", &g_pedModels_GangMale},
+                 {"Story", &g_pedModels_Story},
+                 {"Multiplayer", &g_pedModels_Multiplayer},
+                 {"ScenarioFemale", &g_pedModels_ScenarioFemale},
+                 {"ScenarioMale", &g_pedModels_ScenarioMale},
+                 {"StoryScenarioFemale", &g_pedModels_StoryScenarioFemale},
+                 {"StoryScenarioMale", &g_pedModels_StoryScenarioMale},
+                 {"Others", &g_pedModels_Others},
+             })
+        {
+            auto nodeCat = nodeRoot.find_child_by_attribute("name", cta.first.c_str());
+            if (nodeCat)
+            {
+                for (auto nodePed = nodeCat.first_child() /*nodeCat.child("Ped")*/; nodePed; nodePed = nodePed.next_sibling() /*nodeVeh.next_sibling("Ped")*/)
+                {
+                    std::string pedModelName = nodePed.attribute("name").as_string();
+                    std::string pedDisplayName = nodePed.attribute("caption").as_string();
+                    cta.second->push_back({pedModelName, pedDisplayName});
+                    g_pedModels.push_back({pedModelName, pedDisplayName});
+                }
+            }
+        }
+    }
 
-	std::vector<std::vector<std::pair<std::string, std::string>>*> vHashLists
-	{
-		{ &g_pedModels },
-		{ &g_pedModels_Player },
-		{ &g_pedModels_Animal },
-		{ &g_pedModels_AmbientFemale },
-		{ &g_pedModels_AmbientMale },
-		{ &g_pedModels_Cutscene },
-		{ &g_pedModels_GangFemale },
-		{ &g_pedModels_GangMale },
-		{ &g_pedModels_Story },
-		{ &g_pedModels_Multiplayer },
-		{ &g_pedModels_ScenarioFemale },
-		{ &g_pedModels_ScenarioMale },
-		{ &g_pedModels_StoryScenarioFemale },
-		{ &g_pedModels_StoryScenarioMale },
-		{ &g_pedModels_Others }
-	};
-	for (auto& hlist : vHashLists)
-	{
-		std::sort(hlist->begin(), hlist->end(), [](const std::pair<std::string, std::string>& a, const std::pair<std::string, std::string>& b) -> bool { return boost::to_lower_copy(a.second) < boost::to_lower_copy(b.second); });
-	}
+    std::vector<std::vector<std::pair<std::string, std::string>>*> vHashLists{
+        {&g_pedModels},
+        {&g_pedModels_Player},
+        {&g_pedModels_Animal},
+        {&g_pedModels_AmbientFemale},
+        {&g_pedModels_AmbientMale},
+        {&g_pedModels_Cutscene},
+        {&g_pedModels_GangFemale},
+        {&g_pedModels_GangMale},
+        {&g_pedModels_Story},
+        {&g_pedModels_Multiplayer},
+        {&g_pedModels_ScenarioFemale},
+        {&g_pedModels_ScenarioMale},
+        {&g_pedModels_StoryScenarioFemale},
+        {&g_pedModels_StoryScenarioMale},
+        {&g_pedModels_Others}
+    };
+    for (auto& hlist : vHashLists)
+    {
+        std::sort(
+            hlist->begin(),
+            hlist->end(),
+            [](const std::pair<std::string, std::string>& a, const std::pair<std::string, std::string>& b) -> bool { return boost::to_lower_copy(a.second) < boost::to_lower_copy(b.second); }
+        );
+    }
 }
 
 std::string getVehicleClassName(VehicleClass vclass)
 {
-	switch (vclass)
-	{
-	case VehicleClass::Openwheel: return "Openwheel";
-	case VehicleClass::Super: return "Super";
-	case VehicleClass::Sport: return "Sport";
-	case VehicleClass::SportsClassic: return "SportsClassic";
-	case VehicleClass::Coupe: return "Coupe";
-	case VehicleClass::Muscle: return "Muscle";
-	case VehicleClass::Offroad: return "Offroad";
-	case VehicleClass::SUV: return "SUV";
-	case VehicleClass::Sedan: return "Sedan";
-	case VehicleClass::Compact: return "Compact";
-	case VehicleClass::Van: return "Van";
-	case VehicleClass::Service: return "Service";
-	case VehicleClass::Train: return "Train";
-	case VehicleClass::Emergency: return "Emergency";
-	case VehicleClass::Motorcycle: return "Motorcycle";
-	case VehicleClass::Cycle: return "Bicycle";
-	case VehicleClass::Plane: return "Plane";
-	case VehicleClass::Helicopter: return "Helicopter";
-	case VehicleClass::Boat: return "Boat";
-	case VehicleClass::Industrial: return "Industrial";
-	case VehicleClass::Commercial: return "Commercial";
-	case VehicleClass::Utility: return "Utility";
-	case VehicleClass::Military: return "Military";
-	default: return "Other";
-	}
+    switch (vclass)
+    {
+    case VehicleClass::Openwheel:
+        return "Openwheel";
+    case VehicleClass::Super:
+        return "Super";
+    case VehicleClass::Sport:
+        return "Sport";
+    case VehicleClass::SportsClassic:
+        return "SportsClassic";
+    case VehicleClass::Coupe:
+        return "Coupe";
+    case VehicleClass::Muscle:
+        return "Muscle";
+    case VehicleClass::Offroad:
+        return "Offroad";
+    case VehicleClass::SUV:
+        return "SUV";
+    case VehicleClass::Sedan:
+        return "Sedan";
+    case VehicleClass::Compact:
+        return "Compact";
+    case VehicleClass::Van:
+        return "Van";
+    case VehicleClass::Service:
+        return "Service";
+    case VehicleClass::Train:
+        return "Train";
+    case VehicleClass::Emergency:
+        return "Emergency";
+    case VehicleClass::Motorcycle:
+        return "Motorcycle";
+    case VehicleClass::Cycle:
+        return "Bicycle";
+    case VehicleClass::Plane:
+        return "Plane";
+    case VehicleClass::Helicopter:
+        return "Helicopter";
+    case VehicleClass::Boat:
+        return "Boat";
+    case VehicleClass::Industrial:
+        return "Industrial";
+    case VehicleClass::Commercial:
+        return "Commercial";
+    case VehicleClass::Utility:
+        return "Utility";
+    case VehicleClass::Military:
+        return "Military";
+    default:
+        return "Other";
+    }
 }
 
 void PopulateVehicleModelsArray()
 {
-	g_vehHashes.clear();
-	g_vehHashes_OPENWHEEL.clear();
-	g_vehHashes_SUPER.clear();
-	g_vehHashes_SPORT.clear();
-	g_vehHashes_SPORTSCLASSIC.clear();
-	g_vehHashes_COUPE.clear();
-	g_vehHashes_MUSCLE.clear();
-	g_vehHashes_OFFROAD.clear();
-	g_vehHashes_SUV.clear();
-	g_vehHashes_SEDAN.clear();
-	g_vehHashes_COMPACT.clear();
-	g_vehHashes_VAN.clear();
-	g_vehHashes_SERVICE.clear();
-	g_vehHashes_TRAIN.clear();
-	g_vehHashes_EMERGENCY.clear();
-	g_vehHashes_MOTORCYCLE.clear();
-	g_vehHashes_BICYCLE.clear();
-	g_vehHashes_PLANE.clear();
-	g_vehHashes_HELICOPTER.clear();
-	g_vehHashes_BOAT.clear();
-	g_vehHashes_INDUSTRIAL.clear();
-	g_vehHashes_COMMERCIAL.clear();
-	g_vehHashes_UTILITY.clear();
-	g_vehHashes_MILITARY.clear();
-	g_vehHashes_OTHER.clear();
-	g_vehHashes_DRIFT.clear();
+    g_vehHashes.clear();
+    g_vehHashes_OPENWHEEL.clear();
+    g_vehHashes_SUPER.clear();
+    g_vehHashes_SPORT.clear();
+    g_vehHashes_SPORTSCLASSIC.clear();
+    g_vehHashes_COUPE.clear();
+    g_vehHashes_MUSCLE.clear();
+    g_vehHashes_OFFROAD.clear();
+    g_vehHashes_SUV.clear();
+    g_vehHashes_SEDAN.clear();
+    g_vehHashes_COMPACT.clear();
+    g_vehHashes_VAN.clear();
+    g_vehHashes_SERVICE.clear();
+    g_vehHashes_TRAIN.clear();
+    g_vehHashes_EMERGENCY.clear();
+    g_vehHashes_MOTORCYCLE.clear();
+    g_vehHashes_BICYCLE.clear();
+    g_vehHashes_PLANE.clear();
+    g_vehHashes_HELICOPTER.clear();
+    g_vehHashes_BOAT.clear();
+    g_vehHashes_INDUSTRIAL.clear();
+    g_vehHashes_COMMERCIAL.clear();
+    g_vehHashes_UTILITY.clear();
+    g_vehHashes_MILITARY.clear();
+    g_vehHashes_OTHER.clear();
+    g_vehHashes_DRIFT.clear();
 
-	addlog(ige::LogType::LOG_TRACE, "Call GenerateVehicleModelList()");
-	GTAmemory::GenerateVehicleModelList();
-	auto& hashes = GTAmemory::VehicleModels();
-	std::unordered_map<VehicleClass, std::vector<Model>*> vDestMap
-	{
-		{ VehicleClass::Openwheel, &g_vehHashes_OPENWHEEL }, { VehicleClass::Super, &g_vehHashes_SUPER },{ VehicleClass::Sport, &g_vehHashes_SPORT },{ VehicleClass::SportsClassic, &g_vehHashes_SPORTSCLASSIC },
-		{ VehicleClass::Coupe, &g_vehHashes_COUPE },{ VehicleClass::Muscle, &g_vehHashes_MUSCLE },{ VehicleClass::Offroad, &g_vehHashes_OFFROAD },{ VehicleClass::SUV, &g_vehHashes_SUV },
-		{ VehicleClass::Sedan, &g_vehHashes_SEDAN },{ VehicleClass::Compact, &g_vehHashes_COMPACT },
-		{ VehicleClass::Van, &g_vehHashes_VAN },{ VehicleClass::Service, &g_vehHashes_SERVICE },{ VehicleClass::Industrial, &g_vehHashes_INDUSTRIAL },
-		{ VehicleClass::Military, &g_vehHashes_MILITARY },{ VehicleClass::Commercial, &g_vehHashes_COMMERCIAL },{ VehicleClass::Utility, &g_vehHashes_UTILITY },
-		{ VehicleClass::Train, &g_vehHashes_TRAIN },{ VehicleClass::Emergency, &g_vehHashes_EMERGENCY },{ VehicleClass::Motorcycle, &g_vehHashes_MOTORCYCLE },
-		{ VehicleClass::Cycle, &g_vehHashes_BICYCLE },{ VehicleClass::Plane, &g_vehHashes_PLANE },{ VehicleClass::Helicopter, &g_vehHashes_HELICOPTER },{ VehicleClass::Boat, &g_vehHashes_BOAT }
-	};
-	
-	const bool isMinGameVersion3095 = GTAmemory::GetGameVersion() >= eGameVersion::VER_1_0_3095_0;
-	for (int d = 0x0; d < 0x20; d++)
-	{
-		for (auto& dd : hashes[d])
-		{
-			addlog(ige::LogType::LOG_TRACE, "Read vehicle model: " + std::to_string(Model(dd).hash) + " - " + Model(dd).VehicleModelName());
-			if (std::find(g_vehHashes.begin(), g_vehHashes.end(), Model(dd)) == g_vehHashes.end())
-			{
-				if (g_isEnhanced || !isMinGameVersion3095 || !IS_VEHICLE_GEN9_EXCLUSIVE_MODEL(dd))
-				{
-					if (Model(dd).VehicleModelName().starts_with("drift"))
-					{
-						addlog(ige::LogType::LOG_TRACE, "  - Add to Vehicle Class Drift");
-						g_vehHashes_DRIFT.push_back(dd);
-					}
-					else
-					{
-						if (g_loglevel == 4)
-						{
-							std::string vclassName = getVehicleClassName(VehicleClass(d));
-							addlog(ige::LogType::LOG_TRACE, "  - Add to Vehicle Class " + vclassName);
-						}
-						auto dit = vDestMap.find(VehicleClass(d));
-						if (dit != vDestMap.end())
-							dit->second->push_back(dd);
-						else
-						{
-							g_vehHashes_OTHER.push_back(dd);
-						}
-					}
-					g_vehHashes.push_back(dd);
-				}
-			}
-		}
-	}
+    addlog(ige::LogType::LOG_TRACE, "Call GenerateVehicleModelList()");
+    GTAmemory::GenerateVehicleModelList();
+    auto& hashes = GTAmemory::VehicleModels();
+    std::unordered_map<VehicleClass, std::vector<Model>*> vDestMap{
+        {VehicleClass::Openwheel, &g_vehHashes_OPENWHEEL},
+        {VehicleClass::Super, &g_vehHashes_SUPER},
+        {VehicleClass::Sport, &g_vehHashes_SPORT},
+        {VehicleClass::SportsClassic, &g_vehHashes_SPORTSCLASSIC},
+        {VehicleClass::Coupe, &g_vehHashes_COUPE},
+        {VehicleClass::Muscle, &g_vehHashes_MUSCLE},
+        {VehicleClass::Offroad, &g_vehHashes_OFFROAD},
+        {VehicleClass::SUV, &g_vehHashes_SUV},
+        {VehicleClass::Sedan, &g_vehHashes_SEDAN},
+        {VehicleClass::Compact, &g_vehHashes_COMPACT},
+        {VehicleClass::Van, &g_vehHashes_VAN},
+        {VehicleClass::Service, &g_vehHashes_SERVICE},
+        {VehicleClass::Industrial, &g_vehHashes_INDUSTRIAL},
+        {VehicleClass::Military, &g_vehHashes_MILITARY},
+        {VehicleClass::Commercial, &g_vehHashes_COMMERCIAL},
+        {VehicleClass::Utility, &g_vehHashes_UTILITY},
+        {VehicleClass::Train, &g_vehHashes_TRAIN},
+        {VehicleClass::Emergency, &g_vehHashes_EMERGENCY},
+        {VehicleClass::Motorcycle, &g_vehHashes_MOTORCYCLE},
+        {VehicleClass::Cycle, &g_vehHashes_BICYCLE},
+        {VehicleClass::Plane, &g_vehHashes_PLANE},
+        {VehicleClass::Helicopter, &g_vehHashes_HELICOPTER},
+        {VehicleClass::Boat, &g_vehHashes_BOAT}
+    };
 
-	std::vector<std::vector<Model>*> vHashLists
-	{
-		{ &g_vehHashes },
-		{ &g_vehHashes_OPENWHEEL },
-		{ &g_vehHashes_SUPER },
-		{ &g_vehHashes_SPORT },
-		{ &g_vehHashes_SPORTSCLASSIC },
-		{ &g_vehHashes_COUPE },
-		{ &g_vehHashes_MUSCLE },
-		{ &g_vehHashes_OFFROAD },
-		{ &g_vehHashes_SUV },
-		{ &g_vehHashes_SEDAN },
-		{ &g_vehHashes_COMPACT },
-		{ &g_vehHashes_VAN },
-		{ &g_vehHashes_SERVICE },
-		{ &g_vehHashes_TRAIN },
-		{ &g_vehHashes_EMERGENCY },
-		{ &g_vehHashes_MOTORCYCLE },
-		{ &g_vehHashes_BICYCLE },
-		{ &g_vehHashes_PLANE },
-		{ &g_vehHashes_HELICOPTER },
-		{ &g_vehHashes_BOAT },
-		{ &g_vehHashes_INDUSTRIAL },
-		{ &g_vehHashes_COMMERCIAL },
-		{ &g_vehHashes_UTILITY },
-		{ &g_vehHashes_MILITARY },
-		{ &g_vehHashes_OTHER },
-		{ &g_vehHashes_DRIFT },
-	};
-	for (auto& hlist : vHashLists)
-	{
-		std::sort(hlist->begin(), hlist->end(), [](const Model& a, const Model& b) -> bool { return boost::to_lower_copy(a.VehicleDisplayName(true)) < boost::to_lower_copy(b.VehicleDisplayName(true)); });
-	}
+    const bool isMinGameVersion3095 = GTAmemory::GetGameVersion() >= eGameVersion::VER_1_0_3095_0;
+    for (int d = 0x0; d < 0x20; d++)
+    {
+        for (auto& dd : hashes[d])
+        {
+            addlog(ige::LogType::LOG_TRACE, "Read vehicle model: " + std::to_string(Model(dd).hash) + " - " + Model(dd).VehicleModelName());
+            if (std::find(g_vehHashes.begin(), g_vehHashes.end(), Model(dd)) == g_vehHashes.end())
+            {
+                if (g_isEnhanced || !isMinGameVersion3095 || !IS_VEHICLE_GEN9_EXCLUSIVE_MODEL(dd))
+                {
+                    if (Model(dd).VehicleModelName().starts_with("drift"))
+                    {
+                        addlog(ige::LogType::LOG_TRACE, "  - Add to Vehicle Class Drift");
+                        g_vehHashes_DRIFT.push_back(dd);
+                    }
+                    else
+                    {
+                        if (g_loglevel == 4)
+                        {
+                            std::string vclassName = getVehicleClassName(VehicleClass(d));
+                            addlog(ige::LogType::LOG_TRACE, "  - Add to Vehicle Class " + vclassName);
+                        }
+                        auto dit = vDestMap.find(VehicleClass(d));
+                        if (dit != vDestMap.end())
+                            dit->second->push_back(dd);
+                        else
+                        {
+                            g_vehHashes_OTHER.push_back(dd);
+                        }
+                    }
+                    g_vehHashes.push_back(dd);
+                }
+            }
+        }
+    }
+
+    std::vector<std::vector<Model>*> vHashLists{
+        {&g_vehHashes},
+        {&g_vehHashes_OPENWHEEL},
+        {&g_vehHashes_SUPER},
+        {&g_vehHashes_SPORT},
+        {&g_vehHashes_SPORTSCLASSIC},
+        {&g_vehHashes_COUPE},
+        {&g_vehHashes_MUSCLE},
+        {&g_vehHashes_OFFROAD},
+        {&g_vehHashes_SUV},
+        {&g_vehHashes_SEDAN},
+        {&g_vehHashes_COMPACT},
+        {&g_vehHashes_VAN},
+        {&g_vehHashes_SERVICE},
+        {&g_vehHashes_TRAIN},
+        {&g_vehHashes_EMERGENCY},
+        {&g_vehHashes_MOTORCYCLE},
+        {&g_vehHashes_BICYCLE},
+        {&g_vehHashes_PLANE},
+        {&g_vehHashes_HELICOPTER},
+        {&g_vehHashes_BOAT},
+        {&g_vehHashes_INDUSTRIAL},
+        {&g_vehHashes_COMMERCIAL},
+        {&g_vehHashes_UTILITY},
+        {&g_vehHashes_MILITARY},
+        {&g_vehHashes_OTHER},
+        {&g_vehHashes_DRIFT},
+    };
+    for (auto& hlist : vHashLists)
+    {
+        std::sort(
+            hlist->begin(), hlist->end(), [](const Model& a, const Model& b) -> bool { return boost::to_lower_copy(a.VehicleDisplayName(true)) < boost::to_lower_copy(b.VehicleDisplayName(true)); }
+        );
+    }
 }
+
 void PopulateObjectModelsArray()
 {
-	std::ifstream fin((GetPathffW(Pathff::Main, true) + (L"PropList.txt")).c_str());
+    std::ifstream fin((GetPathffW(Pathff::Main, true) + (L"PropList.txt")).c_str());
 
-	//objectModels.resize(std::count(std::istreambuf_iterator<char>(fin), std::istreambuf_iterator<char>(), '\n') + 1);
-	objectModels.clear();
+    //objectModels.resize(std::count(std::istreambuf_iterator<char>(fin), std::istreambuf_iterator<char>(), '\n') + 1);
+    objectModels.clear();
 
-	UINT i = 0;
-	for (std::string line; std::getline(fin, line);)
-	{
-		if (line.length() > 2)
-		{
-			//objectModels[i] = line;
-			objectModels.push_back(line);
-			i++;
-		}
-	}
-	//objectModels.resize(i);
+    UINT i = 0;
+    for (std::string line; std::getline(fin, line);)
+    {
+        if (line.length() > 2)
+        {
+            //objectModels[i] = line;
+            objectModels.push_back(line);
+            i++;
+        }
+    }
+    //objectModels.resize(i);
 
-	std::sort(objectModels.begin(), objectModels.end());
+    std::sort(objectModels.begin(), objectModels.end());
 
-	fin.close();
+    fin.close();
 }
+
 void PopulateGlobalEntityModelsArrays()
 {
-	addlog(ige::LogType::LOG_TRACE, "Call PopulatePedModelsArray()");
-	PopulatePedModelsArray();
-	addlog(ige::LogType::LOG_TRACE, "Call PopulateVehicleModelsArray()");
-	PopulateVehicleModelsArray();
-	addlog(ige::LogType::LOG_TRACE, "Call PopulateObjectModelsArray()");
-	PopulateObjectModelsArray();
-	addlog(ige::LogType::LOG_TRACE, "Exit PopulateGlobalEntityModelsArrays()");
+    addlog(ige::LogType::LOG_TRACE, "Call PopulatePedModelsArray()");
+    PopulatePedModelsArray();
+    addlog(ige::LogType::LOG_TRACE, "Call PopulateVehicleModelsArray()");
+    PopulateVehicleModelsArray();
+    addlog(ige::LogType::LOG_TRACE, "Call PopulateObjectModelsArray()");
+    PopulateObjectModelsArray();
+    addlog(ige::LogType::LOG_TRACE, "Exit PopulateGlobalEntityModelsArrays()");
 }
 
 // Model - labels
 std::string GetPedModelLabel(const GTAmodel::Model& model, bool properName)
 {
-	for (UINT i = 0; i < g_pedModels.size(); i++)
-	{
-		if (GET_HASH_KEY(g_pedModels[i].first) == model.hash)
-		{
-			return properName ? g_pedModels[i].second : g_pedModels[i].first;
-		}
-	}
-	return std::string();
+    for (UINT i = 0; i < g_pedModels.size(); i++)
+    {
+        if (GET_HASH_KEY(g_pedModels[i].first) == model.hash)
+        {
+            return properName ? g_pedModels[i].second : g_pedModels[i].first;
+        }
+    }
+    return std::string();
 }
+
 std::string get_vehicle_model_label(const GTAmodel::Model& model, bool properName)
 {
-	return model.VehicleDisplayName(properName);
+    return model.VehicleDisplayName(properName);
 }
+
 std::string get_prop_model_label(const GTAmodel::Model& model)
 {
-	for (UINT i = 0; i < objectModels.size(); i++)
-	{
-		if (GET_HASH_KEY(objectModels[i]) == model.hash)
-		{
-			return objectModels[i];
-		}
-	}
-	return std::string();
+    for (UINT i = 0; i < objectModels.size(); i++)
+    {
+        if (GET_HASH_KEY(objectModels[i]) == model.hash)
+        {
+            return objectModels[i];
+        }
+    }
+    return std::string();
 }
-
-
-

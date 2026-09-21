@@ -16,16 +16,13 @@ typedef char *PCHAR;
 
 namespace sub::TeleportLocations_catind
 {
-	namespace Yachts
-	{
+namespace Yachts
+{
 
-		void Sub_Yachts();
-		void Sub_Yachts_InGrp();
+void Sub_Yachts();
+void Sub_Yachts_InGrp();
 
-		void Tick();
+void Tick();
 
-	}
-}
-
-
-
+} // namespace Yachts
+} // namespace sub::TeleportLocations_catind

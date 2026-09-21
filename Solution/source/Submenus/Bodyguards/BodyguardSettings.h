@@ -5,8 +5,8 @@
 
 namespace sub::BodyguardMenu
 {
-    void BodyguardList();
-    void BodyguardOps_();
+void BodyguardList();
+void BodyguardOps_();
 
-    extern BodyguardEntity* SelectedBodyguard;
-}
+extern BodyguardEntity* SelectedBodyguard;
+} // namespace sub::BodyguardMenu

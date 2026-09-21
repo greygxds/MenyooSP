@@ -13,30 +13,24 @@
 
 namespace SmashAbility
 {
-	class SmashAbility final : public GenericLoopedMode
-	{
-	private:
+class SmashAbility final : public GenericLoopedMode
+{
+  private:
+  public:
+    void TurnOn() override;
 
-	public:
-		void TurnOn() override;
+    void Tick() override;
 
-		void Tick() override;
+    void DoLevitate();
+    void DoSmash();
 
-		void DoLevitate();
-		void DoSmash();
+    bool IsLevitatePressed();
+    bool IsLevitateReleased();
 
-		bool IsLevitatePressed();
-		bool IsLevitateReleased();
+    void PrintSmashInstructions();
+};
 
-		void PrintSmashInstructions();
+extern SmashAbility g_smashAbility;
 
-	};
-
-
-	extern SmashAbility g_smashAbility;
-
-	void ToggleOnOff();
-}
-
-
-
+void ToggleOnOff();
+} // namespace SmashAbility

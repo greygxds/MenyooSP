@@ -21,86 +21,105 @@ typedef unsigned short UINT16;
 
 namespace sub::Spooner
 {
-	class SpoonerEntity;
+class SpoonerEntity;
 
-	namespace SpoonerMode
-	{
-		extern BYTE bindsKeyboard;
-		extern std::pair<UINT16, UINT16> bindsGamepad;
+namespace SpoonerMode
+{
+extern BYTE bindsKeyboard;
+extern std::pair<UINT16, UINT16> bindsGamepad;
 
-		extern bool bEnabled;
+extern bool bEnabled;
 
-		enum class eEditMode : UINT8 { Disabled, Keyboard, Gizmo };
-		enum class eTransformMode : UINT8 { Position, Rotation, Scale };
+enum class eEditMode : UINT8
+{
+    Disabled,
+    Keyboard,
+    Gizmo
+};
+enum class eTransformMode : UINT8
+{
+    Position,
+    Rotation,
+    Scale
+};
 
-		struct EditingState {
-			eEditMode mode = eEditMode::Disabled;
-			eTransformMode transformMode = eTransformMode::Position;
-			bool localSpace = false;
-			bool cameraLocked = false;
-			float precisionPos = 0.1f;
-			float precisionRot = 1.0f;
-			float precisionScale = 0.1f;
+struct EditingState
+{
+    eEditMode mode = eEditMode::Disabled;
+    eTransformMode transformMode = eTransformMode::Position;
+    bool localSpace = false;
+    bool cameraLocked = false;
+    float precisionPos = 0.1f;
+    float precisionRot = 1.0f;
+    float precisionScale = 0.1f;
 
-			void SetMode(eEditMode newMode)
-			{
-				if (mode == newMode) return;
-				mode = newMode;
-				cameraLocked = false;
-			}
-			bool BlocksCameraTranslation() const
-			{
-				return mode == eEditMode::Keyboard || (mode == eEditMode::Gizmo && cameraLocked);
-			}
-			bool BlocksCameraRotation() const
-			{
-				return mode == eEditMode::Gizmo && cameraLocked;
-			}
-			bool UsesGizmoCursor() const
-			{
-				return mode == eEditMode::Gizmo && cameraLocked;
-			}
-		};
-		extern EditingState editingState;
+    void SetMode(eEditMode newMode)
+    {
+        if (mode == newMode)
+            return;
+        mode = newMode;
+        cameraLocked = false;
+    }
 
-		void ProcessKeyboardManipulation(Vector3& position, Vector3& rotation);
-		void DrawEditingHUD();
-		void UpdateEntityEditingState(Vector3& position, Vector3& rotation);
-		struct SpoonerStats {
-			int totalNumEntities;
-			int totalNumProps;
-			int totalNumPeds;
-			int totalNumVehicles;
-		};
-		SpoonerStats GetSpoonerStats();
+    bool BlocksCameraTranslation() const
+    {
+        return mode == eEditMode::Keyboard || (mode == eEditMode::Gizmo && cameraLocked);
+    }
 
-		struct ModelPreviewInfoStructure
-		{
-			EntityType entityType;
-			Model previousModel,
-				model;
-			GTAentity entity;
-			std::set<GTAentity> previousEntities;
-		};
-		extern ModelPreviewInfoStructure modelPreviewInfo;
-		extern float previewYawOffset;
-		void SpawnModelPreview();
+    bool BlocksCameraRotation() const
+    {
+        return mode == eEditMode::Gizmo && cameraLocked;
+    }
 
-		void ResetSelectedEntity();
-		void OpenMenu(int submenu, int selectedOption = 1);
-		bool GetEntityPtr(GTAentity& inEntity, SpoonerEntity*& outEntity);
-		SpoonerEntity GetEntityPtrValue(GTAentity& entity);
-		void SetAsSelectedEntity(GTAentity& entity);
-		Vector3 SnapPos(Vector3 pos);
-		Vector3 SnapRot(Vector3 rot);
-		float GetGroundOffset(const GTAmodel::ModelDimensions& dimensions, const Vector3& rotation);
-		void DrawSnappingGrid();
+    bool UsesGizmoCursor() const
+    {
+        return mode == eEditMode::Gizmo && cameraLocked;
+    }
+};
 
-		void Tick();
+extern EditingState editingState;
 
-		void TurnOn();
-		void TurnOff();
-		void Toggle();
-	}
+void ProcessKeyboardManipulation(Vector3& position, Vector3& rotation);
+void DrawEditingHUD();
+void UpdateEntityEditingState(Vector3& position, Vector3& rotation);
 
-}
+struct SpoonerStats
+{
+    int totalNumEntities;
+    int totalNumProps;
+    int totalNumPeds;
+    int totalNumVehicles;
+};
+
+SpoonerStats GetSpoonerStats();
+
+struct ModelPreviewInfoStructure
+{
+    EntityType entityType;
+    Model previousModel, model;
+    GTAentity entity;
+    std::set<GTAentity> previousEntities;
+};
+
+extern ModelPreviewInfoStructure modelPreviewInfo;
+extern float previewYawOffset;
+void SpawnModelPreview();
+
+void ResetSelectedEntity();
+void OpenMenu(int submenu, int selectedOption = 1);
+bool GetEntityPtr(GTAentity& inEntity, SpoonerEntity*& outEntity);
+SpoonerEntity GetEntityPtrValue(GTAentity& entity);
+void SetAsSelectedEntity(GTAentity& entity);
+Vector3 SnapPos(Vector3 pos);
+Vector3 SnapRot(Vector3 rot);
+float GetGroundOffset(const GTAmodel::ModelDimensions& dimensions, const Vector3& rotation);
+void DrawSnappingGrid();
+
+void Tick();
+
+void TurnOn();
+void TurnOff();
+void Toggle();
+} // namespace SpoonerMode
+
+} // namespace sub::Spooner

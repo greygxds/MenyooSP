@@ -14,15 +14,12 @@ typedef char *PCHAR;
 
 namespace sub::TeleportLocations_catind
 {
-	namespace IeVehicleWarehouses
-	{
+namespace IeVehicleWarehouses
+{
 
-		void Sub_IeVehicleWarehouses();
-		void Sub_IeVehicleWarehouses_InLoc();
+void Sub_IeVehicleWarehouses();
+void Sub_IeVehicleWarehouses_InLoc();
 
-	}
+} // namespace IeVehicleWarehouses
 
-}
-
-
-
+} // namespace sub::TeleportLocations_catind

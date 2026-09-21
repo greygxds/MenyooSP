@@ -20,21 +20,15 @@ class GTAplayer;
 
 namespace FlameThrower
 {
-	extern Hash _whash;
-	
-	bool IsPlayerAdded(GTAplayer player);
-	void RemovePlayer(GTAplayer player);
-	void AddPlayer(GTAplayer player);
+extern Hash _whash;
 
-	void RemoveSelf();
-	void AddSelf();
+bool IsPlayerAdded(GTAplayer player);
+void RemovePlayer(GTAplayer player);
+void AddPlayer(GTAplayer player);
 
-	void Tick();
+void RemoveSelf();
+void AddSelf();
 
-}
+void Tick();
 
-
-
-
-
-
+} // namespace FlameThrower

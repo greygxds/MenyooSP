@@ -27,46 +27,50 @@
 class Vector3;
 class Vector2;
 
-struct Scaleform_IbT { int button; std::string text; bool isKey; };
-class Scaleform final
+struct Scaleform_IbT
 {
-public:
-
-	Scaleform();
-	Scaleform(const Scaleform& obj);
-	Scaleform(int handle);
-
-	int& Handle();
-
-	int GetHandle() const noexcept;
-
-	bool HasLoaded() const;
-
-	bool Load(const std::string& scaleformID);
-	
-	void Unload();
-
-	void PushFunction(const std::string& function);
-	void PushInteger(int arg);
-	void PushBoolean(bool arg);
-	void PushFloat(float arg);
-	void PushString(const std::string& arg);
-	void PushString2(const std::string& arg);
-	void PushTextComponent(const std::string& arg);
-	void PushRGBA(const RGBA& arg);
-	void PushRGB(const RgbS& arg);
-	void PushVector2(const Vector2& arg);
-	void PushVector3(const Vector3& arg);
-	
-	void PopFunction();
-
-
-	void Render2D(RGBA colour = { 255, 255, 255, 255 });
-	void Render2DScreenSpace(const Vector2& location, const Vector2& size, RGBA colour = { 255, 255, 255, 255 });
-	void Render3D(const Vector3& position, const Vector3& rotation, const Vector3& unk, const Vector3& scale);
-	void Render3DAdditive(const Vector3& position, const Vector3& rotation, const Vector3& unk, const Vector3& scale);
-
-private:
-	int mHandle;
+    int button;
+    std::string text;
+    bool isKey;
 };
 
+class Scaleform final
+{
+  public:
+    Scaleform();
+    Scaleform(const Scaleform& obj);
+    Scaleform(int handle);
+
+    int& Handle();
+
+    int GetHandle() const noexcept;
+
+    bool HasLoaded() const;
+
+    bool Load(const std::string& scaleformID);
+
+    void Unload();
+
+    void PushFunction(const std::string& function);
+    void PushInteger(int arg);
+    void PushBoolean(bool arg);
+    void PushFloat(float arg);
+    void PushString(const std::string& arg);
+    void PushString2(const std::string& arg);
+    void PushTextComponent(const std::string& arg);
+    void PushRGBA(const RGBA& arg);
+    void PushRGB(const RgbS& arg);
+    void PushVector2(const Vector2& arg);
+    void PushVector3(const Vector3& arg);
+
+    void PopFunction();
+
+
+    void Render2D(RGBA colour = {255, 255, 255, 255});
+    void Render2DScreenSpace(const Vector2& location, const Vector2& size, RGBA colour = {255, 255, 255, 255});
+    void Render3D(const Vector3& position, const Vector3& rotation, const Vector3& unk, const Vector3& scale);
+    void Render3DAdditive(const Vector3& position, const Vector3& rotation, const Vector3& unk, const Vector3& scale);
+
+  private:
+    int mHandle;
+};

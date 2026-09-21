@@ -17,37 +17,35 @@
 
 typedef unsigned long DWORD;
 
-namespace GTAmodel {
-	class Model;
+namespace GTAmodel
+{
+class Model;
 }
 class GTAprop;
 
 namespace MeteorShower
 {
-	class MeteorShower final : public GenericLoopedMode
-	{
-	private:
-		DWORD timer1;
-		DWORD timer2;
-		std::vector<GTAprop> rockArray;
-		std::vector<GTAmodel::Model> rockModels;
-		static const std::vector<std::string> rockModelNames;
-		static Game::Sound::GameSound crateLandSound;
-	public:
-		MeteorShower();
+class MeteorShower final : public GenericLoopedMode
+{
+  private:
+    DWORD timer1;
+    DWORD timer2;
+    std::vector<GTAprop> rockArray;
+    std::vector<GTAmodel::Model> rockModels;
+    static const std::vector<std::string> rockModelNames;
+    static Game::Sound::GameSound crateLandSound;
 
-		void TurnOn() override;
-		void TurnOff() override;
+  public:
+    MeteorShower();
 
-		void Tick() override;
-		inline void DoMeteorShowerTick();
+    void TurnOn() override;
+    void TurnOff() override;
 
-	};
-	
-	
-	extern MeteorShower g_meteorShower;
+    void Tick() override;
+    inline void DoMeteorShowerTick();
+};
 
-	void ToggleOnOff();
-}
+extern MeteorShower g_meteorShower;
 
-
+void ToggleOnOff();
+} // namespace MeteorShower

@@ -37,26 +37,23 @@ typedef unsigned short UINT16;
 
 namespace sub
 {
-	void PlayerOptionsMenu();
-	
-	namespace PedConfigFlagManager
-	{
-		struct NamedPedFlagS 
-		{ 
-			UINT16 id; 
-			std::string title; 
-		};
-		extern std::vector<NamedPedFlagS> pedFlags;
+void PlayerOptionsMenu();
 
-		void FlagListMenu();
-		extern int flagID;
-		void CustomFlagSetterMenu();
-	}
+namespace PedConfigFlagManager
+{
+struct NamedPedFlagS
+{
+    UINT16 id;
+    std::string title;
+};
 
-	void CloneCompanionMenu();
+extern std::vector<NamedPedFlagS> pedFlags;
 
-}
+void FlagListMenu();
+extern int flagID;
+void CustomFlagSetterMenu();
+} // namespace PedConfigFlagManager
 
+void CloneCompanionMenu();
 
-
-
+} // namespace sub

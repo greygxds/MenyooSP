@@ -10,78 +10,77 @@
 
 namespace sub::BodyguardMenu
 {
-    // Currently selected bodyguard in the menu
-    BodyguardEntity* SelectedBodyguard = nullptr;
+// Currently selected bodyguard in the menu
+BodyguardEntity* SelectedBodyguard = nullptr;
 
-    void BodyguardList()
+void BodyguardList()
+{
+    AddTitle("Bodyguard List");
+
+    if (BodyguardDb.empty())
     {
-        AddTitle("Bodyguard List");
+        AddOption("No bodyguards spawned");
+        return;
+    }
 
-        if (BodyguardDb.empty())
+    BodyguardEntity* pBodyguardToDelete = nullptr;
+
+    for (UINT i = 0; i < BodyguardDb.size(); i++)
+    {
+        auto& bg = BodyguardDb[i];
+
+        if (!bg.Handle.Exists())
+            continue;
+
+        bool bPressed = false;
+
+        std::string label = !bg.Name.empty() ? bg.Name : bg.hashName;
+
+        AddOption(label, bPressed, nullFunc, SUB::BODYGUARD_ENTITYOPS);
+
+        if (bPressed)
         {
-            AddOption("No bodyguards spawned");
-            return;
+            SelectedBodyguard = &bg;
         }
 
-        BodyguardEntity* pBodyguardToDelete = nullptr;
-
-        for (UINT i = 0; i < BodyguardDb.size(); i++)
+        if (Menu::IsLastDrawnOptionSelected())
         {
-            auto& bg = BodyguardDb[i];
+            if (bg.Handle.Exists())
+                ENTITY::SET_ENTITY_HAS_GRAVITY(bg.Handle.GetHandle(), true);
+            sub::BodyguardMenu::BodyguardManagement::ShowArrowAboveEntity(bg.Handle);
 
-            if (!bg.Handle.Exists())
-                continue;
-
-            bool bPressed = false;
-
-            std::string label = !bg.Name.empty() ? bg.Name : bg.hashName;
-
-            AddOption(label, bPressed, nullFunc, SUB::BODYGUARD_ENTITYOPS);
-
-            if (bPressed)
+            bool bDeletePressed = false;
+            if (Menu::usingControllerInput)
             {
-                SelectedBodyguard = &bg;
+                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Bodyguard");
+                bDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
+            }
+            else
+            {
+                Menu::add_IB(VirtualKey::B, "Delete Bodyguard");
+                bDeletePressed = IsKeyJustUp(VirtualKey::B);
             }
 
-            if (Menu::IsLastDrawnOptionSelected())
+            if (bDeletePressed)
             {
-                if (bg.Handle.Exists())
-                    ENTITY::SET_ENTITY_HAS_GRAVITY(bg.Handle.GetHandle(), true);
-                sub::BodyguardMenu::BodyguardManagement::ShowArrowAboveEntity(bg.Handle);
-
-                bool bDeletePressed = false;
-                if (Menu::usingControllerInput)
-                {
-                    Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Bodyguard");
-                    bDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-                }
-                else
-                {
-                    Menu::add_IB(VirtualKey::B, "Delete Bodyguard");
-                    bDeletePressed = IsKeyJustUp(VirtualKey::B);
-                }
-
-                if (bDeletePressed)
-                {
-                    pBodyguardToDelete = &bg;
-                }
+                pBodyguardToDelete = &bg;
             }
-        }
-
-        if (pBodyguardToDelete)
-        {
-            sub::BodyguardMenu::BodyguardManagement::DeleteBodyguard(*pBodyguardToDelete);
         }
     }
 
-    void BodyguardOps_()
+    if (pBodyguardToDelete)
     {
-        AddTitle("Bodyguard Settings");
+        sub::BodyguardMenu::BodyguardManagement::DeleteBodyguard(*pBodyguardToDelete);
     }
 }
 
+void BodyguardOps_()
+{
+    AddTitle("Bodyguard Settings");
+}
+} // namespace sub::BodyguardMenu
 
 #include "..\..\Menu\submenu_switch.h"
 #include "..\..\Menu\submenu_enum.h"
-REGISTER_SUBMENU(BODYGUARD_LIST,        sub::BodyguardMenu::BodyguardList)
-REGISTER_SUBMENU(BODYGUARD_SETTINGS,    sub::BodyguardMenu::BodyguardOps_)
+REGISTER_SUBMENU(BODYGUARD_LIST, sub::BodyguardMenu::BodyguardList)
+REGISTER_SUBMENU(BODYGUARD_SETTINGS, sub::BodyguardMenu::BodyguardOps_)

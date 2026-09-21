@@ -12,709 +12,711 @@
 
 namespace sub
 {
-	void PlayerOptionsMenu()
-	{
-		dict2.clear();
+void PlayerOptionsMenu()
+{
+    dict2.clear();
 
-		bool goToAlphaLevel = false;
-		bool replenishPlayer = false;
-		bool maxAllStats = false;
-		bool invincibilityOff = false;
-		bool invisibilityOff = false;
-		bool noRagdollOff = false;
-		bool seatbeltOff = false;
-		bool supermanOn = false;
-		bool supermanAutoOn = false;
-		bool ignoredByEveryoneOff = false;
-		bool neverWantedOn = false;
-		bool neverWantedOff = false;
-		bool wantedPlus = false;
-		bool wantedMinus = false;
-		bool wantedFreezeOn = false;
-		bool wantedFreezeOff = false;
-		bool burnModeOn = false;
-		bool burnModeOff = false;
-		bool movementSpeedModifierPlus = false;
-		bool movementSpeedModifierMinus = false;
-		bool sweatPlus = false;
-		bool sweatMinus = false;
-		bool noiseValuePlus = false;
-		bool noiseValueMinus = false;
-		bool collisionOn = false;
-		bool collisionOff = false;
-		bool forceFieldPlus = false;
-		bool forceFieldMinus = false;
-		bool heightPlus = false;
-		bool heightMinus = false;
-		bool movementSpeedPlus = false;
-		bool movementSpeedMinus = false;
-		bool swimSpeedPlus = false;
-		bool swimSpeedMinus = false;
+    bool goToAlphaLevel = false;
+    bool replenishPlayer = false;
+    bool maxAllStats = false;
+    bool invincibilityOff = false;
+    bool invisibilityOff = false;
+    bool noRagdollOff = false;
+    bool seatbeltOff = false;
+    bool supermanOn = false;
+    bool supermanAutoOn = false;
+    bool ignoredByEveryoneOff = false;
+    bool neverWantedOn = false;
+    bool neverWantedOff = false;
+    bool wantedPlus = false;
+    bool wantedMinus = false;
+    bool wantedFreezeOn = false;
+    bool wantedFreezeOff = false;
+    bool burnModeOn = false;
+    bool burnModeOff = false;
+    bool movementSpeedModifierPlus = false;
+    bool movementSpeedModifierMinus = false;
+    bool sweatPlus = false;
+    bool sweatMinus = false;
+    bool noiseValuePlus = false;
+    bool noiseValueMinus = false;
+    bool collisionOn = false;
+    bool collisionOff = false;
+    bool forceFieldPlus = false;
+    bool forceFieldMinus = false;
+    bool heightPlus = false;
+    bool heightMinus = false;
+    bool movementSpeedPlus = false;
+    bool movementSpeedMinus = false;
+    bool swimSpeedPlus = false;
+    bool swimSpeedMinus = false;
 
-		std::vector<std::string> forceFieldNames{ "Off", "Push Out", "Destroy" };
-
-
-		float& height = g_playerVerticalElongationMultiplier;
-		float movementSpeed = 0.0f, swimSpeed = 0.0f;
-
-		bool butAmIOnline = NETWORK_IS_IN_SESSION() != 0;
-
-		g_activePedHandle = PLAYER_PED_ID();
-		g_activePlayerId = PLAYER_ID();
-
-		GTAped myPed = g_activePedHandle;
-		GTAplayer myPlayer = g_activePlayerId;
-
-		int wantedLevel = myPlayer.GetWantedLevel();
-
-		AddTitle("Player Options");
-		AddOption("Basic Stats", null, nullFunc, SUB::SPSTATMANAGER);
-		AddOption("Model Changer", null, nullFunc, SUB::MODELCHANGER);
-
-		AddOption("Wardrobe", null, nullFunc, SUB::COMPONENTS);
-		
-		AddOption("Animations", null, nullFunc, SUB::ANIMATIONSUB);
-		AddOption("Scenario Actions", null, nullFunc, SUB::AnimationTaskScenarios);
-		AddOption("Moods", null, nullFunc, SUB::FACIALMOOD);
-		AddOption("Movement Styles", null, nullFunc, SUB::MOVEMENTGROUP);
-		AddOption("Speech Player", null, nullFunc, SUB::SPEECHPLAYER);
-		AddOption("Voice Changer", null, nullFunc, SUB::VOICECHANGER);
-		AddOption("Ped Flags", null, nullFunc, SUB::PEDFLAGMANAGER_NAMEDLIST);
-		AddOptionDescription("Turn individual game ped config flags on or off.");
-		AddOption("TriggerFX", null, nullFunc, SUB::PTFXSUB);
-		AddOption("Breathe Stuff", null, nullFunc, SUB::BREATHESTUFF);
-		AddOptionDescription("Breathe particle effects out of your mouth. Hold J (LS) to use.");
-		AddOption("Ghost Rider Mode", null, nullFunc, SUB::GHOSTRIDERMODE);
-
-		AddOption("Opacity (Local)", goToAlphaLevel, nullFunc, SUB::ENTITYALPHALEVEL);
-		AddOptionDescription("Your transparency. Only visible to you.");
-		if (goToAlphaLevel)
-		{
-			Spooner::Submenus::SetPlayerAsEntityAlphaTarget();
-		}
-
-		AddOption("Cloning Options", null, nullFunc, SUB::CLONECOMPANIONSUB);
-
-		AddOption("Replenish Player", replenishPlayer);
-		AddOptionDescription("Restores full health and armour.");
-		AddOption("Max All Stats (SP)", maxAllStats);
-		AddOptionDescription("Maxes all skill stats for the current story character.");
-		AddToggle("Refill Health When In Cover", selfRefillHealthInCover);
-		AddOptionDescription("Slowly regains health while in cover and not aiming.");
-		AddToggle("Invincibility", playerInvincibility, null, invincibilityOff);
-		AddLocal("Invisibility", !myPed.IsVisible(), invisibilityOff, invisibilityOff);
-		AddToggle("No Ragdoll", playerNoRagdoll, null, noRagdollOff);
-		AddOptionDescription("You won't fall over from impacts.");
-		AddToggle("Seatbelt", playerSeatbelt, null, seatbeltOff);
-		AddOptionDescription("Stops you flying out of vehicles in crashes.");
-		AddToggle("Unlimited Special Ability (SP)", playerUnlimitedAbility);
-		AddToggle("Auto-Clean", playerAutoClean);
-		AddOptionDescription("Continuously removes blood and visible damage.");
-		AddToggle("Super Run", superRun);
-		AddOptionDescription("Hold sprint to run much faster.");
-		AddToggle("Super Jump", superJump);
-		AddToggle("Walk underwater", playerWalkUnderwater);
-		AddOptionDescription("Walk along the bottom instead of swimming.");
-		AddTexter("Forcefield", forceField, forceFieldNames, null, forceFieldPlus, forceFieldMinus);
-		AddOptionDescription("Push Out shoves nearby entities away; Destroy damages them.");
-		AddLocal("Smash Ability", SmashAbility::g_smashAbility.Enabled(), SmashAbility::ToggleOnOff, SmashAbility::ToggleOnOff);
-		AddOptionDescription("Hold Jump to use a ground-smash ability.");
-		AddToggle("Fly Manual", superman, supermanOn);
-		AddOptionDescription("While skydiving: Numpad 7/1 (RT/LT) up/down, Numpad + (RB) boost, Numpad - (A) brake.");
-		AddToggle("Fly Auto", supermanAuto, supermanAutoOn);
-		AddOptionDescription("While skydiving, you're pushed forward and upward automatically.");
-		AddToggle("Ignored By Everyone", ignoredByEveryone, null, ignoredByEveryoneOff);
-		AddOptionDescription("Peds and police ignore you and stay calm.");
-		AddNumber("Wanted Level", wantedLevel, 0, null, wantedPlus, wantedMinus);
-		if (wantedLevel > 0)
-		{
-			AddLocal("Freeze Wanted Level", selfFreezeWantedLevel, wantedFreezeOn, wantedFreezeOff);
-			AddOptionDescription("Keeps your wanted level at its current value.");
-		}
-		else
-		{
-			AddToggle("Never Wanted", neverWanted, neverWantedOn, neverWantedOff);
-		}
-		AddToggle("Burn Mode", playerBurn, burnModeOn, burnModeOff);
-		AddOptionDescription("Keeps you on fire (use with Invincibility).");
-		AddNumber("Height (Elongation) - Experimental", height, 2, null, heightPlus, heightMinus);
-		AddOptionDescription("Stretches your ped vertically. 1.0 is normal.");
-		AddNumber("Movement Speed (Alt)", swimSpeedMult, 2, null, movementSpeedModifierPlus, movementSpeedModifierMinus);
-		AddOptionDescription("Multiplies run and swim speed.");
-		AddNumber("Sweat Level", selfSweatMult, 2, null, sweatPlus, sweatMinus);
-		AddOptionDescription("How sweaty your ped looks. High values also make clothes look wet.");
-		AddNumber("Noise Level", playerNoiseMult, 2, null, noiseValuePlus, noiseValueMinus);
-		AddOptionDescription("How much noise you make for stealth detection. 1.0 is normal.");
-		AddLocal("Collision", myPed.GetIsCollisionEnabled(), collisionOn, collisionOff);
-		AddOptionDescription("Off: you walk through objects and walls.");
+    std::vector<std::string> forceFieldNames{"Off", "Push Out", "Destroy"};
 
 
-		if (collisionOn || collisionOff)
-		{
-			myPed.SetIsCollisionEnabled(!myPed.GetIsCollisionEnabled());
-		}
+    float& height = g_playerVerticalElongationMultiplier;
+    float movementSpeed = 0.0f, swimSpeed = 0.0f;
 
-		if (replenishPlayer)
-		{
-			addlog(ige::LogType::LOG_TRACE, "Replenishing Player");
-			myPed.SetHealth(myPed.GetMaxHealth());
-			myPed.SetArmour(myPlayer.MaxArmour_get());
-			PedDamageTextures::ClearAllBloodDamage(myPed);
-			PedDamageTextures::ClearAllVisibleDamage(myPed);
-			return;
-		}
+    bool butAmIOnline = NETWORK_IS_IN_SESSION() != 0;
 
-		if (maxAllStats)
-		{
-			const char* spChars[] = { "SP0_", "SP1_", "SP2_" };
-			for (auto& ch : spChars)
-			{
-				auto setInt = [&](const char* name, int val) {
-					STAT_SET_INT(GET_HASH_KEY(std::string(ch) + name), val, true);
-				};
-				auto setFloat = [&](const char* name, float val) {
-					STAT_SET_FLOAT(GET_HASH_KEY(std::string(ch) + name), val, true);
-				};
+    g_activePedHandle = PLAYER_PED_ID();
+    g_activePlayerId = PLAYER_ID();
 
-				setFloat("DIST_RUNNING", 20000.0f);
-				setInt("TIME_SWIMMING", 100);
-				setInt("TIME_DRIVING_BICYCLE", 100);
-				setInt("UNARMED_HITS", 2500);
-				STAT_INCREMENT(GET_HASH_KEY(std::string(ch) + "TIME_UNDERWATER"), 6000.0f);
-				setInt("NUMBER_NEAR_MISS", 6000);
-				setInt("TIME_DRIVING_PLANE", 1000);
-				setInt("TIME_DRIVING_HELI", 1000);
-				setInt("PLANE_LANDINGS", 100);
-				setInt("HITS_MISSION", 5000);
-				setInt("HITS_PEDS_VEHICLES", 10000);
-				setFloat("DIST_WALK_ST", 5000.0f);
-				setInt("KILLS_STEALTH", 200);
-				setInt("SPECIAL_ABILITY_UNLOCKED", 100);
+    GTAped myPed = g_activePedHandle;
+    GTAplayer myPlayer = g_activePlayerId;
 
-				setInt("STAMINA", 100);
-				setInt("STRENGTH", 100);
-				setInt("LUNG_CAPACITY", 100);
-				setInt("WHEELIE_ABILITY", 100);
-				setInt("FLYING_ABILITY", 100);
-				setInt("SHOOTING_ABILITY", 100);
-				setInt("STEALTH_ABILITY", 100);
+    int wantedLevel = myPlayer.GetWantedLevel();
 
-				STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "STAMINA_MAXED"), true, true);
-				STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "STRENGTH_MAXED"), true, true);
-				STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "LUNG_CAPACITY_MAXED"), true, true);
-				STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "WHEELIE_ABILITY_MAXED"), true, true);
-				STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "FLYING_ABILITY_MAXED"), true, true);
-				STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "SHOOTING_ABILITY_MAXED"), true, true);
-				STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "STEALTH_ABILITY_MAXED"), true, true);
-			}
-			if (!STAT_SAVE_PENDING_OR_REQUESTED())
-				STAT_SAVE(0, 0, 3, 0);
-			DO_AUTO_SAVE();
-			Game::Print::PrintBottomLeft("All stats maxed!");
-			return;
-		}
+    AddTitle("Player Options");
+    AddOption("Basic Stats", null, nullFunc, SUB::SPSTATMANAGER);
+    AddOption("Model Changer", null, nullFunc, SUB::MODELCHANGER);
 
-		if (invincibilityOff) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Turning Off Invincibility");
-			SET_PLAYER_INVINCIBLE(PLAYER_ID(), 0);
-			SetPedInvincibleOff(PLAYER_PED_ID());
-			return;
-		}
+    AddOption("Wardrobe", null, nullFunc, SUB::COMPONENTS);
 
-		if (invisibilityOff)
-		{
-			addlog(ige::LogType::LOG_TRACE, "Turning Off Invisibility");
-			myPed.SetVisible(!myPed.IsVisible());
-		}
+    AddOption("Animations", null, nullFunc, SUB::ANIMATIONSUB);
+    AddOption("Scenario Actions", null, nullFunc, SUB::AnimationTaskScenarios);
+    AddOption("Moods", null, nullFunc, SUB::FACIALMOOD);
+    AddOption("Movement Styles", null, nullFunc, SUB::MOVEMENTGROUP);
+    AddOption("Speech Player", null, nullFunc, SUB::SPEECHPLAYER);
+    AddOption("Voice Changer", null, nullFunc, SUB::VOICECHANGER);
+    AddOption("Ped Flags", null, nullFunc, SUB::PEDFLAGMANAGER_NAMEDLIST);
+    AddOptionDescription("Turn individual game ped config flags on or off.");
+    AddOption("TriggerFX", null, nullFunc, SUB::PTFXSUB);
+    AddOption("Breathe Stuff", null, nullFunc, SUB::BREATHESTUFF);
+    AddOptionDescription("Breathe particle effects out of your mouth. Hold J (LS) to use.");
+    AddOption("Ghost Rider Mode", null, nullFunc, SUB::GHOSTRIDERMODE);
 
-		if (noRagdollOff) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Turning Off No Ragdoll");
-			SetPedNoRagdollOff(PLAYER_PED_ID()); 
-			return; 
-		}
-		if (seatbeltOff) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Turning Off Seatbelt");
-			SetPedSeatbeltOff(PLAYER_PED_ID()); 
-			return; 
-		}
+    AddOption("Opacity (Local)", goToAlphaLevel, nullFunc, SUB::ENTITYALPHALEVEL);
+    AddOptionDescription("Your transparency. Only visible to you.");
+    if (goToAlphaLevel)
+    {
+        Spooner::Submenus::SetPlayerAsEntityAlphaTarget();
+    }
 
-		if (forceFieldPlus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Increase Force Field");
-			if (forceField < forceFieldNames.size() - 1) 
-			{
-				forceField++; 
-				return; 
-			}
-		}
-		if (forceFieldMinus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Decrease Force Field");
-			if (forceField > 0) 
-			{
-				forceField--; 
-				return; 
-			}
-		}
+    AddOption("Cloning Options", null, nullFunc, SUB::CLONECOMPANIONSUB);
 
-		if (supermanOn) 
-		{
-			if (Menu::usingControllerInput)
-			{
-				Game::Print::PrintBottomLeft("RT for Up. LT for Down. RB for Boost. A for Brake.");
-			}
-			else 
-			{
-				Game::Print::PrintBottomLeft("Num7 for Up. Num1 for Down. NumPlus for Boost. NumMinus for Brake.");
-			}
-			return;
-		}
+    AddOption("Replenish Player", replenishPlayer);
+    AddOptionDescription("Restores full health and armour.");
+    AddOption("Max All Stats (SP)", maxAllStats);
+    AddOptionDescription("Maxes all skill stats for the current story character.");
+    AddToggle("Refill Health When In Cover", selfRefillHealthInCover);
+    AddOptionDescription("Slowly regains health while in cover and not aiming.");
+    AddToggle("Invincibility", playerInvincibility, null, invincibilityOff);
+    AddLocal("Invisibility", !myPed.IsVisible(), invisibilityOff, invisibilityOff);
+    AddToggle("No Ragdoll", playerNoRagdoll, null, noRagdollOff);
+    AddOptionDescription("You won't fall over from impacts.");
+    AddToggle("Seatbelt", playerSeatbelt, null, seatbeltOff);
+    AddOptionDescription("Stops you flying out of vehicles in crashes.");
+    AddToggle("Unlimited Special Ability (SP)", playerUnlimitedAbility);
+    AddToggle("Auto-Clean", playerAutoClean);
+    AddOptionDescription("Continuously removes blood and visible damage.");
+    AddToggle("Super Run", superRun);
+    AddOptionDescription("Hold sprint to run much faster.");
+    AddToggle("Super Jump", superJump);
+    AddToggle("Walk underwater", playerWalkUnderwater);
+    AddOptionDescription("Walk along the bottom instead of swimming.");
+    AddTexter("Forcefield", forceField, forceFieldNames, null, forceFieldPlus, forceFieldMinus);
+    AddOptionDescription("Push Out shoves nearby entities away; Destroy damages them.");
+    AddLocal("Smash Ability", SmashAbility::g_smashAbility.Enabled(), SmashAbility::ToggleOnOff, SmashAbility::ToggleOnOff);
+    AddOptionDescription("Hold Jump to use a ground-smash ability.");
+    AddToggle("Fly Manual", superman, supermanOn);
+    AddOptionDescription("While skydiving: Numpad 7/1 (RT/LT) up/down, Numpad + (RB) boost, Numpad - (A) brake.");
+    AddToggle("Fly Auto", supermanAuto, supermanAutoOn);
+    AddOptionDescription("While skydiving, you're pushed forward and upward automatically.");
+    AddToggle("Ignored By Everyone", ignoredByEveryone, null, ignoredByEveryoneOff);
+    AddOptionDescription("Peds and police ignore you and stay calm.");
+    AddNumber("Wanted Level", wantedLevel, 0, null, wantedPlus, wantedMinus);
+    if (wantedLevel > 0)
+    {
+        AddLocal("Freeze Wanted Level", selfFreezeWantedLevel, wantedFreezeOn, wantedFreezeOff);
+        AddOptionDescription("Keeps your wanted level at its current value.");
+    }
+    else
+    {
+        AddToggle("Never Wanted", neverWanted, neverWantedOn, neverWantedOff);
+    }
+    AddToggle("Burn Mode", playerBurn, burnModeOn, burnModeOff);
+    AddOptionDescription("Keeps you on fire (use with Invincibility).");
+    AddNumber("Height (Elongation) - Experimental", height, 2, null, heightPlus, heightMinus);
+    AddOptionDescription("Stretches your ped vertically. 1.0 is normal.");
+    AddNumber("Movement Speed (Alt)", swimSpeedMult, 2, null, movementSpeedModifierPlus, movementSpeedModifierMinus);
+    AddOptionDescription("Multiplies run and swim speed.");
+    AddNumber("Sweat Level", selfSweatMult, 2, null, sweatPlus, sweatMinus);
+    AddOptionDescription("How sweaty your ped looks. High values also make clothes look wet.");
+    AddNumber("Noise Level", playerNoiseMult, 2, null, noiseValuePlus, noiseValueMinus);
+    AddOptionDescription("How much noise you make for stealth detection. 1.0 is normal.");
+    AddLocal("Collision", myPed.GetIsCollisionEnabled(), collisionOn, collisionOff);
+    AddOptionDescription("Off: you walk through objects and walls.");
 
-		if (supermanAutoOn) 
-		{
-			Vector3 Pos = GET_ENTITY_COORDS(g_activePedHandle, 1);
-			CREATE_AMBIENT_PICKUP(PICKUP_PARACHUTE, Pos.x, Pos.y, Pos.z, 0, 300, 1, 0, 1);
-			TASK_PARACHUTE(g_activePedHandle, true, false);
-			APPLY_FORCE_TO_ENTITY(PLAYER_PED_ID(), 1, 0.0f, 0.0f, 10.0f, 0.0, 0.0, 0.0, 1, 1, 1, 1, 0, 1);
-			if (Menu::usingControllerInput)
-			{
-				Game::Print::PrintBottomLeft("Press ~b~A~s~ for temporary brake.");
-			}
-			else 
-			{
-				Game::Print::PrintBottomLeft("Press ~b~NUMPLUS~s~ for temporary brake.");
-			}
-			return;
-		}
 
-		if (ignoredByEveryoneOff) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Ignore By Everyone Off");
-			Player temp = PLAYER_ID();
-			SET_POLICE_IGNORE_PLAYER(temp, neverWanted);
-			SET_EVERYONE_IGNORE_PLAYER(temp, 0);
-			SET_PLAYER_CAN_BE_HASSLED_BY_GANGS(temp, 1);
-			SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(temp, 0);
-			return;
-		}
+    if (collisionOn || collisionOff)
+    {
+        myPed.SetIsCollisionEnabled(!myPed.GetIsCollisionEnabled());
+    }
 
-		if (neverWantedOn) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Never Wanted On");
-			SET_PLAYER_WANTED_LEVEL(PLAYER_ID(), 0, 0);
-			SET_PLAYER_WANTED_LEVEL_NOW(PLAYER_ID(), 0);
-			return;
-		}
-		if (neverWantedOff) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Never Wanted Off");
-			SET_MAX_WANTED_LEVEL(6);
-			SET_WANTED_LEVEL_MULTIPLIER(1.0f);
-			return;
-		}
-		if (wantedPlus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Increase Wanted Level");
-			if (wantedLevel < 6)
-			{
-				wantedLevel += 1;
-				SET_MAX_WANTED_LEVEL(6);
-				SET_PLAYER_WANTED_LEVEL(PLAYER_ID(), wantedLevel, 0);
-				SET_PLAYER_WANTED_LEVEL_NOW(PLAYER_ID(), 0);
-				neverWanted = false;
-			}
-			if (selfFreezeWantedLevel != 0) 
-			{
-				selfFreezeWantedLevel = wantedLevel;
-			}
-			return;
-		}
-		if (wantedMinus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Decrease Wanted Level");
-			if (wantedLevel > 0)
-			{
-				if (wantedLevel == 1)
-				{
-					wantedLevel -= 1;
-					SET_PLAYER_WANTED_LEVEL(PLAYER_ID(), wantedLevel, 0);
-				}
-				else
-				{
-					wantedLevel -= 1;
-					SET_PLAYER_WANTED_LEVEL(PLAYER_ID(), wantedLevel, 0);
-				}
-				SET_PLAYER_WANTED_LEVEL_NOW(PLAYER_ID(), 0);
-				neverWanted = false;
-			}
-			if (selfFreezeWantedLevel != 0) 
-			{
-				selfFreezeWantedLevel = wantedLevel;
-			}
-			return;
-		}
+    if (replenishPlayer)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Replenishing Player");
+        myPed.SetHealth(myPed.GetMaxHealth());
+        myPed.SetArmour(myPlayer.MaxArmour_get());
+        PedDamageTextures::ClearAllBloodDamage(myPed);
+        PedDamageTextures::ClearAllVisibleDamage(myPed);
+        return;
+    }
 
-		if (wantedFreezeOn)
-		{
-			addlog(ige::LogType::LOG_TRACE, "Freeze Wanted Level On");
-			selfFreezeWantedLevel = Game::Player().GetWantedLevel();
-			return;
-		}
-		if (wantedFreezeOff) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Freeze Wanted Level Off");
-			selfFreezeWantedLevel = 0;
-			return;
-		}
+    if (maxAllStats)
+    {
+        const char* spChars[] = {"SP0_", "SP1_", "SP2_"};
+        for (auto& ch : spChars)
+        {
+            auto setInt = [&](const char* name, int val) { STAT_SET_INT(GET_HASH_KEY(std::string(ch) + name), val, true); };
+            auto setFloat = [&](const char* name, float val) { STAT_SET_FLOAT(GET_HASH_KEY(std::string(ch) + name), val, true); };
 
-		if (burnModeOn) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Burn Mode On");
-			if (GET_PLAYER_INVINCIBLE(g_activePlayerId))
-			{
-				SET_PLAYER_INVINCIBLE(g_activePlayerId, 0);
-			}
-			SetPedInvincibleOff(g_activePedHandle);
-			WAIT(130);
-			if (!IS_ENTITY_ON_FIRE(g_activePedHandle))
-			{
-				START_ENTITY_FIRE(g_activePedHandle);
-			}
-			Game::Print::ShowNotification("~b~Note:", "If you're not on fire yet, kill yourself.");
-			return;
-		}
-		if (burnModeOff) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Burn Mode Off");
-			if (IS_ENTITY_ON_FIRE(g_activePedHandle))
-			{
-				STOP_ENTITY_FIRE(g_activePedHandle);
-			}
-			return;
-		}
+            setFloat("DIST_RUNNING", 20000.0f);
+            setInt("TIME_SWIMMING", 100);
+            setInt("TIME_DRIVING_BICYCLE", 100);
+            setInt("UNARMED_HITS", 2500);
+            STAT_INCREMENT(GET_HASH_KEY(std::string(ch) + "TIME_UNDERWATER"), 6000.0f);
+            setInt("NUMBER_NEAR_MISS", 6000);
+            setInt("TIME_DRIVING_PLANE", 1000);
+            setInt("TIME_DRIVING_HELI", 1000);
+            setInt("PLANE_LANDINGS", 100);
+            setInt("HITS_MISSION", 5000);
+            setInt("HITS_PEDS_VEHICLES", 10000);
+            setFloat("DIST_WALK_ST", 5000.0f);
+            setInt("KILLS_STEALTH", 200);
+            setInt("SPECIAL_ABILITY_UNLOCKED", 100);
 
-		if (heightPlus) 
-		{ 
-			addlog(ige::LogType::LOG_TRACE, "Increase Height");
-			if (height < 2.5f) 
-			{ 
-				height += 0.1f; GeneralGlobalHax::SetPlayerHeight(height); 
-			}
-		}
-		if (heightMinus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Decrease Height");
-			if (height > -2.5f) 
-			{ 
-				height -= 0.1f; GeneralGlobalHax::SetPlayerHeight(height); 
-			} 
-		}
-		if (movementSpeedPlus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Increase Movement Speed");
-			if (movementSpeed < 9.0f) 
-			{ 
-				movementSpeed += 0.1f; GeneralGlobalHax::SetPlayerMovementSpeed(movementSpeed); 
-			} 
-		}
-		if (movementSpeedMinus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Decrease Movement Speed");
-			if (movementSpeed > 0.0f) 
-			{ 
-				movementSpeed -= 0.1f; GeneralGlobalHax::SetPlayerMovementSpeed(movementSpeed); 
-			} 
-		}
-		if (swimSpeedPlus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Increase Swim Speed");
-			if (swimSpeed < 9.0f) 
-			{ 
-				swimSpeed += 0.1f; GeneralGlobalHax::SetPlayerSwimSpeed(swimSpeed); 
-			} 
-		}
-		if (swimSpeedMinus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Decrease Swim Speed");
-			if (swimSpeed > 0.0f) 
-			{ 
-				swimSpeed -= 0.1f; GeneralGlobalHax::SetPlayerSwimSpeed(swimSpeed); 
-			} 
-		}
+            setInt("STAMINA", 100);
+            setInt("STRENGTH", 100);
+            setInt("LUNG_CAPACITY", 100);
+            setInt("WHEELIE_ABILITY", 100);
+            setInt("FLYING_ABILITY", 100);
+            setInt("SHOOTING_ABILITY", 100);
+            setInt("STEALTH_ABILITY", 100);
 
-		if (movementSpeedModifierPlus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Increase Movement Speed Modifier");
-			if (swimSpeedMult < 1.40f) 
-			{
-				swimSpeedMult += 0.1f;
-			}
-			return;
-		}
-		if (movementSpeedModifierMinus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Decrease Movement Speed Modifier");
-			if (swimSpeedMult > 0.0f) 
-			{
-				swimSpeedMult -= 0.1f;
-			}
-			return;
-		}
+            STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "STAMINA_MAXED"), true, true);
+            STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "STRENGTH_MAXED"), true, true);
+            STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "LUNG_CAPACITY_MAXED"), true, true);
+            STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "WHEELIE_ABILITY_MAXED"), true, true);
+            STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "FLYING_ABILITY_MAXED"), true, true);
+            STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "SHOOTING_ABILITY_MAXED"), true, true);
+            STAT_SET_BOOL(GET_HASH_KEY(std::string(ch) + "STEALTH_ABILITY_MAXED"), true, true);
+        }
+        if (!STAT_SAVE_PENDING_OR_REQUESTED())
+            STAT_SAVE(0, 0, 3, 0);
+        DO_AUTO_SAVE();
+        Game::Print::PrintBottomLeft("All stats maxed!");
+        return;
+    }
 
-		if (sweatPlus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Increase Sweat");
-			if (selfSweatMult < 5.5f) 
-			{
-				selfSweatMult += 0.1f;
-			}
-			return; 
-		}
-		if (sweatMinus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Decrease Sweat");
-			if (selfSweatMult > 0.0f) 
-			{
-				selfSweatMult -= 0.1f;
-			}
-			if (selfSweatMult == 0.0f) 
-			{ 
-				SET_PED_SWEAT(g_activePedHandle, selfSweatMult);
-				CLEAR_PED_WETNESS(g_activePedHandle);
-			} 
-			return; 
-		}
-		if (noiseValuePlus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Increase Noise");
-			if (playerNoiseMult < 10.0f) 
-			{
-				playerNoiseMult += 0.1f;
-			}
-			return; 
-		}
-		if (noiseValueMinus) 
-		{
-			addlog(ige::LogType::LOG_TRACE, "Decrease Noise");
-			if (playerNoiseMult > 0.0f) 
-			{
-				playerNoiseMult -= 0.1f;
-			}
-			return; 
-		}
-	}
+    if (invincibilityOff)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Turning Off Invincibility");
+        SET_PLAYER_INVINCIBLE(PLAYER_ID(), 0);
+        SetPedInvincibleOff(PLAYER_PED_ID());
+        return;
+    }
 
-	namespace PedConfigFlagManager
-	{
-		std::vector<NamedPedFlagS> pedFlags
-		{
-			{ ePedConfigFlags::WillFlyThruWindscreen, "Can Fall Out Through Windscreen" },
-			{ ePedConfigFlags::InVehicle, "Is (Nearby) Car (MAY CRASH)" },
-			{ ePedConfigFlags::IsAimingGun, "Is Aiming Check" },
-			{ ePedConfigFlags::ForcedAim, "Is Aiming" },
-			{ ePedConfigFlags::_0x5FED6BFD, "Has Overflowing Diaper (MAY CRASH)" },
-			{ ePedConfigFlags::IsInjured, "Is Injured" },
-			{ ePedConfigFlags::HasHurtStarted, "Is Injured In Combat" },
-			{ ePedConfigFlags::_Shrink, "Is Short Heighted (Small)" },
-		};
+    if (invisibilityOff)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Turning Off Invisibility");
+        myPed.SetVisible(!myPed.IsVisible());
+    }
 
-		void FlagListMenu()
-		{
-			GTAped ped = g_activePedHandle;
+    if (noRagdollOff)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Turning Off No Ragdoll");
+        SetPedNoRagdollOff(PLAYER_PED_ID());
+        return;
+    }
+    if (seatbeltOff)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Turning Off Seatbelt");
+        SetPedSeatbeltOff(PLAYER_PED_ID());
+        return;
+    }
 
-			AddTitle("Ped Flags");
-			AddOption("Custom", null, nullFunc, SUB::PEDFLAGMANAGER_CUSTOM);
+    if (forceFieldPlus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Increase Force Field");
+        if (forceField < forceFieldNames.size() - 1)
+        {
+            forceField++;
+            return;
+        }
+    }
+    if (forceFieldMinus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Decrease Force Field");
+        if (forceField > 0)
+        {
+            forceField--;
+            return;
+        }
+    }
 
-			for (auto& f : pedFlags)
-			{
-				bool bFlagPressed = false;
-				BOOL flagStatus = GET_PED_CONFIG_FLAG(ped.Handle(), f.id, true);
-				AddLocal(f.title, flagStatus, bFlagPressed, bFlagPressed); if (bFlagPressed)
-				{
-					SET_PED_CONFIG_FLAG(ped.Handle(), f.id, !flagStatus);
-				}
-			}
-		}
+    if (supermanOn)
+    {
+        if (Menu::usingControllerInput)
+        {
+            Game::Print::PrintBottomLeft("RT for Up. LT for Down. RB for Boost. A for Brake.");
+        }
+        else
+        {
+            Game::Print::PrintBottomLeft("Num7 for Up. Num1 for Down. NumPlus for Boost. NumMinus for Brake.");
+        }
+        return;
+    }
 
-		int flagID = 0;
-		void CustomFlagSetterMenu()
-		{
-			GTAped ped = g_activePedHandle;
-			bool idInput = false;
-			bool idPlus = false;
-			bool idMinus = false; 
-			bool idToggle = false;
-			BOOL flagStatus = GET_PED_CONFIG_FLAG(ped.Handle(), flagID, true);
+    if (supermanAutoOn)
+    {
+        Vector3 Pos = GET_ENTITY_COORDS(g_activePedHandle, 1);
+        CREATE_AMBIENT_PICKUP(PICKUP_PARACHUTE, Pos.x, Pos.y, Pos.z, 0, 300, 1, 0, 1);
+        TASK_PARACHUTE(g_activePedHandle, true, false);
+        APPLY_FORCE_TO_ENTITY(PLAYER_PED_ID(), 1, 0.0f, 0.0f, 10.0f, 0.0, 0.0, 0.0, 1, 1, 1, 1, 0, 1);
+        if (Menu::usingControllerInput)
+        {
+            Game::Print::PrintBottomLeft("Press ~b~A~s~ for temporary brake.");
+        }
+        else
+        {
+            Game::Print::PrintBottomLeft("Press ~b~NUMPLUS~s~ for temporary brake.");
+        }
+        return;
+    }
 
-			AddTitle("Custom");
-			AddNumber("ID", flagID, 0, idInput, idPlus, idMinus);
-			AddLocal("Status", flagStatus, idToggle, idToggle);
-			AddOptionDescription("Sets the ped config flag with this ID on or off.");
+    if (ignoredByEveryoneOff)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Ignore By Everyone Off");
+        Player temp = PLAYER_ID();
+        SET_POLICE_IGNORE_PLAYER(temp, neverWanted);
+        SET_EVERYONE_IGNORE_PLAYER(temp, 0);
+        SET_PLAYER_CAN_BE_HASSLED_BY_GANGS(temp, 1);
+        SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(temp, 0);
+        return;
+    }
 
-			if (idPlus) 
-			{ 
-				if (flagID < INT_MAX) 
-				{ 
-					flagID++; 
-				}
-			}
-			if (idMinus) 
-			{ 
-				if (flagID > 0) 
-				{ 
-					flagID--; 
-				} 
-			}
-			if (idInput)
-			{
-				std::string inputStr = Game::InputBox("", 10U);
-				if (inputStr.length() > 0)
-				{
-					try 
-					{
-						flagID = stoi(inputStr); 
-					}
-					catch (...) 
-					{ 
-						Game::Print::PrintErrorInvalidInput(inputStr);
-						addlog(ige::LogType::LOG_ERROR, "Invalid flagID entered: " + inputStr);
-					}
-				}
-			}
+    if (neverWantedOn)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Never Wanted On");
+        SET_PLAYER_WANTED_LEVEL(PLAYER_ID(), 0, 0);
+        SET_PLAYER_WANTED_LEVEL_NOW(PLAYER_ID(), 0);
+        return;
+    }
+    if (neverWantedOff)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Never Wanted Off");
+        SET_MAX_WANTED_LEVEL(6);
+        SET_WANTED_LEVEL_MULTIPLIER(1.0f);
+        return;
+    }
+    if (wantedPlus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Increase Wanted Level");
+        if (wantedLevel < 6)
+        {
+            wantedLevel += 1;
+            SET_MAX_WANTED_LEVEL(6);
+            SET_PLAYER_WANTED_LEVEL(PLAYER_ID(), wantedLevel, 0);
+            SET_PLAYER_WANTED_LEVEL_NOW(PLAYER_ID(), 0);
+            neverWanted = false;
+        }
+        if (selfFreezeWantedLevel != 0)
+        {
+            selfFreezeWantedLevel = wantedLevel;
+        }
+        return;
+    }
+    if (wantedMinus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Decrease Wanted Level");
+        if (wantedLevel > 0)
+        {
+            if (wantedLevel == 1)
+            {
+                wantedLevel -= 1;
+                SET_PLAYER_WANTED_LEVEL(PLAYER_ID(), wantedLevel, 0);
+            }
+            else
+            {
+                wantedLevel -= 1;
+                SET_PLAYER_WANTED_LEVEL(PLAYER_ID(), wantedLevel, 0);
+            }
+            SET_PLAYER_WANTED_LEVEL_NOW(PLAYER_ID(), 0);
+            neverWanted = false;
+        }
+        if (selfFreezeWantedLevel != 0)
+        {
+            selfFreezeWantedLevel = wantedLevel;
+        }
+        return;
+    }
 
-			if (idToggle)
-			{
-				SET_PED_CONFIG_FLAG(ped.Handle(), flagID, !flagStatus);
-			}
-		}
-	}
+    if (wantedFreezeOn)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Freeze Wanted Level On");
+        selfFreezeWantedLevel = Game::Player().GetWantedLevel();
+        return;
+    }
+    if (wantedFreezeOff)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Freeze Wanted Level Off");
+        selfFreezeWantedLevel = 0;
+        return;
+    }
 
-	void CloneCompanionMenu()
-	{
-		GTAplayer player = g_activePlayerId;
-		GTAped playerPed = g_activePedHandle;
+    if (burnModeOn)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Burn Mode On");
+        if (GET_PLAYER_INVINCIBLE(g_activePlayerId))
+        {
+            SET_PLAYER_INVINCIBLE(g_activePlayerId, 0);
+        }
+        SetPedInvincibleOff(g_activePedHandle);
+        WAIT(130);
+        if (!IS_ENTITY_ON_FIRE(g_activePedHandle))
+        {
+            START_ENTITY_FIRE(g_activePedHandle);
+        }
+        Game::Print::ShowNotification("~b~Note:", "If you're not on fire yet, kill yourself.");
+        return;
+    }
+    if (burnModeOff)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Burn Mode Off");
+        if (IS_ENTITY_ON_FIRE(g_activePedHandle))
+        {
+            STOP_ENTITY_FIRE(g_activePedHandle);
+        }
+        return;
+    }
 
-		if (!playerPed.Exists())
-		{
-			Game::Print::ShowNotification("~r~Error:", "No longer in memory.");
-			addlog(ige::LogType::LOG_WARNING, "Cannot start clone menu, playerPed No longer in memory");
-			Menu::SetPreviousMenu();
-			return;
-		}
+    if (heightPlus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Increase Height");
+        if (height < 2.5f)
+        {
+            height += 0.1f;
+            GeneralGlobalHax::SetPlayerHeight(height);
+        }
+    }
+    if (heightMinus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Decrease Height");
+        if (height > -2.5f)
+        {
+            height -= 0.1f;
+            GeneralGlobalHax::SetPlayerHeight(height);
+        }
+    }
+    if (movementSpeedPlus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Increase Movement Speed");
+        if (movementSpeed < 9.0f)
+        {
+            movementSpeed += 0.1f;
+            GeneralGlobalHax::SetPlayerMovementSpeed(movementSpeed);
+        }
+    }
+    if (movementSpeedMinus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Decrease Movement Speed");
+        if (movementSpeed > 0.0f)
+        {
+            movementSpeed -= 0.1f;
+            GeneralGlobalHax::SetPlayerMovementSpeed(movementSpeed);
+        }
+    }
+    if (swimSpeedPlus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Increase Swim Speed");
+        if (swimSpeed < 9.0f)
+        {
+            swimSpeed += 0.1f;
+            GeneralGlobalHax::SetPlayerSwimSpeed(swimSpeed);
+        }
+    }
+    if (swimSpeedMinus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Decrease Swim Speed");
+        if (swimSpeed > 0.0f)
+        {
+            swimSpeed -= 0.1f;
+            GeneralGlobalHax::SetPlayerSwimSpeed(swimSpeed);
+        }
+    }
 
-		AddTitle("Cloning");
+    if (movementSpeedModifierPlus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Increase Movement Speed Modifier");
+        if (swimSpeedMult < 1.40f)
+        {
+            swimSpeedMult += 0.1f;
+        }
+        return;
+    }
+    if (movementSpeedModifierMinus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Decrease Movement Speed Modifier");
+        if (swimSpeedMult > 0.0f)
+        {
+            swimSpeedMult -= 0.1f;
+        }
+        return;
+    }
 
-		bool cloneNeutralPressed = false;
-		AddOption("Clone As Neutral", cloneNeutralPressed); 
-		AddOptionDescription("Clone ignores you.");
-		if (cloneNeutralPressed)
-		{
-			GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
-			auto cloneNetId = clone.NetID();
-			Game::RequestControlOfId(cloneNetId);
-			SET_NETWORK_ID_CAN_MIGRATE(cloneNetId, true);
-			SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(cloneNetId, true);
-			clone.SetBlockPermanentEvent(true);
-			SET_PED_COMBAT_ABILITY(cloneNetId, 100);
-			clone.SetMissionEntity(true);
-			clone.NoLongerNeeded();
-
-			Game::Print::PrintBottomLeft(oss_ << "Cloned ~b~" << player.GetName());
-		}
-
-		bool cloneCompanionPressed = false;
-		AddOption("Clone As Companion (7 Max)", cloneCompanionPressed); 
-		AddOptionDescription("Clone follows and fights for you (max 7).");
-		if (cloneCompanionPressed)
-		{
-			GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
-			clone.RequestControl(300);
-			auto cloneNetId = clone.NetID();
-			Game::RequestControlOfId(cloneNetId);
-			SET_NETWORK_ID_CAN_MIGRATE(cloneNetId, true);
-			SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(cloneNetId, true);
-			SET_PED_COMBAT_ABILITY(cloneNetId, 200);
-			Hash weaponToGive = WEAPON_APPISTOL;
-			GIVE_DELAYED_WEAPON_TO_PED(clone.Handle(), weaponToGive, 9999, true);
-			clone.SetWeapon(weaponToGive);
-			clone.SetFiringPattern(FiringPattern::FullAuto);
-			clone.SetShootRate(100);
-			sub::Spooner::SpoonerEntity cloneEnt;
-			cloneEnt.dynamic = true;
-			cloneEnt.handle = clone;
-			cloneEnt.hashName = player.GetName() + "\'s Clone Companion";
-			cloneEnt.isStill = false;
-			cloneEnt.type = EntityType::PED;
-			sub::Spooner::EntityManagement::AddEntityToDb(cloneEnt);
-
-			PedGroup grp;
-			if (playerPed.IsInGroup())
-			{
-				grp = playerPed.GetCurrentPedGroup();
-			}
-			else
-			{
-				grp = PedGroup::CreateNewGroup();
-				grp.Add(playerPed, true);
-			}
-			grp.Add(clone, false);
-			grp.SetSeparationRange(100.0f);
-			grp.SetFormationSpacing(1.5f);
-
-			Game::Print::PrintBottomLeft(oss_ << "Cloned ~b~" << player.GetName() << "~s~ and made the clone " << (playerPed.GetGender() == Gender::Female ? "her" : "his") << " companion.");
-			Game::Print::PrintBottomLeft("Clone added to Spooner Database as a persistent entity.");
-		}
-
-		bool cloneEnemyPressed = false;
-		AddOption("Clone As Enemy", cloneEnemyPressed); 
-		AddOptionDescription("Clone attacks you.");
-		if (cloneEnemyPressed)
-		{
-			GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
-			clone.RequestControl(300);
-			auto cloneNetId = clone.NetID();
-			Game::RequestControlOfId(cloneNetId);
-			SET_NETWORK_ID_CAN_MIGRATE(cloneNetId, true);
-			SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(cloneNetId, true);
-			clone.SetBlockPermanentEvent(true);
-			SET_PED_COMBAT_ABILITY(cloneNetId, 100);
-			Hash weaponToGive = WEAPON_APPISTOL;
-			GIVE_DELAYED_WEAPON_TO_PED(clone.Handle(), weaponToGive, 9999, true);
-			clone.SetWeapon(weaponToGive);
-			clone.SetFiringPattern(FiringPattern::FullAuto);
-			clone.SetShootRate(100);
-			sub::Spooner::SpoonerEntity cloneEnt;
-			cloneEnt.dynamic = true;
-			cloneEnt.handle = clone;
-			cloneEnt.hashName = player.GetName() + "\'s Clone Enemy";
-			cloneEnt.isStill = false;
-			cloneEnt.type = EntityType::PED;
-			sub::Spooner::EntityManagement::AddEntityToDb(cloneEnt);
-			TASK_COMBAT_PED(clone.Handle(), playerPed.Handle(), 0, 16);
-
-			TaskSequence squ;
-			TASK_COMBAT_PED_TIMED(0, playerPed.Handle(), 0, 10000);
-			TASK_SHOOT_AT_ENTITY(0, playerPed.Handle(), 10000, FiringPattern::FullAuto);
-			TASK_PUT_PED_DIRECTLY_INTO_MELEE(0, playerPed.Handle(), 0.0f, -1.0f, 0.0f, 0);
-			TASK_COMBAT_HATED_TARGETS_AROUND_PED(0, 25.0f, 0);
-			squ.Close(true); // Repeat task sequence if it ends.
-			squ.MakePedPerform(clone);
-			clone.SetAlwaysKeepTask(true); // May ruin the task sequence. Not sure.
-			squ.Clear();
-
-			Game::Print::PrintBottomLeft(oss_ << "Cloned ~b~" << player.GetName() << "~s~ and made the clone " << (playerPed.GetGender() == Gender::Female ? "her" : "his") << " enemy.");
-			Game::Print::PrintBottomLeft("Clone added to Spooner Database as a persistent entity.");
-		}
-	}
+    if (sweatPlus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Increase Sweat");
+        if (selfSweatMult < 5.5f)
+        {
+            selfSweatMult += 0.1f;
+        }
+        return;
+    }
+    if (sweatMinus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Decrease Sweat");
+        if (selfSweatMult > 0.0f)
+        {
+            selfSweatMult -= 0.1f;
+        }
+        if (selfSweatMult == 0.0f)
+        {
+            SET_PED_SWEAT(g_activePedHandle, selfSweatMult);
+            CLEAR_PED_WETNESS(g_activePedHandle);
+        }
+        return;
+    }
+    if (noiseValuePlus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Increase Noise");
+        if (playerNoiseMult < 10.0f)
+        {
+            playerNoiseMult += 0.1f;
+        }
+        return;
+    }
+    if (noiseValueMinus)
+    {
+        addlog(ige::LogType::LOG_TRACE, "Decrease Noise");
+        if (playerNoiseMult > 0.0f)
+        {
+            playerNoiseMult -= 0.1f;
+        }
+        return;
+    }
 }
 
+namespace PedConfigFlagManager
+{
+std::vector<NamedPedFlagS> pedFlags{
+    {ePedConfigFlags::WillFlyThruWindscreen, "Can Fall Out Through Windscreen"},
+    {ePedConfigFlags::InVehicle, "Is (Nearby) Car (MAY CRASH)"},
+    {ePedConfigFlags::IsAimingGun, "Is Aiming Check"},
+    {ePedConfigFlags::ForcedAim, "Is Aiming"},
+    {ePedConfigFlags::_0x5FED6BFD, "Has Overflowing Diaper (MAY CRASH)"},
+    {ePedConfigFlags::IsInjured, "Is Injured"},
+    {ePedConfigFlags::HasHurtStarted, "Is Injured In Combat"},
+    {ePedConfigFlags::_Shrink, "Is Short Heighted (Small)"},
+};
+
+void FlagListMenu()
+{
+    GTAped ped = g_activePedHandle;
+
+    AddTitle("Ped Flags");
+    AddOption("Custom", null, nullFunc, SUB::PEDFLAGMANAGER_CUSTOM);
+
+    for (auto& f : pedFlags)
+    {
+        bool bFlagPressed = false;
+        BOOL flagStatus = GET_PED_CONFIG_FLAG(ped.Handle(), f.id, true);
+        AddLocal(f.title, flagStatus, bFlagPressed, bFlagPressed);
+        if (bFlagPressed)
+        {
+            SET_PED_CONFIG_FLAG(ped.Handle(), f.id, !flagStatus);
+        }
+    }
+}
+
+int flagID = 0;
+
+void CustomFlagSetterMenu()
+{
+    GTAped ped = g_activePedHandle;
+    bool idInput = false;
+    bool idPlus = false;
+    bool idMinus = false;
+    bool idToggle = false;
+    BOOL flagStatus = GET_PED_CONFIG_FLAG(ped.Handle(), flagID, true);
+
+    AddTitle("Custom");
+    AddNumber("ID", flagID, 0, idInput, idPlus, idMinus);
+    AddLocal("Status", flagStatus, idToggle, idToggle);
+    AddOptionDescription("Sets the ped config flag with this ID on or off.");
+
+    if (idPlus)
+    {
+        if (flagID < INT_MAX)
+        {
+            flagID++;
+        }
+    }
+    if (idMinus)
+    {
+        if (flagID > 0)
+        {
+            flagID--;
+        }
+    }
+    if (idInput)
+    {
+        std::string inputStr = Game::InputBox("", 10U);
+        if (inputStr.length() > 0)
+        {
+            try
+            {
+                flagID = stoi(inputStr);
+            }
+            catch (...)
+            {
+                Game::Print::PrintErrorInvalidInput(inputStr);
+                addlog(ige::LogType::LOG_ERROR, "Invalid flagID entered: " + inputStr);
+            }
+        }
+    }
+
+    if (idToggle)
+    {
+        SET_PED_CONFIG_FLAG(ped.Handle(), flagID, !flagStatus);
+    }
+}
+} // namespace PedConfigFlagManager
+
+void CloneCompanionMenu()
+{
+    GTAplayer player = g_activePlayerId;
+    GTAped playerPed = g_activePedHandle;
+
+    if (!playerPed.Exists())
+    {
+        Game::Print::ShowNotification("~r~Error:", "No longer in memory.");
+        addlog(ige::LogType::LOG_WARNING, "Cannot start clone menu, playerPed No longer in memory");
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    AddTitle("Cloning");
+
+    bool cloneNeutralPressed = false;
+    AddOption("Clone As Neutral", cloneNeutralPressed);
+    AddOptionDescription("Clone ignores you.");
+    if (cloneNeutralPressed)
+    {
+        GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
+        auto cloneNetId = clone.NetID();
+        Game::RequestControlOfId(cloneNetId);
+        SET_NETWORK_ID_CAN_MIGRATE(cloneNetId, true);
+        SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(cloneNetId, true);
+        clone.SetBlockPermanentEvent(true);
+        SET_PED_COMBAT_ABILITY(cloneNetId, 100);
+        clone.SetMissionEntity(true);
+        clone.NoLongerNeeded();
+
+        Game::Print::PrintBottomLeft(oss_ << "Cloned ~b~" << player.GetName());
+    }
+
+    bool cloneCompanionPressed = false;
+    AddOption("Clone As Companion (7 Max)", cloneCompanionPressed);
+    AddOptionDescription("Clone follows and fights for you (max 7).");
+    if (cloneCompanionPressed)
+    {
+        GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
+        clone.RequestControl(300);
+        auto cloneNetId = clone.NetID();
+        Game::RequestControlOfId(cloneNetId);
+        SET_NETWORK_ID_CAN_MIGRATE(cloneNetId, true);
+        SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(cloneNetId, true);
+        SET_PED_COMBAT_ABILITY(cloneNetId, 200);
+        Hash weaponToGive = WEAPON_APPISTOL;
+        GIVE_DELAYED_WEAPON_TO_PED(clone.Handle(), weaponToGive, 9999, true);
+        clone.SetWeapon(weaponToGive);
+        clone.SetFiringPattern(FiringPattern::FullAuto);
+        clone.SetShootRate(100);
+        sub::Spooner::SpoonerEntity cloneEnt;
+        cloneEnt.dynamic = true;
+        cloneEnt.handle = clone;
+        cloneEnt.hashName = player.GetName() + "\'s Clone Companion";
+        cloneEnt.isStill = false;
+        cloneEnt.type = EntityType::PED;
+        sub::Spooner::EntityManagement::AddEntityToDb(cloneEnt);
+
+        PedGroup grp;
+        if (playerPed.IsInGroup())
+        {
+            grp = playerPed.GetCurrentPedGroup();
+        }
+        else
+        {
+            grp = PedGroup::CreateNewGroup();
+            grp.Add(playerPed, true);
+        }
+        grp.Add(clone, false);
+        grp.SetSeparationRange(100.0f);
+        grp.SetFormationSpacing(1.5f);
+
+        Game::Print::PrintBottomLeft(oss_ << "Cloned ~b~" << player.GetName() << "~s~ and made the clone " << (playerPed.GetGender() == Gender::Female ? "her" : "his") << " companion.");
+        Game::Print::PrintBottomLeft("Clone added to Spooner Database as a persistent entity.");
+    }
+
+    bool cloneEnemyPressed = false;
+    AddOption("Clone As Enemy", cloneEnemyPressed);
+    AddOptionDescription("Clone attacks you.");
+    if (cloneEnemyPressed)
+    {
+        GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
+        clone.RequestControl(300);
+        auto cloneNetId = clone.NetID();
+        Game::RequestControlOfId(cloneNetId);
+        SET_NETWORK_ID_CAN_MIGRATE(cloneNetId, true);
+        SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(cloneNetId, true);
+        clone.SetBlockPermanentEvent(true);
+        SET_PED_COMBAT_ABILITY(cloneNetId, 100);
+        Hash weaponToGive = WEAPON_APPISTOL;
+        GIVE_DELAYED_WEAPON_TO_PED(clone.Handle(), weaponToGive, 9999, true);
+        clone.SetWeapon(weaponToGive);
+        clone.SetFiringPattern(FiringPattern::FullAuto);
+        clone.SetShootRate(100);
+        sub::Spooner::SpoonerEntity cloneEnt;
+        cloneEnt.dynamic = true;
+        cloneEnt.handle = clone;
+        cloneEnt.hashName = player.GetName() + "\'s Clone Enemy";
+        cloneEnt.isStill = false;
+        cloneEnt.type = EntityType::PED;
+        sub::Spooner::EntityManagement::AddEntityToDb(cloneEnt);
+        TASK_COMBAT_PED(clone.Handle(), playerPed.Handle(), 0, 16);
+
+        TaskSequence squ;
+        TASK_COMBAT_PED_TIMED(0, playerPed.Handle(), 0, 10000);
+        TASK_SHOOT_AT_ENTITY(0, playerPed.Handle(), 10000, FiringPattern::FullAuto);
+        TASK_PUT_PED_DIRECTLY_INTO_MELEE(0, playerPed.Handle(), 0.0f, -1.0f, 0.0f, 0);
+        TASK_COMBAT_HATED_TARGETS_AROUND_PED(0, 25.0f, 0);
+        squ.Close(true); // Repeat task sequence if it ends.
+        squ.MakePedPerform(clone);
+        clone.SetAlwaysKeepTask(true); // May ruin the task sequence. Not sure.
+        squ.Clear();
+
+        Game::Print::PrintBottomLeft(oss_ << "Cloned ~b~" << player.GetName() << "~s~ and made the clone " << (playerPed.GetGender() == Gender::Female ? "her" : "his") << " enemy.");
+        Game::Print::PrintBottomLeft("Clone added to Spooner Database as a persistent entity.");
+    }
+}
+} // namespace sub
 
 #include "..\Menu\submenu_switch.h"
 #include "..\Menu\submenu_enum.h"
-REGISTER_SUBMENU(CLONECOMPANIONSUB,   			sub::CloneCompanionMenu)
-REGISTER_SUBMENU(PLAYEROPS,           			sub::PlayerOptionsMenu)
-REGISTER_SUBMENU(PEDFLAGMANAGER_NAMEDLIST, 		sub::PedConfigFlagManager::FlagListMenu)
-REGISTER_SUBMENU(PEDFLAGMANAGER_CUSTOM,    		sub::PedConfigFlagManager::CustomFlagSetterMenu)
+REGISTER_SUBMENU(CLONECOMPANIONSUB, sub::CloneCompanionMenu)
+REGISTER_SUBMENU(PLAYEROPS, sub::PlayerOptionsMenu)
+REGISTER_SUBMENU(PEDFLAGMANAGER_NAMEDLIST, sub::PedConfigFlagManager::FlagListMenu)
+REGISTER_SUBMENU(PEDFLAGMANAGER_CUSTOM, sub::PedConfigFlagManager::CustomFlagSetterMenu)

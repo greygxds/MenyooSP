@@ -24,97 +24,96 @@ class GTAentity;
 
 namespace sub
 {
-	namespace Spooner::Submenus
-	{
-		extern std::string& _searchStr;
-		extern std::tuple<GTAentity, Vector3*, Vector3*> SpoonerVector3ManualEditingPtrs;
-		extern UINT8 _copyEntTexterValue;
-		struct EntityScaleState {
-			int handle = 0;
-			Vector3 scale{ 1.0f, 1.0f, 1.0f };
-		};
-		extern EntityScaleState _vehScale, _pedScale, _objScale;
+namespace Spooner::Submenus
+{
+extern std::string& _searchStr;
+extern std::tuple<GTAentity, Vector3*, Vector3*> SpoonerVector3ManualEditingPtrs;
+extern UINT8 _copyEntTexterValue;
 
-		namespace MultiSelect
-		{
-			extern std::vector<SpoonerEntity> g_selectedEntities;
-			void Add(const SpoonerEntity& entity);
-			void Remove(int index);
-			void Remove(GTAentity handle);
-			bool IsSelected(GTAentity handle);
-			void Clear();
-			void DestroyPivot();
-			void CreatePivot();
-		}
+struct EntityScaleState
+{
+    int handle = 0;
+    Vector3 scale{1.0f, 1.0f, 1.0f};
+};
 
-		void HandleKeyboardPlacementInput(Vector3& position, Vector3& rotation);
+extern EntityScaleState _vehScale, _pedScale, _objScale;
 
-		void SetSelectedEntityAsActivePed();
-		void SetSelectedEntityAsVehicleTarget();
-		void SetPlayerAsEntityAlphaTarget();
+namespace MultiSelect
+{
+extern std::vector<SpoonerEntity> g_selectedEntities;
+void Add(const SpoonerEntity& entity);
+void Remove(int index);
+void Remove(GTAentity handle);
+bool IsSelected(GTAentity handle);
+void Clear();
+void DestroyPivot();
+void CreatePivot();
+} // namespace MultiSelect
 
-		void Sub_SpoonerMain();
-		void Sub_Settings();
-		void Sub_SaveFiles();
-		void Sub_AutoSave();
-		void Sub_SaveFiles_Load();
-		void Sub_SaveFiles_Load_LegacySP00N();
-		void Sub_JobImporter();
-		void Sub_JobBrowser();
-		void Sub_JobBrowser_Info();
-		void Sub_ManageEntities();
-		void Sub_ManageEntities_Removal();
-		//void Sub_ManageEntities_Removal_FromDb();
-		void Sub_SelectedEntityOps();
-		void Sub_AttachmentOps();
-		void Sub_AttachmentOps_AttachTo();
-		void Sub_AttachmentOps_SelectBone();
-		void Sub_ManualEditing();
-		void Sub_Snapping();
-		void Sub_Vector3_ManualEditing();
-		void Sub_MultiSelect();
+void HandleKeyboardPlacementInput(Vector3& position, Vector3& rotation);
 
-		void Sub_PedOps();
-		void Sub_PedOps_Weapon();
-		void Sub_PedOps_Weapon_InCategory();
+void SetSelectedEntityAsActivePed();
+void SetSelectedEntityAsVehicleTarget();
+void SetPlayerAsEntityAlphaTarget();
 
-		void Sub_ManageMarkers();
-		void Sub_ManageMarkers_Removal();
-		void Sub_ManageMarkers_InMarker();
-		void Sub_ManageMarkers_InMarker_Dest2Marker();
-		void Sub_ManageMarkers_InMarker_Attach();
+void Sub_SpoonerMain();
+void Sub_Settings();
+void Sub_SaveFiles();
+void Sub_AutoSave();
+void Sub_SaveFiles_Load();
+void Sub_SaveFiles_Load_LegacySP00N();
+void Sub_JobImporter();
+void Sub_JobBrowser();
+void Sub_JobBrowser_Info();
+void Sub_ManageEntities();
+void Sub_ManageEntities_Removal();
+//void Sub_ManageEntities_Removal_FromDb();
+void Sub_SelectedEntityOps();
+void Sub_AttachmentOps();
+void Sub_AttachmentOps_AttachTo();
+void Sub_AttachmentOps_SelectBone();
+void Sub_ManualEditing();
+void Sub_Snapping();
+void Sub_Vector3_ManualEditing();
+void Sub_MultiSelect();
 
-		void Sub_ManageLights();
-		void Sub_ManageLights_Removal();
-		void Sub_ManageLights_InLight();
-		void Sub_ManageLights_Presets();
-		void Sub_ManageLights_Colour();
+void Sub_PedOps();
+void Sub_PedOps_Weapon();
+void Sub_PedOps_Weapon_InCategory();
 
-		void Sub_SpawnCategories();
-		void Sub_SpawnProp();
-		void Sub_SpawnProp_Favourites();
-		void Sub_SpawnProp_Favourites_CatSelect();
-		void Sub_SpawnPed();
-		void Sub_SpawnVehicle();
+void Sub_ManageMarkers();
+void Sub_ManageMarkers_Removal();
+void Sub_ManageMarkers_InMarker();
+void Sub_ManageMarkers_InMarker_Dest2Marker();
+void Sub_ManageMarkers_InMarker_Attach();
 
-		void Sub_Blip_Management();
-		void Sub_Blip_Radial();
-		void Sub_Blip_Entity();
-		void Sub_Blip_Coord();
+void Sub_ManageLights();
+void Sub_ManageLights_Removal();
+void Sub_ManageLights_InLight();
+void Sub_ManageLights_Presets();
+void Sub_ManageLights_Colour();
 
-		void Sub_Blip_RadialInBlip();
-		void Sub_Blip_EntityInBlip();
-		void Sub_Blip_CoordInBlip();
-	}
+void Sub_SpawnCategories();
+void Sub_SpawnProp();
+void Sub_SpawnProp_Favourites();
+void Sub_SpawnProp_Favourites_CatSelect();
+void Sub_SpawnPed();
+void Sub_SpawnVehicle();
 
+void Sub_Blip_Management();
+void Sub_Blip_Radial();
+void Sub_Blip_Entity();
+void Sub_Blip_Coord();
 
-	void EntityAlphaLevelSub_();
+void Sub_Blip_RadialInBlip();
+void Sub_Blip_EntityInBlip();
+void Sub_Blip_CoordInBlip();
+} // namespace Spooner::Submenus
 
-	void PedExplosionSub();
+void EntityAlphaLevelSub_();
 
-	void AttachFunnyObjectSub();
+void PedExplosionSub();
 
-}
+void AttachFunnyObjectSub();
 
-
-
+} // namespace sub

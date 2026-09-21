@@ -9,5 +9,5 @@
 
 namespace sub::Spooner
 {
-	SpoonerBlip* SelectedBlip = nullptr;
+SpoonerBlip* SelectedBlip = nullptr;
 }

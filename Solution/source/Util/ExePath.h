@@ -25,16 +25,16 @@ std::wstring ExePathW(bool lastSlash = false);
 
 enum class Pathff
 {
-	RootDir,
-	Main,
-	Vehicle,
-	Outfit,
-	Spooner,
-	Audio,
-	Graphics,
-	Speedo,
-	WeaponsLoadout,
-	Language
+    RootDir,
+    Main,
+    Vehicle,
+    Outfit,
+    Spooner,
+    Audio,
+    Graphics,
+    Speedo,
+    WeaponsLoadout,
+    Language
 };
 
 std::wstring GetPathffW(Pathff type, bool lastSlash = false);
@@ -47,7 +47,6 @@ std::string GetPathffA(Pathff type, bool lastSlash = false);
 
 bool does_file_exist(const std::string& path);
 
-void get_all_filenames_with_extension(const std::string& directory, const std::string& extension, std::vector<std::string> &results, bool withExtension);
+void get_all_filenames_with_extension(const std::string& directory, const std::string& extension, std::vector<std::string>& results, bool withExtension);
 
 std::string GetClipboardText();
-

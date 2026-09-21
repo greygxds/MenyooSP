@@ -78,302 +78,323 @@
 
 namespace sub
 {
-	namespace Spooner::Submenus
-	{
-		std::string& _searchStr = dict2;
-		std::tuple<GTAentity, Vector3*, Vector3*> SpoonerVector3ManualEditingPtrs = { 0, nullptr, nullptr };
-		float _fSaveRangeRadius = 5.0f;
-		UINT8 _copyEntTexterValue = 0;
-		UINT8 _entTypeToShowTexterValue = 0;
-		EntityScaleState _vehScale, _pedScale, _objScale;
-		static GTAentity s_selectedEntityTarget;
-		static UINT s_spoonerPedWeaponCategory = 0;
+namespace Spooner::Submenus
+{
+std::string& _searchStr = dict2;
+std::tuple<GTAentity, Vector3*, Vector3*> SpoonerVector3ManualEditingPtrs = {0, nullptr, nullptr};
+float _fSaveRangeRadius = 5.0f;
+UINT8 _copyEntTexterValue = 0;
+UINT8 _entTypeToShowTexterValue = 0;
+EntityScaleState _vehScale, _pedScale, _objScale;
+static GTAentity s_selectedEntityTarget;
+static UINT s_spoonerPedWeaponCategory = 0;
 
-		struct FavouriteProp {
-			std::string modelName;
-			Model model;
-			std::string category;
-		};
-		struct FavPropCache {
-			std::map<std::string, std::vector<FavouriteProp>> byCategory;
-			std::vector<std::string> sortedCategories;
-			bool needsRebuild = true;
-		};
-		static FavPropCache s_favPropCache;
-		static std::string s_favPropSearchStr;
+struct FavouriteProp
+{
+    std::string modelName;
+    Model model;
+    std::string category;
+};
 
-		bool g_multiSelectEditActive = false;
-		SpoonerEntity g_multiSelectPrevSelected;
-		GTAentity g_multiSelectPivot;
-		namespace MultiSelect
-		{
-			std::vector<SpoonerEntity> MultiSelect::g_selectedEntities;
+struct FavPropCache
+{
+    std::map<std::string, std::vector<FavouriteProp>> byCategory;
+    std::vector<std::string> sortedCategories;
+    bool needsRebuild = true;
+};
 
-			void Add(const SpoonerEntity& entity)
-			{
-				if (!entity.handle.Exists())
-					return;
-				if (IsSelected(entity.handle))
-					return;
-				// attached entities can't be selected, pivot would replace their attachment
-				if (entity.handle.IsAttached())
-					return;
-				MultiSelect::g_selectedEntities.push_back(entity);
-			}
+static FavPropCache s_favPropCache;
+static std::string s_favPropSearchStr;
 
-			void Remove(int index)
-			{
-				if (index < 0 || index >= static_cast<int>(MultiSelect::g_selectedEntities.size()))
-					return;
-				MultiSelect::g_selectedEntities.erase(MultiSelect::g_selectedEntities.begin() + index);
-			}
+bool g_multiSelectEditActive = false;
+SpoonerEntity g_multiSelectPrevSelected;
+GTAentity g_multiSelectPivot;
 
-			void Remove(GTAentity handle)
-			{
-				for (size_t i = 0; i < MultiSelect::g_selectedEntities.size(); i++)
-				{
-					if (MultiSelect::g_selectedEntities[i].handle == handle)
-					{
-						MultiSelect::g_selectedEntities.erase(MultiSelect::g_selectedEntities.begin() + i);
-						return;
-					}
-				}
-			}
+namespace MultiSelect
+{
+std::vector<SpoonerEntity> MultiSelect::g_selectedEntities;
 
-			bool IsSelected(GTAentity handle)
-			{
-				for (auto& e : MultiSelect::g_selectedEntities)
-				{
-					if (e.handle == handle)
-						return true;
-				}
-				return false;
-			}
+void Add(const SpoonerEntity& entity)
+{
+    if (!entity.handle.Exists())
+        return;
+    if (IsSelected(entity.handle))
+        return;
+    // attached entities can't be selected, pivot would replace their attachment
+    if (entity.handle.IsAttached())
+        return;
+    MultiSelect::g_selectedEntities.push_back(entity);
+}
 
-			void SelectAll()
-			{
-				for (auto& e : Databases::EntityDb)
-				{
-					if (e.handle.Exists())
-						Add(e);
-				}
-			}
+void Remove(int index)
+{
+    if (index < 0 || index >= static_cast<int>(MultiSelect::g_selectedEntities.size()))
+        return;
+    MultiSelect::g_selectedEntities.erase(MultiSelect::g_selectedEntities.begin() + index);
+}
 
-			void Clear()
-			{
-				MultiSelect::g_selectedEntities.clear();
-			}
+void Remove(GTAentity handle)
+{
+    for (size_t i = 0; i < MultiSelect::g_selectedEntities.size(); i++)
+    {
+        if (MultiSelect::g_selectedEntities[i].handle == handle)
+        {
+            MultiSelect::g_selectedEntities.erase(MultiSelect::g_selectedEntities.begin() + i);
+            return;
+        }
+    }
+}
 
-			void DestroyPivot()
-			{
-				if (g_multiSelectPivot.Exists())
-				{
-					for (auto& e : MultiSelect::g_selectedEntities)
-						if (e.handle.Exists())
-							e.handle.Detach();
-					g_multiSelectPivot.Delete();
-				}
-			}
+bool IsSelected(GTAentity handle)
+{
+    for (auto& e : MultiSelect::g_selectedEntities)
+    {
+        if (e.handle == handle)
+            return true;
+    }
+    return false;
+}
 
-			void CreatePivot()
-			{
-				Vector3 centroid;
-				int count = 0;
-				for (auto& e : MultiSelect::g_selectedEntities)
-				{
-					if (e.handle.Exists())
-					{
-						centroid = centroid + e.handle.GetPosition();
-						count++;
-					}
-				}
-				if (count == 0)
-					return;
+void SelectAll()
+{
+    for (auto& e : Databases::EntityDb)
+    {
+        if (e.handle.Exists())
+            Add(e);
+    }
+}
 
-				centroid /= static_cast<float>(count);
-				GTAprop prop = World::CreateProp(GTAmodel::Model(0x3A49EBD1), centroid, Vector3(), false, false);
-				g_multiSelectPivot = GTAentity(prop.Handle());
-				g_multiSelectPivot.SetAlpha(0);
-				SET_ENTITY_COLLISION(g_multiSelectPivot.Handle(), false, false);
-				g_multiSelectPivot.FreezePosition(true);
+void Clear()
+{
+    MultiSelect::g_selectedEntities.clear();
+}
 
-				Vector3 pivotPos = g_multiSelectPivot.GetPosition();
-				Vector3 pivotRot = g_multiSelectPivot.GetRotation();
-				for (auto& e : MultiSelect::g_selectedEntities)
-				{
-					if (e.handle.Exists())
-					{
-						Vector3 relPos = e.handle.GetPosition() - pivotPos;
-						Vector3 relRot = e.handle.GetRotation() - pivotRot;
-						e.handle.AttachTo(g_multiSelectPivot, -1, false, relPos, relRot);
-					}
-				}
-			}
-		}
+void DestroyPivot()
+{
+    if (g_multiSelectPivot.Exists())
+    {
+        for (auto& e : MultiSelect::g_selectedEntities)
+            if (e.handle.Exists())
+                e.handle.Detach();
+        g_multiSelectPivot.Delete();
+    }
+}
 
-		void SetSelectedEntityAsActivePed() { g_activePedHandle = selectedEntity.handle.Handle(); }
-		void SetSelectedEntityAsVehicleTarget()
-		{
-			s_selectedEntityTarget = selectedEntity.handle;
-			SetVehicleModShopTarget(selectedEntity.handle.Handle());
-		}
-		void SetPlayerAsEntityAlphaTarget() { s_selectedEntityTarget = PLAYER_PED_ID(); }
+void CreatePivot()
+{
+    Vector3 centroid;
+    int count = 0;
+    for (auto& e : MultiSelect::g_selectedEntities)
+    {
+        if (e.handle.Exists())
+        {
+            centroid = centroid + e.handle.GetPosition();
+            count++;
+        }
+    }
+    if (count == 0)
+        return;
 
+    centroid /= static_cast<float>(count);
+    GTAprop prop = World::CreateProp(GTAmodel::Model(0x3A49EBD1), centroid, Vector3(), false, false);
+    g_multiSelectPivot = GTAentity(prop.Handle());
+    g_multiSelectPivot.SetAlpha(0);
+    SET_ENTITY_COLLISION(g_multiSelectPivot.Handle(), false, false);
+    g_multiSelectPivot.FreezePosition(true);
 
+    Vector3 pivotPos = g_multiSelectPivot.GetPosition();
+    Vector3 pivotRot = g_multiSelectPivot.GetRotation();
+    for (auto& e : MultiSelect::g_selectedEntities)
+    {
+        if (e.handle.Exists())
+        {
+            Vector3 relPos = e.handle.GetPosition() - pivotPos;
+            Vector3 relRot = e.handle.GetRotation() - pivotRot;
+            e.handle.AttachTo(g_multiSelectPivot, -1, false, relPos, relRot);
+        }
+    }
+}
+} // namespace MultiSelect
 
-	void Sub_SpoonerMain()
-		{
-		SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
-		selectedEntity.handle = 0;
-			_searchStr.clear(); // Sub_SaveFiles _searchStr
-			dict3.clear(); // Sub_SaveFiles _dir
+void SetSelectedEntityAsActivePed()
+{
+    g_activePedHandle = selectedEntity.handle.Handle();
+}
 
-			AddTitle("Object Spooner");
+void SetSelectedEntityAsVehicleTarget()
+{
+    s_selectedEntityTarget = selectedEntity.handle;
+    SetVehicleModShopTarget(selectedEntity.handle.Handle());
+}
 
-			AddLocal("Spooner Mode", SpoonerMode::bEnabled, SpoonerMode::Toggle, SpoonerMode::Toggle);
-			AddOptionDescription("Free camera for selecting, moving and spawning entities.");
-			AddOption("Spawn Entity Into World", null, nullFunc, SUB::SPOONER_SPAWN_CATEGORIES);
-			AddOption("Manage Entity Database", null, nullFunc, SUB::SPOONER_MANAGEDB);
-			AddOption("Manage Multiple Entities", null, nullFunc, SUB::SPOONER_MULTISELECT);
-			AddOptionDescription("Select several entities to move, rotate, copy or delete together.");
-			AddOption("Manage Markers", null, nullFunc, SUB::SPOONER_MANAGEMARKERS);
-			AddOption("Manage Light Sources", null, nullFunc, SUB::SPOONER_MANAGELIGHTS);
-			AddOption("Manage Blips", null, nullFunc, SUB::SPOONER_BLIPS);
-			AddOption("Manage Markers", null, nullFunc, SUB::SPOONER_MANAGEMARKERS);
-			AddOption("Manage Saved Files", null, nullFunc, SUB::SPOONER_SAVEFILES);
-			AddOption("Job Importer", null, nullFunc, SUB::SPOONER_JOBIMPORTER);
-			AddOption("Settings", null, nullFunc, SUB::SPOONER_SETTINGS);
-		}
-		void Sub_Settings()
-		{
-			AddTitle("Settings");
-			AddToggle("Display Model Previews (Spooner Mode)", Settings::bShowModelPreviews);
-			AddOptionDescription("Shows a preview of the model you're about to spawn.");
-			AddToggle("Display Spooner Info", Settings::bDisplaySpoonerInfo);
-			AddOptionDescription("Shows entity counts on screen while Spooner Mode is on.");
-			AddToggle("Display Entity Surrounding Box", Settings::bShowBoxAroundSelectedEntity);
-			AddOptionDescription("Draws a box around the selected entity.");
-			AddToggle("Spawn Dynamic Objects", Settings::bSpawnDynamicProps);
-			AddOptionDescription("New objects react to physics. Off: they spawn frozen in place.");
-			AddToggle("Spawn Dynamic Peds", Settings::bSpawnDynamicPeds);
-			AddOptionDescription("New peds react to physics. Off: they spawn frozen in place.");
-			AddToggle("Spawn Dynamic Vehicles", Settings::bSpawnDynamicVehicles);
-			AddOptionDescription("New vehicles react to physics. Off: they spawn frozen in place.");
-			AddToggle("Freeze Entity When Moving It (Spooner Mode)", Settings::bFreezeEntityWhenMovingIt);
-			AddOptionDescription("Freezes the entity while you drag it so it doesn't fall or roll.");
-			AddToggle("Spawn Invincible Entities", Settings::bSpawnInvincibleEntities);
-			AddToggle("Spawn Still Peds (Block Fleeing)", Settings::bSpawnStillPeds);
-			AddOptionDescription("Spawned peds don't react or run away.");
-			AddToggle("Make Added (To DB) Entities Persistent", Settings::bAddToDbAsMissionEntities);
-			AddOptionDescription("Database entities won't despawn when you move away.");
-			AddToggle("Teleport To Reference When Loading File", Settings::bTeleportToReferenceWhenLoadingFile);
-			AddOptionDescription("Teleports you to the file's reference coordinates when loading.");
-			AddToggle("Invert Scroll Sensitivity", Settings::bInvertScrollSensitivity);
-			AddOptionDescription("Swaps the direction of Scroll Sensitivity options in Manual Editing menus. Off: Left multiplies by 10, Right divides. On: Right multiplies, Left divides.");
+void SetPlayerAsEntityAlphaTarget()
+{
+    s_selectedEntityTarget = PLAYER_PED_ID();
+}
 
-			AddOption("Reload Model List Files", null, PopulateGlobalEntityModelsArrays);
-			AddOptionDescription("Re-reads the model list files without restarting the game.");
+void Sub_SpoonerMain()
+{
+    SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
+    selectedEntity.handle = 0;
+    _searchStr.clear(); // Sub_SaveFiles _searchStr
+    dict3.clear();      // Sub_SaveFiles _dir
 
-			AddOption("Grid Snap Settings", null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
-		}
-		void Sub_SaveFiles()
-		{
-			std::string& _name = dict;
-			std::string& _dir = dict3;
+    AddTitle("Object Spooner");
 
-			GTAentity myPed = PLAYER_PED_ID();
-			const Vector3& myPos = myPed.GetPosition();
-			auto& fSaveRangeRadius = _fSaveRangeRadius;
+    AddLocal("Spooner Mode", SpoonerMode::bEnabled, SpoonerMode::Toggle, SpoonerMode::Toggle);
+    AddOptionDescription("Free camera for selecting, moving and spawning entities.");
+    AddOption("Spawn Entity Into World", null, nullFunc, SUB::SPOONER_SPAWN_CATEGORIES);
+    AddOption("Manage Entity Database", null, nullFunc, SUB::SPOONER_MANAGEDB);
+    AddOption("Manage Multiple Entities", null, nullFunc, SUB::SPOONER_MULTISELECT);
+    AddOptionDescription("Select several entities to move, rotate, copy or delete together.");
+    AddOption("Manage Markers", null, nullFunc, SUB::SPOONER_MANAGEMARKERS);
+    AddOption("Manage Light Sources", null, nullFunc, SUB::SPOONER_MANAGELIGHTS);
+    AddOption("Manage Blips", null, nullFunc, SUB::SPOONER_BLIPS);
+    AddOption("Manage Markers", null, nullFunc, SUB::SPOONER_MANAGEMARKERS);
+    AddOption("Manage Saved Files", null, nullFunc, SUB::SPOONER_SAVEFILES);
+    AddOption("Job Importer", null, nullFunc, SUB::SPOONER_JOBIMPORTER);
+    AddOption("Settings", null, nullFunc, SUB::SPOONER_SETTINGS);
+}
 
-			AddTitle("Manage Saved Files");
+void Sub_Settings()
+{
+    AddTitle("Settings");
+    AddToggle("Display Model Previews (Spooner Mode)", Settings::bShowModelPreviews);
+    AddOptionDescription("Shows a preview of the model you're about to spawn.");
+    AddToggle("Display Spooner Info", Settings::bDisplaySpoonerInfo);
+    AddOptionDescription("Shows entity counts on screen while Spooner Mode is on.");
+    AddToggle("Display Entity Surrounding Box", Settings::bShowBoxAroundSelectedEntity);
+    AddOptionDescription("Draws a box around the selected entity.");
+    AddToggle("Spawn Dynamic Objects", Settings::bSpawnDynamicProps);
+    AddOptionDescription("New objects react to physics. Off: they spawn frozen in place.");
+    AddToggle("Spawn Dynamic Peds", Settings::bSpawnDynamicPeds);
+    AddOptionDescription("New peds react to physics. Off: they spawn frozen in place.");
+    AddToggle("Spawn Dynamic Vehicles", Settings::bSpawnDynamicVehicles);
+    AddOptionDescription("New vehicles react to physics. Off: they spawn frozen in place.");
+    AddToggle("Freeze Entity When Moving It (Spooner Mode)", Settings::bFreezeEntityWhenMovingIt);
+    AddOptionDescription("Freezes the entity while you drag it so it doesn't fall or roll.");
+    AddToggle("Spawn Invincible Entities", Settings::bSpawnInvincibleEntities);
+    AddToggle("Spawn Still Peds (Block Fleeing)", Settings::bSpawnStillPeds);
+    AddOptionDescription("Spawned peds don't react or run away.");
+    AddToggle("Make Added (To DB) Entities Persistent", Settings::bAddToDbAsMissionEntities);
+    AddOptionDescription("Database entities won't despawn when you move away.");
+    AddToggle("Teleport To Reference When Loading File", Settings::bTeleportToReferenceWhenLoadingFile);
+    AddOptionDescription("Teleports you to the file's reference coordinates when loading.");
+    AddToggle("Invert Scroll Sensitivity", Settings::bInvertScrollSensitivity);
+    AddOptionDescription("Swaps the direction of Scroll Sensitivity options in Manual Editing menus. Off: Left multiplies by 10, Right divides. On: Right multiplies, Left divides.");
 
-			bool bSaveDb = false;
-			AddOption("Save Database To File (" + std::to_string(Databases::EntityDb.size() + Databases::MarkerDb.size() + Databases::LightDb.size()) + ")", bSaveDb);
-			AddOptionDescription("Saves all database entities, markers and lights.");
-			if (bSaveDb)
-			{
-				std::string inputStr = Game::InputBox("", 28U, "Enter file name:");
-				if (inputStr.length() > 0)
-				{
-					if (!IsSafePath(inputStr))
-					{
-						Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
-					}
-					else if (FileManagement::SaveDbToFile(_dir + "\\" + inputStr + ".xml", true))
-					{
-						Game::Print::PrintBottomLeft("File ~b~saved~s~.");
-					}
-					else
-					{
-						Game::Print::ShowNotification("~r~Error:", "Unable to save file.");
-						addlog(ige::LogType::LOG_ERROR, "Attempt to save Database file " + inputStr + ".xml failed");
-					}
-				}
-			//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SpoonerSaveDbToFile, std::string(), 28U, "Enter file name:");
-			//OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_dir);
-		}
+    AddOption("Reload Model List Files", null, PopulateGlobalEntityModelsArrays);
+    AddOptionDescription("Re-reads the model list files without restarting the game.");
 
-			bool bSaveWorld = false;
-			AddOption("Save World To File (" + std::to_string(worldEntities.size()) + ")", bSaveWorld);
-			AddOptionDescription("Saves every entity currently in the world, not just the database.");
-			if (bSaveWorld)
-			{
-				std::string inputStr = Game::InputBox("", 28U, "Enter file name:");
-				if (inputStr.length() > 0)
-				{
-					if (!IsSafePath(inputStr))
-					{
-						Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
-					}
-					else if (FileManagement::SaveWorldToFile(_dir + "\\" + inputStr + ".xml", worldEntities, Databases::MarkerDb))
-					{
-						Game::Print::PrintBottomLeft("File ~b~saved~s~.");
-					}
-					else
-					{
-						Game::Print::ShowNotification("~r~Error:", "Unable to save file.");
-						addlog(ige::LogType::LOG_ERROR, "Attempt to save World file " + inputStr + ".xml failed");
-					}
-				}
-			}
+    AddOption("Grid Snap Settings", null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
+}
 
-			std::vector<Entity> vSaveRangeEntities;
-			GTAmemory::GetEntityHandles(vSaveRangeEntities, myPos, fSaveRangeRadius);
-			bool bSaveRange_plus = false, bSaveRange_minus = false, bSaveRange_save = false;
-			AddNumber("Save Range To File (" + std::to_string(vSaveRangeEntities.size()) + ")", fSaveRangeRadius, 0, bSaveRange_save, bSaveRange_plus, bSaveRange_minus);
-			AddOptionDescription("Saves world entities within this radius of you. Left/right changes the radius; press to save.");
-			if (Menu::IsLastDrawnOptionSelected())
-				EntityManagement::DrawRadiusDisplayingMarker(myPos, fSaveRangeRadius);
-			if (bSaveRange_plus) { if (fSaveRangeRadius < FLT_MAX) fSaveRangeRadius += 1.0f; }
-			if (bSaveRange_minus) { if (fSaveRangeRadius > 0.0f) fSaveRangeRadius -= 1.0f; }
-			if (bSaveRange_save)
-			{
-				std::string inputStr = Game::InputBox("", 28U, "Enter file name:");
-				if (inputStr.length() > 0)
-				{
-					if (!IsSafePath(inputStr))
-					{
-						Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
-					}
-					else
-					{
-						std::vector<SpoonerMarker> vSaveRangeMarkers;
-						MarkerManagement::GetAllMarkersInRange(vSaveRangeMarkers, myPos, fSaveRangeRadius);
+void Sub_SaveFiles()
+{
+    std::string& _name = dict;
+    std::string& _dir = dict3;
 
-						if (FileManagement::SaveWorldToFile(_dir + "\\" + inputStr + ".xml", vSaveRangeEntities, vSaveRangeMarkers))
-						{
-							Game::Print::PrintBottomLeft("File ~b~saved~s~.");
-						}
-						else
-						{
-							Game::Print::ShowNotification("~r~Error:", "Unable to save file.");
-							addlog(ige::LogType::LOG_ERROR, "Attempt to save Range Markers file " + inputStr + ".xml failed");
-						}
-					}
-				}
-			}
-			AddOption("Auto Save Settings", null, nullFunc, SUB::SPOONER_AUTOSAVE);
-			/*bool bLoadFromFile = false;
+    GTAentity myPed = PLAYER_PED_ID();
+    const Vector3& myPos = myPed.GetPosition();
+    auto& fSaveRangeRadius = _fSaveRangeRadius;
+
+    AddTitle("Manage Saved Files");
+
+    bool bSaveDb = false;
+    AddOption("Save Database To File (" + std::to_string(Databases::EntityDb.size() + Databases::MarkerDb.size() + Databases::LightDb.size()) + ")", bSaveDb);
+    AddOptionDescription("Saves all database entities, markers and lights.");
+    if (bSaveDb)
+    {
+        std::string inputStr = Game::InputBox("", 28U, "Enter file name:");
+        if (inputStr.length() > 0)
+        {
+            if (!IsSafePath(inputStr))
+            {
+                Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
+            }
+            else if (FileManagement::SaveDbToFile(_dir + "\\" + inputStr + ".xml", true))
+            {
+                Game::Print::PrintBottomLeft("File ~b~saved~s~.");
+            }
+            else
+            {
+                Game::Print::ShowNotification("~r~Error:", "Unable to save file.");
+                addlog(ige::LogType::LOG_ERROR, "Attempt to save Database file " + inputStr + ".xml failed");
+            }
+        }
+        //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SpoonerSaveDbToFile, std::string(), 28U, "Enter file name:");
+        //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_dir);
+    }
+
+    bool bSaveWorld = false;
+    AddOption("Save World To File (" + std::to_string(worldEntities.size()) + ")", bSaveWorld);
+    AddOptionDescription("Saves every entity currently in the world, not just the database.");
+    if (bSaveWorld)
+    {
+        std::string inputStr = Game::InputBox("", 28U, "Enter file name:");
+        if (inputStr.length() > 0)
+        {
+            if (!IsSafePath(inputStr))
+            {
+                Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
+            }
+            else if (FileManagement::SaveWorldToFile(_dir + "\\" + inputStr + ".xml", worldEntities, Databases::MarkerDb))
+            {
+                Game::Print::PrintBottomLeft("File ~b~saved~s~.");
+            }
+            else
+            {
+                Game::Print::ShowNotification("~r~Error:", "Unable to save file.");
+                addlog(ige::LogType::LOG_ERROR, "Attempt to save World file " + inputStr + ".xml failed");
+            }
+        }
+    }
+
+    std::vector<Entity> vSaveRangeEntities;
+    GTAmemory::GetEntityHandles(vSaveRangeEntities, myPos, fSaveRangeRadius);
+    bool bSaveRange_plus = false, bSaveRange_minus = false, bSaveRange_save = false;
+    AddNumber("Save Range To File (" + std::to_string(vSaveRangeEntities.size()) + ")", fSaveRangeRadius, 0, bSaveRange_save, bSaveRange_plus, bSaveRange_minus);
+    AddOptionDescription("Saves world entities within this radius of you. Left/right changes the radius; press to save.");
+    if (Menu::IsLastDrawnOptionSelected())
+        EntityManagement::DrawRadiusDisplayingMarker(myPos, fSaveRangeRadius);
+    if (bSaveRange_plus)
+    {
+        if (fSaveRangeRadius < FLT_MAX)
+            fSaveRangeRadius += 1.0f;
+    }
+    if (bSaveRange_minus)
+    {
+        if (fSaveRangeRadius > 0.0f)
+            fSaveRangeRadius -= 1.0f;
+    }
+    if (bSaveRange_save)
+    {
+        std::string inputStr = Game::InputBox("", 28U, "Enter file name:");
+        if (inputStr.length() > 0)
+        {
+            if (!IsSafePath(inputStr))
+            {
+                Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
+            }
+            else
+            {
+                std::vector<SpoonerMarker> vSaveRangeMarkers;
+                MarkerManagement::GetAllMarkersInRange(vSaveRangeMarkers, myPos, fSaveRangeRadius);
+
+                if (FileManagement::SaveWorldToFile(_dir + "\\" + inputStr + ".xml", vSaveRangeEntities, vSaveRangeMarkers))
+                {
+                    Game::Print::PrintBottomLeft("File ~b~saved~s~.");
+                }
+                else
+                {
+                    Game::Print::ShowNotification("~r~Error:", "Unable to save file.");
+                    addlog(ige::LogType::LOG_ERROR, "Attempt to save Range Markers file " + inputStr + ".xml failed");
+                }
+            }
+        }
+    }
+    AddOption("Auto Save Settings", null, nullFunc, SUB::SPOONER_AUTOSAVE);
+    /*bool bLoadFromFile = false;
 			AddOption("Load From File", bLoadFromFile); if (bLoadFromFile)
 			{
 			std::string inputStr = Game::InputBox("", 28U, "Enter file name:");
@@ -394,150 +415,160 @@ namespace sub
 			//OnscreenKeyboard::State::arg2._ptr = reinterpret_cast<void*>(&_dir);
 			}*/
 
-			std::vector<std::string> vfilnames;
-			//get_all_filenames_with_extension(GetPathffA(Pathff::Spooner, false), ".xml", vfilnames, false);
-			if (_dir.empty())
-				_dir = GetPathffA(Pathff::Spooner, false);
-			DIR* dir_point = opendir(_dir.c_str());
-			dirent* entry = readdir(dir_point);
-			while (entry)
-			{
-				vfilnames.push_back(entry->d_name);
-				entry = readdir(dir_point);
-			}
-			closedir(dir_point);
+    std::vector<std::string> vfilnames;
+    //get_all_filenames_with_extension(GetPathffA(Pathff::Spooner, false), ".xml", vfilnames, false);
+    if (_dir.empty())
+        _dir = GetPathffA(Pathff::Spooner, false);
+    DIR* dir_point = opendir(_dir.c_str());
+    dirent* entry = readdir(dir_point);
+    while (entry)
+    {
+        vfilnames.push_back(entry->d_name);
+        entry = readdir(dir_point);
+    }
+    closedir(dir_point);
 
-			bool bCreateFolderPressed = false;
-			AddOption("Create New Folder", bCreateFolderPressed); if (bCreateFolderPressed)
-			{
-				std::string inputStr = Game::InputBox("", 28U, "Enter folder name:");
-				if (inputStr.length() > 0)
-				{
-					if (!IsSafePath(inputStr))
-					{
-						Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
-					}
-					else if (CreateDirectoryA((_dir + "\\" + inputStr).c_str(), NULL) ||
-						GetLastError() == ERROR_ALREADY_EXISTS)
-					{
-						_dir = _dir + "\\" + inputStr;
-						Menu::selectedOptionIndex = 6;
-						Game::Print::PrintBottomLeft("Folder ~b~created~s~.");
-					}
-					else
-					{
-						Game::Print::ShowNotification("~r~Failed", "to create folder.");
-						addlog(ige::LogType::LOG_ERROR, "Attempt to create new folder " + inputStr + " failed");
-					}
-				}
-				else
-					Game::Print::PrintErrorInvalidInput(inputStr);
-				return;
-				// No OnscreenKeyboard!
-			}
+    bool bCreateFolderPressed = false;
+    AddOption("Create New Folder", bCreateFolderPressed);
+    if (bCreateFolderPressed)
+    {
+        std::string inputStr = Game::InputBox("", 28U, "Enter folder name:");
+        if (inputStr.length() > 0)
+        {
+            if (!IsSafePath(inputStr))
+            {
+                Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
+            }
+            else if (CreateDirectoryA((_dir + "\\" + inputStr).c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
+            {
+                _dir = _dir + "\\" + inputStr;
+                Menu::selectedOptionIndex = 6;
+                Game::Print::PrintBottomLeft("Folder ~b~created~s~.");
+            }
+            else
+            {
+                Game::Print::ShowNotification("~r~Failed", "to create folder.");
+                addlog(ige::LogType::LOG_ERROR, "Attempt to create new folder " + inputStr + " failed");
+            }
+        }
+        else
+            Game::Print::PrintErrorInvalidInput(inputStr);
+        return;
+        // No OnscreenKeyboard!
+    }
 
-			AddBreak("---Found Files---");
+    AddBreak("---Found Files---");
 
-			bool bFolderBackPressed = false;
-			AddOption("..", bFolderBackPressed); if (bFolderBackPressed)
-			{
-				std::string baseDir = GetPathffA(Pathff::Spooner, false);
-				if (_dir.length() > baseDir.length() && _dir.find(baseDir) == 0)
-				{
-					_dir = _dir.substr(0, _dir.rfind("\\"));
-					Menu::selectedOptionIndex = 6;
-				}
-				else
-				{
-					_dir = baseDir;
-				}
-			}
+    bool bFolderBackPressed = false;
+    AddOption("..", bFolderBackPressed);
+    if (bFolderBackPressed)
+    {
+        std::string baseDir = GetPathffA(Pathff::Spooner, false);
+        if (_dir.length() > baseDir.length() && _dir.find(baseDir) == 0)
+        {
+            _dir = _dir.substr(0, _dir.rfind("\\"));
+            Menu::selectedOptionIndex = 6;
+        }
+        else
+        {
+            _dir = baseDir;
+        }
+    }
 
-			if (!vfilnames.empty())
-			{
-				bool bSearchPressed = false;
-				AddOption(_searchStr.empty() ? "SEARCH" : _searchStr, bSearchPressed, nullFunc, -1, true); if (bSearchPressed)
-				{
-					_searchStr = Game::InputBox(_searchStr, 126U, "SEARCH", boost::to_lower_copy(_searchStr));
-					boost::to_upper(_searchStr);
-					//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SearchToUpper, _searchStr, 126U, std::string(), _searchStr);
-					//OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_searchStr);
-				}
+    if (!vfilnames.empty())
+    {
+        bool bSearchPressed = false;
+        AddOption(_searchStr.empty() ? "SEARCH" : _searchStr, bSearchPressed, nullFunc, -1, true);
+        if (bSearchPressed)
+        {
+            _searchStr = Game::InputBox(_searchStr, 126U, "SEARCH", boost::to_lower_copy(_searchStr));
+            boost::to_upper(_searchStr);
+            //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SearchToUpper, _searchStr, 126U, std::string(), _searchStr);
+            //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_searchStr);
+        }
 
-				for (auto& filname : vfilnames)
-				{
-					if (filname.front() == '.' || filname.front() == ',')
-						continue;
-					if (!_searchStr.empty()) { if (boost::to_upper_copy(filname).find(_searchStr) == std::string::npos) continue; }
+        for (auto& filname : vfilnames)
+        {
+            if (filname.front() == '.' || filname.front() == ',')
+                continue;
+            if (!_searchStr.empty())
+            {
+                if (boost::to_upper_copy(filname).find(_searchStr) == std::string::npos)
+                    continue;
+            }
 
-					bool isFolder = PathIsDirectoryA((_dir + "\\" + filname).c_str()) != 0;
-					bool isXml = filname.length() > 4 && filname.rfind(".xml") == filname.length() - 4;
-					bool isSp00n = filname.length() > 6 && filname.rfind(".SP00N") == filname.length() - 6;
-					TICKOL icon = TICKOL::NONE;
-					if (isFolder)
-						icon = TICKOL::ARROWRIGHT;
-					else if (isXml || isSp00n)
-						icon = TICKOL::TICK2;
-					bool bFilePressed = false;
+            bool isFolder = PathIsDirectoryA((_dir + "\\" + filname).c_str()) != 0;
+            bool isXml = filname.length() > 4 && filname.rfind(".xml") == filname.length() - 4;
+            bool isSp00n = filname.length() > 6 && filname.rfind(".SP00N") == filname.length() - 6;
+            TICKOL icon = TICKOL::NONE;
+            if (isFolder)
+                icon = TICKOL::ARROWRIGHT;
+            else if (isXml || isSp00n)
+                icon = TICKOL::TICK2;
+            bool bFilePressed = false;
 
-					if (isFolder)
-					{
-						AddTickol(filname + " >>>", true, bFilePressed, bFilePressed, icon, TICKOL::NONE); if (bFilePressed)
-						{
-							_dir = _dir + "\\" + filname;
-							Menu::selectedOptionIndex = 6;
-						}
+            if (isFolder)
+            {
+                AddTickol(filname + " >>>", true, bFilePressed, bFilePressed, icon, TICKOL::NONE);
+                if (bFilePressed)
+                {
+                    _dir = _dir + "\\" + filname;
+                    Menu::selectedOptionIndex = 6;
+                }
 
-						if (Menu::IsLastDrawnOptionSelected() && !bFilePressed)
-						{
-							if (FolderPreviewBmps_catind::bFolderBmpsEnabled)
-								FolderPreviewBmps_catind::DrawBmp(_dir + "\\" + filname);
-						}
-					}
-					else if (isXml || isSp00n)
-					{
-						AddTickol(filname, true, bFilePressed, bFilePressed, icon, TICKOL::NONE); if (bFilePressed)
-						{
-							if (isXml)
-							{
-								_name = filname.substr(0, filname.rfind('.'));
-								Menu::pendingSubmenu = SUB::SPOONER_SAVEFILES_LOAD;
-							}
-							else if (isSp00n)
-							{
-								_name = filname.substr(0, filname.rfind('.'));
-								Menu::pendingSubmenu = SUB::SPOONER_SAVEFILES_LOAD_LEGACYSP00N;
-							}
-						}
+                if (Menu::IsLastDrawnOptionSelected() && !bFilePressed)
+                {
+                    if (FolderPreviewBmps_catind::bFolderBmpsEnabled)
+                        FolderPreviewBmps_catind::DrawBmp(_dir + "\\" + filname);
+                }
+            }
+            else if (isXml || isSp00n)
+            {
+                AddTickol(filname, true, bFilePressed, bFilePressed, icon, TICKOL::NONE);
+                if (bFilePressed)
+                {
+                    if (isXml)
+                    {
+                        _name = filname.substr(0, filname.rfind('.'));
+                        Menu::pendingSubmenu = SUB::SPOONER_SAVEFILES_LOAD;
+                    }
+                    else if (isSp00n)
+                    {
+                        _name = filname.substr(0, filname.rfind('.'));
+                        Menu::pendingSubmenu = SUB::SPOONER_SAVEFILES_LOAD_LEGACYSP00N;
+                    }
+                }
 
-                        if (isXml && Menu::IsLastDrawnOptionSelected() && !bFilePressed)
-						{
-							static std::string lastHoveredXml = "";
-							static DxHookIMG::DxTexture hoveredXmlTexture;
-							std::string baseName = filname.substr(0, filname.rfind('.'));
-							std::string hoverImgPath = _dir + "\\" + baseName + ".jpg";
-							if (lastHoveredXml != hoverImgPath)
-							{
-								lastHoveredXml = hoverImgPath;
-								hoveredXmlTexture = DxHookIMG::DxTexture();
-								std::ifstream f(hoverImgPath);
-								if (f.good()) hoveredXmlTexture.Load(hoverImgPath);
-							}
-							if (hoveredXmlTexture.Exists())
-							{
-								Vector2 res = { 0.1f, 0.0889f };
-								FLOAT x_coord = 0.324f + menuPos.x;
-                                FLOAT y_coord = currentOptionY + 0.044f + menuPos.y;
-								if (menuPos.x > 0.45f) x_coord = menuPos.x - 0.003f;
-								DRAW_RECT(x_coord, y_coord, res.x + 0.003f, res.y + 0.003f, 0, 0, 0, 212, false);
-								hoveredXmlTexture.Draw(0, Vector2(x_coord, y_coord), Vector2(res.x, res.y / 2 + 0.005f), 0.0f, RGBA::AllWhite());
-							}
-						}
-					}
-				}
-			}
+                if (isXml && Menu::IsLastDrawnOptionSelected() && !bFilePressed)
+                {
+                    static std::string lastHoveredXml = "";
+                    static DxHookIMG::DxTexture hoveredXmlTexture;
+                    std::string baseName = filname.substr(0, filname.rfind('.'));
+                    std::string hoverImgPath = _dir + "\\" + baseName + ".jpg";
+                    if (lastHoveredXml != hoverImgPath)
+                    {
+                        lastHoveredXml = hoverImgPath;
+                        hoveredXmlTexture = DxHookIMG::DxTexture();
+                        std::ifstream f(hoverImgPath);
+                        if (f.good())
+                            hoveredXmlTexture.Load(hoverImgPath);
+                    }
+                    if (hoveredXmlTexture.Exists())
+                    {
+                        Vector2 res = {0.1f, 0.0889f};
+                        FLOAT x_coord = 0.324f + menuPos.x;
+                        FLOAT y_coord = currentOptionY + 0.044f + menuPos.y;
+                        if (menuPos.x > 0.45f)
+                            x_coord = menuPos.x - 0.003f;
+                        DRAW_RECT(x_coord, y_coord, res.x + 0.003f, res.y + 0.003f, 0, 0, 0, 212, false);
+                        hoveredXmlTexture.Draw(0, Vector2(x_coord, y_coord), Vector2(res.x, res.y / 2 + 0.005f), 0.0f, RGBA::AllWhite());
+                    }
+                }
+            }
+        }
+    }
 
-			/*vfilnames.clear();
+    /*vfilnames.clear();
 			get_all_filenames_with_extension(GetPathffA(Pathff::Spooner, false), ".SP00N", vfilnames, false);
 			if (!vfilnames.empty())
 			{
@@ -567,673 +598,718 @@ namespace sub
 			}
 			}
 			}*/
+}
 
-		}
+void Sub_AutoSave()
+{
+    static const std::vector<std::string> intervalNames = {"1 min", "3 min", "5 min", "10 min"};
+    static const DWORD intervalValues[] = {60000, 180000, 300000, 600000};
+    static const std::vector<std::string> maxFileNames = {"5", "10", "25", "50"};
+    static const int maxFileValues[] = {5, 10, 25, 50};
 
-		void Sub_AutoSave()
-		{
-			static const std::vector<std::string> intervalNames = { "1 min", "3 min", "5 min", "10 min" };
-			static const DWORD intervalValues[] = { 60000, 180000, 300000, 600000 };
-			static const std::vector<std::string> maxFileNames = { "5", "10", "25", "50" };
-			static const int maxFileValues[] = { 5, 10, 25, 50 };
+    AddTitle("Auto Save");
 
-			AddTitle("Auto Save");
+    AddToggle("Enable Auto Save", Settings::bAutoSaveDb);
 
-			AddToggle("Enable Auto Save", Settings::bAutoSaveDb);
+    int intervalIdx = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        if (Settings::autoSaveIntervalMs == intervalValues[i])
+        {
+            intervalIdx = i;
+            break;
+        }
+    }
+    intervalIdx = AddTexterCycler("Save Interval", intervalIdx, intervalNames);
+    AddOptionDescription("How often the database is auto-saved.");
+    if (intervalIdx >= 0 && intervalIdx < 4)
+        Settings::autoSaveIntervalMs = intervalValues[intervalIdx];
 
-			int intervalIdx = 0;
-			for (int i = 0; i < 4; i++) { if (Settings::autoSaveIntervalMs == intervalValues[i]) { intervalIdx = i; break; } }
-			intervalIdx = AddTexterCycler("Save Interval", intervalIdx, intervalNames);
-			AddOptionDescription("How often the database is auto-saved.");
-			if (intervalIdx >= 0 && intervalIdx < 4)
-				Settings::autoSaveIntervalMs = intervalValues[intervalIdx];
+    int maxIdx = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        if (Settings::autoSaveMaxFiles == maxFileValues[i])
+        {
+            maxIdx = i;
+            break;
+        }
+    }
+    maxIdx = AddTexterCycler("Max Files to Keep", maxIdx, maxFileNames);
+    AddOptionDescription("The oldest auto-saves are deleted beyond this number.");
+    if (maxIdx >= 0 && maxIdx < 4)
+        Settings::autoSaveMaxFiles = maxFileValues[maxIdx];
+}
 
-			int maxIdx = 0;
-			for (int i = 0; i < 4; i++) { if (Settings::autoSaveMaxFiles == maxFileValues[i]) { maxIdx = i; break; } }
-			maxIdx = AddTexterCycler("Max Files to Keep", maxIdx, maxFileNames);
-			AddOptionDescription("The oldest auto-saves are deleted beyond this number.");
-			if (maxIdx >= 0 && maxIdx < 4)
-				Settings::autoSaveMaxFiles = maxFileValues[maxIdx];
-		}
+void Sub_SaveFiles_Load()
+{
+    std::string& _name = dict;
+    std::string& _dir = dict3;
+    std::string filePath = _dir + "\\" + _name + ".xml";
 
-		void Sub_SaveFiles_Load()
-		{
-			std::string& _name = dict;
-			std::string& _dir = dict3;
-			std::string filePath = _dir + "\\" + _name + ".xml";
+    AddTitle(_name);
 
-			AddTitle(_name);
+    bool bTeleToRef = false;
+    AddOption("Teleport To Reference", bTeleToRef);
+    AddOptionDescription("Teleports you to the file's reference coordinates.");
+    if (bTeleToRef)
+    {
+        FileManagement::TeleportToReference(filePath);
+    }
 
-			bool bTeleToRef = false;
-			AddOption("Teleport To Reference", bTeleToRef);
-			AddOptionDescription("Teleports you to the file's reference coordinates.");
-			if (bTeleToRef)
-			{
-				FileManagement::TeleportToReference(filePath);
-			}
+    static std::string lastLoadedImg = "";
+    static DxHookIMG::DxTexture mapPreviewTexture;
+    std::string imgPath = _dir + "\\" + _name + ".jpg";
+    if (lastLoadedImg != imgPath)
+    {
+        lastLoadedImg = imgPath;
+        mapPreviewTexture = DxHookIMG::DxTexture(); // reset
+        std::ifstream f(imgPath);
+        if (f.good())
+        {
+            mapPreviewTexture.Load(imgPath);
+        }
+    }
+    if (mapPreviewTexture.Exists())
+    {
+        Vector2 res = {0.1f, 0.0889f};
+        FLOAT x_coord = 0.324f + menuPos.x;
+        FLOAT y_coord = currentOptionY + 0.044f + menuPos.y;
+        if (menuPos.x > 0.45f)
+            x_coord = menuPos.x - 0.003f;
+        DRAW_RECT(x_coord, y_coord, res.x + 0.003f, res.y + 0.003f, 0, 0, 0, 212, false);
+        mapPreviewTexture.Draw(0, Vector2(x_coord, y_coord), Vector2(res.x, res.y / 2 + 0.005f), 0.0f, RGBA::AllWhite());
+    }
 
-			static std::string lastLoadedImg = "";
-			static DxHookIMG::DxTexture mapPreviewTexture;
-			std::string imgPath = _dir + "\\" + _name + ".jpg";
-			if (lastLoadedImg != imgPath)
-			{
-				lastLoadedImg = imgPath;
-				mapPreviewTexture = DxHookIMG::DxTexture(); // reset
-				std::ifstream f(imgPath);
-				if (f.good())
-				{
-					mapPreviewTexture.Load(imgPath);
-				}
-			}
-			if (mapPreviewTexture.Exists())
-			{
-				Vector2 res = { 0.1f, 0.0889f };
-				FLOAT x_coord = 0.324f + menuPos.x;
-                FLOAT y_coord = currentOptionY + 0.044f + menuPos.y;
-				if (menuPos.x > 0.45f) x_coord = menuPos.x - 0.003f;
-				DRAW_RECT(x_coord, y_coord, res.x + 0.003f, res.y + 0.003f, 0, 0, 0, 212, false);
-				mapPreviewTexture.Draw(0, Vector2(x_coord, y_coord), Vector2(res.x, res.y / 2 + 0.005f), 0.0f, RGBA::AllWhite());
-			}
+    bool bLoadPlacements = false;
+    AddOption("Load Placements", bLoadPlacements);
+    AddOptionDescription("Spawns everything in this file.");
+    if (bLoadPlacements)
+    {
+        if (FileManagement::LoadPlacementsFromFile(filePath))
+        {
+            Game::Print::PrintBottomLeft("File ~b~loaded~s~.");
+        }
+        else
+        {
+            Game::Print::ShowNotification("~r~Error:", "Unable to load file.");
+            addlog(ige::LogType::LOG_ERROR, "Attempt to load placements from " + filePath + ".xml failed");
+        }
+    }
 
-			bool bLoadPlacements = false;
-			AddOption("Load Placements", bLoadPlacements);
-			AddOptionDescription("Spawns everything in this file.");
-			if (bLoadPlacements)
-			{
-				if (FileManagement::LoadPlacementsFromFile(filePath))
-				{
-					Game::Print::PrintBottomLeft("File ~b~loaded~s~.");
-				}
-				else
-				{
-					Game::Print::ShowNotification("~r~Error:", "Unable to load file.");
-					addlog(ige::LogType::LOG_ERROR, "Attempt to load placements from " + filePath + ".xml failed");
-				}
-			}
+    bool bRenameFile = false;
+    AddOption("Rename File", bRenameFile);
+    if (bRenameFile)
+    {
+        std::string inputStr = Game::InputBox("", 28U, "Enter new name:", _name);
+        if (inputStr.length() > 0)
+        {
+            if (!IsSafePath(inputStr))
+            {
+                Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
+            }
+            else if (rename(filePath.c_str(), (_dir + "\\" + inputStr + ".xml").c_str()) == 0)
+            {
+                _name = inputStr;
+                Game::Print::PrintBottomLeft("File ~b~renamed~s~.");
+            }
+            else
+            {
+                Game::Print::ShowNotification("~r~Error:", "Unable to rename file.");
+                addlog(ige::LogType::LOG_ERROR, "Attempt to rename file " + _name + ".xml to " + inputStr + " failed");
+            }
+        }
+        //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::RenameSpoonerFile, std::string(), 28U, "Enter new name:", fileName);
+        //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_name);
+        //OnscreenKeyboard::State::arg2._ptr = reinterpret_cast<void*>(&_dir);
+    }
 
-			bool bRenameFile = false;
-			AddOption("Rename File", bRenameFile); if (bRenameFile)
-			{
-				std::string inputStr = Game::InputBox("", 28U, "Enter new name:", _name);
-				if (inputStr.length() > 0)
-				{
-					if (!IsSafePath(inputStr))
-					{
-						Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
-					}
-					else if (rename(filePath.c_str(), (_dir + "\\" + inputStr + ".xml").c_str()) == 0)
-					{
-						_name = inputStr;
-						Game::Print::PrintBottomLeft("File ~b~renamed~s~.");
-					}
-					else
-					{
-						Game::Print::ShowNotification("~r~Error:", "Unable to rename file.");
-						addlog(ige::LogType::LOG_ERROR, "Attempt to rename file " + _name + ".xml to " + inputStr + " failed");
-					}
-				}
-				//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::RenameSpoonerFile, std::string(), 28U, "Enter new name:", fileName);
-				//OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_name);
-				//OnscreenKeyboard::State::arg2._ptr = reinterpret_cast<void*>(&_dir);
-			}
+    bool vOverwriteFile = false;
+    AddOption("Overwrite Placements In File (With DB)", vOverwriteFile);
+    AddOptionDescription("Replaces this file's contents with the current database. File attributes are kept.");
+    if (vOverwriteFile)
+    {
+        if (FileManagement::SaveDbToFile(filePath, false))
+        {
+            Game::Print::PrintBottomLeft("File ~b~overwritten~s~. Extra settings kept.");
+        }
+        else
+        {
+            Game::Print::ShowNotification("~r~Error:", "Unable to overwrite file.");
+            addlog(ige::LogType::LOG_ERROR, "Attempt to overwrite " + filePath + " failed");
+        }
+    }
 
-			bool vOverwriteFile = false;
-			AddOption("Overwrite Placements In File (With DB)", vOverwriteFile);
-			AddOptionDescription("Replaces this file's contents with the current database. File attributes are kept.");
-			if (vOverwriteFile)
-			{
-				if (FileManagement::SaveDbToFile(filePath, false))
-				{
-					Game::Print::PrintBottomLeft("File ~b~overwritten~s~. Extra settings kept.");
-				}
-				else
-				{
-					Game::Print::ShowNotification("~r~Error:", "Unable to overwrite file.");
-					addlog(ige::LogType::LOG_ERROR, "Attempt to overwrite " + filePath + " failed");
-				}
-			}
+    bool bDeleteFile = false;
+    AddOption("Delete File", bDeleteFile);
+    if (bDeleteFile)
+    {
+        if (remove(filePath.c_str()) == 0)
+        {
+            Game::Print::PrintBottomLeft("File ~b~deleted~s~.");
+        }
+        else
+        {
+            Game::Print::ShowNotification("~r~Error:", "Unable to delete file.");
+            addlog(ige::LogType::LOG_ERROR, "Attempt to delete file " + filePath + " failed");
+        }
+        Menu::SetPreviousMenu();
+        Menu::Up();
+        return;
+    }
 
-			bool bDeleteFile = false;
-			AddOption("Delete File", bDeleteFile); if (bDeleteFile)
-			{
-				if (remove(filePath.c_str()) == 0)
-				{
-					Game::Print::PrintBottomLeft("File ~b~deleted~s~.");
-				}
-				else
-				{
-					Game::Print::ShowNotification("~r~Error:", "Unable to delete file.");
-					addlog(ige::LogType::LOG_ERROR, "Attempt to delete file " + filePath + " failed");
-				}
-				Menu::SetPreviousMenu();
-				Menu::Up();
-				return;
-			}
+    //=============================================================================
+    pugi::xml_document doc;
+    if (doc.load_file((const char*)filePath.c_str()).status == pugi::status_ok)
+    {
+        AddBreak("---Attributes---");
+        auto nodeRoot = doc.child("SpoonerPlacements"); // Root
 
-			//=============================================================================
-			pugi::xml_document doc;
-			if (doc.load_file((const char*)filePath.c_str()).status == pugi::status_ok)
-			{
-				AddBreak("---Attributes---");
-				auto nodeRoot = doc.child("SpoonerPlacements"); // Root
+        auto nodeNote = nodeRoot.child("Note");
+        if (nodeNote)
+        {
+            std::string noteStr = nodeNote.text().as_string();
+            bool bEditNotePressed = false;
+            AddTexter("Note", 0, std::vector<std::string>{noteStr.length() > 0 ? (noteStr.length() < 10 ? noteStr : noteStr.substr(0, 10) + "...") : "~italic~None"}, bEditNotePressed);
+            AddOptionDescription("A text note stored in the file.");
+            if (bEditNotePressed)
+            {
+                std::string inputStr = Game::InputBox("~`", 300U, "Enter note:", noteStr);
+                if (inputStr.compare("~`") != 0)
+                {
+                    noteStr = inputStr;
+                    nodeNote.text() = noteStr.c_str();
+                    doc.save_file((const char*)filePath.c_str());
+                }
+                //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SpoonerFileNote, "~`", 300U, "Enter note:", noteStr);
+                //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&fileName);
+            }
+        }
 
-				auto nodeNote = nodeRoot.child("Note");
-				if (nodeNote)
-				{
-					std::string noteStr = nodeNote.text().as_string();
-					bool bEditNotePressed = false;
-					AddTexter("Note", 0, std::vector<std::string>{noteStr.length() > 0 ? (noteStr.length() < 10 ? noteStr : noteStr.substr(0, 10) + "...") : "~italic~None"}, bEditNotePressed);
-					AddOptionDescription("A text note stored in the file.");
-					if (bEditNotePressed)
-					{
-						std::string inputStr = Game::InputBox("~`", 300U, "Enter note:", noteStr);
-						if (inputStr.compare("~`") != 0)
-						{
-							noteStr = inputStr;
-							nodeNote.text() = noteStr.c_str();
-							doc.save_file((const char*)filePath.c_str());
-						}
-						//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SpoonerFileNote, "~`", 300U, "Enter note:", noteStr);
-						//OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&fileName);
-					}
-				}
+        auto nodeAudioFile = nodeRoot.child("AudioFile");
+        if (nodeAudioFile)
+        {
+            std::string audioFileName = nodeAudioFile.text().as_string();
+            bool bEditAudioFileNamePressed = false;
+            AddTexter("Audio File To Play", 0, std::vector<std::string>{audioFileName.length() > 0 ? audioFileName : "~italic~None"}, bEditAudioFileNamePressed);
+            AddOptionDescription("Sound played on load. The file must be in menyooStuff\\Audio.");
+            if (bEditAudioFileNamePressed)
+            {
+                std::string inputStr = Game::InputBox("~`", 64U, "Enter filename with extension (file should be in menyooStuff\\Audio):", audioFileName);
+                if (inputStr.compare("~`") != 0)
+                {
+                    audioFileName = inputStr;
+                    nodeAudioFile.text() = audioFileName.c_str();
+                    doc.save_file((const char*)filePath.c_str());
+                }
+                //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SpoonerFileAudioFile, "~`", 64U, "Enter filename with extension (file should be in menyooStuff\\Audio):", audioFileName);
+                //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&fileName);
+            }
+        }
 
-				auto nodeAudioFile = nodeRoot.child("AudioFile");
-				if (nodeAudioFile)
-				{
-					std::string audioFileName = nodeAudioFile.text().as_string();
-					bool bEditAudioFileNamePressed = false;
-					AddTexter("Audio File To Play", 0, std::vector<std::string>{audioFileName.length() > 0 ? audioFileName : "~italic~None"}, bEditAudioFileNamePressed);
-					AddOptionDescription("Sound played on load. The file must be in menyooStuff\\Audio.");
-					if (bEditAudioFileNamePressed)
-					{
-						std::string inputStr = Game::InputBox("~`", 64U, "Enter filename with extension (file should be in menyooStuff\\Audio):", audioFileName);
-						if (inputStr.compare("~`") != 0)
-						{
-							audioFileName = inputStr;
-							nodeAudioFile.text() = audioFileName.c_str();
-							doc.save_file((const char*)filePath.c_str());
-						}
-						//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SpoonerFileAudioFile, "~`", 64U, "Enter filename with extension (file should be in menyooStuff\\Audio):", audioFileName);
-						//OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&fileName);
-					}
-				}
+        auto nodeStartTaskSeqOnLoad = nodeRoot.child("StartTaskSequencesOnLoad");
+        if (nodeStartTaskSeqOnLoad)
+        {
+            bool bToggleStartTaskSeqOnLoadPressed = false;
+            AddTickol(
+                "Start Task Sequences Immediately", nodeStartTaskSeqOnLoad.text().as_bool(), bToggleStartTaskSeqOnLoadPressed, bToggleStartTaskSeqOnLoadPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK
+            );
+            AddOptionDescription("Task sequences start as soon as the file loads.");
+            if (bToggleStartTaskSeqOnLoadPressed)
+            {
+                nodeStartTaskSeqOnLoad.text() = !nodeStartTaskSeqOnLoad.text().as_bool();
+                doc.save_file((const char*)filePath.c_str());
+            }
+        }
 
-				auto nodeStartTaskSeqOnLoad = nodeRoot.child("StartTaskSequencesOnLoad");
-				if (nodeStartTaskSeqOnLoad)
-				{
-					bool bToggleStartTaskSeqOnLoadPressed = false;
-					AddTickol("Start Task Sequences Immediately", nodeStartTaskSeqOnLoad.text().as_bool(), bToggleStartTaskSeqOnLoadPressed, bToggleStartTaskSeqOnLoadPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-					AddOptionDescription("Task sequences start as soon as the file loads.");
-					if (bToggleStartTaskSeqOnLoadPressed)
-					{
-						nodeStartTaskSeqOnLoad.text() = !nodeStartTaskSeqOnLoad.text().as_bool();
-						doc.save_file((const char*)filePath.c_str());
-					}
-				}
+        auto nodeClearDatabase = nodeRoot.child("ClearDatabase");
+        if (nodeClearDatabase)
+        {
+            bool bToggleClearDatabasePressed = false;
+            AddTickol("Delete Database Entities", nodeClearDatabase.text().as_bool(), bToggleClearDatabasePressed, bToggleClearDatabasePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+            AddOptionDescription("Deletes the current database entities before loading.");
+            if (bToggleClearDatabasePressed)
+            {
+                nodeClearDatabase.text() = !nodeClearDatabase.text().as_bool();
+                doc.save_file((const char*)filePath.c_str());
+            }
+        }
 
-				auto nodeClearDatabase = nodeRoot.child("ClearDatabase");
-				if (nodeClearDatabase)
-				{
-					bool bToggleClearDatabasePressed = false;
-					AddTickol("Delete Database Entities", nodeClearDatabase.text().as_bool(), bToggleClearDatabasePressed, bToggleClearDatabasePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-					AddOptionDescription("Deletes the current database entities before loading.");
-					if (bToggleClearDatabasePressed)
-					{
-						nodeClearDatabase.text() = !nodeClearDatabase.text().as_bool();
-						doc.save_file((const char*)filePath.c_str());
-					}
-				}
+        auto nodeClearMarkers = nodeRoot.child("ClearMarkers");
+        if (nodeClearMarkers)
+        {
+            bool bToggleClearMarkersPressed = false;
+            AddTickol("Delete Database Markers", nodeClearMarkers.text().as_bool(), bToggleClearMarkersPressed, bToggleClearMarkersPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+            AddOptionDescription("Deletes the current markers before loading.");
+            if (bToggleClearMarkersPressed)
+            {
+                nodeClearMarkers.text() = !nodeClearMarkers.text().as_bool();
+                doc.save_file((const char*)filePath.c_str());
+            }
+        }
 
-				auto nodeClearMarkers = nodeRoot.child("ClearMarkers");
-				if (nodeClearMarkers)
-				{
-					bool bToggleClearMarkersPressed = false;
-					AddTickol("Delete Database Markers", nodeClearMarkers.text().as_bool(), bToggleClearMarkersPressed, bToggleClearMarkersPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-					AddOptionDescription("Deletes the current markers before loading.");
-					if (bToggleClearMarkersPressed)
-					{
-						nodeClearMarkers.text() = !nodeClearMarkers.text().as_bool();
-						doc.save_file((const char*)filePath.c_str());
-					}
-				}
+        Vector3 refCoords, imgLoadingCoords;
+        auto nodeReferenceCoords = nodeRoot.child("ReferenceCoords");
+        auto nodeImgLoadingCoords = nodeRoot.child("ImgLoadingCoords");
+        for (auto& nas : std::vector<std::pair<Vector3*, pugi::xml_node*>>{{&refCoords, &nodeReferenceCoords}, {&imgLoadingCoords, &nodeImgLoadingCoords}})
+        {
+            if (*nas.second)
+            {
+                nas.first->x = nas.second->child("X").text().as_float();
+                nas.first->y = nas.second->child("Y").text().as_float();
+                nas.first->z = nas.second->child("Z").text().as_float();
 
-				Vector3 refCoords, imgLoadingCoords;
-				auto nodeReferenceCoords = nodeRoot.child("ReferenceCoords");
-				auto nodeImgLoadingCoords = nodeRoot.child("ImgLoadingCoords");
-				for (auto& nas : std::vector<std::pair<Vector3*, pugi::xml_node*>>
-					{
-						{ &refCoords, &nodeReferenceCoords },
-						{ &imgLoadingCoords, &nodeImgLoadingCoords }
-					})
-				{
-					if (*nas.second)
-					{
-						nas.first->x = nas.second->child("X").text().as_float();
-						nas.first->y = nas.second->child("Y").text().as_float();
-						nas.first->z = nas.second->child("Z").text().as_float();
+                EntityManagement::DrawRadiusDisplayingMarker(*nas.first, 0.5f, RGBA(0, 102, 204, 130));
+                Vector2 scrnPos;
+                if (World::WorldToScreen(*nas.first, scrnPos))
+                {
+                    Game::Print::SetupDraw(GTAfont::Impact, Vector2(0.3f, 0.3f), true, false, true);
+                    Game::Print::drawstring(nas.second->name(), scrnPos.x, scrnPos.y);
+                }
+            }
+        }
 
-						EntityManagement::DrawRadiusDisplayingMarker(*nas.first, 0.5f, RGBA(0, 102, 204, 130));
-						Vector2 scrnPos;
-						if (World::WorldToScreen(*nas.first, scrnPos))
-						{
-							Game::Print::SetupDraw(GTAfont::Impact, Vector2(0.3f, 0.3f), true, false, true);
-							Game::Print::drawstring(nas.second->name(), scrnPos.x, scrnPos.y);
-						}
-					}
-				}
+        auto nodeClearWorld = nodeRoot.child("ClearWorld");
+        if (nodeClearDatabase && nodeReferenceCoords)
+        {
+            float clearWorldRadius = nodeClearWorld.text().as_float();
+            bool clearWorld_plus = false, clearWorld_minus = false;
+            AddNumber("Delete World Entities (Within Radius)", clearWorldRadius, 0, null, clearWorld_plus, clearWorld_minus);
+            AddOptionDescription("Deletes world entities within this radius of the reference coordinates before loading.");
+            if (Menu::IsLastDrawnOptionSelected())
+                EntityManagement::DrawRadiusDisplayingMarker(refCoords, clearWorldRadius, RGBA(255, 0, 0, 130));
+            if (clearWorld_plus)
+            {
+                if (clearWorldRadius < FLT_MAX)
+                {
+                    clearWorldRadius += 1.0f;
+                    nodeClearWorld.text() = abs(clearWorldRadius);
+                    doc.save_file((const char*)filePath.c_str());
+                }
+            }
+            if (clearWorld_minus)
+            {
+                if (clearWorldRadius > 0.0f)
+                {
+                    clearWorldRadius -= 1.0f;
+                    nodeClearWorld.text() = abs(clearWorldRadius);
+                    doc.save_file((const char*)filePath.c_str());
+                }
+            }
+        }
 
-				auto nodeClearWorld = nodeRoot.child("ClearWorld");
-				if (nodeClearDatabase && nodeReferenceCoords)
-				{
-					float clearWorldRadius = nodeClearWorld.text().as_float();
-					bool clearWorld_plus = false, clearWorld_minus = false;
-					AddNumber("Delete World Entities (Within Radius)", clearWorldRadius, 0, null, clearWorld_plus, clearWorld_minus);
-					AddOptionDescription("Deletes world entities within this radius of the reference coordinates before loading.");
-					if (Menu::IsLastDrawnOptionSelected())
-						EntityManagement::DrawRadiusDisplayingMarker(refCoords, clearWorldRadius, RGBA(255, 0, 0, 130));
-					if (clearWorld_plus) { if (clearWorldRadius < FLT_MAX) { clearWorldRadius += 1.0f; nodeClearWorld.text() = abs(clearWorldRadius); doc.save_file((const char*)filePath.c_str()); } }
-					if (clearWorld_minus) { if (clearWorldRadius > 0.0f) { clearWorldRadius -= 1.0f; nodeClearWorld.text() = abs(clearWorldRadius); doc.save_file((const char*)filePath.c_str()); } }
-				}
+        for (auto& nas : std::vector<std::tuple<std::string, Vector3*, pugi::xml_node*, std::string>>{
+                 std::make_tuple("Reference Coordinates", &refCoords, &nodeReferenceCoords, "ReferenceCoords"),
+                 std::make_tuple("CD-Image Loading Coordinates", &imgLoadingCoords, &nodeImgLoadingCoords, "ImgLoadingCoords")
+             })
+        {
+            auto& xNode = *std::get<2>(nas);
+            AddBreak(std::get<0>(nas));
+            AddOption("~italic~" + (xNode ? std::get<1>(nas)->ToString() : "Not Set"), null);
 
-				for (auto& nas : std::vector<std::tuple<std::string, Vector3*, pugi::xml_node*, std::string>>
-					{
-						std::make_tuple("Reference Coordinates", &refCoords, &nodeReferenceCoords, "ReferenceCoords"),
-						std::make_tuple("CD-Image Loading Coordinates", &imgLoadingCoords, &nodeImgLoadingCoords, "ImgLoadingCoords")
-					})
-				{
-					auto& xNode = *std::get<2>(nas);
-					AddBreak(std::get<0>(nas));
-					AddOption("~italic~" + (xNode ? std::get<1>(nas)->ToString() : "Not Set"), null);
+            auto& spoocam = SpoonerCamera::camera;
+            if (!spoocam.IsActive())
+            {
+                bool bSetPosToMe = false;
+                AddOption("Set To Player Position", bSetPosToMe);
+                if (bSetPosToMe)
+                {
+                    Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
+                    *std::get<1>(nas) = myPos;
+                    if (!xNode)
+                    {
+                        xNode = nodeRoot.append_child(std::get<3>(nas).c_str());
+                        xNode.append_child("X");
+                        xNode.append_child("Y");
+                        xNode.append_child("Z");
+                    }
+                    xNode.child("X").text() = std::get<1>(nas)->x;
+                    xNode.child("Y").text() = std::get<1>(nas)->y;
+                    xNode.child("Z").text() = std::get<1>(nas)->z;
+                    doc.save_file((const char*)filePath.c_str());
+                }
+            }
+            else
+            {
+                bool bSetPosToHitCoords = false;
+                AddOption("Set To Camera Target", bSetPosToHitCoords);
+                AddOptionDescription("Uses the point your camera is aiming at.");
+                if (bSetPosToHitCoords)
+                {
+                    Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
+                    *std::get<1>(nas) = hitCoords;
+                    if (!xNode)
+                    {
+                        xNode = nodeRoot.append_child(std::get<3>(nas).c_str());
+                        xNode.append_child("X");
+                        xNode.append_child("Y");
+                        xNode.append_child("Z");
+                    }
+                    xNode.child("X").text() = std::get<1>(nas)->x;
+                    xNode.child("Y").text() = std::get<1>(nas)->y;
+                    xNode.child("Z").text() = std::get<1>(nas)->z;
+                    doc.save_file((const char*)filePath.c_str());
+                }
+            }
+            if (IS_WAYPOINT_ACTIVE())
+            {
+                bool bSetPosToWp = false;
+                AddOption("Set To Waypoint", bSetPosToWp);
+                if (bSetPosToWp)
+                {
+                    GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
+                    Vector3 wpCoords = wpBlip.GetPosition();
+                    wpCoords.z = World::GetGroundHeight(wpCoords);
+                    *std::get<1>(nas) = wpCoords;
+                    if (!xNode)
+                    {
+                        xNode = nodeRoot.append_child(std::get<3>(nas).c_str());
+                        xNode.append_child("X");
+                        xNode.append_child("Y");
+                        xNode.append_child("Z");
+                    }
+                    xNode.child("X").text() = std::get<1>(nas)->x;
+                    xNode.child("Y").text() = std::get<1>(nas)->y;
+                    xNode.child("Z").text() = std::get<1>(nas)->z;
+                    doc.save_file((const char*)filePath.c_str());
+                }
+            }
+        }
 
-					auto& spoocam = SpoonerCamera::camera;
-					if (!spoocam.IsActive())
-					{
-						bool bSetPosToMe = false;
-						AddOption("Set To Player Position", bSetPosToMe); if (bSetPosToMe)
-						{
-							Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
-							*std::get<1>(nas) = myPos;
-							if (!xNode)
-							{
-								xNode = nodeRoot.append_child(std::get<3>(nas).c_str());
-								xNode.append_child("X");
-								xNode.append_child("Y");
-								xNode.append_child("Z");
-							}
-							xNode.child("X").text() = std::get<1>(nas)->x;
-							xNode.child("Y").text() = std::get<1>(nas)->y;
-							xNode.child("Z").text() = std::get<1>(nas)->z;
-							doc.save_file((const char*)filePath.c_str());
-						}
-					}
-					else
-					{
-						bool bSetPosToHitCoords = false;
-						AddOption("Set To Camera Target", bSetPosToHitCoords);
-						AddOptionDescription("Uses the point your camera is aiming at.");
-						if (bSetPosToHitCoords)
-						{
-							Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
-							*std::get<1>(nas) = hitCoords;
-							if (!xNode)
-							{
-								xNode = nodeRoot.append_child(std::get<3>(nas).c_str());
-								xNode.append_child("X");
-								xNode.append_child("Y");
-								xNode.append_child("Z");
-							}
-							xNode.child("X").text() = std::get<1>(nas)->x;
-							xNode.child("Y").text() = std::get<1>(nas)->y;
-							xNode.child("Z").text() = std::get<1>(nas)->z;
-							doc.save_file((const char*)filePath.c_str());
-						}
-					}
-					if (IS_WAYPOINT_ACTIVE())
-					{
-						bool bSetPosToWp = false;
-						AddOption("Set To Waypoint", bSetPosToWp); if (bSetPosToWp)
-						{
-							GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
-							Vector3 wpCoords = wpBlip.GetPosition();
-							wpCoords.z = World::GetGroundHeight(wpCoords);
-							*std::get<1>(nas) = wpCoords;
-							if (!xNode)
-							{
-								xNode = nodeRoot.append_child(std::get<3>(nas).c_str());
-								xNode.append_child("X");
-								xNode.append_child("Y");
-								xNode.append_child("Z");
-							}
-							xNode.child("X").text() = std::get<1>(nas)->x;
-							xNode.child("Y").text() = std::get<1>(nas)->y;
-							xNode.child("Z").text() = std::get<1>(nas)->z;
-							doc.save_file((const char*)filePath.c_str());
-						}
-					}
-				}
+        auto nodeTimecycMod = nodeRoot.child("TimecycleModifier");
+        if (nodeTimecycMod)
+        {
+            AddBreak("Vision Hax");
 
-				auto nodeTimecycMod = nodeRoot.child("TimecycleModifier");
-				if (nodeTimecycMod)
-				{
-					AddBreak("Vision Hax");
+            std::string timecycModStr = nodeTimecycMod.text().as_string();
+            bool bTimecycMod_pressed = false, bTimecycMod_plus = false, bTimecycMod_minus = false;
+            AddTexter("Timecycle Mod", 0, std::vector<std::string>{timecycModStr.length() ? timecycModStr : "None"}, bTimecycMod_pressed, bTimecycMod_plus, bTimecycMod_minus);
+            AddOptionDescription("Visual filter applied on load.");
+            if (bTimecycMod_plus)
+            {
+                auto tit = std::find_if(
+                    TimecycleModification::vTimecycles.begin(),
+                    TimecycleModification::vTimecycles.end(),
+                    [timecycModStr](const std::pair<std::string, std::string>& item) { return item.first.compare(timecycModStr) == 0; }
+                );
+                if (tit == TimecycleModification::vTimecycles.end())
+                {
+                    timecycModStr = TimecycleModification::vTimecycles.front().first;
+                    nodeTimecycMod.text() = timecycModStr.c_str();
+                    doc.save_file((const char*)filePath.c_str());
+                }
+                else
+                {
+                    ++tit;
+                    if (tit != TimecycleModification::vTimecycles.end())
+                    {
+                        timecycModStr = tit->first;
+                        nodeTimecycMod.text() = timecycModStr.c_str();
+                        doc.save_file((const char*)filePath.c_str());
+                    }
+                }
+            }
+            else if (bTimecycMod_minus)
+            {
+                auto tit = std::find_if(
+                    TimecycleModification::vTimecycles.begin(),
+                    TimecycleModification::vTimecycles.end(),
+                    [timecycModStr](const std::pair<std::string, std::string>& item) { return item.first.compare(timecycModStr) == 0; }
+                );
+                if (tit == TimecycleModification::vTimecycles.begin())
+                {
+                    timecycModStr.clear();
+                    nodeTimecycMod.text() = timecycModStr.c_str();
+                    doc.save_file((const char*)filePath.c_str());
+                }
+                else if (tit != TimecycleModification::vTimecycles.end())
+                {
+                    --tit;
+                    timecycModStr = tit->first;
+                    nodeTimecycMod.text() = timecycModStr.c_str();
+                    doc.save_file((const char*)filePath.c_str());
+                }
+            }
+            else if (bTimecycMod_pressed)
+            {
+                std::string inputStr = Game::InputBox(timecycModStr, 28U, "Enter timecycle mod name:", timecycModStr);
+                if (inputStr.compare(timecycModStr) != 0)
+                {
+                    timecycModStr = inputStr;
+                    nodeTimecycMod.text() = timecycModStr.c_str();
+                    doc.save_file((const char*)filePath.c_str());
+                }
+                // No OnScreenKeyboard!
+            }
 
-					std::string timecycModStr = nodeTimecycMod.text().as_string();
-					bool bTimecycMod_pressed = false, bTimecycMod_plus = false, bTimecycMod_minus = false;
-					AddTexter("Timecycle Mod", 0, std::vector<std::string>{timecycModStr.length() ? timecycModStr : "None"}, bTimecycMod_pressed, bTimecycMod_plus, bTimecycMod_minus);
-					AddOptionDescription("Visual filter applied on load.");
-					if (bTimecycMod_plus)
-					{
-						auto tit = std::find_if(TimecycleModification::vTimecycles.begin(), TimecycleModification::vTimecycles.end(),
-							[timecycModStr](const std::pair<std::string, std::string>& item) {
-							return item.first.compare(timecycModStr) == 0;
-						});
-						if (tit == TimecycleModification::vTimecycles.end())
-						{
-							timecycModStr = TimecycleModification::vTimecycles.front().first;
-							nodeTimecycMod.text() = timecycModStr.c_str();
-							doc.save_file((const char*)filePath.c_str());
+            float timecycModStrength = nodeTimecycMod.attribute("strength").as_float(1.0f);
+            bool bTimecycModStrength_plus = false, bTimecycModStrength_minus = false;
+            AddNumber("Strength", timecycModStrength, 2, null, bTimecycModStrength_plus, bTimecycModStrength_minus);
+            AddOptionDescription("Strength of the timecycle filter.");
+            if (bTimecycModStrength_plus)
+            {
+                if (timecycModStrength < 3.0f)
+                {
+                    timecycModStrength += 0.02f;
+                    nodeTimecycMod.attribute("strength") = timecycModStrength;
+                    doc.save_file((const char*)filePath.c_str());
+                }
+            }
+            else if (bTimecycModStrength_minus)
+            {
+                if (timecycModStrength > 0.0f)
+                {
+                    currentTimecycleStrength -= 0.02f;
+                    nodeTimecycMod.attribute("strength") = timecycModStrength;
+                    doc.save_file((const char*)filePath.c_str());
+                }
+            }
+        }
 
-						}
-						else
-						{
-							++tit;
-							if (tit != TimecycleModification::vTimecycles.end())
-							{
-								timecycModStr = tit->first;
-								nodeTimecycMod.text() = timecycModStr.c_str();
-								doc.save_file((const char*)filePath.c_str());
-							}
-						}
+        auto nodeWeatherToSet = nodeRoot.child("WeatherToSet");
+        if (nodeWeatherToSet)
+        {
+            AddBreak("Weather To Set");
+            std::string weatherToSetStr = nodeWeatherToSet.text().as_string();
+            int weatherToSetInt = static_cast<int>(World::GetWeather(weatherToSetStr));
+            //bool weatherToSet_plus = false, weatherToSet_minus = false;
+            //AddTexter("Weather To Set", (weatherToSetInt == -1 ? 0 : weatherToSetInt), (weatherToSetInt == -1 ? std::vector<std::string>{"None"} : World::sWeatherNames), null, weatherToSet_plus, weatherToSet_minus);
+            //if (weatherToSet_plus){ if (weatherToSetInt < World::sWeatherNames.size() - 1){ weatherToSetInt++; nodeWeatherToSet.text() = World::WeatherName_get(static_cast<WeatherType>(weatherToSetInt)).c_str(); doc.save_file((const char*)filePath.c_str()); } }
+            //if (weatherToSet_minus){ if (weatherToSetInt > -1){ weatherToSetInt--; nodeWeatherToSet.text() = World::WeatherName_get(static_cast<WeatherType>(weatherToSetInt)).c_str(); doc.save_file((const char*)filePath.c_str()); } }
 
-					}
-					else if (bTimecycMod_minus)
-					{
-						auto tit = std::find_if(TimecycleModification::vTimecycles.begin(), TimecycleModification::vTimecycles.end(),
-							[timecycModStr](const std::pair<std::string, std::string>& item) {
-							return item.first.compare(timecycModStr) == 0;
-						});
-						if (tit == TimecycleModification::vTimecycles.begin())
-						{
-							timecycModStr.clear();
-							nodeTimecycMod.text() = timecycModStr.c_str();
-							doc.save_file((const char*)filePath.c_str());
-						}
-						else if (tit != TimecycleModification::vTimecycles.end())
-						{
-							--tit;
-							timecycModStr = tit->first;
-							nodeTimecycMod.text() = timecycModStr.c_str();
-							doc.save_file((const char*)filePath.c_str());
-						}
-					}
-					else if (bTimecycMod_pressed)
-					{
-						std::string inputStr = Game::InputBox(timecycModStr, 28U, "Enter timecycle mod name:", timecycModStr);
-						if (inputStr.compare(timecycModStr) != 0)
-						{
-							timecycModStr = inputStr;
-							nodeTimecycMod.text() = timecycModStr.c_str();
-							doc.save_file((const char*)filePath.c_str());
-						}
-						// No OnScreenKeyboard!
-					}
+            bool bWeatherNonePressed = false;
+            AddTickol("None", weatherToSetInt == -1, bWeatherNonePressed, bWeatherNonePressed);
+            if (bWeatherNonePressed)
+            {
+                nodeWeatherToSet.text() = "";
+                doc.save_file((const char*)filePath.c_str());
+            }
+            for (auto& ws : World::sWeatherNames)
+            {
+                bool bWeatherNamePressed = false;
+                AddTickol(ws.first, weatherToSetStr == ws.second, bWeatherNamePressed, bWeatherNamePressed);
+                if (bWeatherNamePressed)
+                {
+                    nodeWeatherToSet.text() = ws.second.c_str();
+                    doc.save_file((const char*)filePath.c_str());
+                }
+            }
+        }
+    }
+}
 
-					float timecycModStrength = nodeTimecycMod.attribute("strength").as_float(1.0f);
-					bool bTimecycModStrength_plus = false, bTimecycModStrength_minus = false;
-					AddNumber("Strength", timecycModStrength, 2, null, bTimecycModStrength_plus, bTimecycModStrength_minus);
-					AddOptionDescription("Strength of the timecycle filter.");
-					if (bTimecycModStrength_plus)
-					{
-						if (timecycModStrength < 3.0f)
-						{
-							timecycModStrength += 0.02f;
-							nodeTimecycMod.attribute("strength") = timecycModStrength;
-							doc.save_file((const char*)filePath.c_str());
-						}
-					}
-					else if (bTimecycModStrength_minus)
-					{
-						if (timecycModStrength > 0.0f)
-						{
-							currentTimecycleStrength -= 0.02f;
-							nodeTimecycMod.attribute("strength") = timecycModStrength;
-							doc.save_file((const char*)filePath.c_str());
-						}
-					}
-				}
+void Sub_SaveFiles_Load_LegacySP00N()
+{
+    std::string& _name = dict;
+    std::string& _dir = dict3;
+    std::string filePath = _dir + "\\" + _name + ".SP00N";
 
-				auto nodeWeatherToSet = nodeRoot.child("WeatherToSet");
-				if (nodeWeatherToSet)
-				{
-					AddBreak("Weather To Set");
-					std::string weatherToSetStr = nodeWeatherToSet.text().as_string();
-					int weatherToSetInt = static_cast<int>(World::GetWeather(weatherToSetStr));
-					//bool weatherToSet_plus = false, weatherToSet_minus = false;
-					//AddTexter("Weather To Set", (weatherToSetInt == -1 ? 0 : weatherToSetInt), (weatherToSetInt == -1 ? std::vector<std::string>{"None"} : World::sWeatherNames), null, weatherToSet_plus, weatherToSet_minus);
-					//if (weatherToSet_plus){ if (weatherToSetInt < World::sWeatherNames.size() - 1){ weatherToSetInt++; nodeWeatherToSet.text() = World::WeatherName_get(static_cast<WeatherType>(weatherToSetInt)).c_str(); doc.save_file((const char*)filePath.c_str()); } }
-					//if (weatherToSet_minus){ if (weatherToSetInt > -1){ weatherToSetInt--; nodeWeatherToSet.text() = World::WeatherName_get(static_cast<WeatherType>(weatherToSetInt)).c_str(); doc.save_file((const char*)filePath.c_str()); } }
+    AddTitle(_name);
 
-					bool bWeatherNonePressed = false;
-					AddTickol("None", weatherToSetInt == -1, bWeatherNonePressed, bWeatherNonePressed); if (bWeatherNonePressed)
-					{
-						nodeWeatherToSet.text() = "";
-						doc.save_file((const char*)filePath.c_str());
-					}
-					for (auto& ws : World::sWeatherNames)
-					{
-						bool bWeatherNamePressed = false;
-						AddTickol(ws.first, weatherToSetStr == ws.second, bWeatherNamePressed, bWeatherNamePressed); if (bWeatherNamePressed)
-						{
-							nodeWeatherToSet.text() = ws.second.c_str();
-							doc.save_file((const char*)filePath.c_str());
-						}
-					}
-				}
+    bool bLoadPlacements = false;
+    AddOption("Load Placements", bLoadPlacements);
+    AddOptionDescription("Spawns everything in this file.");
+    if (bLoadPlacements)
+    {
+        if (FileManagement::LoadPlacementsFromSP00NFile(filePath))
+        {
+            Game::Print::PrintBottomLeft("File ~b~loaded~s~.");
+        }
+        else
+        {
+            Game::Print::ShowNotification("~r~Error:", "Unable to load file.");
+            addlog(ige::LogType::LOG_ERROR, "Attempt to load Placements file from" + filePath + " failed");
+        }
+    }
 
-			}
+    bool bRenameFile = false;
+    AddOption("Rename File", bRenameFile);
+    if (bRenameFile)
+    {
+        std::string inputStr = Game::InputBox("", 28U, "Enter new name:", _name);
+        if (inputStr.length() > 0)
+        {
+            if (!IsSafePath(inputStr))
+            {
+                Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
+            }
+            else if (rename(filePath.c_str(), (_dir + "\\" + inputStr + ".SP00N").c_str()) == 0)
+            {
+                _name = inputStr;
+                Game::Print::PrintBottomLeft("File ~b~renamed~s~.");
+            }
+            else
+            {
+                addlog(ige::LogType::LOG_ERROR, "Attempt to rename file from" + _name + " to " + inputStr + ".SP00N failed");
+            }
+        }
+        //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::RenameSp00nFile, std::string(), 28U, "Enter new name:", fileName);
+        //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_name);
+        //OnscreenKeyboard::State::arg2._ptr = reinterpret_cast<void*>(&_dir);
+    }
 
-		}
-		void Sub_SaveFiles_Load_LegacySP00N()
-		{
-			std::string& _name = dict;
-			std::string& _dir = dict3;
-			std::string filePath = _dir + "\\" + _name + ".SP00N";
+    bool bDeleteFile = false;
+    AddOption("Delete File", bDeleteFile);
+    if (bDeleteFile)
+    {
+        if (remove(filePath.c_str()) == 0)
+        {
+            Game::Print::PrintBottomLeft("File ~b~deleted~s~.");
+        }
+        else
+        {
+            Game::Print::ShowNotification("~r~Error:", "Unable to delete file.");
+            addlog(ige::LogType::LOG_ERROR, "Attempt to delete file" + filePath + " failed");
+        }
+        Menu::SetPreviousMenu();
+        Menu::Up();
+        return;
+    }
+}
 
-			AddTitle(_name);
+void Sub_ManageEntities()
+{
+    selectedEntity.handle = 0;
 
-			bool bLoadPlacements = false;
-			AddOption("Load Placements", bLoadPlacements);
-			AddOptionDescription("Spawns everything in this file.");
-			if (bLoadPlacements)
-			{
-				if (FileManagement::LoadPlacementsFromSP00NFile(filePath))
-				{
-					Game::Print::PrintBottomLeft("File ~b~loaded~s~.");
-				}
-				else
-				{
-					Game::Print::ShowNotification("~r~Error:", "Unable to load file.");
-					addlog(ige::LogType::LOG_ERROR, "Attempt to load Placements file from" + filePath + " failed");
-				}
-			}
+    SpoonerEntity* p_entityToDelete = nullptr;
+    GTAentity myPed = PLAYER_PED_ID();
+    auto myIndexInDb = EntityManagement::GetEntityIndexInDb(myPed);
+    bool bIsSelfInDb = myIndexInDb >= 0;
 
-			bool bRenameFile = false;
-			AddOption("Rename File", bRenameFile); if (bRenameFile)
-			{
-				std::string inputStr = Game::InputBox("", 28U, "Enter new name:", _name);
-				if (inputStr.length() > 0)
-				{
-					if (!IsSafePath(inputStr))
-					{
-						Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
-					}
-					else if (rename(filePath.c_str(), (_dir + "\\" + inputStr + ".SP00N").c_str()) == 0)
-					{
-						_name = inputStr;
-						Game::Print::PrintBottomLeft("File ~b~renamed~s~.");
-					}
-					else
-					{
-						addlog(ige::LogType::LOG_ERROR, "Attempt to rename file from" + _name + " to " + inputStr +".SP00N failed");
-					}
-				}
-				//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::RenameSp00nFile, std::string(), 28U, "Enter new name:", fileName);
-				//OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_name);
-				//OnscreenKeyboard::State::arg2._ptr = reinterpret_cast<void*>(&_dir);
-			}
+    AddTitle("Manage Entities");
 
-			bool bDeleteFile = false;
-			AddOption("Delete File", bDeleteFile); if (bDeleteFile)
-			{
-				if (remove(filePath.c_str()) == 0)
-				{
-					Game::Print::PrintBottomLeft("File ~b~deleted~s~.");
-				}
-				else
-				{
-					Game::Print::ShowNotification("~r~Error:", "Unable to delete file.");
-					addlog(ige::LogType::LOG_ERROR, "Attempt to delete file" + filePath + " failed");
-				}
-				Menu::SetPreviousMenu();
-				Menu::Up();
-				return;
-			}
-		}
-		void Sub_ManageEntities()
-		{
-			selectedEntity.handle = 0;
+    AddOption("Removal", null, nullFunc, SUB::SPOONER_MANAGEDB_REMOVAL);
+    AddOptionDescription("Bulk-delete entities, markers and lights, from the database or the whole world.");
 
-			SpoonerEntity* p_entityToDelete = nullptr;
-			GTAentity myPed = PLAYER_PED_ID();
-			auto myIndexInDb = EntityManagement::GetEntityIndexInDb(myPed);
-			bool bIsSelfInDb = myIndexInDb >= 0;
+    bool bPressedSelf = false;
+    AddOption((std::string) "Self (" + (bIsSelfInDb ? "Is In Database)" : "Is Not In Database)"), bPressedSelf);
+    AddOptionDescription("Open options for your own ped, whether or not it's in the database.");
+    if (bPressedSelf)
+    {
+        if (bIsSelfInDb)
+            selectedEntity = Databases::EntityDb[myIndexInDb];
+        else
+        {
+            selectedEntity = SpoonerEntity();
+            selectedEntity.dynamic = true;
+            selectedEntity.handle = myPed;
+            selectedEntity.hashName = GetPedModelLabel(myPed.Model(), true);
+            if (selectedEntity.hashName.length() == 0)
+                selectedEntity.hashName = "Player (Unk Model)";
+            selectedEntity.isStill = true;
+            selectedEntity.type = EntityType::PED;
+        }
+        Menu::pendingSubmenu = SUB::SPOONER_SELECTEDENTITYOPS;
+        return;
+    }
 
-			AddTitle("Manage Entities");
+    if (!Databases::EntityDb.empty())
+    {
+        AddBreak("---Database---");
 
-			AddOption("Removal", null, nullFunc, SUB::SPOONER_MANAGEDB_REMOVAL);
-			AddOptionDescription("Bulk-delete entities, markers and lights, from the database or the whole world.");
+        bool bEntTypeToShow_plus = false, bEntTypeToShow_minus = false;
+        AddTexter("Show", _entTypeToShowTexterValue, std::vector<std::string>{"All", "Peds", "Vehicles", "Objects"}, null, bEntTypeToShow_plus, bEntTypeToShow_minus);
+        if (bEntTypeToShow_plus)
+        {
+            if (_entTypeToShowTexterValue < 3)
+                _entTypeToShowTexterValue++;
+        }
+        if (bEntTypeToShow_minus)
+        {
+            if (_entTypeToShowTexterValue > 0)
+                _entTypeToShowTexterValue--;
+        }
 
-			bool bPressedSelf = false;
-			AddOption((std::string)"Self (" + (bIsSelfInDb ? "Is In Database)" : "Is Not In Database)"), bPressedSelf);
-			AddOptionDescription("Open options for your own ped, whether or not it's in the database.");
-			if (bPressedSelf)
-			{
-				if (bIsSelfInDb) selectedEntity = Databases::EntityDb[myIndexInDb];
-				else
-				{
-					selectedEntity = SpoonerEntity();
-					selectedEntity.dynamic = true;
-					selectedEntity.handle = myPed;
-					selectedEntity.hashName = GetPedModelLabel(myPed.Model(), true);
-					if (selectedEntity.hashName.length() == 0)
-						selectedEntity.hashName = "Player (Unk Model)";
-					selectedEntity.isStill = true;
-					selectedEntity.type = EntityType::PED;
-				}
-				Menu::pendingSubmenu = SUB::SPOONER_SELECTEDENTITYOPS;
-				return;
-			}
+        for (UINT i = 0; i < Databases::EntityDb.size(); i++)
+        {
+            auto& e = Databases::EntityDb[i];
+            if (_entTypeToShowTexterValue != 0 && static_cast<UINT8>(e.type) != _entTypeToShowTexterValue)
+                continue;
+            bool bEntityExists = e.handle.Exists();
+            bool bEntityPressed = false;
 
-			if (!Databases::EntityDb.empty())
-			{
-				AddBreak("---Database---");
-
-				bool bEntTypeToShow_plus = false, bEntTypeToShow_minus = false;
-				AddTexter("Show", _entTypeToShowTexterValue, std::vector<std::string>{"All", "Peds", "Vehicles", "Objects"}, null, bEntTypeToShow_plus, bEntTypeToShow_minus);
-				if (bEntTypeToShow_plus) { if (_entTypeToShowTexterValue < 3) _entTypeToShowTexterValue++; }
-				if (bEntTypeToShow_minus) { if (_entTypeToShowTexterValue > 0) _entTypeToShowTexterValue--; }
-
-				for (UINT i = 0; i < Databases::EntityDb.size(); i++)
-				{
-					auto& e = Databases::EntityDb[i];
-					if (_entTypeToShowTexterValue != 0 && static_cast<UINT8>(e.type) != _entTypeToShowTexterValue)
-						continue;
-					bool bEntityExists = e.handle.Exists();
-					bool bEntityPressed = false;
-
-					const std::string& strEntTypeConcat = (*Menu::activeOptionIndex == Menu::currentOptionCount + 1 ? "  ~bold~[" + e.TypeName() + "]~bold~" : std::string());
-					AddOption(e.hashName + (bEntityExists ? "" : " (Invalid)") + strEntTypeConcat, bEntityPressed); if (bEntityPressed)
-					{
-						if (bEntityExists)
-						{
-							selectedEntity = e;
-							Menu::pendingSubmenu = SUB::SPOONER_SELECTEDENTITYOPS;
-						}
-					}
+            const std::string& strEntTypeConcat = (*Menu::activeOptionIndex == Menu::currentOptionCount + 1 ? "  ~bold~[" + e.TypeName() + "]~bold~" : std::string());
+            AddOption(e.hashName + (bEntityExists ? "" : " (Invalid)") + strEntTypeConcat, bEntityPressed);
+            if (bEntityPressed)
+            {
+                if (bEntityExists)
+                {
+                    selectedEntity = e;
+                    Menu::pendingSubmenu = SUB::SPOONER_SELECTEDENTITYOPS;
+                }
+            }
 
 
-					if (Menu::IsLastDrawnOptionSelected())
-					{
-						EntityManagement::ShowArrowAboveEntity(e.handle);
+            if (Menu::IsLastDrawnOptionSelected())
+            {
+                EntityManagement::ShowArrowAboveEntity(e.handle);
 
-						bool bShortcutDeletePressed;
-						if (Menu::usingControllerInput)
-						{
-							Menu::add_IB(INPUT_SCRIPT_RLEFT, bEntityExists ? "Delete Entity" : "Remove Invalid Entity From DB");
-							bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-						}
-						else
-						{
-							Menu::add_IB(VirtualKey::B, bEntityExists ? "Delete Entity" : "Remove Invalid Entity From DB");
-							bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-						}
+                bool bShortcutDeletePressed;
+                if (Menu::usingControllerInput)
+                {
+                    Menu::add_IB(INPUT_SCRIPT_RLEFT, bEntityExists ? "Delete Entity" : "Remove Invalid Entity From DB");
+                    bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
+                }
+                else
+                {
+                    Menu::add_IB(VirtualKey::B, bEntityExists ? "Delete Entity" : "Remove Invalid Entity From DB");
+                    bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
+                }
 
-						if (bShortcutDeletePressed)
-						{
-							p_entityToDelete = &e;
-							//i--;
-							//if (*Menu::activeOptionIndex >= Menu::totalOptionCount) Menu::Up();
-						}
-					}
+                if (bShortcutDeletePressed)
+                {
+                    p_entityToDelete = &e;
+                    //i--;
+                    //if (*Menu::activeOptionIndex >= Menu::totalOptionCount) Menu::Up();
+                }
+            }
+        }
+    }
 
-				}
-			}
+    if (p_entityToDelete != nullptr)
+    {
+        auto e = *p_entityToDelete;
+        if (e.handle.Exists())
+        {
+            e.handle.RequestControl(600);
+            EntityManagement::DeleteEntity(e);
+        }
+        else
+        {
+            EntityManagement::RemoveEntityFromDb(e);
+        }
+    }
 
-			if (p_entityToDelete != nullptr)
-			{
-				auto e = *p_entityToDelete;
-				if (e.handle.Exists())
-				{
-					e.handle.RequestControl(600);
-					EntityManagement::DeleteEntity(e);
-				}
-				else
-				{
-					EntityManagement::RemoveEntityFromDb(e);
-				}
-			}
+    if (Menu::IsSelectionPastDrawnOptions())
+        Menu::Up(); // Go up if you're too far down due to removing an entity from DB from the properties menu and coming back here again.
+}
 
-			if (Menu::IsSelectionPastDrawnOptions())
-				Menu::Up(); // Go up if you're too far down due to removing an entity from DB from the properties menu and coming back here again.
+void Sub_ManageEntities_Removal()
+{
+    AddTitle("Removal");
 
-		}
-		void Sub_ManageEntities_Removal()
-		{
-			AddTitle("Removal");
+    //AddOption("Select DB Entities To Delete", null, nullFunc, SUB::SPOONER_MANAGEDB_REMOVAL_FROMDB);
 
-			//AddOption("Select DB Entities To Delete", null, nullFunc, SUB::SPOONER_MANAGEDB_REMOVAL_FROMDB);
+    AddBreak("---Database---");
+    AddOption("Delete All Markers (" + std::to_string(Databases::MarkerDb.size()) + ")", null, MarkerManagement::RemoveAllMarkers);
+    AddOption("Delete All Lights (" + std::to_string(Databases::LightDb.size()) + ")", null, LightManagement::RemoveAll);
+    AddOption("Delete All Entities In Database (" + std::to_string(Databases::EntityDb.size()) + ")", null, EntityManagement::DeleteAllEntitiesInDb);
+    AddOption("Delete All Objects In Database", null, EntityManagement::DeleteAllPropsInDb);
+    AddOption("Delete All Peds In Database", null, EntityManagement::DeleteAllPedsInDb);
+    AddOption("Delete All Vehicles In Database", null, EntityManagement::DeleteAllVehiclesInDb);
+    AddOption("Delete All Invalid Entities In Database", null, EntityManagement::DeleteInvalidEntitiesInDb);
+    AddOptionDescription("Removes database entries whose entity no longer exists.");
 
-			AddBreak("---Database---");
-			AddOption("Delete All Markers (" + std::to_string(Databases::MarkerDb.size()) + ")", null, MarkerManagement::RemoveAllMarkers);
-			AddOption("Delete All Lights (" + std::to_string(Databases::LightDb.size()) + ")", null, LightManagement::RemoveAll);
-			AddOption("Delete All Entities In Database (" + std::to_string(Databases::EntityDb.size()) + ")", null, EntityManagement::DeleteAllEntitiesInDb);
-			AddOption("Delete All Objects In Database", null, EntityManagement::DeleteAllPropsInDb);
-			AddOption("Delete All Peds In Database", null, EntityManagement::DeleteAllPedsInDb);
-			AddOption("Delete All Vehicles In Database", null, EntityManagement::DeleteAllVehiclesInDb);
-			AddOption("Delete All Invalid Entities In Database", null, EntityManagement::DeleteInvalidEntitiesInDb);
-			AddOptionDescription("Removes database entries whose entity no longer exists.");
+    AddBreak("---World---");
+    AddOption("Delete All Entities In World (" + std::to_string(worldEntities.size()) + ")", null, EntityManagement::DeleteAllEntitiesInWorld);
+    AddOption("Delete All Objects In World (" + std::to_string(worldObjects.size()) + ")", null, EntityManagement::DeleteAllPropsInWorld);
+    AddOption("Delete All Peds In World (" + std::to_string(worldPeds.size()) + ")", null, EntityManagement::DeleteAllPedsInWorld);
+    AddOption("Delete All Vehicles In World (" + std::to_string(worldVehicles.size()) + ")", null, EntityManagement::DeleteAllVehiclesInWorld);
 
-			AddBreak("---World---");
-			AddOption("Delete All Entities In World (" + std::to_string(worldEntities.size()) + ")", null, EntityManagement::DeleteAllEntitiesInWorld);
-			AddOption("Delete All Objects In World (" + std::to_string(worldObjects.size()) + ")", null, EntityManagement::DeleteAllPropsInWorld);
-			AddOption("Delete All Peds In World (" + std::to_string(worldPeds.size()) + ")", null, EntityManagement::DeleteAllPedsInWorld);
-			AddOption("Delete All Vehicles In World (" + std::to_string(worldVehicles.size()) + ")", null, EntityManagement::DeleteAllVehiclesInWorld);
+    AddOption("Clear Entity Database (And Keep Entities)", null, EntityManagement::ClearDb);
+    AddOptionDescription("Empties the database but leaves the entities in the world.");
+}
 
-			AddOption("Clear Entity Database (And Keep Entities)", null, EntityManagement::ClearDb);
-			AddOptionDescription("Empties the database but leaves the entities in the world.");
-		}
-		/*void Sub_ManageEntities_Removal_FromDb()
+/*void Sub_ManageEntities_Removal_FromDb()
 		{
 			if (Databases::EntityDb.empty())
 			{
@@ -1266,4838 +1342,5104 @@ namespace sub
 			}
 
 		}*/
-		void Sub_SelectedEntityOps()
-		{
-			SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
-			if (!selectedEntity.handle.Exists())
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-			selectedEntity.handle.RequestControlOnce();
-			auto thisEntityIndexInDb = EntityManagement::GetEntityIndexInDb(selectedEntity);
-			bool isThisEntityInDb = thisEntityIndexInDb >= 0;
-			if (isThisEntityInDb)
-			{
-				selectedEntity.taskSequence = Databases::EntityDb[thisEntityIndexInDb].taskSequence;
-				Databases::EntityDb[thisEntityIndexInDb] = selectedEntity;
-			}
-			Model selectedEntityModel = selectedEntity.handle.Model();
-
-			AddTitle(selectedEntity.hashName);
-
-			switch (selectedEntity.type)
-			{
-			case EntityType::PROP:
-			{
-				bool bIsAFav = FavouritesManagement::IsPropAFavourite(selectedEntity.hashName, selectedEntityModel.hash);
-				bool bAddToFav = false, bRemoveFromFav = false;
-				AddTickol("Model Is A Favourite", bIsAFav, bAddToFav, bRemoveFromFav, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-				if (bAddToFav)
-				{
-					FavouritesManagement::AddPropToFavourites(selectedEntity.hashName, selectedEntityModel.hash);
-				}
-				else if (bRemoveFromFav)
-				{
-					FavouritesManagement::RemovePropFromFavourites(selectedEntity.hashName, selectedEntityModel.hash);
-				}
-			}
-			break;
-			case EntityType::VEHICLE:
-			{
-				bool bIsAFav = FavouritesManagement::IsVehicleAFavourite(selectedEntityModel);
-				bool bAddToFav = false, bRemoveFromFav = false;
-				AddTickol("Model Is A Favourite", bIsAFav, bAddToFav, bRemoveFromFav, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-				if (bAddToFav)
-				{
-					std::string inputStr = Game::InputBox("", 28U, "Enter custom name:", selectedEntityModel.VehicleDisplayName(true));
-					if (inputStr.length() > 0)
-					{
-						FavouritesManagement::AddVehicleToFavourites(selectedEntityModel, inputStr);
-					}
-					//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::FavouriteVehicleModelCurrent, std::string(), 28U, "Enter custom name:", selectedEntityModel.VehicleDisplayName(true));
-					//OnscreenKeyboard::State::arg1._uint = selectedEntityModel.hash;
-				}
-				else if (bRemoveFromFav)
-				{
-					FavouritesManagement::RemoveVehicleFromFavourites(selectedEntityModel);
-				}
-			}
-			break;
-			}
-
-			bool bAddToOrDb = false, bRemoveFromDb = false;
-			AddTickol("Entity Is In Database", isThisEntityInDb, bAddToOrDb, bRemoveFromDb, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			AddOptionDescription("Database entities are saved to files and managed by Spooner.");
-			if (bAddToOrDb)
-			{
-				EntityManagement::AddEntityToDb(selectedEntity);
-				Game::Print::PrintBottomLeft(selectedEntity.hashName + " added to database.");
-			}
-			else if (bRemoveFromDb)
-			{
-				EntityManagement::RemoveEntityFromDb(selectedEntity);
-				Game::Print::PrintBottomLeft(selectedEntity.hashName + " removed from database. Properties will no longer be stored in Spooner's memory.");
-				if (Menu::submenuHistory[Menu::menuHistoryIndex] == SUB::SPOONER_MANAGEDB)
-				{
-					Menu::optionSelectionHistory[Menu::menuHistoryIndex] -= 1;
-				}
-			}
-
-			bool bCopyPressed = false, bCopy_plus = false, bCopy_minus = false;
-			AddTexter("Copy", _copyEntTexterValue, std::vector<std::string>{ "This Entity Only", "With Attachments" }, bCopyPressed, bCopy_plus, bCopy_minus);
-			AddOptionDescription("Creates a duplicate. Left/right chooses whether attachments are copied too.");
-			if (bCopy_plus) { if (_copyEntTexterValue < 1U) _copyEntTexterValue++; }
-			if (bCopy_minus) { if (_copyEntTexterValue > 0) _copyEntTexterValue--; }
-			if (bCopyPressed)
-			{
-				const SpoonerEntity& copiedEntity = EntityManagement::CopyEntity(selectedEntity, isThisEntityInDb, true, _copyEntTexterValue);
-				//EntityManagement::AddEntityToDb(copiedEntity);
-				selectedEntity = copiedEntity;
-			}
-
-			bool bDeletePressed = false;
-			AddOption("Delete", bDeletePressed); if (bDeletePressed)
-			{
-				selectedEntity.handle.RequestControl(600);
-				EntityManagement::DeleteEntity(selectedEntity);
-				if (Menu::submenuHistory[Menu::menuHistoryIndex] == SUB::SPOONER_MANAGEDB)
-				{
-					Menu::optionSelectionHistory[Menu::menuHistoryIndex] -= 1;
-				}
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			sub::Spooner::SpoonerBlip* existingBlip = nullptr;
-			for (auto& blip : Databases::BlipDb)
-			{
-				if (blip.BlipType == SpoonerBlip::Type::Entity
-					&& blip.EntityHandle == selectedEntity.handle.GetHandle())
-				{
-					existingBlip = &blip;
-					break;
-				}
-			}
-
-			if (existingBlip)
-			{
-				bool bDeleteBlipPressed = false;
-				AddOption("Delete Entity Blip", bDeleteBlipPressed);
-				if (bDeleteBlipPressed)
-				{
-					BlipCustoms::RemoveBlip(*existingBlip);
-				}
-			}
-			else
-			{
-				bool bAddEntityBlipPressed = false;
-				AddOption("Add Entity Blip", bAddEntityBlipPressed);
-				if (bAddEntityBlipPressed)
-				{
-					sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(
-						SpoonerBlip::Type::Entity,
-						selectedEntity.hashName
-					);
-
-					auto mapping = GetBlipMappingForEntity(selectedEntity.handle);
-					sub::Spooner::SelectedBlip->EntityHandle = selectedEntity.handle.GetHandle();
-					sub::Spooner::SelectedBlip->bAttached = true;
-					sub::Spooner::SelectedBlip->Icon = mapping.icon;
-					sub::Spooner::SelectedBlip->bSyncRotation = mapping.syncRotation;
-					sub::Spooner::SelectedBlip->Alpha = 255;
-					sub::Spooner::SelectedBlip->Scale = (mapping.icon == BlipIcon::Standard || mapping.icon == BlipIcon::Enemy) ? 0.80f : 1.0f;
-					BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-					Menu::pendingSubmenu = SUB::SPOONER_BLIPS_ENTITYINBLIP;
-				}
-			}
-
-			bool bDynamicPressed = false;
-			AddLocal("Dynamic", selectedEntity.dynamic, bDynamicPressed, bDynamicPressed);
-			AddOptionDescription("Reacts to physics. Off: frozen in place.");
-			if (bDynamicPressed)
-			{
-				selectedEntity.dynamic = !selectedEntity.dynamic;
-				selectedEntity.handle.SetDynamic(selectedEntity.dynamic);
-				selectedEntity.handle.FreezePosition(!selectedEntity.dynamic);
-			}
-
-			bool bFreezePosPressed = false;
-			AddLocal("Frozen In Place", selectedEntity.handle.IsPositionFrozen(), bFreezePosPressed, bFreezePosPressed); if (bFreezePosPressed)
-			{
-				selectedEntity.handle.FreezePosition(!selectedEntity.handle.IsPositionFrozen());
-			}
-			if (selectedEntity.type == EntityType::VEHICLE && selectedEntity.handle.GetLandingGearState() != -1)
-			{
-				bool bLandingGearDown = (selectedEntity.handle.GetLandingGearState() == 0); // 0 = Deployed
-				bool oldValue = bLandingGearDown;
-
-				AddToggle("Landing Gear", bLandingGearDown);
-
-				if (bLandingGearDown != oldValue)
-				{
-					selectedEntity.handle.SetLandingGear(bLandingGearDown);
-				}
-			}
-
-			if (selectedEntity.type == EntityType::PROP)
-			{
-				auto& thisTextureVariation = selectedEntity.textureVariation;
-				bool bTextureVariation_plus = false, bTextureVariation_minus = false;
-				AddNumber("Texture Variation", thisTextureVariation, 0, null, bTextureVariation_plus, bTextureVariation_minus);
-				AddOptionDescription("Object tint/texture variant.");
-				if (bTextureVariation_plus) { if (thisTextureVariation < UINT8_MAX) { thisTextureVariation++; SET_OBJECT_TINT_INDEX(selectedEntity.handle.Handle(), thisTextureVariation); } }
-				if (bTextureVariation_minus) { if (thisTextureVariation > 0) { thisTextureVariation--; SET_OBJECT_TINT_INDEX(selectedEntity.handle.Handle(), thisTextureVariation); } }
-			}
-
-			int thisHealth = selectedEntity.handle.GetHealth();
-			bool bHealth_plus = false, bHealth_minus = false, bHealth_input = false;
-			AddNumber("Health", thisHealth, 0, bHealth_input, bHealth_plus, bHealth_minus);
-			if (bHealth_plus) { if (thisHealth < INT_MAX) { thisHealth++; if (selectedEntity.handle.GetMaxHealth() < thisHealth) { selectedEntity.handle.SetMaxHealth(thisHealth); } selectedEntity.handle.SetHealth(thisHealth); } }
-			if (bHealth_minus) { if (thisHealth > 0) { thisHealth--; if (selectedEntity.handle.GetMaxHealth() > thisHealth + 30) { selectedEntity.handle.SetMaxHealth(thisHealth + 30); } selectedEntity.handle.SetHealth(thisHealth); } }
-			if (bHealth_input)
-			{
-				GTAentity& ent = selectedEntity.handle;
-				std::string inputStr = Game::InputBox("", 5U, "", std::to_string(thisHealth));
-				if (inputStr.length() > 0)
-				{
-					try
-					{
-						thisHealth = stoi(inputStr);
-						if (ent.GetMaxHealth() < thisHealth)
-						{
-							ent.SetMaxHealth(thisHealth);
-						}
-						ent.SetHealth(thisHealth);
-					}
-					catch (...) { Game::Print::PrintErrorInvalidInput(inputStr); }
-				}
-				//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SpoonerEoHealth, std::string(), 4U, std::string(), std::to_string(thisHealth));
-				//OnscreenKeyboard::State::arg1._int = ent.GetHandle();
-			}
-
-			bool bInvinciblePressed = false;
-			AddLocal("Invincible", selectedEntity.handle.IsInvincible(), bInvinciblePressed, bInvinciblePressed); if (bInvinciblePressed)
-			{
-				bool bEnable = !selectedEntity.handle.IsInvincible();
-				selectedEntity.handle.SetInvincible(bEnable);
-				selectedEntity.handle.SetExplosionProof(bEnable);
-				selectedEntity.handle.SetMeleeProof(bEnable);
-			}
-
-			bool bFireProofPressed = false;
-			AddLocal("Fireproof", selectedEntity.handle.IsFireProof(), bFireProofPressed, bFireProofPressed); if (bFireProofPressed)
-			{
-				bool bEnable = !selectedEntity.handle.IsFireProof();
-				selectedEntity.handle.SetFireProof(bEnable);
-			}
-			bool bOnFirePressed = false;
-			AddLocal("Is On Fire (For Peds)", selectedEntity.handle.IsOnFire(), bOnFirePressed, bOnFirePressed); if (bOnFirePressed)
-			{
-				bool bEnable = !selectedEntity.handle.IsOnFire();
-				selectedEntity.handle.SetOnFire(bEnable);
-			}
-
-			bool bVisiblePressed = false;
-			AddLocal("Visible", selectedEntity.handle.IsVisible(), bVisiblePressed, bVisiblePressed); if (bVisiblePressed)
-			{
-				selectedEntity.handle.SetVisible(!selectedEntity.handle.IsVisible());
-			}
-
-			AddOption("Opacity (Local)", null, SetSelectedEntityAsVehicleTarget, SUB::ENTITYALPHALEVEL);
-			AddOptionDescription("Transparency. Only visible to you.");
-
-			bool bCollisionPressed = false;
-			AddLocal("Collision", selectedEntity.handle.GetIsCollisionEnabled(), bCollisionPressed, bCollisionPressed); if (bCollisionPressed)
-			{
-				GTAentity attBaseEnt;
-				EntityManagement::GetEntityThisEntityIsAttachedTo(selectedEntity.handle, attBaseEnt);
-				selectedEntity.handle.SetIsCollisionEnabled(!selectedEntity.handle.GetIsCollisionEnabled());
-				if (selectedEntity.attachmentArgs.isAttached)
-				{
-					EntityManagement::AttachEntity(selectedEntity, attBaseEnt, selectedEntity.attachmentArgs.boneIndex, selectedEntity.attachmentArgs.offset, selectedEntity.attachmentArgs.rotation);
-				}
-			}
-
-			bool bHasGravity = selectedEntity.handle.GetHasGravity();
-			bool bGravityTogglePressed = false;
-			AddLocal("Gravity", bHasGravity, bGravityTogglePressed, bGravityTogglePressed);
-			AddOptionDescription("Off: the entity floats.");
-			if (bGravityTogglePressed)
-			{
-				switch (selectedEntity.type)
-				{
-				case EntityType::PED: GTAped(selectedEntity.handle).SetHasGravity(!bHasGravity); break;
-				case EntityType::VEHICLE: GTAvehicle(selectedEntity.handle).SetHasGravity(!bHasGravity); break;
-				case EntityType::PROP: GTAprop(selectedEntity.handle).SetHasGravity(!bHasGravity); break;
-				default: selectedEntity.handle.SetHasGravity(!bHasGravity); break;
-				}
-				bHasGravity = !bHasGravity;
-			}
-
-			bool bGoToEntityPressed = false;
-			AddOption("Go To Entity", bGoToEntityPressed); if (bGoToEntityPressed)
-			{
-			if (SpoonerCamera::camera.IsActive())
-				{
-					auto& cam = SpoonerCamera::camera;
-					cam.SetPosition(selectedEntity.handle.GetOffsetInWorldCoords(0, -5.0f - selectedEntity.handle.Dim2().y, 0));
-				}
-				else
-				{
-					GTAped myPed = PLAYER_PED_ID();
-					myPed.SetPosition(selectedEntity.handle.GetPosition());
-				}
-			}
-
-			bool bBringEntityToSelfPressed = false;
-			AddOption((std::string)"Bring Entity To Self" + (selectedEntity.handle.IsAttached() ? " (And Detach)" : ""), bBringEntityToSelfPressed); if (bBringEntityToSelfPressed)
-			{
-				//GTAentity entityToTele = selectedEntity.handle;
-				//GTAentity entityToTeleMaybe;
-				//while (EntityManagement::GetEntityThisEntityIsAttachedTo(entityToTele, entityToTeleMaybe))
-					//entityToTele = entityToTeleMaybe;
-				if (selectedEntity.handle.IsAttached()) EntityManagement::DetachEntity(selectedEntity); // Detach if attached :(
-
-			if (SpoonerCamera::camera.IsActive())
-				{
-					auto& cam = SpoonerCamera::camera;
-					selectedEntity.handle.SetPosition(cam.GetOffsetInWorldCoords(0, 5.0f + selectedEntity.handle.Dim2().y, 0));
-				}
-				else
-				{
-					GTAped myPed = PLAYER_PED_ID();
-					selectedEntity.handle.SetPosition(myPed.GetPosition() + (myPed.ForwardVector() * (selectedEntity.handle.Dim1().y + 4.0f)));
-				}
-			}
-
-			bool bPlaceOnGround = false;
-			AddOption("Place On Ground", bPlaceOnGround);
-			AddOptionDescription("Snaps the entity down onto the ground.");
-			if (bPlaceOnGround)
-			{
-				selectedEntity.handle.PlaceOnGround();
-			}
-
-			bool bResetRotation = false;
-			AddOption("Reset rotation", bResetRotation); if (bResetRotation)
-			{
-				selectedEntity.handle.SetRotation(Vector3::Zero());
-			}
-
-				AddOption("TriggerFX", null, SetSelectedEntityAsActivePed, SUB::PTFXSUB);
-
-			bool bGoToTaskSeqMenu = false;
-			AddTexter("Task Sequence", selectedEntity.taskSequence.IsActive() ? 1 : 0, std::vector<std::string>{"Inactive", "Active"}, bGoToTaskSeqMenu);
-			AddOptionDescription("Press to edit this entity's task sequence.");
-			if (bGoToTaskSeqMenu)
-			{
-				Menu::pendingSubmenu = SUB::SPOONER_TASKSEQUENCE_TASKLIST;
-			}
-			
-			// peds can access anims from ped options menu
-			if (selectedEntity.handle.IsVehicle() || selectedEntity.handle.IsProp()) {
-				AddOption("Animations", null, SetSelectedEntityAsActivePed, SUB::ANIMATIONSUB);
-			}
-
-			if (selectedEntity.type == EntityType::PED)
-			{
-				AddOption("Ped Options", null, nullFunc, SUB::SPOONER_PEDOPS);
-			}
-			else if (selectedEntity.type == EntityType::VEHICLE)
-			{
-				AddOption("Menyoo Customs", null, SetSelectedEntityAsVehicleTarget, SUB::MODSHOP);
-			}
-
-			AddOption("Attachment Options", null, nullFunc, SUB::SPOONER_ATTACHMENTOPS);
-			AddOption("Manual Editing", null, nullFunc, SUB::SPOONER_MANUALEDITING);
-
-		}
-
-		void Sub_AttachmentOps()
-		{
-			if (!selectedEntity.handle.Exists())
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-			selectedEntity.handle.RequestControlOnce();
-			auto thisEntityIndexInDb = EntityManagement::GetEntityIndexInDb(selectedEntity);
-			bool isThisEntityInDb = thisEntityIndexInDb >= 0;
-			if (isThisEntityInDb)
-			{
-				selectedEntity.taskSequence = Databases::EntityDb[thisEntityIndexInDb].taskSequence;
-				Databases::EntityDb[thisEntityIndexInDb] = selectedEntity;
-			}
-
-			GTAentity parentEntity;
-			bool seIsAttached = EntityManagement::GetEntityThisEntityIsAttachedTo(selectedEntity.handle, parentEntity);
-			EntityType parentEntityType = (EntityType)parentEntity.Type();
-
-			AddTitle("Attachment");
-
-			if (!seIsAttached)
-			{
-				AddOption("Attach To Something", null, nullFunc, SUB::SPOONER_ATTACHMENTOPS_ATTACHTO);
-			}
-			else
-			{
-				bool bDetachPressed = false;
-				AddOption("Detach", bDetachPressed); if (bDetachPressed)
-				{
-					EntityManagement::DetachEntity(selectedEntity);
-				}
-			}
-
-			if (seIsAttached)
-			{
-				int nextBoneIndex = selectedEntity.attachmentArgs.boneIndex;
-				Vector3 nextOffset = selectedEntity.attachmentArgs.offset;
-				Vector3 nextRot = selectedEntity.attachmentArgs.rotation;
-
-				SpoonerMode::UpdateEntityEditingState(nextOffset, nextRot);
-
-				SpoonerMode::editingState.transformMode = static_cast<SpoonerMode::eTransformMode>(AddTexterCycler("Editing", (int)SpoonerMode::editingState.transformMode > 1 ? 0 : (int)SpoonerMode::editingState.transformMode, {"Position", "Rotation"}));
-				AddOptionDescription("Whether the values below change position or rotation.");
-
-				// Bone text scroller if type is PED or VEHICLE
-				if (parentEntityType == EntityType::PED)
-				{
-					int obj_currentPedBoneArrayIndex = 17;
-					for (int i = 0; i < Bone::vBoneNames.size(); i++)
-					{
-						if (nextBoneIndex == GTAped(parentEntity).GetBoneIndex(Bone::vBoneNames[i].boneid))
-						{
-							obj_currentPedBoneArrayIndex = i;
-							break;
-						}
-					}
-					std::vector<std::string> vCurrentPedBoneNameStr{ Bone::vBoneNames[obj_currentPedBoneArrayIndex].name };
-
-					bool pbone_plus = 0, pbone_minus = 0, pbone_input = 0;
-					AddTexter("Bone", 0, vCurrentPedBoneNameStr, pbone_input, pbone_plus, pbone_minus);
-					if (pbone_plus)
-					{
-						if (obj_currentPedBoneArrayIndex < Bone::vBoneNames.size() - 1)
-						{
-							obj_currentPedBoneArrayIndex++;
-							nextBoneIndex = GTAped(parentEntity).GetBoneIndex(Bone::vBoneNames[obj_currentPedBoneArrayIndex].boneid);
-						}
-					}
-					if (pbone_minus)
-					{
-						if (obj_currentPedBoneArrayIndex > 0)
-						{
-							obj_currentPedBoneArrayIndex--;
-							nextBoneIndex = GTAped(parentEntity).GetBoneIndex(Bone::vBoneNames[obj_currentPedBoneArrayIndex].boneid);
-						}
-					}
-					if (pbone_input)
-					{
-						Menu::pendingSubmenu = SUB::SPOONER_ATTACHMENTOPS_SELECTBONE;
-					}
-				}
-				else if (parentEntityType == EntityType::VEHICLE)
-				{
-					int obj_currentVehBoneArrayIndex = 10;
-					for (int i = 0; i < VBone::vNames.size(); i++)
-					{
-						if (nextBoneIndex == GTAvehicle(parentEntity).GetBoneIndex(VBone::vNames[i]))
-						{
-							obj_currentVehBoneArrayIndex = i;
-							break;
-						}
-					}
-					std::vector<std::string> vCurrentVehBoneNameStr{ VBone::vNames[obj_currentVehBoneArrayIndex] };
-
-					bool vbone_plus = 0, vbone_minus = 0, vbone_input = 0;
-					AddTexter("Bone", 0, vCurrentVehBoneNameStr, vbone_input, vbone_plus, vbone_minus);
-					if (vbone_plus)
-					{
-						if (obj_currentVehBoneArrayIndex < VBone::vNames.size() - 1)
-						{
-							obj_currentVehBoneArrayIndex++;
-							nextBoneIndex = GTAvehicle(parentEntity).GetBoneIndex(VBone::vNames[obj_currentVehBoneArrayIndex]);
-						}
-					}
-					if (vbone_minus)
-					{
-						if (obj_currentVehBoneArrayIndex > 0)
-						{
-							obj_currentVehBoneArrayIndex--;
-							nextBoneIndex = GTAvehicle(parentEntity).GetBoneIndex(VBone::vNames[obj_currentVehBoneArrayIndex]);
-						}
-					}
-					if (vbone_input)
-					{
-						Menu::pendingSubmenu = SUB::SPOONER_ATTACHMENTOPS_SELECTBONE;
-					}
-				}
-
-				AddBreak("---Values---");
-
-				auto& precision = SpoonerMode::editingState.transformMode == SpoonerMode::eTransformMode::Position ? SpoonerMode::editingState.precisionPos : SpoonerMode::editingState.precisionRot;
-
-				AddNumberMultiplier("Scroll Sensitivity", precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-				AddOptionDescription("Step size used by the values below. Each press multiplies or divides it by 10 (0.0001 to 10).");
-
-				switch (SpoonerMode::editingState.transformMode)
-				{
-				case SpoonerMode::eTransformMode::Position:
-				{
-					AddNumberStepper("X", nextOffset.x, 4, (double)precision);
-					AddNumberStepper("Y", nextOffset.y, 4, (double)precision);
-					AddNumberStepper("Z", nextOffset.z, 4, (double)precision);
-					break;
-				}
-				case SpoonerMode::eTransformMode::Rotation:
-				{
-					bool bResetRot = false;
-					AddNumberStepper("Pitch", nextRot.x, 4, (double)precision);
-					AddNumberStepper("Roll", nextRot.y, 4, (double)precision);
-					AddNumberStepper("Yaw", nextRot.z, 4, (double)precision);
-					AddOption("Reset rotation", bResetRot);
-					if (bResetRot) nextRot = Vector3();
-					break;
-				}
-				}
-
-
-				WrapAngle(nextRot.x);
-				WrapAngle(nextRot.y);
-				WrapAngle(nextRot.z);
-
-				if (nextOffset != selectedEntity.attachmentArgs.offset || nextRot != selectedEntity.attachmentArgs.rotation || nextBoneIndex != selectedEntity.attachmentArgs.boneIndex)
-				{
-					EntityManagement::AttachEntity(selectedEntity, parentEntity, nextBoneIndex, nextOffset, nextRot);
-				}
-
-				AddBreak("---Options---");
-				AddOption("Snapping", null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
-
-				SpoonerMode::editingState.SetMode(static_cast<SpoonerMode::eEditMode>(AddTexterCycler("Entity manipulation mode", (int)SpoonerMode::editingState.mode, {"None", "Keyboard", "Gizmo"})));
-				AddOptionDescription("None: no editing. Keyboard: move the entity with the keyboard, camera movement is locked. Gizmo: drag the on-screen handles, press V to lock the camera and use the cursor.");
-				if (SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled && SpoonerMode::editingState.transformMode != SpoonerMode::eTransformMode::Scale)
-				{
-					AddToggle("Local Space", SpoonerMode::editingState.localSpace);
-					AddOptionDescription("Move and rotate along the entity's own axes instead of the world axes.");
-				}
-			}
-
-		}
-		void Sub_AttachmentOps_AttachTo()
-		{
-			if (!selectedEntity.handle.Exists())
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-			GTAped myPed = PLAYER_PED_ID();
-			GTAvehicle myVehicle = g_myVeh;
-
-			AddTitle("Attach To Something");
-
-			bool bToggleKeepPosWhenAttaching = false;
-			AddTickol("Keep World Position When Attaching", Settings::bKeepPositionWhenAttaching, bToggleKeepPosWhenAttaching, bToggleKeepPosWhenAttaching, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			AddOptionDescription("On: stays where it is when attached. Off: snaps to the attach point.");
-			if (bToggleKeepPosWhenAttaching)
-				Settings::bKeepPositionWhenAttaching = !Settings::bKeepPositionWhenAttaching;
-
-			AddBreak("---Available Entities---");
-
-			bool bSelf = false;
-			AddOption("Self", bSelf); if (bSelf)
-			{
-				EntityManagement::AttachEntityInit(selectedEntity, myPed, Settings::bKeepPositionWhenAttaching);
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			if (myVehicle.Exists())
-			{
-				bool bSelfVeh = false;
-				AddOption(std::string(myPed.IsInVehicle() ? "Current" : "Last Seated") + " Vehicle", bSelfVeh); if (bSelfVeh)
-				{
-					EntityManagement::AttachEntityInit(selectedEntity, myVehicle, Settings::bKeepPositionWhenAttaching);
-					Menu::SetPreviousMenu();
-					return;
-				}
-			}
-
-			if (!Databases::EntityDb.empty())
-			{
-				if (Databases::EntityDb.size() > 1 || Databases::EntityDb.front().handle != selectedEntity.handle)
-				{
-					AddBreak("---Database---");
-					for (auto& e : Databases::EntityDb)
-					{
-						if (e.handle != selectedEntity.handle)
-						{
-							if (e.handle.Exists())
-							{
-								if (!selectedEntity.handle.IsAttachedTo(e.handle))
-								{
-									bool bEntityPressed = false;
-									AddOption(e.hashName, bEntityPressed); if (bEntityPressed)
-									{
-										EntityManagement::AttachEntityInit(selectedEntity, e.handle, Settings::bKeepPositionWhenAttaching);
-										Menu::SetPreviousMenu();
-										return;
-									}
-							if (Menu::IsLastDrawnOptionSelected())
-										EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(0, 255, 0, 200));
-								}
-								else
-								{
-									AddOption(e.hashName + " (already attached)", null);
-							if (Menu::IsLastDrawnOptionSelected())
-										EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(255, 0, 0, 200));
-								}
-								
-							}
-							else
-							{
-								AddOption(e.hashName + " (Invalid)", null);
-							}
-						}
-					}
-				}
-			}
-		}
-		void Sub_AttachmentOps_SelectBone()
-		{
-			if (!selectedEntity.handle.Exists())
-			{
-				Menu::SetPreviousMenu();
-						Menu::selectedOptionIndex = 1;
-				return;
-			}
-			selectedEntity.handle.RequestControlOnce();
-			auto thisEntityIndexInDb = EntityManagement::GetEntityIndexInDb(selectedEntity);
-			bool isThisEntityInDb = thisEntityIndexInDb >= 0;
-			if (isThisEntityInDb)
-			{
-				selectedEntity.taskSequence = Databases::EntityDb[thisEntityIndexInDb].taskSequence;
-				Databases::EntityDb[thisEntityIndexInDb] = selectedEntity;
-			}
-
-			GTAentity baseEntity;
-			bool seIsAttached = EntityManagement::GetEntityThisEntityIsAttachedTo(selectedEntity.handle, baseEntity);
-			EntityType parentEntityType = (EntityType)baseEntity.Type();
-			if (!baseEntity.Exists())
-			{
-				Menu::SetPreviousMenu();
-						Menu::selectedOptionIndex = 1;
-				return;
-			}
-
-			int nextBoneIndex = selectedEntity.attachmentArgs.boneIndex;
-			Vector3 nextOffset = selectedEntity.attachmentArgs.offset;
-			Vector3 nextRot = selectedEntity.attachmentArgs.rotation;
-
-			bool bSelectedBoneIndexExists = false; // Idek what this is doing here
-			int defaultBone;
-
-			AddTitle("Bone");
-
-			// Bone text scroller if type is PED or VEHICLE. Reattach and reset args on bone change.
-			if (parentEntityType == EntityType::PED)
-			{
-				GTAped baseEntityPed = baseEntity;
-				defaultBone = baseEntityPed.GetBoneIndex(Bone::SKEL_ROOT);
-
-				bSelectedBoneIndexExists = nextBoneIndex == baseEntityPed.GetBoneIndex(Bone::vBoneNames.front().boneid);
-				for (auto& b : Bone::vBoneNames)
-				{
-					bool bBoneNamePressed = false;
-					if (bSelectedBoneIndexExists && nextBoneIndex == baseEntityPed.GetBoneIndex(b.boneid))
-					{
-						continue;
-					}
-					bSelectedBoneIndexExists = (nextBoneIndex == baseEntityPed.GetBoneIndex(b.boneid)); // And is selected (in this case)
-					AddTickol(b.name, bSelectedBoneIndexExists, bBoneNamePressed, bBoneNamePressed); if (bBoneNamePressed)
-					{
-						nextBoneIndex = baseEntityPed.GetBoneIndex(b.boneid);
-						//nextOffset = Vector3::Zero();
-						//nextRot = Vector3::Zero();
-						break;
-					}
-				}
-			}
-			else if (parentEntityType == EntityType::VEHICLE)
-			{
-				GTAvehicle baseEntityVeh = baseEntity;
-				defaultBone = baseEntityVeh.GetBoneIndex(VBone::bodyshell);
-
-				bSelectedBoneIndexExists = nextBoneIndex == baseEntityVeh.GetBoneIndex(VBone::vNames.front());
-				for (auto& b : VBone::vNames)
-				{
-					bool bBoneNamePressed = false;
-					if (!baseEntityVeh.HasBone(b) || (bSelectedBoneIndexExists && nextBoneIndex == baseEntityVeh.GetBoneIndex(b)))
-					{
-						continue;
-					}
-					bSelectedBoneIndexExists = (nextBoneIndex == baseEntityVeh.GetBoneIndex(b)); // And is selected (in this case)
-					AddTickol(b, bSelectedBoneIndexExists, bBoneNamePressed, bBoneNamePressed); if (bBoneNamePressed)
-					{
-						nextBoneIndex = baseEntityVeh.GetBoneIndex(b);
-						//nextOffset = Vector3::Zero();
-						//nextRot = Vector3::Zero();
-						break;
-					}
-				}
-			}
-
-			if (nextBoneIndex != selectedEntity.attachmentArgs.boneIndex)
-			{
-				EntityManagement::AttachEntity(selectedEntity, baseEntity, nextBoneIndex, nextOffset, nextRot);
-			}
-
-		}
-		void Sub_Snapping()
-		{
-			AddTitle("Snapping Options");
-
-			AddToggle("Grid Snap", Settings::bGridSnapEnabled);
-			AddOptionDescription("Snaps position and rotation to the grid while moving entities.");
-			AddNumberStepper("Grid Size (m)", Settings::gridSnapSize, 2, 0.25, 0.01);
-			AddOptionDescription("Size of each grid step.");
-			AddNumberStepper("Rotation Snap (deg)", Settings::rotationSnapDegrees, 1, 5.0, 0.0);
-			AddOptionDescription("Rotation step size. 0 turns off rotation snapping.");
-			AddToggle("Snap to Ground", Settings::bSnapToGround);
-			AddOptionDescription("Keeps moved entities on the ground.");
-			AddToggle("Draw Grid On Screen", Settings::bDrawGrid);
-		}
-		void Sub_ManualEditing()
-		{
-			if (!selectedEntity.handle.Exists())
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-			selectedEntity.handle.RequestControlOnce();
-
-			AddTitle("Manual Editing");
-
-			Vector3 currPos = selectedEntity.handle.GetPosition();
-			Vector3 currRot = selectedEntity.handle.GetRotation();
-
-			Entity handle = selectedEntity.handle.Handle();
-			auto& scaleState = IS_ENTITY_A_VEHICLE(handle) ? _vehScale
-			                : IS_ENTITY_A_PED(handle) ? _pedScale
-			                : _objScale;
-
-			Vector3 nextPos = currPos;
-			Vector3 nextRot = currRot;
-			Vector3 nextScale = scaleState.scale;
-
-			SpoonerMode::UpdateEntityEditingState(nextPos, nextRot);
-			// Mode selector
-			SpoonerMode::editingState.transformMode = static_cast<SpoonerMode::eTransformMode>(AddTexterCycler("Editing", static_cast<int>(SpoonerMode::editingState.transformMode), {"Position", "Rotation", "Scale"}));
-			AddOptionDescription("Whether the values below change position, rotation or scale.");
-
-			AddBreak("---Values---");
-
-			float& precision = SpoonerMode::editingState.transformMode == SpoonerMode::eTransformMode::Position ? SpoonerMode::editingState.precisionPos
-			                 : SpoonerMode::editingState.transformMode == SpoonerMode::eTransformMode::Rotation ? SpoonerMode::editingState.precisionRot
-			                 : SpoonerMode::editingState.precisionScale;
-
-			AddNumberMultiplier("Scroll Sensitivity", precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-			AddOptionDescription("Step size used by the values below. Each press multiplies or divides it by 10 (0.0001 to 10).");
-
-			switch (SpoonerMode::editingState.transformMode)
-			{
-				case SpoonerMode::eTransformMode::Position:
-				{
-					AddNumberStepper("X", nextPos.x, 4, (double)precision);
-					AddNumberStepper("Y", nextPos.y, 4, (double)precision);
-					AddNumberStepper("Z", nextPos.z, 4, (double)precision);
-					break;
-				}
-				case SpoonerMode::eTransformMode::Rotation:
-				{
-					bool bResetRot = false;
-					AddNumberStepper("Pitch", nextRot.x, 4, (double)precision);
-					AddNumberStepper("Roll", nextRot.y, 4, (double)precision);
-					AddNumberStepper("Yaw", nextRot.z, 4, (double)precision);
-					AddOption("Reset rotation", bResetRot);
-					if (bResetRot) nextRot = Vector3();
-					break;
-				}
-				case SpoonerMode::eTransformMode::Scale:
-				{
-					bool bResetScale = false;
-					AddNumberStepper("Width (X)", nextScale.x, 4, (double)precision, 0.01);
-					AddNumberStepper("Length (Y)", nextScale.y, 4, (double)precision, 0.01);
-					AddNumberStepper("Height (Z)", nextScale.z, 4, (double)precision, 0.01);
-					AddOption("Reset scale", bResetScale);
-					if (bResetScale) nextScale = Vector3(1.0f, 1.0f, 1.0f);
-					break;
-				}
-			}
-
-			AddBreak("---Options---");
-			AddOption("Snapping", null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
-			
-
-			SpoonerMode::editingState.SetMode(static_cast<SpoonerMode::eEditMode>(AddTexterCycler("Entity manipulation mode", (int)SpoonerMode::editingState.mode, { "None", "Keyboard", "Gizmo" })));
-			AddOptionDescription("None: no editing. Keyboard: move the entity with the keyboard, camera movement is locked. Gizmo: drag the on-screen handles, press V to lock the camera and use the cursor.");
-
-			// don't show if not in editing mode or if in scale mode (because scaling is always local-space)
-			if (SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled && SpoonerMode::editingState.transformMode != SpoonerMode::eTransformMode::Scale)
-			{
-				AddToggle("Local Space", SpoonerMode::editingState.localSpace);
-				AddOptionDescription("Move and rotate along the entity's own axes instead of the world axes.");
-			}
-
-
-			// Apply position changes
-			if (nextPos != currPos)
-			{
-				selectedEntity.handle.SetPosition(SpoonerMode::SnapPos(nextPos));
-				currPos = selectedEntity.handle.GetPosition();
-				GTAentity attBase;
-				if (EntityManagement::GetEntityThisEntityIsAttachedTo(selectedEntity.handle, attBase))
-					World::DrawLine(attBase.GetPosition(), currPos, RGBA::AllWhite());
-			}
-			// Apply rotation changes
-			if (nextRot != currRot)
-			{
-				WrapAngle(nextRot.x);
-				WrapAngle(nextRot.y);
-				WrapAngle(nextRot.z);
-				selectedEntity.handle.SetRotation(SpoonerMode::SnapRot(nextRot));
-				currRot = selectedEntity.handle.GetRotation();
-				GTAentity attBase;
-				if (EntityManagement::GetEntityThisEntityIsAttachedTo(selectedEntity.handle, attBase))
-					World::DrawLine(attBase.GetPosition(), currPos, RGBA::AllWhite());
-			}
-			// Apply scale changes
-			if (nextScale != scaleState.scale)
-			{
-				if (scaleState.handle != handle)
-					scaleState.handle = handle;
-				scaleState.scale = nextScale;
-				selectedEntity.handle.SetScale(nextScale);
-				if (!IS_ENTITY_A_VEHICLE(handle) && !IS_ENTITY_A_PED(handle))
-				{
-					selectedEntity.handle.SetIsCollisionEnabled(false);
-					selectedEntity.handle.FreezePosition(true);				
-				}
-			}
-		}
-		void Sub_Vector3_ManualEditing()
-		{
-			auto& ptrs = SpoonerVector3ManualEditingPtrs;
-			bool hasPos = std::get<1>(ptrs) != nullptr;
-			bool hasRot = std::get<2>(ptrs) != nullptr;
-
-			if (!hasPos && !hasRot)
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			// Draw debug marker at position
-			if (hasPos)
-			{
-				Vector3 markerPos = *std::get<1>(ptrs);
-				if (std::get<0>(ptrs).Exists())
-				{
-					markerPos = std::get<0>(ptrs).GetOffsetInWorldCoords(markerPos);
-				}
-				World::DrawLightWithRange(markerPos, g_fadedRGB, 2.3f, 1.5f);
-				World::DrawMarker(MarkerType::DebugSphere, markerPos, Vector3(), Vector3(), Vector3(0.1f, 0.1f, 0.1f), g_fadedRGB.ToRGBA(190));
-			}
-
-			AddTitle("Vector3 Manual Editing");
-
-			// Clamp editing mode to available ptrs
-			auto& editMode = SpoonerMode::editingState.transformMode;
-			if ((!hasPos && editMode == SpoonerMode::eTransformMode::Position) ||
-				(!hasRot && editMode == SpoonerMode::eTransformMode::Rotation))
-			{
-				editMode = hasPos ? SpoonerMode::eTransformMode::Position : SpoonerMode::eTransformMode::Rotation;
-			}
-
-			// Transform mode cycler (Position / Rotation only)
-			{
-				std::vector<std::string> modeNames;
-				if (hasPos) modeNames.push_back("Position");
-				if (hasRot) modeNames.push_back("Rotation");
-				if (modeNames.size() > 1)
-				{
-					editMode = static_cast<SpoonerMode::eTransformMode>(AddTexterCycler("Editing", static_cast<int>(editMode), modeNames));
-					AddOptionDescription("Whether the values below change position or rotation.");
-				}
-			}
-
-			AddBreak("---Values---");
-
-			float& precision = editMode == SpoonerMode::eTransformMode::Position
-				? SpoonerMode::editingState.precisionPos
-				: SpoonerMode::editingState.precisionRot;
-
-			AddNumberMultiplier("Scroll Sensitivity", precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-			AddOptionDescription("Step size used by the values below. Each press multiplies or divides it by 10 (0.0001 to 10).");
-
-			if (editMode == SpoonerMode::eTransformMode::Position)
-			{
-				Vector3& pos = *std::get<1>(ptrs);
-				AddNumberStepper("X", pos.x, 4, (double)precision);
-				AddNumberStepper("Y", pos.y, 4, (double)precision);
-				AddNumberStepper("Z", pos.z, 4, (double)precision);
-			}
-			else
-			{
-				Vector3& rot = *std::get<2>(ptrs);
-				bool bResetRot = false;
-				AddNumberStepper("Pitch", rot.x, 4, (double)precision);
-				AddNumberStepper("Roll", rot.y, 4, (double)precision);
-				AddNumberStepper("Yaw", rot.z, 4, (double)precision);
-				AddOption("Reset rotation", bResetRot);
-				if (bResetRot) rot = Vector3();
-
-				WrapAngle(rot.x);
-				WrapAngle(rot.y);
-				WrapAngle(rot.z);
-			}
-		}
-		void Sub_MultiSelect()
-		{
-			// show in-game indicator of which entities are selected
-			for (const auto& entity : MultiSelect::g_selectedEntities)
-			{
-				if (entity.handle.Exists())
-					EntityManagement::ShowArrowAboveEntity(entity.handle, RGBA(127, 0, 255, 200));
-			}
-
-			if (!g_multiSelectEditActive)
-			{
-				g_multiSelectPrevSelected = selectedEntity;
-				g_multiSelectEditActive = true;
-			}
-
-			// Create pivot at centroid if entities are selected but no pivot exists yet
-			if (!g_multiSelectPivot.Exists() && !MultiSelect::g_selectedEntities.empty())
-				MultiSelect::CreatePivot();
-
-			// Point gizmo at pivot
-			if (g_multiSelectPivot.Exists())
-			{
-				selectedEntity.handle = g_multiSelectPivot;
-				selectedEntity.attachmentArgs.isAttached = false;
-			}
-
-			// Restore state on sub-back
-			if (Menu::OnSubBack == nullptr)
-			{
-				Menu::OnSubBack = []() {
-					if (g_multiSelectEditActive)
-					{
-						selectedEntity = g_multiSelectPrevSelected;
-						g_multiSelectEditActive = false;
-					}
-					MultiSelect::DestroyPivot();
-				};
-			}
-
-			AddTitle("Multi-Select");
-			
-			bool bSelectAll = false, bClearAll = false;
-			//if (MultiSelect::g_selectedEntities.size() < Databases::EntityDb.size()) //Commented out these statements as it causes the selection to move up and down when selecting/deselecting entities in the list
-			{
-				AddOption("Select All (" + std::to_string(Databases::EntityDb.size()) + ")", bSelectAll); if (bSelectAll)
-				{
-					MultiSelect::DestroyPivot();
-					MultiSelect::SelectAll();
-					if (g_multiSelectEditActive)
-					{
-						selectedEntity = g_multiSelectPrevSelected;
-						g_multiSelectEditActive = false;
-					}
-					*Menu::activeOptionIndex = 1;
-					return;
-				}
-			}
-			//if (!MultiSelect::g_selectedEntities.empty()) //Commented out these statements as it causes the selection to move up and down when selecting/deselecting entities in the list
-			{
-				AddOption("Clear Selection (" + std::to_string(MultiSelect::g_selectedEntities.size()) + ")", bClearAll); if (bClearAll)
-				{
-					MultiSelect::DestroyPivot();
-					MultiSelect::Clear();
-					if (g_multiSelectEditActive)
-					{
-						selectedEntity = g_multiSelectPrevSelected;
-						g_multiSelectEditActive = false;
-					}
-					*Menu::activeOptionIndex = 1;
-					return;
-				}
-			}
-			if (!Databases::EntityDb.empty())
-			{
-				AddBreak("---Entities---");
-
-				for (auto& e : Databases::EntityDb)
-				{
-					if (!e.handle.Exists())
-					{
-						AddOption(e.hashName + " (Invalid)", null);
-						continue;
-					}
-
-					bool bInMultiSelect = MultiSelect::IsSelected(e.handle);
-					// selected entities are being attached to the pivot, so only unselected ones can be genuinely attached
-					bool bBlocked = !bInMultiSelect && e.handle.IsAttached();
-					bool bEntityPressed = false;
-					AddTickol(e.hashName + (bBlocked ? " ~r~(Attached)" : ""), bInMultiSelect, bEntityPressed, bEntityPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-					if (bBlocked)
-						AddOptionDescription("Attached entities can't be multi-selected. Detach it first.");
-					if (Menu::IsLastDrawnOptionSelected())
-						EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(127, 0, 255, 200));
-
-					if (bEntityPressed && !bBlocked)
-					{
-						MultiSelect::DestroyPivot();
-						if (bInMultiSelect)
-							MultiSelect::Remove(e.handle);
-						else
-							MultiSelect::Add(e);
-					}
-				}
-			}
-
-
-			// Display pivot position and rotation and allow editing of all selected entities
-			if (!MultiSelect::g_selectedEntities.empty() && g_multiSelectPivot.Exists())
-			{
-				bool isOnTheLine = NETWORK_IS_IN_SESSION() != 0;
-				bool bDelete = false;
-				Vector3 pivotPos = g_multiSelectPivot.GetPosition();
-				Vector3 pivotRot = g_multiSelectPivot.GetRotation();
-				Vector3 basePos = pivotPos;
-				Vector3 baseRot = pivotRot;
-
-				float& precisionPos = SpoonerMode::editingState.precisionPos;
-				float& precisionRot = SpoonerMode::editingState.precisionRot;
-				float opacityDelta = 0.0f;
-
-				SpoonerMode::UpdateEntityEditingState(pivotPos, pivotRot);
-
-				AddBreak("---Bulk Edit---");
-
-				AddOption("Delete", bDelete);
-				AddNumberMultiplier("Scroll Sensitivity (Position)", precisionPos, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-				AddOptionDescription("Step size used by Pos X/Y/Z. Each press multiplies or divides it by 10 (0.0001 to 10).");
-				AddNumberMultiplier("Scroll Sensitivity (Rotation)", precisionRot, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-				AddOptionDescription("Step size used by Pitch/Roll/Yaw. Each press multiplies or divides it by 10 (0.0001 to 10).");
-
-				AddNumberStepper("Pos X", pivotPos.x, 4, (double)precisionPos);
-				AddNumberStepper("Pos Y", pivotPos.y, 4, (double)precisionPos);
-				AddNumberStepper("Pos Z", pivotPos.z, 4, (double)precisionPos);
-				AddNumberStepper("Pitch", pivotRot.x, 4, (double)precisionRot);
-				AddNumberStepper("Roll", pivotRot.y, 4, (double)precisionRot);
-				AddNumberStepper("Yaw", pivotRot.z, 4, (double)precisionRot);
-				AddNumberStepper("Opacity (Local)", opacityDelta, 0, 1.0);
-				AddOptionDescription("Changes the opacity of all selected entities by this amount.");
-
-				if (bDelete)
-				{
-					for (auto& e : MultiSelect::g_selectedEntities)
-					{
-						if (!e.handle.Exists())
-							continue;
-						if (isOnTheLine) e.handle.RequestControl();
-						EntityManagement::DeleteEntity(e);
-					}
-					MultiSelect::Clear();
-				}
-
-				// Apply pivot pos/rot to pivot itself
-				if (pivotPos.x != basePos.x || pivotPos.y != basePos.y || pivotPos.z != basePos.z)
-				{
-					if (isOnTheLine) g_multiSelectPivot.RequestControl();
-					g_multiSelectPivot.SetPosition(SpoonerMode::SnapPos(pivotPos));
-				}
-				if (pivotRot.x != baseRot.x || pivotRot.y != baseRot.y || pivotRot.z != baseRot.z)
-				{
-					WrapAngle(pivotRot.x); WrapAngle(pivotRot.y); WrapAngle(pivotRot.z);
-					if (isOnTheLine) g_multiSelectPivot.RequestControl();
-					g_multiSelectPivot.SetRotation(SpoonerMode::SnapRot(pivotRot));
-				}
-
-				// Apply opacity delta to all selected entities
-				if (opacityDelta != 0.0f)
-				{
-					for (auto& e : MultiSelect::g_selectedEntities)
-					{
-						if (!e.handle.Exists())
-							continue;
-						if (isOnTheLine) e.handle.RequestControl();
-						int alpha = e.handle.GetAlpha() + static_cast<int>(opacityDelta);
-						e.handle.SetAlpha(alpha);
-					}
-				}
-
-				AddBreak("---Task Sequences---");
-
-				bool bStartTaskSequences = false;
-				AddOption("Start Task Sequences", bStartTaskSequences); if (bStartTaskSequences)
-				{
-					for (auto& e : MultiSelect::g_selectedEntities)
-					{
-						auto eiidb = EntityManagement::GetEntityIndexInDb(e);
-						if (eiidb >= 0)
-						{
-							if (isOnTheLine)
-								e.handle.RequestControl();
-							Databases::EntityDb[eiidb].taskSequence.Start();
-						}
-					}
-				}
-
-				bool bStopTaskSequences = false;
-				AddOption("Stop Task Sequences", bStopTaskSequences); if (bStopTaskSequences)
-				{
-					for (auto& e : MultiSelect::g_selectedEntities)
-					{
-						auto eiidb = EntityManagement::GetEntityIndexInDb(e);
-						if (eiidb >= 0)
-						{
-							if (e.handle.IsPed())
-							{
-								if (isOnTheLine)
-									e.handle.RequestControl();
-								TASK_CLEAR_LOOK_AT(e.handle.Handle());
-								CLEAR_PED_TASKS_IMMEDIATELY(e.handle.Handle());
-							}
-							Databases::EntityDb[eiidb].taskSequence.Reset();
-						}
-					}
-				}
-
-				bool bCopyPressed = false, bCopy_plus = false, bCopy_minus = false;
-				AddTexter("Copy", _copyEntTexterValue, std::vector<std::string>{ "Selected Only", "Copy With Attachments" }, bCopyPressed, bCopy_plus, bCopy_minus);
-				AddOptionDescription("Creates a duplicate. Left/right chooses whether attachments are copied too.");
-				if (bCopy_plus) { if (_copyEntTexterValue < 1U) _copyEntTexterValue++; }
-				if (bCopy_minus) { if (_copyEntTexterValue > 0) _copyEntTexterValue--; }
-				if (bCopyPressed)
-				{
-					for (auto& e : MultiSelect::g_selectedEntities)
-					{
-						EntityManagement::CopyEntity(e, true, true, _copyEntTexterValue);
-					}
-				}
-			}
-
-			// Always show DB entity list with checkboxes
-		}
-
-		void Sub_PedOps()
-		{
-			if (!selectedEntity.handle.Exists())
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-			selectedEntity.handle.RequestControlOnce();
-			auto thisEntityIndexInDb = EntityManagement::GetEntityIndexInDb(selectedEntity);
-			bool isThisEntityInDb = thisEntityIndexInDb >= 0;
-			if (isThisEntityInDb)
-			{
-				selectedEntity.taskSequence = Databases::EntityDb[thisEntityIndexInDb].taskSequence;
-				Databases::EntityDb[thisEntityIndexInDb] = selectedEntity;
-			}
-
-			GTAped myPed = PLAYER_PED_ID();
-			GTAped thisPed = selectedEntity.handle;
-			bool butAmIOnline = NETWORK_IS_IN_SESSION() != 0;
-			bool isPedMyPed = thisPed.Handle() == myPed.Handle();
-			bool bIsPedShortHeighted = GET_PED_CONFIG_FLAG(thisPed.Handle(), ePedConfigFlags::_Shrink, false) != 0;
-			PedGroup myPedGroup = myPed.GetCurrentPedGroup();
-
-			bool pedops_isStill_toggle = false,
-				pedops_canRagdoll_toggle = false,
-				pedops_shortHeighted_toggle = false,
-				pedops_friend = false,
-				pedops_burn = false,
-				pedops_piggyback = false,
-				pedops_shoulderRide = false,
-				pedops_warp_nearest = false,
-				pedops_wp_walk = false,
-				pedops_become_ped = false;
-
-			AddTitle("Ped Options");
-
-			if (!isPedMyPed)
-				MenuOptions::AddOption_RelationshipTextScroller();
-			AddToggle("Is Still (Block Fleeing)", selectedEntity.isStill, pedops_isStill_toggle, pedops_isStill_toggle);
-			AddOptionDescription("The ped doesn't react or run away.");
-			if (pedops_isStill_toggle) { thisPed.SetBlockPermanentEvent(selectedEntity.isStill); }
-			AddLocal("Can Ragdoll", thisPed.GetCanRagdoll(), pedops_canRagdoll_toggle, pedops_canRagdoll_toggle); if (pedops_canRagdoll_toggle) { bool ns = !thisPed.GetCanRagdoll(); thisPed.SetCanRagdoll(ns); SET_PED_RAGDOLL_ON_COLLISION(thisPed.Handle(), ns); }
-			AddLocal("Is Short Heighted (Small)", bIsPedShortHeighted, pedops_shortHeighted_toggle, pedops_shortHeighted_toggle);
-			AddOptionDescription("Shrinks the ped.");
-			if (pedops_shortHeighted_toggle) { SET_PED_CONFIG_FLAG(selectedEntity.handle.Handle(), ePedConfigFlags::_Shrink, bIsPedShortHeighted ? 0 : 1); }
-
-			int thisArmour = thisPed.GetArmour();
-			bool bArmour_plus = false, bArmour_minus = false, bArmour_input = false;
-			AddNumber("Armour", thisArmour, 0, bArmour_input, bArmour_plus, bArmour_minus);
-			if (bArmour_plus) { if (thisArmour < INT_MAX) { thisArmour++; thisPed.SetArmour(thisArmour); } }
-			if (bArmour_minus) { if (thisArmour > 0) { thisArmour--;  thisPed.SetArmour(thisArmour); } }
-			if (bArmour_input)
-			{
-				std::string inputStr = Game::InputBox("", 5U, "", std::to_string(thisArmour));
-				if (inputStr.length() > 0)
-				{
-					try
-					{
-						thisArmour = stoi(inputStr);
-						thisPed.SetArmour(thisArmour);
-					}
-					catch (...) { Game::Print::PrintErrorInvalidInput(inputStr); }
-				}
-				//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SpoonerEoArmour, std::string(), 4U, std::string(), std::to_string(thisHealth));
-				//OnscreenKeyboard::State::arg1._int = ent.GetHandle();
-			}
-
-				AddOption("Wardrobe", null, SetSelectedEntityAsActivePed, SUB::COMPONENTS);
-
-				AddOption("Animations", null, SetSelectedEntityAsActivePed, SUB::ANIMATIONSUB);
-				AddOption("Scenario Actions", null, SetSelectedEntityAsActivePed, SUB::AnimationTaskScenarios);
-				AddOption("Moods", null, SetSelectedEntityAsActivePed, SUB::FACIALMOOD);
-				AddOption("Movement Styles", null, SetSelectedEntityAsActivePed, SUB::MOVEMENTGROUP);
-			AddOption("Weapon", null, nullFunc, SUB::SPOONER_PEDOPS_WEAPON);
-				AddOption("Speech Player  (Doesn't Save)", null, SetSelectedEntityAsActivePed, SUB::SPEECHPLAYER);
-				AddOption("Voice Changer  (Doesn't Save)", null, SetSelectedEntityAsActivePed, SUB::VOICECHANGER);
-				AddOption("Explosions  (Doesn't Save)", null, SetSelectedEntityAsActivePed, SUB::PEDEXPLOSIONSUB);
-				//AddOption("Ped Flags (Doesn't Save)", null, SetSelectedEntityAsActivePed, SUB::PEDFLAGMANAGER_NAMEDLIST);
-				//AddOption("Give Vehicle", null, SetSelectedEntityAsActivePed, SUB::SPAWNVEHICLE);
-				AddOption("Attach Objects (Doesn't Save)", null, SetSelectedEntityAsActivePed, SUB::ATTACHFUNNYOBJECTSUB);
-			AddLocal("Companion (7 Max) (Doesn't Save) (Obsolete)", myPedGroup.Contains(thisPed), pedops_friend, pedops_friend);
-			AddOptionDescription("Adds the ped to your group. Max 7, not saved.");
-			AddLocal("Burn Ped", thisPed.IsOnFire(), pedops_burn, pedops_burn);
-			if (!isPedMyPed)
-				AddLocal("Piggyback Ride  (Doesn't Save)", (GET_ENTITY_ATTACHED_TO(myPed.Handle() == thisPed.Handle()) && IS_ENTITY_PLAYING_ANIM(myPed.Handle(), "mini@prostitutes@sexnorm_veh", "bj_loop_male", 3)), pedops_piggyback, pedops_piggyback);
-			if (!isPedMyPed)
-				AddLocal("Shoulder Ride  (Doesn't Save)", (GET_ENTITY_ATTACHED_TO(myPed.Handle() == thisPed.Handle()) && IS_ENTITY_PLAYING_ANIM(myPed.Handle(), "amb@prop_human_seat_chair@male@elbows_on_knees@idle_a", "idle_a", 3)), pedops_shoulderRide, pedops_shoulderRide);
-			//AddOption("Warp Into Nearest Car", pedops_warp_nearest);
-			AddOption("Travel To Waypoint", pedops_wp_walk);
-			if (!isPedMyPed)
-			{
-				AddOption("Become This Ped (Soul-Steal) (SP)", butAmIOnline ? null : pedops_become_ped);
-				AddOptionDescription("Take control of this ped (story mode only).");
-			}
-
-
-			if (pedops_friend)
-			{
-				NETWORK_REQUEST_CONTROL_OF_NETWORK_ID(thisPed.NetID());
-				if (myPedGroup.Exists())
-				{
-					if (!myPedGroup.Contains(thisPed))
-					{
-						myPedGroup.Add(thisPed, false);
-						myPedGroup.SetSeparationRange(100.0f);
-						myPedGroup.SetFormationSpacing(1.5f);
-						thisPed.Task().FightAgainstHatedTargets(400.0f);
-					}
-					else
-					{
-						myPedGroup.Remove(thisPed);
-					}
-				}
-				else
-				{
-					myPedGroup = PedGroup::CreateNewGroup();
-					myPedGroup.Add(myPed, true);
-					myPedGroup.SetSeparationRange(100.0f);
-					myPedGroup.SetFormationSpacing(1.5f);
-				}
-			}
-
-			if (pedops_burn) { thisPed.SetOnFire(!thisPed.IsOnFire()); }
-
-			if (pedops_piggyback)
-			{
-				if (thisPed == myPed)
-					Game::Print::ShowNotification("~r~Error:", "Can't do that to yourself.");
-				else
-				{
-					if (GET_ENTITY_ATTACHED_TO(myPed.Handle()) != thisPed.Handle())
-					{
-						thisPed.RequestControl();
-						myPed.AttachTo(thisPed, -1, false, Vector3(0.0f, -0.3f, 0.0f), Vector3(0, 0, 0));
-						myPed.Task().PlayAnimation("mini@prostitutes@sexnorm_veh", "bj_loop_male", 8.0f, 0.0f, -1, 9, 0, false);
-					}
-					else
-					{
-						myPed.Detach();
-						myPed.Task().ClearAllImmediately();
-					}
-				}
-			}
-
-			if (pedops_shoulderRide)
-			{
-				if (thisPed == myPed)
-					Game::Print::ShowNotification("~r~Error:", "Can't do that to yourself.");
-				else
-				{
-					if (GET_ENTITY_ATTACHED_TO(myPed.Handle()) != thisPed.Handle())
-					{
-						//set_ped_shoulder_ride_ped(myPed, thisPed, true);
-						myPed.AttachTo(thisPed, Bone::SKEL_ROOT, Vector3(0, -0.25, 0.35f), Vector3(45.0f, 0, 0), true, true, false, true, 1, true);
-						myPed.Task().PlayAnimation("amb@prop_human_seat_chair@male@elbows_on_knees@idle_a", "idle_a", 1000.0f, -1.5f, -1, AnimFlag::Loop, 0.445f, false);
-					}
-					else
-					{
-						//set_ped_shoulder_ride_ped(myPed, thisPed, false);
-						myPed.Detach();
-						myPed.Task().ClearAllImmediately();
-					}
-				}
-			}
-
-			if (pedops_warp_nearest)
-			{
-				const auto& closestVeh = World::GetClosestVehicle(thisPed.GetPosition(), 100.0f);
-				if (closestVeh.Exists())
-					thisPed.SetIntoVehicle(closestVeh, closestVeh.FirstFreeSeat(SEAT_DRIVER));
-				else
-					Game::Print::ShowNotification("~r~Error:", "Unable to find a vehicle.");
-			}
-
-			if (pedops_wp_walk)
-			{
-				if (!IS_WAYPOINT_ACTIVE()) Game::Print::ShowNotification("~r~Error:", "No Waypoint Set.");
-				else
-				{
-					Vector3 coord = GET_BLIP_INFO_ID_COORD(GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint));
-					coord.z = World::GetGroundHeight(coord);
-					//thisPed.Task().GoTo(coord);
-					TASK_GO_TO_COORD_ANY_MEANS(thisPed.Handle(), coord.x, coord.y, coord.z, 3.0f, 0, 0, 786603, -1082130432);
-				}
-			}
-
-			if (pedops_become_ped) { SetBecomePed(thisPed); }
-
-		}
-		void Sub_PedOps_Weapon()
-		{
-			auto& selectedCategoryIndex = s_spoonerPedWeaponCategory;
-			GTAped myPed = PLAYER_PED_ID();
-			GTAped thisPed = selectedEntity.handle;
-			Hash pedCurrWeapon = thisPed.GetWeapon();
-			bool isPedMyPed = thisPed.Handle() == myPed.Handle();
-
-			AddTitle("Weapon");
-
-			bool bSetToNonePressed = false;
-			AddTickol("None", pedCurrWeapon == WEAPON_UNARMED, bSetToNonePressed, bSetToNonePressed); if (bSetToNonePressed)
-			{
-				pedCurrWeapon = WEAPON_UNARMED;
-				SET_CURRENT_PED_WEAPON(thisPed.Handle(), pedCurrWeapon, true);
-			}
-
-			bool bMyCurrWeapon = false;
-			if (!isPedMyPed) AddOption("Your Current Weapon", bMyCurrWeapon); if (bMyCurrWeapon)
-			{
-				//std::vector<s_Weapon_Components_Tint> weaponsBackup;
-				//myPed.StoreWeaponsInArray(weaponsBackup);
-				//GTAped(thisPed).GiveWeaponsFromArray(weaponsBackup);
-				Hash weaponHash = myPed.GetWeapon();
-				GIVE_DELAYED_WEAPON_TO_PED(thisPed.Handle(), weaponHash, 9999, true);
-				GIVE_WEAPON_TO_PED(thisPed.Handle(), weaponHash, 1, true, false);
-				int ammo;
-				GET_MAX_AMMO(thisPed.Handle(), weaponHash, &ammo);
-				SET_PED_AMMO(thisPed.Handle(), weaponHash, ammo, 0);
-				SET_AMMO_IN_CLIP(thisPed.Handle(), weaponHash, GET_MAX_AMMO_IN_CLIP(thisPed.Handle(), weaponHash, true));
-				SET_CURRENT_PED_WEAPON(thisPed.Handle(), weaponHash, true);
-			}
-
-			for (UINT i = 0; i < WeaponIndivs::vCategoryNames.size(); i++)
-			{
-				bool bCategoryPressed = false;
-				AddOption(WeaponIndivs::vCategoryNames[i], bCategoryPressed, nullFunc, SUB::SPOONER_PEDOPS_WEAPON_INCATEGORY); if (bCategoryPressed)
-				{
-					selectedCategoryIndex = i;
-				}
-			}
-		}
-		void Sub_PedOps_Weapon_InCategory()
-		{
-			auto& selectedCategoryIndex = s_spoonerPedWeaponCategory;
-			AddTitle(WeaponIndivs::vCategoryNames[selectedCategoryIndex]);
-
-			GTAped thisPed = selectedEntity.handle;
-			Hash currentWeapon = thisPed.GetWeapon();
-
-			for (auto& wc : *WeaponIndivs::vAllWeapons[selectedCategoryIndex])
-			{
-				bool bWeapPressed = false;
-				AddTickol(GetWeaponLabel(wc.weaponHash, true), currentWeapon == wc.weaponHash, bWeapPressed, bWeapPressed); if (bWeapPressed)
-				{
-					GIVE_DELAYED_WEAPON_TO_PED(thisPed.Handle(), wc.weaponHash, 9999, true);
-					GIVE_WEAPON_TO_PED(thisPed.Handle(), wc.weaponHash, 1, true, false);
-					int ammo;
-					GET_MAX_AMMO(thisPed.Handle(), wc.weaponHash, &ammo);
-					SET_PED_AMMO(thisPed.Handle(), wc.weaponHash, ammo, 0);
-					SET_AMMO_IN_CLIP(thisPed.Handle(), wc.weaponHash, GET_MAX_AMMO_IN_CLIP(thisPed.Handle(), wc.weaponHash, true));
-					SET_CURRENT_PED_WEAPON(thisPed.Handle(), wc.weaponHash, true);
-				}
-			}
-		}
-
-		void Sub_ManageMarkers()
-		{
-			int markerIndexInDbToDelete = -1;
-
-			AddTitle("Markers");
-
-			AddOption("Removal", null, nullFunc, SUB::SPOONER_MANAGEMARKERS_REMOVAL);
-
-			AddBreak("---Database---");
-			for (UINT i = 0; i < Databases::MarkerDb.size(); i++)
-			{
-				auto& m = Databases::MarkerDb[i];
-				bool bMarkerPressed = false;
-
-				AddOption(m.m_name, bMarkerPressed); if (bMarkerPressed)
-				{
-					SelectedMarker = &m;
-					Menu::pendingSubmenu = SUB::SPOONER_MANAGEMARKERS_INMARKER;
-				}
-
-
-				if (Menu::IsLastDrawnOptionSelected())
-				{
-					m.m_selectedInSub = true;
-
-					bool bShortcutDeletePressed;
-					if (Menu::usingControllerInput)
-					{
-						Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Marker");
-						bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-					}
-					else
-					{
-						Menu::add_IB(VirtualKey::B, "Delete Marker");
-						bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-					}
-
-					if (bShortcutDeletePressed)
-					{
-						markerIndexInDbToDelete = i;
-					}
-				}
-			}
-
-			bool bAddNewMarkerPressed = false;
-			AddTickol("ADD NEW MARKER", true, bAddNewMarkerPressed, bAddNewMarkerPressed, TICKOL::SMALLNEWSTAR); if (bAddNewMarkerPressed)
-			{
-				auto& spoocam = SpoonerCamera::camera;
-				if (!spoocam.IsActive())
-				{
-					GTAentity myPed = PLAYER_PED_ID();
-					Vector3 myPos = myPed.GetPosition();
-					SelectedMarker = MarkerManagement::AddMarker(myPos, Vector3(0, 0, myPed.GetHeading()));
-				}
-				else
-				{
-					Vector3 spawnPos = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f + SpoonerMarker().m_scale / 2);
-					spawnPos.z += SpoonerMarker().m_scale / 2;
-					SelectedMarker = MarkerManagement::AddMarker(spawnPos, Vector3(0, 0, spoocam.GetRotation().z));
-				}
-				Menu::pendingSubmenu = SUB::SPOONER_MANAGEMARKERS_INMARKER;
-			}
-
-
-			if (markerIndexInDbToDelete != -1)
-			{
-				MarkerManagement::RemoveMarker(markerIndexInDbToDelete);
-			}
-
-			if (Menu::IsSelectionPastDrawnOptions())
-				Menu::Up(); // Go up if you're too far down due to removing a marker from DB from the properties menu and coming back here again.
-
-		}
-		void Sub_ManageMarkers_Removal()
-		{
-			auto& fMarkerRemovalRadius = _fSaveRangeRadius;
-			GTAentity myPed = PLAYER_PED_ID();
-			const Vector3& myPos = myPed.GetPosition();
-
-			AddTitle("Removal");
-
-			bool bInRange_plus = false, bInRange_minus = false, bInRange_execute = false;
-			AddNumber("Delete Markers In Range", fMarkerRemovalRadius, 0, bInRange_execute, bInRange_plus, bInRange_minus);
-			AddOptionDescription("Deletes markers within this radius. Left/right changes the radius; press to delete.");
-			if (Menu::IsLastDrawnOptionSelected())
-				EntityManagement::DrawRadiusDisplayingMarker(myPos, fMarkerRemovalRadius);
-			if (bInRange_plus) { if (fMarkerRemovalRadius < FLT_MAX) fMarkerRemovalRadius += 1.0f; }
-			if (bInRange_minus) { if (fMarkerRemovalRadius > 0.0f) fMarkerRemovalRadius -= 1.0f; }
-			if (bInRange_execute)
-			{
-				MarkerManagement::RemoveAllMarkersInRange(myPos, fMarkerRemovalRadius);
-			}
-
-			AddOption("Delete All Markers (" + std::to_string(Databases::MarkerDb.size()) + ")", null, MarkerManagement::RemoveAllMarkers);
-		}
-		void Sub_ManageMarkers_InMarker()
-		{
-			if (SelectedMarker == nullptr)
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			AddTitle(SelectedMarker->m_name);
-
-			Vector3 finalPosition, finalRotation;
-			if (SelectedMarker->m_attachmentArgs.attachedTo.Exists())
-			{
-				finalPosition = SelectedMarker->m_attachmentArgs.attachedTo.GetOffsetInWorldCoords(SelectedMarker->m_attachmentArgs.offset);
-				finalRotation = SelectedMarker->m_attachmentArgs.attachedTo.GetRotation() + SelectedMarker->m_attachmentArgs.rotation;
-			}
-			else
-			{
-				finalPosition = SelectedMarker->m_position;
-				finalRotation = SelectedMarker->m_rotation;
-			}
-
-			SpoonerMarkerPosition* dest = SelectedMarker->m_destinationPtr == nullptr ? &SelectedMarker->m_destinationVal : SelectedMarker->m_destinationPtr;
-			Vector3 finalDest;
-			float finalDestHeading;
-			if (dest->m_attachmentArgs.attachedTo.Exists())
-			{
-				finalDest = dest->m_attachmentArgs.attachedTo.GetOffsetInWorldCoords(dest->m_attachmentArgs.offset);
-				finalDestHeading = dest->m_attachmentArgs.attachedTo.GetRotation().z + SelectedMarker->m_destinationHeading;
-			}
-			else
-			{
-				finalDest = dest->m_position;
-				finalDestHeading = SelectedMarker->m_destinationHeading;
-			}
-
-			if (!dest->m_position.IsZero())
-			{
-				World::DrawLine(finalPosition, finalDest, RGBA(SelectedMarker->m_colour, 200));
-				World::DrawLightWithRange(finalDest, RgbS(SelectedMarker->m_colour), 2.3f, 1.5f);
-
-				const Vector3& helpingSpherePos = finalDest.PointOnCircle(1.16f, finalDestHeading + 90.0f);
-				World::DrawLine(finalDest, helpingSpherePos, RGBA(SelectedMarker->m_colour, 200));
-				World::DrawMarker(MarkerType::DebugSphere, helpingSpherePos, Vector3(), Vector3(), Vector3(0.1f, 0.1f, 0.1f), RGBA(SelectedMarker->m_colour, 200));
-			}
-
-			auto& spoocam = SpoonerCamera::camera;
-
-			bool bEditNamePressed = false;
-			AddTexter("Name", 0, std::vector<std::string>{SelectedMarker->m_name}, bEditNamePressed); if (bEditNamePressed)
-			{
-				SelectedMarker->m_name = Game::InputBox(SelectedMarker->m_name, 26U, "Enter custom marker name:", SelectedMarker->m_name);
-				//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SetArg1String, SelectedMarker->m_name, 26U, "Enter custom marker name:", SelectedMarker->m_name);
-				//OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&SelectedMarker->m_name);
-			}
-
-			bool bType_plus = false, bType_minus = false;
-			AddTexter("Type", SelectedMarker->m_type, MarkerType::vNames, null, bType_plus, bType_minus);
-			if (bType_plus) { if (SelectedMarker->m_type < MarkerType::vNames.size() - 1) SelectedMarker->m_type++; }
-			if (bType_minus) { if (SelectedMarker->m_type > 0) SelectedMarker->m_type--; }
-
-			bool bScale_plus = false, bScale_minus = false;
-			AddNumber("Size", SelectedMarker->m_scale, 2, null, bScale_plus, bScale_minus);
-			if (bScale_plus) { if (SelectedMarker->m_scale < 10.0f) SelectedMarker->m_scale += 0.05f; }
-			if (bScale_minus) { if (SelectedMarker->m_scale > 0.0f) SelectedMarker->m_scale -= 0.05f; }
-
-			bool bShowNameToggle = false;
-			AddTickol("Show Name", SelectedMarker->m_showName, bShowNameToggle, bShowNameToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			AddOptionDescription("Shows the marker's name above it.");
-			if (bShowNameToggle) SelectedMarker->m_showName = !SelectedMarker->m_showName;
-
-			bool bRotateContinuouslyToggle = false;
-			AddTickol("Rotate Continuously", SelectedMarker->m_rotateContinuously, bRotateContinuouslyToggle, bRotateContinuouslyToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK); if (bRotateContinuouslyToggle) SelectedMarker->m_rotateContinuously = !SelectedMarker->m_rotateContinuously;
-
-			bool bAllowVehiclesToggle = false;
-			AddTickol("Allow Vehicle Teleportation", SelectedMarker->m_allowVehicles, bAllowVehiclesToggle, bAllowVehiclesToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			AddOptionDescription("Your vehicle teleports with you through this marker.");
-			if (bAllowVehiclesToggle) SelectedMarker->m_allowVehicles = !SelectedMarker->m_allowVehicles;
-
-			AddsettingscolOption("Colour", SelectedMarker->m_colour);
-
-			AddBreak("---Position---");
-			{
-				AddOption("~italic~" + finalPosition.ToString(), null);
-
-				if (!spoocam.IsActive())
-				{
-					bool bSetPosToMe = false;
-					AddOption("Set To Player Position", bSetPosToMe); if (bSetPosToMe)
-					{
-						Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
-						SelectedMarker->m_position = myPos;
-						SelectedMarker->m_attachmentArgs.attachedTo = 0;
-					}
-				}
-				else
-				{
-					bool bSetPosToHitCoords = false;
-					AddOption("Set To Camera Target", bSetPosToHitCoords);
-					AddOptionDescription("Uses the point your camera is aiming at.");
-					if (bSetPosToHitCoords)
-					{
-						Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
-						SelectedMarker->m_position = hitCoords;
-						SelectedMarker->m_attachmentArgs.attachedTo = 0;
-					}
-				}
-				if (IS_WAYPOINT_ACTIVE())
-				{
-					bool bSetPosToWp = false;
-					AddOption("Set To Waypoint", bSetPosToWp); if (bSetPosToWp)
-					{
-						GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
-						Vector3 wpCoords = wpBlip.GetPosition();
-						wpCoords.z = World::GetGroundHeight(wpCoords);
-						SelectedMarker->m_position = wpCoords;
-						SelectedMarker->m_attachmentArgs.attachedTo = 0;
-					}
-				}
-
-				if (!Databases::EntityDb.empty())
-				{
-					AddOption("Attach To Entity", null, nullFunc, SUB::SPOONER_MANAGEMARKERS_INMARKER_ATTACH);
-				}
-
-				if (SelectedMarker->m_attachmentArgs.attachedTo.Exists())
-				{
-					bool bAdjustAttachmentForPosPressed = false;
-					AddOption("Adjust Attachment", bAdjustAttachmentForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING); if (bAdjustAttachmentForPosPressed)
-					{
-						SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_attachmentArgs.offset, &SelectedMarker->m_attachmentArgs.rotation);
-					}
-				}
-				else
-				{
-					bool bManualEditingForPosPressed = false;
-					AddOption("Manual Editing", bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING); if (bManualEditingForPosPressed)
-					{
-						SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_position, &SelectedMarker->m_rotation);
-					}
-				}
-			}
-
-			AddBreak("---Destination---");
-			{
-				AddOption("~italic~" + finalDest.ToString(), null);
-
-				bool bSetPosToNull = false;
-				AddTickol("No Destination", SelectedMarker->m_destinationVal.m_position.IsZero(), bSetPosToNull, bSetPosToNull);
-				AddOptionDescription("The marker is decorative and doesn't teleport.");
-				if (bSetPosToNull)
-				{
-					SelectedMarker->m_destinationVal.m_position.clear();
-					SelectedMarker->m_destinationVal.m_attachmentArgs.attachedTo = 0;
-					SelectedMarker->m_destinationPtr = nullptr;
-				}
-
-				if (!spoocam.IsActive())
-				{
-					bool bSetPosToMe = false;
-					AddOption("Set To Player Position", bSetPosToMe); if (bSetPosToMe)
-					{
-						Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
-						SelectedMarker->m_destinationVal.m_position = myPos;
-						SelectedMarker->m_destinationVal.m_attachmentArgs.attachedTo = 0;
-						SelectedMarker->m_destinationPtr = nullptr;
-					}
-				}
-				else
-				{
-					bool bSetPosToHitCoords = false;
-					AddOption("Set To Camera Target", bSetPosToHitCoords);
-					AddOptionDescription("Uses the point your camera is aiming at.");
-					if (bSetPosToHitCoords)
-					{
-						Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
-						SelectedMarker->m_destinationVal.m_position = hitCoords;
-						SelectedMarker->m_destinationVal.m_attachmentArgs.attachedTo = 0;
-						SelectedMarker->m_destinationPtr = nullptr;
-					}
-				}
-				if (IS_WAYPOINT_ACTIVE())
-				{
-					bool bSetPosToWp = false;
-					AddOption("Set To Waypoint", bSetPosToWp); if (bSetPosToWp)
-					{
-						GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
-						Vector3 wpCoords = wpBlip.GetPosition();
-						wpCoords.z = World::GetGroundHeight(wpCoords);
-						SelectedMarker->m_destinationVal.m_position = wpCoords;
-						SelectedMarker->m_destinationVal.m_attachmentArgs.attachedTo = 0;
-						SelectedMarker->m_destinationPtr = nullptr;
-					}
-				}
-
-				if (Databases::MarkerDb.size() > 1)
-				{
-					AddOption("Link With Marker" + (SelectedMarker->m_destinationPtr == nullptr ? "" : " ('" + SelectedMarker->m_destinationPtr->m_name + "')"), null, nullFunc, SUB::SPOONER_MANAGEMARKERS_INMARKER_DEST2MARKER);
-					AddOptionDescription("Teleports to another marker's position.");
-				}
-
-				if (SelectedMarker->m_destinationPtr == nullptr)
-				{
-					if (SelectedMarker->m_destinationVal.m_attachmentArgs.attachedTo.Exists())
-					{
-						bool bAdjustAttachmentForPosPressed = false;
-						AddOption("Adjust Attachment", bAdjustAttachmentForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING); if (bAdjustAttachmentForPosPressed)
-						{
-							SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_destinationVal.m_attachmentArgs.offset, nullptr);
-						}
-					}
-					else
-					{
-						bool bManualEditingForPosPressed = false;
-						AddOption("Manual Editing", bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING); if (bManualEditingForPosPressed)
-						{
-							SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_destinationVal.m_position, nullptr);
-						}
-					}
-				}
-
-				bool bDestHeading_plus = false, bDestHeading_minus = false;
-				AddNumber("Post-Teleport Direction (To Face)", SelectedMarker->m_destinationHeading, 1, null, bDestHeading_plus, bDestHeading_minus);
-				AddOptionDescription("Heading you face after teleporting.");
-				if (bDestHeading_plus) { SelectedMarker->m_destinationHeading += 1.0f; }
-				if (bDestHeading_minus) { SelectedMarker->m_destinationHeading -= 1.0f; }
-			}
-
-			AddBreak("---Other---");
-
-			bool bCopyMarkerPressed = false;
-			AddOption("Copy Marker", bCopyMarkerPressed); if (bCopyMarkerPressed)
-			{
-				SelectedMarker = MarkerManagement::CopyMarker(*SelectedMarker); // std::vector array location may change
-				SelectedMarker->m_name = Game::InputBox(SelectedMarker->m_name, 26U, "Enter custom marker name:", SelectedMarker->m_name);
-				//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SetArg1String, SelectedMarker->m_name, 26U, "Enter custom marker name:", SelectedMarker->m_name);
-				//OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&SelectedMarker->m_name);
-				Menu::optionSelectionHistory[Menu::menuHistoryIndex]++;
-			}
-		}
-		void Sub_ManageMarkers_InMarker_Dest2Marker()
-		{
-			if (SelectedMarker == nullptr)
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			AddTitle("Select Marker");
-
-			for (UINT i = 0; i < Databases::MarkerDb.size(); i++)
-			{
-				auto& m = Databases::MarkerDb[i];
-				if (&m != SelectedMarker)
-				{
-					bool bMarkerPressed = false;
-					AddOption(m.m_name, bMarkerPressed); if (bMarkerPressed)
-					{
-						SelectedMarker->m_destinationPtr = &m;
-						SelectedMarker->m_destinationVal = m;
-						Menu::SetPreviousMenu();
-						return;
-					}
-
-					if (Menu::IsLastDrawnOptionSelected())
-					{
-						m.m_selectedInSub = true;
-
-						Vector3 finalPosition, finalRotation;
-						if (SelectedMarker->m_attachmentArgs.attachedTo.Exists())
-						{
-							finalPosition = SelectedMarker->m_attachmentArgs.attachedTo.GetOffsetInWorldCoords(SelectedMarker->m_attachmentArgs.offset);
-							finalRotation = SelectedMarker->m_attachmentArgs.attachedTo.GetRotation() + SelectedMarker->m_attachmentArgs.rotation;
-						}
-						else
-						{
-							finalPosition = SelectedMarker->m_position;
-							finalRotation = SelectedMarker->m_rotation;
-						}
-
-						SpoonerMarkerPosition* dest = &m;
-						Vector3 finalDest;
-						float finalDestHeading;
-						if (dest->m_attachmentArgs.attachedTo.Exists())
-						{
-							finalDest = dest->m_attachmentArgs.attachedTo.GetOffsetInWorldCoords(dest->m_attachmentArgs.offset);
-							finalDestHeading = dest->m_attachmentArgs.attachedTo.GetRotation().z + SelectedMarker->m_destinationHeading;
-						}
-						else
-						{
-							finalDest = dest->m_position;
-							finalDestHeading = SelectedMarker->m_destinationHeading;
-						}
-
-						World::DrawLine(finalPosition, finalDest, RGBA(SelectedMarker->m_colour, 200));
-						World::DrawLightWithRange(finalDest, RgbS(SelectedMarker->m_colour), 2.3f, 1.5f);
-					}
-				}
-			}
-
-		}
-		void Sub_ManageMarkers_InMarker_Attach()
-		{
-			if (SelectedMarker == nullptr)
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			AddTitle("Attach To Something");
-
-			bool bToggleKeepPosWhenAttaching = false;
-			AddTickol("Keep World Position When Attaching", Settings::bKeepPositionWhenAttaching, bToggleKeepPosWhenAttaching, bToggleKeepPosWhenAttaching, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			AddOptionDescription("On: stays where it is when attached. Off: snaps to the attach point.");
-			if (bToggleKeepPosWhenAttaching)
-				Settings::bKeepPositionWhenAttaching = !Settings::bKeepPositionWhenAttaching;
-
-			bool bDetachPressed = false;
-			AddTickol("Detach", !SelectedMarker->m_attachmentArgs.attachedTo.GetHandle(), bDetachPressed, bDetachPressed, TICKOL::TICK2); if (bDetachPressed)
-			{
-				if (SelectedMarker->m_attachmentArgs.attachedTo.Exists())
-				{
-					SelectedMarker->m_position = SelectedMarker->m_attachmentArgs.attachedTo.GetOffsetInWorldCoords(SelectedMarker->m_attachmentArgs.offset);
-					SelectedMarker->m_rotation = SelectedMarker->m_attachmentArgs.attachedTo.GetRotation() + SelectedMarker->m_attachmentArgs.rotation;
-				}
-				SelectedMarker->m_attachmentArgs.attachedTo = 0;
-				SelectedMarker->m_attachmentArgs.offset.clear();
-				SelectedMarker->m_attachmentArgs.rotation.clear();
-			}
-
-			if (!Databases::EntityDb.empty())
-			{
-				AddBreak("---Database---");
-				for (auto& e : Databases::EntityDb)
-				{
-					if (e.handle.Exists())
-					{
-						bool bEntityPressed = false;
-						AddTickol(e.hashName, SelectedMarker->m_attachmentArgs.attachedTo == e.handle, bEntityPressed, bEntityPressed, TICKOL::TICK2); if (bEntityPressed)
-						{
-							SelectedMarker->m_attachmentArgs.attachedTo = e.handle;
-							if (Settings::bKeepPositionWhenAttaching)
-							{
-								SelectedMarker->m_attachmentArgs.offset = e.handle.GetOffsetGivenWorldCoords(SelectedMarker->m_position);
-								SelectedMarker->m_attachmentArgs.rotation = SelectedMarker->m_rotation - e.handle.GetRotation();
-							}
-							else
-							{
-								SelectedMarker->m_attachmentArgs.offset.clear();
-								SelectedMarker->m_attachmentArgs.rotation.clear();
-							}
-							Menu::SetPreviousMenu();
-							return;
-						}
-
-						if (Menu::IsLastDrawnOptionSelected()) EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(0, 255, 0, 200));
-					}
-					else
-					{
-						AddOption(e.hashName + " (Invalid)", null);
-					}
-				}
-			}
-
-		}
-
-		void Sub_ManageLights()
-		{
-			int lightIndexInDbToDelete = -1;
-
-			LightManagement::DrawPreviewMarkers();
-
-			AddTitle("Light Sources");
-
-			AddOption("Removal", null, nullFunc, SUB::SPOONER_MANAGELIGHTS_REMOVAL);
-			AddOption("Manage Presets", null, nullFunc, SUB::SPOONER_MANAGELIGHTS_PRESETS);
-
-			AddBreak("---Database---");
-			for (UINT i = 0; i < Databases::LightDb.size(); i++)
-			{
-				auto& l = Databases::LightDb[i];
-				bool bLightPressed = false;
-
-				AddOption(l.m_name, bLightPressed); if (bLightPressed)
-				{
-					SelectedLight = &l;
-					Menu::pendingSubmenu = SUB::SPOONER_MANAGELIGHTS_INLIGHT;
-				}
-
-				if (Menu::IsLastDrawnOptionSelected())
-				{
-					l.m_selectedInSub = true;
-
-					bool bShortcutDeletePressed;
-					if (Menu::usingControllerInput)
-					{
-						Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Light");
-						bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-					}
-					else
-					{
-						Menu::add_IB(VirtualKey::B, "Delete Light");
-						bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-					}
-
-					if (bShortcutDeletePressed)
-					{
-						lightIndexInDbToDelete = i;
-					}
-				}
-			}
-
-			bool bAddNewLightPressed = false;
-			AddTickol("ADD NEW LIGHT", true, bAddNewLightPressed, bAddNewLightPressed, TICKOL::SMALLNEWSTAR); if (bAddNewLightPressed)
-			{
-				auto& spoonerCam = SpoonerCamera::camera;
-				if (!spoonerCam.IsActive())
-				{
-					GTAentity myPed = PLAYER_PED_ID();
-					Vector3 pos = myPed.GetPosition() + myPed.ForwardVector() * 3.0f;
-					pos.z += 1.0f;
-					Vector3 dir = myPed.ForwardVector();
-					SelectedLight = LightManagement::Add(SpoonerLight(pos, dir));
-				}
-				else
-				{
-					Vector3 pos = spoonerCam.GetPosition();
-					Vector3 target = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
-					Vector3 dir = Vector3::Normalize(target - pos);
-					SelectedLight = LightManagement::Add(SpoonerLight(pos, dir));
-				}
-				Menu::pendingSubmenu = SUB::SPOONER_MANAGELIGHTS_INLIGHT;
-			}
-
-			if (!LightManagement::PresetDb.empty())
-			{
-				AddBreak("---Presets---");
-				for (auto& p : LightManagement::PresetDb)
-				{
-					bool bPresetPressed = false;
-					std::string presetLabel = (p.m_lightType == SpoonerLight::LightType::Omni ? "[Omni] " : "[Spot] ") + p.m_name;
-					AddOption(presetLabel, bPresetPressed); if (bPresetPressed)
-					{
-						SpoonerLight copy = p;
-						auto& spoonerCam = SpoonerCamera::camera;
-						if (spoonerCam.IsActive())
-						{
-							copy.m_position = spoonerCam.GetPosition();
-							Vector3 target = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
-							copy.m_direction = Vector3::Normalize(target - copy.m_position);
-						}
-						else
-						{
-							GTAped myPed = PLAYER_PED_ID();
-							copy.m_position = myPed.GetPosition() + myPed.ForwardVector() * 3.0f;
-							copy.m_direction = myPed.ForwardVector();
-						}
-						SelectedLight = LightManagement::Add(copy);
-						Menu::pendingSubmenu = SUB::SPOONER_MANAGELIGHTS_INLIGHT;
-					}
-				}
-			}
-
-			if (lightIndexInDbToDelete != -1)
-			{
-				LightManagement::Remove(lightIndexInDbToDelete);
-			}
-
-			if (Menu::IsSelectionPastDrawnOptions())
-				Menu::Up();
-		}
-
-		void Sub_ManageLights_Removal()
-		{
-			LightManagement::DrawPreviewMarkers();
-
-			auto& fLightRemovalRadius = _fSaveRangeRadius;
-			GTAentity myPed = PLAYER_PED_ID();
-			const Vector3& myPos = myPed.GetPosition();
-
-			AddTitle("Removal");
-
-			bool bInRange_plus = false, bInRange_minus = false, bInRange_execute = false;
-			AddNumber("Delete Lights In Range", fLightRemovalRadius, 0, bInRange_execute, bInRange_plus, bInRange_minus);
-			AddOptionDescription("Deletes lights within this radius. Left/right changes the radius; press to delete.");
-			if (Menu::IsLastDrawnOptionSelected())
-				EntityManagement::DrawRadiusDisplayingMarker(myPos, fLightRemovalRadius);
-			if (bInRange_plus) { if (fLightRemovalRadius < FLT_MAX) fLightRemovalRadius += 1.0f; }
-			if (bInRange_minus) { if (fLightRemovalRadius > 0.0f) fLightRemovalRadius -= 1.0f; }
-			if (bInRange_execute)
-			{
-				for (int i = static_cast<int>(Databases::LightDb.size()) - 1; i >= 0; i--)
-				{
-					if (myPos.DistanceTo(Databases::LightDb[i].m_position) <= fLightRemovalRadius)
-						LightManagement::Remove(i);
-				}
-			}
-
-			AddOption("Delete All Lights (" + std::to_string(Databases::LightDb.size()) + ")", null, LightManagement::RemoveAll);
-		}
-
-		void Sub_ManageLights_InLight()
-		{
-			if (SelectedLight == nullptr)
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			LightManagement::DrawPreviewMarkers();
-
-			auto& spoonerCam = SpoonerCamera::camera;
-
-			AddTitle(SelectedLight->m_name);
-
-			bool bEditNamePressed = false;
-			AddTexter("Name", 0, std::vector<std::string>{SelectedLight->m_name}, bEditNamePressed); if (bEditNamePressed)
-			{
-				SelectedLight->m_name = Game::InputBox(SelectedLight->m_name, 26U, "Enter light name:", SelectedLight->m_name);
-			}
-
-			SelectedLight->m_lightType = static_cast<SpoonerLight::LightType>(AddTexterCycler("Type", static_cast<int>(SelectedLight->m_lightType), {"Omnidirectional Light", "Spot Light"}));
-
-			bool bActiveToggle = false;
-			AddTickol("Active", SelectedLight->m_active, bActiveToggle, bActiveToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK); if (bActiveToggle) SelectedLight->m_active = !SelectedLight->m_active;
-
-			AddBreak("---Colour---");
-			{
-				bool bColourPressed = false;
-				AddOption("Colour", bColourPressed, nullFunc, SUB::SPOONER_MANAGELIGHTS_COLOUR);
-			}
-
-			if (SelectedLight->m_lightType == SpoonerLight::LightType::Omni)
-			{
-				AddBreak("---Omni Properties---");
-
-				AddNumberStepper("Range", SelectedLight->m_range, 1, 0.5, 0.0, 1000.0);
-				AddOptionDescription("How far the light reaches.");
-				AddNumberStepper("Intensity", SelectedLight->m_intensity, 2, 0.1, 0.0, 100.0);
-			}
-			else
-			{
-				AddBreak("---Spot Properties---");
-
-				AddNumberStepper("Distance", SelectedLight->m_spotDistance, 1, 0.5, 0.0, 1000.0);
-				AddOptionDescription("How far the spotlight shines.");
-				AddNumberStepper("Brightness", SelectedLight->m_spotBrightness, 2, 0.1, 0.0, 100.0);
-				AddNumberStepper("Roundness", SelectedLight->m_spotRoundness, 2, 0.1, 0.0, 10.0);
-				AddOptionDescription("Softness of the spotlight cone's edge.");
-				AddNumberStepper("Radius", SelectedLight->m_spotRadius, 2, 0.1, 0.0, 100.0);
-				AddOptionDescription("Width of the spotlight cone.");
-				AddNumberStepper("Falloff", SelectedLight->m_spotFalloff, 2, 0.1, 0.0, 100.0);
-				AddOptionDescription("How quickly brightness fades across the cone.");
-
-				bool bShadowToggle = false;
-				AddTickol("Light Draws Shadows", SelectedLight->m_useShadow, bShadowToggle, bShadowToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-				AddOptionDescription("Casts shadows. Affects performance.");
-				if (bShadowToggle) SelectedLight->m_useShadow = !SelectedLight->m_useShadow;
-			}
-
-			AddBreak("---Position---");
-			{
-				AddOption("~italic~" + SelectedLight->m_position.ToString(), null);
-
-				if (!spoonerCam.IsActive())
-				{
-					bool bSetPosToMe = false;
-					AddOption("Set To Player Position", bSetPosToMe); if (bSetPosToMe)
-					{
-						SelectedLight->m_position = GTAentity(PLAYER_PED_ID()).GetPosition();
-					}
-				}
-				else
-				{
-					bool bSetPosToHitCoords = false;
-					AddOption("Set To Camera Target", bSetPosToHitCoords);
-					AddOptionDescription("Uses the point your camera is aiming at.");
-					if (bSetPosToHitCoords)
-					{
-						Vector3 hitCoords = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
-						SelectedLight->m_position = hitCoords;
-					}
-				}
-				if (spoonerCam.IsActive())
-				{
-					bool bSetPosToCam = false;
-					AddOption("Set To Camera Position", bSetPosToCam);
-					AddOptionDescription("Uses the camera's own position.");
-					if (bSetPosToCam)
-					{
-						SelectedLight->m_position = spoonerCam.GetPosition();
-					}
-				}
-
-				if (IS_WAYPOINT_ACTIVE())
-				{
-					bool bSetPosToWp = false;
-					AddOption("Set To Waypoint", bSetPosToWp); if (bSetPosToWp)
-					{
-						GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
-						Vector3 wpCoords = wpBlip.GetPosition();
-						wpCoords.z = World::GetGroundHeight(wpCoords);
-						SelectedLight->m_position = wpCoords;
-					}
-				}
-
-				bool bManualEditingForPosPressed = false;
-				AddOption("Manual Editing", bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING); if (bManualEditingForPosPressed)
-				{
-					SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedLight->m_position, nullptr);
-				}
-			}
-
-			if (SelectedLight->m_lightType == SpoonerLight::LightType::Spot)
-			{
-				AddBreak("---Direction---");
-				{
-					AddOption("~italic~" + SelectedLight->m_direction.ToString(), null);
-
-					if (spoonerCam.IsActive())
-					{
-						bool bPointAtCursor = false;
-						AddOption("Point At Cursor", bPointAtCursor);
-						AddOptionDescription("Points the spotlight at what's in the centre of the Spooner camera view.");
-						if (bPointAtCursor)
-						{
-							Vector3 target = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
-							Vector3 dir = Vector3::Normalize(target - SelectedLight->m_position);
-							SelectedLight->m_direction = dir;
-						}
-					}
-
-					bool bManualEditingForDirPressed = false;
-					AddOption("Manual Editing", bManualEditingForDirPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING); if (bManualEditingForDirPressed)
-					{
-						SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedLight->m_direction, nullptr);
-					}
-				}
-			}
-
-			AddBreak("---Other---");
-
-			bool bCopyLightPressed = false;
-			AddOption("Copy Light", bCopyLightPressed); if (bCopyLightPressed)
-			{
-				SelectedLight = LightManagement::Copy(*SelectedLight);
-				Menu::optionSelectionHistory[Menu::menuHistoryIndex]++;
-			}
-
-			bool bSavePresetPressed = false;
-			AddOption("Save As Preset", bSavePresetPressed); if (bSavePresetPressed)
-			{
-				std::string presetName = Game::InputBox(SelectedLight->m_name, 26U, "Enter preset name:", SelectedLight->m_name);
-				if (presetName.length() > 0)
-				{
-					SpoonerLight copy = *SelectedLight;
-					copy.m_name = presetName;
-					LightManagement::SavePresetToFile(copy);
-				}
-			}
-		}
-
-		void Sub_ManageLights_Presets()
-		{
-			AddTitle("Presets");
-
-			if (SelectedLight != nullptr)
-			{
-				bool bSaveCurrentPressed = false;
-				AddOption("Save Current Light As Preset", bSaveCurrentPressed); if (bSaveCurrentPressed)
-				{
-					std::string presetName = Game::InputBox(SelectedLight->m_name, 26U, "Enter preset name:", SelectedLight->m_name);
-					if (presetName.length() > 0)
-					{
-						SpoonerLight copy = *SelectedLight;
-						copy.m_name = presetName;
-						LightManagement::SavePresetToFile(copy);
-						LightManagement::LoadPresetsFromFile(GetPathffA(Pathff::RootDir, true) + "FavouriteLights.xml");
-					}
-				}
-			}
-
-			LightManagement::LoadPresetsFromFile(GetPathffA(Pathff::RootDir, true) + "FavouriteLights.xml");
-
-			if (!LightManagement::PresetDb.empty())
-			{
-				AddBreak("---Saved Presets---");
-				for (size_t i = 0; i < LightManagement::PresetDb.size(); i++)
-				{
-					auto& p = LightManagement::PresetDb[i];
-					bool bPresetPressed = false;
-					std::string presetLabel = (p.m_lightType == SpoonerLight::LightType::Omni ? "[Omni] " : "[Spot] ") + p.m_name;
-					AddOption(presetLabel, bPresetPressed); if (bPresetPressed)
-					{
-						SpoonerLight copy = p;
-						auto& spoonerCam = SpoonerCamera::camera;
-						if (spoonerCam.IsActive())
-						{
-							copy.m_position = spoonerCam.GetPosition();
-							Vector3 target = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
-							copy.m_direction = Vector3::Normalize(target - copy.m_position);
-						}
-						else
-						{
-							GTAped myPed = PLAYER_PED_ID();
-							copy.m_position = myPed.GetPosition() + myPed.ForwardVector() * 3.0f;
-							copy.m_direction = myPed.ForwardVector();
-						}
-						LightManagement::Add(copy);
-						Game::Print::ShowNotification("Light added from preset");
-					}
-
-				if (Menu::IsLastDrawnOptionSelected())
-					{
-						bool bDeletePressed;
-						if (Menu::usingControllerInput)
-						{
-							Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Preset");
-							bDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-						}
-						else
-						{
-							Menu::add_IB(VirtualKey::B, "Delete Preset");
-							bDeletePressed = IsKeyJustUp(VirtualKey::B);
-						}
-						if (bDeletePressed)
-						{
-							LightManagement::PresetDb.erase(LightManagement::PresetDb.begin() + i);
-							LightManagement::SaveAllPresetsToFile();
-							Menu::optionSelectionHistory[Menu::menuHistoryIndex]--;
-							break;
-						}
-					}
-				}
-			}
-			else
-			{
-				AddOption("No presets found", null);
-			}
-		}
-
-		void Sub_ManageLights_Colour()
-		{
-			if (SelectedLight == nullptr) { Menu::SetPreviousMenu(); return; }
-
-			LightManagement::DrawPreviewMarkers();
-
-			RGBA* colour = &SelectedLight->m_colour;
-
-			AddTitle("Light Colour");
-			AddNumberStepper("Red", colour->R, 0, 1.0, 0, 255);
-			AddNumberStepper("Green", colour->G, 0, 1.0, 0, 255);
-			AddNumberStepper("Blue", colour->B, 0, 1.0, 0, 255);
-
-			switch (*Menu::activeOptionIndex)
-			{
-			case 1:
-			case 2:
-			case 3:
-				AddPresetColourOptionsPreviews(colour->R, colour->G, colour->B);
-				break;
-			}
-
-			{
-				bool bHexInputPressed = false;
-				AddOption("Input Hex Colour", bHexInputPressed); if (bHexInputPressed)
-				{
-					std::string input = Game::InputBox("", 10U, "Enter hex colour (RRGGBB or RRGGBBAA):", "#");
-					if (!HexToRGBA(input, *colour))
-						Game::Print::ShowNotification("~r~Invalid hex colour.");
-				}
-			}
-
-		}
-		void Sub_Blip_Management()
-		{
-			int blipIndexInDbToDelete = -1;
-			AddTitle("Blip Management");
-
-			//AddOption("Add Blip", null, nullFunc, SUB::SPOONER_BLIPS_ADD_SELECT);
-
-			bool bAttachBlipToEntityPressed = false;
-			AddTickol("Create Entity Blip", true, bAttachBlipToEntityPressed, bAttachBlipToEntityPressed, TICKOL::SMALLNEWSTAR);
-			AddOptionDescription("A blip that follows an entity.");
-			if (bAttachBlipToEntityPressed)
-			{
-				Menu::pendingSubmenu = SUB::SPOONER_BLIPS_ENTITY_SELECT;
-			}
-
-			bool bAddNewCoordBlipPressed = false;
-			AddTickol("Create Coord Blip", true, bAddNewCoordBlipPressed, bAddNewCoordBlipPressed, TICKOL::SMALLNEWSTAR);
-			AddOptionDescription("A blip at a fixed position.");
-			if (bAddNewCoordBlipPressed)
-			{
-				auto& spoocam = SpoonerCamera::camera;
-
-				if (!spoocam.IsActive())
-				{
-					GTAentity myPed = PLAYER_PED_ID();
-					Vector3 myPos = myPed.GetPosition();
-
-					sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(myPos, Vector3(0, 0, myPed.GetHeading()));
-				}
-				else
-				{
-					Vector3 spawnPos = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
-
-					sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(spawnPos, Vector3(0, 0, spoocam.GetRotation().z));
-				}
-
-				sub::Spooner::SelectedBlip->BlipType = SpoonerBlip::Type::Coord;
-				sub::Spooner::SelectedBlip->Alpha = 255;
-				sub::Spooner::SelectedBlip->Scale = 0.80f;
-				BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-				Menu::pendingSubmenu = SUB::SPOONER_BLIPS_COORDINBLIP;
-			}
-
-			bool bAddNewRadialBlipPressed = false;
-			AddTickol("Create Radial Blip", true, bAddNewRadialBlipPressed, bAddNewRadialBlipPressed, TICKOL::SMALLNEWSTAR);
-			AddOptionDescription("A circle or rectangle marking an area on the map.");
-			if (bAddNewRadialBlipPressed)
-			{
-				auto& spoocam = SpoonerCamera::camera;
-
-				if (!spoocam.IsActive())
-				{
-					GTAentity myPed = PLAYER_PED_ID();
-					Vector3 myPos = myPed.GetPosition();
-
-					sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(myPos, Vector3(0, 0, myPed.GetHeading()));
-				}
-				else
-				{
-					Vector3 spawnPos = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
-
-					sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(spawnPos, Vector3(0, 0, spoocam.GetRotation().z));
-				}
-
-				sub::Spooner::SelectedBlip->BlipType = SpoonerBlip::Type::Radial;
-				sub::Spooner::SelectedBlip->Alpha = 160;
-				sub::Spooner::SelectedBlip->Scale = 0.80f;
-				BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-				Menu::pendingSubmenu = SUB::SPOONER_BLIPS_RADIALINBLIP;
-			}
-
-			AddBreak("---Entity Blips---");
-			bool bHasEntity = false;
-			for (auto& b : Databases::BlipDb) if (b.BlipType == SpoonerBlip::Type::Entity) { bHasEntity = true; break; }
-			if (!bHasEntity)
-			{
-				bool bAddEntity = false;
-				AddOption("Add Entity Blip", bAddEntity);
-				if (bAddEntity)
-					Menu::pendingSubmenu = SUB::SPOONER_BLIPS_ENTITY_SELECT;
-			}
-			for (UINT i = 0; i < Databases::BlipDb.size(); i++)
-			{
-				auto& m = Databases::BlipDb[i];
-				if (m.BlipType != SpoonerBlip::Type::Entity) continue;
-
-				bool bBlipPressed = false;
-				std::string displayName = m.label.empty() ? m.Name : m.label;
-				AddOption(displayName, bBlipPressed);
-				if (bBlipPressed)
-				{
-					sub::Spooner::SelectedBlip = &m;
-					Menu::pendingSubmenu = SUB::SPOONER_BLIPS_RADIALINBLIP;
-				}
-
-
-				if (*Menu::activeOptionIndex == Menu::currentOptionCount)
-				{
-					m.m_selectedInSub = true;
-
-					GTAentity ent = m.EntityHandle;
-					EntityManagement::ShowArrowAboveEntity(ent, RGBA(0, 255, 255, 200));
-
-					bool bShortcutDeletePressed;
-					if (Menu::usingControllerInput)
-					{
-						Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Entity Blip");
-						bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-					}
-					else
-					{
-						Menu::add_IB(VirtualKey::B, "Delete Entity Blip");
-						bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-					}
-
-					if (bShortcutDeletePressed)
-						blipIndexInDbToDelete = i;
-				}
-			}
-
-			AddBreak("---Coord Blips---");
-			bool bHasCoord = false;
-			for (auto& b : Databases::BlipDb) if (b.BlipType == SpoonerBlip::Type::Coord) { bHasCoord = true; break; }
-			if (!bHasCoord)
-			{
-				bool bAddCoord = false;
-				AddOption("Add Coord Blip", bAddCoord);
-				if (bAddCoord)
-				{
-					auto& spoocam = SpoonerCamera::camera;
-					if (!spoocam.IsActive())
-					{
-						GTAentity myPed = PLAYER_PED_ID();
-						sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(myPed.GetPosition(), Vector3(0, 0, myPed.GetHeading()));
-					}
-					else
-					{
-						Vector3 spawnPos = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
-						sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(spawnPos, Vector3(0, 0, spoocam.GetRotation().z));
-					}
-					sub::Spooner::SelectedBlip->BlipType = SpoonerBlip::Type::Coord;
-					sub::Spooner::SelectedBlip->Alpha = 255;
-					sub::Spooner::SelectedBlip->Scale = 0.80f;
-					BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-					Menu::pendingSubmenu = SUB::SPOONER_BLIPS_COORDINBLIP;
-				}
-			}
-			for (UINT i = 0; i < Databases::BlipDb.size(); i++)
-			{
-				auto& m = Databases::BlipDb[i];
-				if (m.BlipType != SpoonerBlip::Type::Coord) continue;
-
-				bool bBlipPressed = false;
-				std::string displayName = m.label.empty() ? BlipIcon::vNames.at(m.Icon) : m.label;
-				AddOption(displayName, bBlipPressed);
-				if (bBlipPressed)
-				{
-					sub::Spooner::SelectedBlip = &m;
-					Menu::pendingSubmenu = SUB::SPOONER_BLIPS_COORDINBLIP;
-				}
-
-				if (*Menu::activeOptionIndex == Menu::currentOptionCount)
-				{
-					m.m_selectedInSub = true;
-
-					bool bShortcutDeletePressed;
-					if (Menu::usingControllerInput)
-					{
-						Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Coord Blip");
-						bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-					}
-					else
-					{
-						Menu::add_IB(VirtualKey::B, "Delete Coord Blip");
-						bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-					}
-
-					if (bShortcutDeletePressed)
-						blipIndexInDbToDelete = i;
-				}
-			}
-
-			AddBreak("---Radial Blips---");
-			bool bHasRadial = false;
-			for (auto& b : Databases::BlipDb) if (b.BlipType == SpoonerBlip::Type::Radial) { bHasRadial = true; break; }
-			if (!bHasRadial)
-			{
-				bool bAddRadial = false;
-				AddOption("Add Radial Blip", bAddRadial);
-				if (bAddRadial)
-				{
-					auto& spoocam = SpoonerCamera::camera;
-					if (!spoocam.IsActive())
-					{
-						GTAentity myPed = PLAYER_PED_ID();
-						sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(myPed.GetPosition(), Vector3(0, 0, myPed.GetHeading()));
-					}
-					else
-					{
-						Vector3 spawnPos = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
-						sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(spawnPos, Vector3(0, 0, spoocam.GetRotation().z));
-					}
-					sub::Spooner::SelectedBlip->BlipType = SpoonerBlip::Type::Radial;
-					sub::Spooner::SelectedBlip->Alpha = 160;
-					sub::Spooner::SelectedBlip->Scale = 0.80f;
-					BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-					Menu::pendingSubmenu = SUB::SPOONER_BLIPS_RADIALINBLIP;
-				}
-			}
-			for (UINT i = 0; i < Databases::BlipDb.size(); i++)
-			{
-				auto& m = Databases::BlipDb[i];
-				if (m.BlipType != SpoonerBlip::Type::Radial) continue;
-
-				bool bBlipPressed = false;
-				std::string displayName = m.label.empty() ? "Radial Blip" : m.label;
-				AddOption(displayName, bBlipPressed);
-				if (bBlipPressed)
-				{
-					sub::Spooner::SelectedBlip = &m;
-					Menu::pendingSubmenu = SUB::SPOONER_BLIPS_RADIALINBLIP;
-				}
-
-				if (*Menu::activeOptionIndex == Menu::currentOptionCount)
-				{
-					m.m_selectedInSub = true;
-
-					bool bShortcutDeletePressed;
-					if (Menu::usingControllerInput)
-					{
-						Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Radial Blip");
-						bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-					}
-					else
-					{
-						Menu::add_IB(VirtualKey::B, "Delete Radial Blip");
-						bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-					}
-
-					if (bShortcutDeletePressed)
-						blipIndexInDbToDelete = i;
-				}
-			}
-
-			if (blipIndexInDbToDelete != -1)
-				BlipCustoms::RemoveBlip(blipIndexInDbToDelete);
-
-			if (*Menu::activeOptionIndex > Menu::currentOptionCount)
-				Menu::Up();
-		}
-
-		void Sub_Blip_Radial()
-		{
-			AddTitle("Radial Blip");
-
-			bool bDeletePressed = false;
-			AddOption("Delete Blip", bDeletePressed);
-			if (bDeletePressed)
-			{
-				sub::Spooner::BlipCustoms::RemoveBlip(*sub::Spooner::SelectedBlip);
-				sub::Spooner::SelectedBlip = nullptr;
-				Menu::SetPreviousMenu();
-			}
-		}
-
-		void Sub_Blip_Entity()
-		{
-			AddTitle("Entity Blip");
-		}
-
-		void Sub_Blip_Entity_Select()
-		{
-			AddTitle("Select Entity");
-
-			if (Databases::EntityDb.empty())
-			{
-				AddOption("No Entities In Database", null);
-				return;
-			}
-
-			for (auto& e : Databases::EntityDb)
-			{
-				if (e.handle.Exists())
-				{
-					bool bEntityPressed = false;
-					AddOption(e.hashName, bEntityPressed);
-					if (bEntityPressed)
-					{
-						sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(
-							SpoonerBlip::Type::Entity,
-							e.hashName
-						);
-
-						sub::Spooner::SelectedBlip->EntityHandle = e.handle.GetHandle();
-						sub::Spooner::SelectedBlip->bAttached = true;
-						sub::Spooner::SelectedBlip->Alpha = 255;
-						sub::Spooner::SelectedBlip->Scale = 0.80f;
-						sub::Spooner::SelectedBlip->Icon = BlipIcon::Standard;
-						BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-						Menu::pendingSubmenu = SUB::SPOONER_BLIPS_ENTITYINBLIP;
-						return;
-					}
-
-					if (*Menu::activeOptionIndex == Menu::currentOptionCount)
-						EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(0, 255, 0, 200));
-				}
-				else
-				{
-					AddOption(e.hashName + " (Invalid)", null);
-				}
-			}
-		}
-
-		void Sub_Blip_EntityInBlip()
-		{
-			if (sub::Spooner::SelectedBlip == nullptr)
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			auto blip = sub::Spooner::SelectedBlip;
-
-			AddTitle("Entity Blip Options");
-
-			bool bEditLabelPressed = false;
-			AddTexter("Label", 0, std::vector<std::string>{ blip->label.empty() ? "" : blip->label }, bEditLabelPressed);
-			if (bEditLabelPressed)
-			{
-				blip->label = Game::InputBox(blip->label, 26U, "Enter blip label:", blip->label);
-				BlipCustoms::RefreshBlip(*blip);
-			}
-
-			bool colour_plus = false;
-			bool colour_minus = false;
-
-			AddTexter(
-				"Colour",
-				0,
-				std::vector<std::string>{ BlipColour::vNames.at(blip->Colour) },
-				null,
-				colour_plus,
-				colour_minus
-			);
-
-			if (colour_plus)
-			{
-				auto it = BlipColour::vNames.find(blip->Colour);
-				if (std::next(it) != BlipColour::vNames.end())
-				{
-					++it;
-					blip->Colour = it->first;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			if (colour_minus)
-			{
-				auto it = BlipColour::vNames.find(blip->Colour);
-				if (it != BlipColour::vNames.begin())
-				{
-					--it;
-					blip->Colour = it->first;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			AddOption("Icon: " + BlipIcon::vNames.at(blip->Icon), null, nullFunc, SUB::SPOONER_BLIPS_ICONS);
-
-			bool scale_plus = false;
-			bool scale_minus = false;
-
-			AddNumber("Scale", blip->Scale, 2, null, scale_plus, scale_minus);
-
-			if (scale_plus)
-			{
-				if (blip->Scale < 10.0f)
-				{
-					blip->Scale += 0.1f;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			if (scale_minus)
-			{
-				if (blip->Scale > 0.1f)
-				{
-					blip->Scale -= 0.1f;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			bool bToggleRotation = false;
-			AddTickol("Sync Rotation With Entity", blip->bSyncRotation, bToggleRotation, bToggleRotation, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			AddOptionDescription("The blip rotates with the entity's heading.");
-			if (bToggleRotation)
-			{
-				blip->bSyncRotation = !blip->bSyncRotation;
-				if (!blip->bSyncRotation)
-					BlipCustoms::RefreshBlip(*blip);
-			}
-
-			bool bToggleRoute = false;
-			AddTickol("Show Route", blip->bShowRoute, bToggleRoute, bToggleRoute, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			if (bToggleRoute)
-			{
-				blip->bShowRoute = !blip->bShowRoute;
-				HUD::SET_BLIP_ROUTE(blip->BlipHandle, blip->bShowRoute);
-			}
-
-			if (blip->bShowRoute)
-			{
-				bool routeColour_plus = false;
-				bool routeColour_minus = false;
-
-				AddTexter(
-					"Route Colour",
-					0,
-					std::vector<std::string>{ BlipColour::vNames.at(blip->RouteColour) },
-					null,
-					routeColour_plus,
-					routeColour_minus
-				);
-
-				if (routeColour_plus)
-				{
-					auto it = BlipColour::vNames.find(blip->RouteColour);
-					if (std::next(it) != BlipColour::vNames.end()) ++it;
-					else it = BlipColour::vNames.begin();
-					blip->RouteColour = it->first;
-					HUD::SET_BLIP_ROUTE_COLOUR(blip->BlipHandle, blip->RouteColour);
-				}
-
-				if (routeColour_minus)
-				{
-					auto it = BlipColour::vNames.find(blip->RouteColour);
-					if (it != BlipColour::vNames.begin()) --it;
-					else it = std::prev(BlipColour::vNames.end());
-					blip->RouteColour = it->first;
-					HUD::SET_BLIP_ROUTE_COLOUR(blip->BlipHandle, blip->RouteColour);
-				}
-			}
-
-			bool bToggleCone = false;
-			AddTickol("Show Cone (Only for peds)", blip->bShowCone, bToggleCone, bToggleCone, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			AddOptionDescription("Shows the ped's field-of-view cone on the minimap.");
-			if (bToggleCone)
-			{
-				blip->bShowCone = !blip->bShowCone;
-				HUD::SET_BLIP_SHOW_CONE(blip->BlipHandle, blip->bShowCone, 9);
-			}
-
-			bool bToggleShortRange = false;
-			AddTickol("Short Range", blip->bShortRange, bToggleShortRange, bToggleShortRange, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			AddOptionDescription("The blip only shows on the minimap when nearby.");
-			if (bToggleShortRange)
-			{
-				blip->bShortRange = !blip->bShortRange;
-				HUD::SET_BLIP_AS_SHORT_RANGE(blip->BlipHandle, blip->bShortRange);
-			}
-
-			bool bToggleSelectable = false;
-			AddTickol("Selectable On Map", blip->bSelectableOnMap, bToggleSelectable, bToggleSelectable, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			AddOptionDescription("The blip can be selected on the pause map.");
-			if (bToggleSelectable)
-			{
-				blip->bSelectableOnMap = !blip->bSelectableOnMap;
-				HUD::SET_BLIP_DISPLAY(blip->BlipHandle, blip->bSelectableOnMap ? 2 : 8);
-			}
-
-			bool priority_plus = false;
-			bool priority_minus = false;
-
-			static const std::vector<int> priorityValues = { 2, 3, 5, 6, 7, 9 };
-			auto priorityIt = std::find(priorityValues.begin(), priorityValues.end(), blip->Priority);
-			if (priorityIt == priorityValues.end()) priorityIt = priorityValues.begin();
-
-			AddTexter("Priority", 0, std::vector<std::string>{ std::to_string(blip->Priority) }, null, priority_plus, priority_minus);
-			AddOptionDescription("Which blips draw on top when they overlap.");
-
-			if (priority_plus)
-			{
-				if (std::next(priorityIt) != priorityValues.end()) ++priorityIt;
-				else priorityIt = priorityValues.begin();
-				blip->Priority = *priorityIt;
-				HUD::SET_BLIP_PRIORITY(blip->BlipHandle, blip->Priority);
-			}
-
-			if (priority_minus)
-			{
-				if (priorityIt != priorityValues.begin()) --priorityIt;
-				else priorityIt = std::prev(priorityValues.end());
-				blip->Priority = *priorityIt;
-				HUD::SET_BLIP_PRIORITY(blip->BlipHandle, blip->Priority);
-			}
-
-			bool deletePressed = false;
-
-			AddOption("Delete Blip", deletePressed);
-
-			if (deletePressed)
-			{
-				BlipCustoms::RemoveBlip(*blip);
-				sub::Spooner::SelectedBlip = nullptr;
-				Menu::SetPreviousMenu();
-				return;
-			}
-		}
-
-		void Sub_Blip_Coord()
-		{
-			AddTitle("Coord Blip");
-		}
-
-
-		void Sub_Blip_CoordInBlip()
-		{
-			if (sub::Spooner::SelectedBlip == nullptr)
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			auto blip = sub::Spooner::SelectedBlip;
-
-			AddTitle("Coord Blip Options");
-
-			bool bEditLabelPressed = false;
-			AddTexter("Label", 0, std::vector<std::string>{ blip->label.empty() ? "" : blip->label }, bEditLabelPressed);
-			if (bEditLabelPressed)
-			{
-				blip->label = Game::InputBox(blip->label, 26U, "Enter blip name:", blip->label);
-				BlipCustoms::RefreshBlip(*blip);
-			}
-
-			bool colour_plus = false;
-			bool colour_minus = false;
-
-			AddTexter(
-				"Colour",
-				0,
-				std::vector<std::string>{ BlipColour::vNames.at(blip->Colour) },
-				null,
-				colour_plus,
-				colour_minus
-			);
-
-			if (colour_plus)
-			{
-				auto it = BlipColour::vNames.find(blip->Colour);
-				if (std::next(it) != BlipColour::vNames.end())
-				{
-					++it;
-					blip->Colour = it->first;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			if (colour_minus)
-			{
-				auto it = BlipColour::vNames.find(blip->Colour);
-				if (it != BlipColour::vNames.begin())
-				{
-					--it;
-					blip->Colour = it->first;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			AddOption("Icon: " + BlipIcon::vNames.at(blip->Icon), null, nullFunc, SUB::SPOONER_BLIPS_ICONS);
-
-			bool scale_plus = false;
-			bool scale_minus = false;
-
-			AddNumber("Scale", blip->Scale, 2, null, scale_plus, scale_minus);
-
-			if (scale_plus)
-			{
-				if (blip->Scale < 10.0f)
-				{
-					blip->Scale += 0.1f;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			if (scale_minus)
-			{
-				if (blip->Scale > 0.1f)
-				{
-					blip->Scale -= 0.1f;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			bool alpha_plus = false;
-			bool alpha_minus = false;
-
-			AddNumber("Alpha", blip->Alpha, 2, null, alpha_plus, alpha_minus);
-
-			if (alpha_plus)
-			{
-				if (blip->Alpha < 255)
-				{
-					blip->Alpha++;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			if (alpha_minus)
-			{
-				if (blip->Alpha > 0)
-				{
-					blip->Alpha--;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			bool bToggleRoute = false;
-			AddTickol("Show Route", blip->bShowRoute, bToggleRoute, bToggleRoute, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			if (bToggleRoute)
-			{
-				blip->bShowRoute = !blip->bShowRoute;
-				HUD::SET_BLIP_ROUTE(blip->BlipHandle, blip->bShowRoute);
-			}
-
-			bool bToggleShortRange = false;
-			AddTickol("Short Range", blip->bShortRange, bToggleShortRange, bToggleShortRange, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			AddOptionDescription("The blip only shows on the minimap when nearby.");
-			if (bToggleShortRange)
-			{
-				blip->bShortRange = !blip->bShortRange;
-				HUD::SET_BLIP_AS_SHORT_RANGE(blip->BlipHandle, blip->bShortRange);
-			}
-
-			bool bToggleSelectable = false;
-			AddTickol("Selectable On Map", blip->bSelectableOnMap, bToggleSelectable, bToggleSelectable, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-			AddOptionDescription("The blip can be selected on the pause map.");
-			if (bToggleSelectable)
-			{
-				blip->bSelectableOnMap = !blip->bSelectableOnMap;
-				HUD::SET_BLIP_DISPLAY(blip->BlipHandle, blip->bSelectableOnMap ? 2 : 8);
-			}
-
-			bool priority_plus = false;
-			bool priority_minus = false;
-
-			static const std::vector<int> priorityValues = { 2, 3, 5, 6, 7, 9 };
-			auto priorityIt = std::find(priorityValues.begin(), priorityValues.end(), blip->Priority);
-			if (priorityIt == priorityValues.end()) priorityIt = priorityValues.begin();
-
-			AddTexter("Priority", 0, std::vector<std::string>{ std::to_string(blip->Priority) }, null, priority_plus, priority_minus);
-			AddOptionDescription("Which blips draw on top when they overlap.");
-
-			if (priority_plus)
-			{
-				if (std::next(priorityIt) != priorityValues.end()) ++priorityIt;
-				else priorityIt = priorityValues.begin();
-				blip->Priority = *priorityIt;
-				HUD::SET_BLIP_PRIORITY(blip->BlipHandle, blip->Priority);
-			}
-
-			if (priority_minus)
-			{
-				if (priorityIt != priorityValues.begin()) --priorityIt;
-				else priorityIt = std::prev(priorityValues.end());
-				blip->Priority = *priorityIt;
-				HUD::SET_BLIP_PRIORITY(blip->BlipHandle, blip->Priority);
-			}
-
-			bool deletePressed = false;
-
-			AddOption("Delete Blip", deletePressed);
-
-			if (deletePressed)
-			{
-				BlipCustoms::RemoveBlip(*blip);
-				sub::Spooner::SelectedBlip = nullptr;
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			AddBreak("---Position---");
-			{
-				AddOption("~italic~" + Vector3(blip->X, blip->Y, blip->Z).ToString(), null);
-
-				bool bSetToPlayer = false;
-				AddOption("Set To Player Position", bSetToPlayer);
-				if (bSetToPlayer)
-				{
-					Vector3 pos = ENTITY::GET_ENTITY_COORDS(PLAYER_PED_ID(), true);
-					blip->X = pos.x;
-					blip->Y = pos.y;
-					blip->Z = pos.z;
-					BlipCustoms::RefreshBlip(*blip);
-				}
-
-				if (IS_WAYPOINT_ACTIVE())
-				{
-					bool bSetToWp = false;
-					AddOption("Set To Waypoint", bSetToWp);
-					if (bSetToWp)
-					{
-						Blip wp = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
-						Vector3 wpCoords = GET_BLIP_COORDS(wp);
-						wpCoords.z = World::GetGroundHeight(wpCoords);
-
-						blip->X = wpCoords.x;
-						blip->Y = wpCoords.y;
-						blip->Z = wpCoords.z;
-						BlipCustoms::RefreshBlip(*blip);
-					}
-				}
-
-				bool bManual = false;
-				AddOption("Manual Placement", bManual, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
-				if (bManual)
-				{
-					SpoonerVector3ManualEditingPtrs = std::make_tuple(
-						(GTAentity)0,
-						&blip->Offset,
-						(Vector3*)nullptr
-					);
-				}
-			}
-		}
-
-		void Sub_Blip_RadialInBlip()
-		{
-			if (sub::Spooner::SelectedBlip == nullptr)
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			auto blip = sub::Spooner::SelectedBlip;
-
-			AddTitle("Radial Blip Options");
-
-			bool shape_plus = false;
-			bool shape_minus = false;
-
-			std::string shapeName = (blip->Shape == SpoonerBlip::RadialShape::Circle) ? "Circle" : "Square";
-
-			AddTexter("Shape", 0, std::vector<std::string>{ shapeName }, null, shape_plus, shape_minus);
-
-			if (shape_plus || shape_minus)
-			{
-				blip->Shape = (blip->Shape == SpoonerBlip::RadialShape::Circle)
-					? SpoonerBlip::RadialShape::Square
-					: SpoonerBlip::RadialShape::Circle;
-				sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-			}
-
-			//Circle options
-			if (blip->Shape == SpoonerBlip::RadialShape::Circle)
-			{
-				bool radius_plus = false;
-				bool radius_minus = false;
-
-				AddNumber("Radius", blip->RadialSize, 2, null, radius_plus, radius_minus);
-
-				if (radius_plus)
-				{
-					if (blip->RadialSize < 5000.0f)
-					{
-						blip->RadialSize += 1.0f;
-						sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-					}
-				}
-
-				if (radius_minus)
-				{
-					if (blip->RadialSize > 1.0f)
-					{
-						blip->RadialSize -= 1.0f;
-						sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-					}
-				}
-			}
-
-			//Square options
-			if (blip->Shape == SpoonerBlip::RadialShape::Square)
-			{
-				bool width_plus = false;
-				bool width_minus = false;
-
-				AddNumber("Width", blip->AreaWidth, 2, null, width_plus, width_minus);
-
-				if (width_plus)
-				{
-					if (blip->AreaWidth < 5000.0f)
-					{
-						blip->AreaWidth += 1.0f;
-						sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-					}
-				}
-
-				if (width_minus)
-				{
-					if (blip->AreaWidth > 1.0f)
-					{
-						blip->AreaWidth -= 1.0f;
-						sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-					}
-				}
-
-				bool height_plus = false;
-				bool height_minus = false;
-
-				AddNumber("Height", blip->AreaHeight, 2, null, height_plus, height_minus);
-
-				if (height_plus)
-				{
-					if (blip->AreaHeight < 5000.0f)
-					{
-						blip->AreaHeight += 1.0f;
-						sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-					}
-				}
-
-				if (height_minus)
-				{
-					if (blip->AreaHeight > 1.0f)
-					{
-						blip->AreaHeight -= 1.0f;
-						sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-					}
-				}
-				bool heading_plus = false;
-				bool heading_minus = false;
-
-				AddNumber("Rotation", blip->Heading, 2, null, heading_plus, heading_minus);
-
-				if (heading_plus)
-				{
-					if (blip->Heading < 90.0f)
-					{
-						blip->Heading += 1.0f;
-						sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-					}
-				}
-
-				if (heading_minus)
-				{
-					if (blip->Heading > 0.0f)
-					{
-						blip->Heading -= 1.0f;
-						sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-					}
-				}
-			}
-
-			bool colour_plus = false;
-			bool colour_minus = false;
-
-			AddTexter(
-				"Colour",
-				0,
-				std::vector<std::string>{ BlipColour::vNames.at(blip->Colour) },
-				null,
-				colour_plus,
-				colour_minus
-			);
-
-			if (colour_plus)
-			{
-				auto it = BlipColour::vNames.find(blip->Colour);
-				if (std::next(it) != BlipColour::vNames.end())
-				{
-					++it;
-					blip->Colour = it->first;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			if (colour_minus)
-			{
-				auto it = BlipColour::vNames.find(blip->Colour);
-				if (it != BlipColour::vNames.begin())
-				{
-					--it;
-					blip->Colour = it->first;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			bool alpha_plus = false;
-			bool alpha_minus = false;
-
-			AddNumber("Alpha", blip->Alpha, 2, null, alpha_plus, alpha_minus);
-
-			if (alpha_plus)
-			{
-				if (blip->Alpha < 255)
-				{
-					blip->Alpha++;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			if (alpha_minus)
-			{
-				if (blip->Alpha > 0)
-				{
-					blip->Alpha--;
-					sub::Spooner::BlipCustoms::RefreshBlip(*blip);
-				}
-			}
-
-			bool deletePressed = false;
-
-			AddOption("Delete Blip", deletePressed);
-
-			if (deletePressed)
-			{
-				BlipCustoms::RemoveBlip(*blip);
-				sub::Spooner::SelectedBlip = nullptr;
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			AddBreak("---Position---");
-			{
-				AddOption("~italic~" + Vector3(blip->X, blip->Y, blip->Z).ToString(), null);
-
-				bool bSetToPlayer = false;
-				AddOption("Set To Player Position", bSetToPlayer);
-				if (bSetToPlayer)
-				{
-					Vector3 pos = ENTITY::GET_ENTITY_COORDS(PLAYER_PED_ID(), true);
-					blip->X = pos.x;
-					blip->Y = pos.y;
-					blip->Z = pos.z;
-					blip->EntityHandle = 0;
-					blip->bAttached = false;
-					BlipCustoms::RefreshBlip(*blip);
-				}
-
-				if (IS_WAYPOINT_ACTIVE())
-				{
-					bool bSetToWp = false;
-					AddOption("Set To Waypoint", bSetToWp);
-					if (bSetToWp)
-					{
-						Blip wp = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
-						Vector3 wpCoords = GET_BLIP_COORDS(wp);
-						wpCoords.z = World::GetGroundHeight(wpCoords);
-
-						blip->X = wpCoords.x;
-						blip->Y = wpCoords.y;
-						blip->Z = wpCoords.z;
-						blip->EntityHandle = 0;
-						blip->bAttached = false;
-						BlipCustoms::RefreshBlip(*blip);
-					}
-				}
-
-				AddOption("Attach To Entity", null, nullFunc, SUB::SPOONER_BLIPS_ATTACH);
-
-				if (blip->bAttached)
-				{
-					bool bAdjust = false;
-					AddOption("Adjust Attachment", bAdjust, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
-					if (bAdjust)
-					{
-						SpoonerVector3ManualEditingPtrs = std::make_tuple(
-							(GTAentity)blip->EntityHandle,
-							&blip->Offset,
-							(Vector3*)nullptr
-						);
-					}
-				}
-				else
-				{
-					bool bManual = false;
-					AddOption("Manual Placement", bManual, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
-					if (bManual)
-					{
-						SpoonerVector3ManualEditingPtrs = std::make_tuple(
-							(GTAentity)0,
-							&blip->Offset,
-							(Vector3*)nullptr
-						);
-					}
-				}
-			}
-		}
-
-		void Sub_Blip_Attach()
-		{
-			if (sub::Spooner::SelectedBlip == nullptr)
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			auto blip = sub::Spooner::SelectedBlip;
-
-			AddTitle("Attachment");
-
-			bool bDetachPressed = false;
-			AddTickol("Detach", !blip->bAttached, bDetachPressed, bDetachPressed, TICKOL::TICK2);
-			if (bDetachPressed)
-			{
-				if (blip->bAttached)
-				{
-					Vector3 worldPos = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(blip->EntityHandle, blip->Offset.x, blip->Offset.y, blip->Offset.z);
-					blip->X = worldPos.x;
-					blip->Y = worldPos.y;
-					blip->Z = worldPos.z;
-				}
-				blip->EntityHandle = 0;
-				blip->bAttached = false;
-				blip->Offset.clear();
-				BlipCustoms::RefreshBlip(*blip);
-			}
-
-			if (!Databases::EntityDb.empty())
-			{
-				AddBreak("---Database---");
-				for (auto& e : Databases::EntityDb)
-				{
-					if (e.handle.Exists())
-					{
-						bool bEntityPressed = false;
-						AddTickol(e.hashName, blip->EntityHandle == e.handle.GetHandle(), bEntityPressed, bEntityPressed, TICKOL::TICK2);
-						if (bEntityPressed)
-						{
-							blip->EntityHandle = e.handle.GetHandle();
-							blip->Offset.clear();
-							blip->bAttached = true;
-							BlipCustoms::RefreshBlip(*blip);
-							Menu::SetPreviousMenu();
-							return;
-						}
-
-						if (*Menu::activeOptionIndex == Menu::currentOptionCount) EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(0, 255, 0, 200));
-					}
-					else
-					{
-						AddOption(e.hashName + " (Invalid)", null);
-					}
-				}
-			}
-		}
-
-		void Sub_Blip_Icons()
-		{
-			if (sub::Spooner::SelectedBlip == nullptr)
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			AddTitle("Blip Icons");
-
-			bool bSearchPressed = false;
-			AddOption(_searchStr.empty() ? "SEARCH" : boost::to_upper_copy(_searchStr), bSearchPressed, nullFunc, -1, true);
-			if (bSearchPressed)
-			{
-				_searchStr = Game::InputBox(_searchStr, 126U, "SEARCH", _searchStr);
-				boost::to_lower(_searchStr);
-			}
-
-			static int sortMode = 0;
-			bool sort_plus = false;
-			bool sort_minus = false;
-			AddTexter("Sort", 0, std::vector<std::string>{ sortMode == 0 ? "Regular" : "Alphabetic" }, null, sort_plus, sort_minus);
-			if (sort_plus || sort_minus)
-				sortMode = sortMode == 0 ? 1 : 0;
-
-			std::vector<std::pair<int, std::string>> entries(BlipIcon::vNames.begin(), BlipIcon::vNames.end());
-
-			if (!_searchStr.empty())
-			{
-				entries.erase(std::remove_if(entries.begin(), entries.end(), [](const std::pair<int, std::string>& e)
-					{
-						std::string nameLower = boost::to_lower_copy(e.second);
-						return nameLower.find(_searchStr) == std::string::npos;
-					}), entries.end());
-			}
-
-			if (sortMode == 1)
-			{
-				std::sort(entries.begin(), entries.end(), [](const std::pair<int, std::string>& a, const std::pair<int, std::string>& b)
-					{
-						return a.second < b.second;
-					});
-			}
-
-			std::vector<int> favourites;
-			FavouritesManagement::GetFavouriteBlipIcons(favourites);
-
-			std::vector<std::pair<int, std::string>> favEntries, otherEntries;
-			for (auto& e : entries)
-			{
-				if (std::find(favourites.begin(), favourites.end(), e.first) != favourites.end())
-					favEntries.push_back(e);
-				else
-					otherEntries.push_back(e);
-			}
-
-			if (!favEntries.empty())
-				AddBreak("---Favourites---");
-
-			for (const auto& [icon, name] : favEntries)
-			{
-				bool bIconPressed = false;
-				AddTickol(name, sub::Spooner::SelectedBlip->Icon == icon, bIconPressed, bIconPressed, TICKOL::TICK2);
-
-				if (Menu::currentOptionCount == *Menu::activeOptionIndex)
-				{
-					sub::Spooner::SelectedBlip->Icon = icon;
-					sub::Spooner::BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-					if (Menu::usingControllerInput)
-					{
-						Menu::add_IB(INPUT_SCRIPT_RLEFT, "Remove from favourites");
-						if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
-							FavouritesManagement::RemoveBlipIconFromFavourites(icon);
-					}
-					else
-					{
-						Menu::add_IB(VirtualKey::B, "Remove from favourites");
-						if (IsKeyJustUp(VirtualKey::B))
-							FavouritesManagement::RemoveBlipIconFromFavourites(icon);
-					}
-				}
-			}
-
-			if (!otherEntries.empty())
-				AddBreak("---All Icons---");
-
-			for (const auto& [icon, name] : otherEntries)
-			{
-				bool bIconPressed = false;
-				AddTickol(name, sub::Spooner::SelectedBlip->Icon == icon, bIconPressed, bIconPressed, TICKOL::TICK2);
-
-				if (Menu::currentOptionCount == *Menu::activeOptionIndex)
-				{
-					sub::Spooner::SelectedBlip->Icon = icon;
-					sub::Spooner::BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-					if (Menu::usingControllerInput)
-					{
-						Menu::add_IB(INPUT_SCRIPT_RLEFT, "Add to favourites");
-						if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
-							FavouritesManagement::AddBlipIconToFavourites(icon);
-					}
-					else
-					{
-						Menu::add_IB(VirtualKey::B, "Add to favourites");
-						if (IsKeyJustUp(VirtualKey::B))
-							FavouritesManagement::AddBlipIconToFavourites(icon);
-					}
-				}
-			}
-		}
-
-		void Sub_SpawnCategories()
-		{
-			_searchStr.clear();
-
-			AddTitle("Spawn Into World");
-			AddOption("Object", null, nullFunc, SUB::SPOONER_SPAWN_PROP);
-			AddOption("Ped", null, nullFunc, SUB::SPOONER_SPAWN_PED);
-			AddOption("Vehicle", null, nullFunc, SUB::SPOONER_SPAWN_VEHICLE);
-		}
-
-		namespace ObjectSearch
-		{
-			static constexpr size_t MaxVisibleResults = 500;
-			static int sortIndex = 0;
-			static int categoryFilter = 0;
-			static int dlcFilter = 0;
-			static int stuntFilter = 0;
-			static int lodFilter = 0;
-			static int sizeFilter = 0;
-			static std::vector<std::string> results;
-			static std::vector<std::string> categoryOptions;
-			static std::vector<std::string> dlcOptions;
-			static std::vector<std::string> stuntOptions;
-			static std::vector<std::string> sizeOptions;
-			static std::string lastSearch = "\x01";
-			static int lastSort = -1, lastCategory = -1, lastDlc = -1, lastStunt = -1, lastLod = -1, lastSize = -1;
-			static size_t lastObjectCount = 0;
-			static bool dirty = true;
-
-			static const std::vector<std::string> sortOptionsList = { "Name (A-Z)", "Name (Z-A)" };
-			static const std::vector<std::string> lodOptionsList = { "Hide LOD", "Show All" };
-
-			void BuildCategoryOptions()
-			{
-				std::array<int, ObjectCategories::Category_Count> counts = {};
-				for (const auto& modelName : objectModels)
-				{
-					counts[ObjectCategories::GetObjectCategory(modelName)]++;
-				}
-
-				categoryOptions.clear();
-				categoryOptions.push_back("All (" + std::to_string(objectModels.size()) + ")");
-				for (int i = 0; i < ObjectCategories::Category_Count; i++)
-				{
-					const auto category = static_cast<ObjectCategories::Category>(i);
-					categoryOptions.push_back(std::string(ObjectCategories::GetObjectCategoryName(category)) + " (" + std::to_string(counts[i]) + ")");
-				}
-			}
-
-			void BuildDlcOptions()
-			{
-				std::array<int, ObjectCategories::DLC_Count> counts = {};
-				for (const auto& modelName : objectModels)
-				{
-					counts[ObjectCategories::GetObjectDlcGroup(modelName)]++;
-				}
-
-				dlcOptions.clear();
-				dlcOptions.push_back("All (" + std::to_string(objectModels.size()) + ")");
-				for (int i = 0; i < ObjectCategories::DLC_Count; i++)
-				{
-					const auto group = static_cast<ObjectCategories::DlcGroup>(i);
-					dlcOptions.push_back(std::string(ObjectCategories::GetObjectDlcGroupName(group)) + " (" + std::to_string(counts[i]) + ")");
-				}
-			}
-
-			void BuildStuntOptions()
-			{
-				std::array<int, ObjectCategories::Stunt_Count> counts = {};
-				for (const auto& modelName : objectModels)
-				{
-					auto st = ObjectCategories::GetStuntType(modelName);
-					if (st != ObjectCategories::Stunt_None) counts[st]++;
-				}
-
-				int totalStunt = 0;
-				for (int i = 1; i < ObjectCategories::Stunt_Count; i++) totalStunt += counts[i];
-
-				stuntOptions.clear();
-				stuntOptions.push_back("All");
-				stuntOptions.push_back("All Stunt (" + std::to_string(totalStunt) + ")");
-				for (int i = 1; i < ObjectCategories::Stunt_Count; i++)
-				{
-					if (counts[i] > 0)
-						stuntOptions.push_back(std::string(ObjectCategories::GetStuntTypeName(static_cast<ObjectCategories::StuntType>(i))) + " (" + std::to_string(counts[i]) + ")");
-					else
-						stuntOptions.push_back(ObjectCategories::GetStuntTypeName(static_cast<ObjectCategories::StuntType>(i)));
-				}
-			}
-
-			void BuildSizeOptions()
-			{
-				std::array<int, ObjectCategories::Size_Count> counts = {};
-				for (const auto& modelName : objectModels)
-				{
-					auto sz = ObjectCategories::GetNamedSize(modelName);
-					if (sz != ObjectCategories::Size_Unknown) counts[sz]++;
-				}
-
-				int totalSized = 0;
-				for (int i = 1; i < ObjectCategories::Size_Count; i++) totalSized += counts[i];
-
-				sizeOptions.clear();
-				sizeOptions.push_back("All");
-				sizeOptions.push_back("Has Size (" + std::to_string(totalSized) + ")");
-				for (int i = 1; i < ObjectCategories::Size_Count; i++)
-				{
-					auto sz = static_cast<ObjectCategories::SizeClass>(i);
-					sizeOptions.push_back(std::string(ObjectCategories::GetSizeClassName(sz)) + " (" + std::to_string(counts[i]) + ")");
-				}
-			}
-
-			void EnsureOptions()
-			{
-				if (categoryOptions.empty() || dlcOptions.empty() || stuntOptions.empty() || sizeOptions.empty() || lastObjectCount != objectModels.size())
-				{
-					BuildCategoryOptions();
-					BuildDlcOptions();
-					BuildStuntOptions();
-					BuildSizeOptions();
-					lastObjectCount = objectModels.size();
-					dirty = true;
-				}
-			}
-
-			void RebuildResults(const std::string& searchStr)
-			{
-				results.clear();
-				std::string searchUpper = boost::to_upper_copy(searchStr);
-
-				for (const auto& modelName : objectModels)
-				{
-					if (lodFilter == 0 && ObjectCategories::IsLodProxy(modelName))
-						continue;
-
-					if (categoryFilter != 0)
-					{
-						const auto category = ObjectCategories::GetObjectCategory(modelName);
-						if (static_cast<int>(category) != (categoryFilter - 1))
-							continue;
-					}
-
-					if (dlcFilter != 0)
-					{
-						const auto dlcGroup = ObjectCategories::GetObjectDlcGroup(modelName);
-						if (static_cast<int>(dlcGroup) != (dlcFilter - 1))
-							continue;
-					}
-
-					if (stuntFilter != 0)
-					{
-						auto st = ObjectCategories::GetStuntType(modelName);
-						if (stuntFilter == 1)
-						{
-							if (st == ObjectCategories::Stunt_None) continue;
-						}
-						else
-						{
-							if (static_cast<int>(st) != (stuntFilter - 1)) continue;
-						}
-					}
-
-					if (sizeFilter != 0)
-					{
-						auto sz = ObjectCategories::GetNamedSize(modelName);
-						if (sizeFilter == 1)
-						{
-							if (sz == ObjectCategories::Size_Unknown) continue;
-						}
-						else
-						{
-							if (static_cast<int>(sz) != (sizeFilter - 1)) continue;
-						}
-					}
-
-					if (!searchUpper.empty())
-					{
-						std::string modelUpper = boost::to_upper_copy(modelName);
-						if (modelUpper.find(searchUpper) == std::string::npos)
-							continue;
-					}
-
-					results.push_back(modelName);
-				}
-
-				switch (sortIndex)
-				{
-				case 0:
-					std::sort(results.begin(), results.end(), [](const auto& a, const auto& b) {
-						return boost::to_lower_copy(a) < boost::to_lower_copy(b);
-					});
-					break;
-				case 1:
-					std::sort(results.begin(), results.end(), [](const auto& a, const auto& b) {
-						return boost::to_lower_copy(a) > boost::to_lower_copy(b);
-					});
-					break;
-				}
-			}
-		}
-
-		void ObjectSpawnerSearchMenu()
-		{
-			using namespace ObjectSearch;
-			auto& searchStr = dict;
-
-			EnsureOptions();
-
-			AddTitle("Object Search");
-
-			bool bSearchPressed = false;
-			AddOption(searchStr.empty() ? "~b~SEARCH~s~" : ("~b~" + searchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
-			if (bSearchPressed)
-			{
-				searchStr = Game::InputBox(searchStr, 64U, "Search objects:", boost::to_lower_copy(searchStr));
-				boost::to_upper(searchStr);
-			}
-
-			bool sortRight = false, sortLeft = false;
-			AddTexter("Sort", sortIndex, sortOptionsList, null, sortRight, sortLeft);
-			if (sortRight && sortIndex < (int)(sortOptionsList.size() - 1)) sortIndex++;
-			if (sortLeft && sortIndex > 0) sortIndex--;
-
-			bool catRight = false, catLeft = false;
-			AddTexter("Category", categoryFilter, categoryOptions, null, catRight, catLeft);
-			if (catRight && categoryFilter < (int)(categoryOptions.size() - 1)) categoryFilter++;
-			if (catLeft && categoryFilter > 0) categoryFilter--;
-
-			bool dlcRight = false, dlcLeft = false;
-			AddTexter("DLC", dlcFilter, dlcOptions, null, dlcRight, dlcLeft);
-			if (dlcRight && dlcFilter < (int)(dlcOptions.size() - 1)) dlcFilter++;
-			if (dlcLeft && dlcFilter > 0) dlcFilter--;
-
-			bool stuntRight = false, stuntLeft = false;
-			AddTexter("Stunt", stuntFilter, stuntOptions, null, stuntRight, stuntLeft);
-			if (stuntRight && stuntFilter < (int)(stuntOptions.size() - 1)) stuntFilter++;
-			if (stuntLeft && stuntFilter > 0) stuntFilter--;
-
-			bool sizeRight = false, sizeLeft = false;
-			AddTexter("Size", sizeFilter, sizeOptions, null, sizeRight, sizeLeft);
-			AddOptionDescription("Filters objects by physical size.");
-			if (sizeRight && sizeFilter < (int)(sizeOptions.size() - 1)) sizeFilter++;
-			if (sizeLeft && sizeFilter > 0) sizeFilter--;
-
-			bool lodRight = false, lodLeft = false;
-			AddTexter("LOD/Proxy", lodFilter, lodOptionsList, null, lodRight, lodLeft);
-			AddOptionDescription("Filters out, or shows only, low-detail placeholder models.");
-			if (lodRight && lodFilter < 1) lodFilter++;
-			if (lodLeft && lodFilter > 0) lodFilter--;
-
-			if (searchStr != lastSearch || sortIndex != lastSort ||
-				categoryFilter != lastCategory || dlcFilter != lastDlc ||
-				stuntFilter != lastStunt || lodFilter != lastLod ||
-				sizeFilter != lastSize)
-			{
-				dirty = true;
-			}
-
-			if (dirty)
-			{
-				RebuildResults(searchStr);
-				lastSearch = searchStr;
-				lastSort = sortIndex;
-				lastCategory = categoryFilter;
-				lastDlc = dlcFilter;
-				lastStunt = stuntFilter;
-				lastLod = lodFilter;
-				lastSize = sizeFilter;
-				dirty = false;
-			}
-
-			if (results.size() > MaxVisibleResults)
-				AddBreak("---Results: " + std::to_string(results.size()) + " (showing " + std::to_string(MaxVisibleResults) + ")---");
-			else
-				AddBreak("---Results: " + std::to_string(results.size()) + "---");
-
-			const size_t visibleCount = results.size() < MaxVisibleResults ? results.size() : MaxVisibleResults;
-			for (size_t i = 0; i < visibleCount; i++)
-			{
-				const auto& modelName = results[i];
-				Model currentModel = GET_HASH_KEY(modelName);
-
-				MenuOptions::AddOption_AddProp(modelName, currentModel.hash);
-
-				if (Menu::IsLastDrawnOptionSelected())
-				{
-					bool bIsAFav = FavouritesManagement::IsPropAFavourite(modelName, currentModel.hash);
-					if (Menu::usingControllerInput)
-					{
-						Menu::add_IB(INPUT_SCRIPT_RLEFT, (!bIsAFav ? "Add to" : "Remove from") + (std::string)" favourites");
-
-						if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
-						{
-							!bIsAFav ? FavouritesManagement::AddPropToFavourites(modelName, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(modelName, currentModel.hash);
-						}
-					}
-					else
-					{
-						Menu::add_IB(VirtualKey::B, (!bIsAFav ? "Add to" : "Remove from") + (std::string)" favourites");
-
-						if (IsKeyJustUp(VirtualKey::B))
-						{
-							!bIsAFav ? FavouritesManagement::AddPropToFavourites(modelName, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(modelName, currentModel.hash);
-						}
-					}
-				}
-			}
-		}
-
-		void Sub_SpawnProp()
-		{
-			AddTitle("Spawn Object");
-
-			AddOption("Favourites", null, nullFunc, SUB::SPOONER_SPAWN_PROP_FAVOURITES);
-			bool bOpenObjectSearch = false;
-			AddOption("Search Objects", bOpenObjectSearch, nullFunc, SUB::OBJECTSPAWNER_SEARCH);
-			if (bOpenObjectSearch)
-				dict.clear();
-
-			bool bSearchPressed = false;
-			AddOption(_searchStr.empty() ? "SEARCH" : boost::to_upper_copy(_searchStr), bSearchPressed, nullFunc, -1, true); if (bSearchPressed)
-			{
-				_searchStr = Game::InputBox(_searchStr, 126U, "SEARCH", _searchStr);
-				boost::to_lower(_searchStr);
-				//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SearchToLower, _searchStr, 126U, std::string(), _searchStr);
-				//OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_searchStr);
-			}
-
-			// Display props models loop
-			for (const auto& current : objectModels)
-			{
-				if (!_searchStr.empty()) { if (current.find(_searchStr) == std::string::npos) continue; }
-
-				Model currentModel = GET_HASH_KEY(current);
-
-				MenuOptions::AddOption_AddProp(current, currentModel.hash);
-
-				if (Menu::IsLastDrawnOptionSelected())
-				{
-					bool bIsAFav = FavouritesManagement::IsPropAFavourite(current, currentModel.hash);
-					if (Menu::usingControllerInput)
-					{
-						Menu::add_IB(INPUT_SCRIPT_RLEFT, (!bIsAFav ? "Add to" : "Remove from") + (std::string)" favourites");
-
-						if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
-						{
-							!bIsAFav ? FavouritesManagement::AddPropToFavourites(current, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(current, currentModel.hash);
-						}
-					}
-					else
-					{
-						Menu::add_IB(VirtualKey::B, (!bIsAFav ? "Add to" : "Remove from") + (std::string)" favourites");
-
-						if (IsKeyJustUp(VirtualKey::B))
-						{
-							!bIsAFav ? FavouritesManagement::AddPropToFavourites(current, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(current, currentModel.hash);
-						}
-					}
-				}
-			}
-
-			bool bInputPressed = false;
-			AddOption("INPUT MODEL", bInputPressed); if (bInputPressed)
-			{
-				EntityManagement::InputEntityIntoDb(EntityType::PROP);
-			}
-
-		}
-
-		void RebuildFavPropCache(const std::string& searchStr)
-		{
-			s_favPropCache.byCategory.clear();
-			s_favPropCache.sortedCategories.clear();
-
-			using FavouritesManagement::xmlFavouriteProps;
-			pugi::xml_document doc;
-			if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouriteProps).c_str()).status != pugi::status_ok)
-				return;
-			pugi::xml_node nodeRoot = doc.child("FavouriteProps");
-			if (!nodeRoot)
-				return;
-
-			std::string searchUpper = boost::to_upper_copy(searchStr);
-
-			for (auto node = nodeRoot.first_child(); node; node = node.next_sibling())
-			{
-				std::string modelName = node.attribute("modelName").as_string();
-				if (!searchUpper.empty())
-				{
-					std::string nameUpper = boost::to_upper_copy(modelName);
-					if (nameUpper.find(searchUpper) == std::string::npos)
-						continue;
-				}
-				Model model = node.attribute("modelHash").as_uint(0);
-				if (model.hash == 0)
-					model = GET_HASH_KEY(modelName);
-				std::string category = node.attribute("category").as_string("");
-				s_favPropCache.byCategory[category].push_back({ modelName, model, category });
-			}
-
-			for (auto& kv : s_favPropCache.byCategory)
-				s_favPropCache.sortedCategories.push_back(kv.first);
-			std::sort(s_favPropCache.sortedCategories.begin(), s_favPropCache.sortedCategories.end(),
-				[](const std::string& a, const std::string& b) {
-					if (a.empty()) return false;
-					if (b.empty()) return true;
-					return a < b;
-				});
-
-			s_favPropCache.needsRebuild = false;
-		}
-
-		void Sub_SpawnProp_Favourites()
-		{
-			AddTitle("Favourites");
-
-			Menu::OnSubBack = []()
-			{
-				s_favPropCache.needsRebuild = true;
-			};
-
-			bool searchActive = !s_favPropSearchStr.empty();
-
-			bool bSearchPressed = false;
-			AddOption(s_favPropSearchStr.empty() ? "~b~SEARCH~s~" : ("~b~" + s_favPropSearchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
-			if (bSearchPressed)
-			{
-				s_favPropSearchStr = Game::InputBox(s_favPropSearchStr, 64U, "Search favourites:", boost::to_lower_copy(s_favPropSearchStr));
-				boost::to_upper(s_favPropSearchStr);
-				s_favPropCache.needsRebuild = true;
-			}
-
-			if (s_favPropCache.needsRebuild)
-				RebuildFavPropCache(s_favPropSearchStr);
-
-			if (searchActive)
-				MenuCategory::ExpandAll();
-			else
-				MenuCategory::RestoreExpandedState();
-
-			bool bInputAdd = false;
-			AddOption("Add New Object Model", bInputAdd); if (bInputAdd)
-			{
-				std::string inputStr = Game::InputBox("", 40U, "Enter model name:");
-				if (inputStr.length() > 0)
-				{
-					if (FavouritesManagement::AddPropToFavourites(inputStr, GET_HASH_KEY(inputStr)))
-					{
-						Game::Print::PrintBottomLeft("Model ~b~added~s~.");
-						s_favPropCache.needsRebuild = true;
-					}
-					else
-						Game::Print::PrintBottomLeft("~r~Error:~s~ Unable to add model.");
-				}
-			}
-
-			AddBreak("---");
-
-			MenuCategory::ResetCategoryState();
-			for (auto& cat : s_favPropCache.sortedCategories)
-			{
-				auto it = s_favPropCache.byCategory.find(cat);
-				if (it == s_favPropCache.byCategory.end())
-					continue;
-
-				auto& props = it->second;
-				std::string catName = cat.empty() ? "UNORDERED" : cat;
-				std::string catLabel = "— ~b~" + catName + "~s~ ~c~(" + std::to_string(props.size()) + ")~s~";
-
-				if (MenuCategory::AddCategory(catLabel))
-				{
-					for (auto& prop : props)
-					{
-						MenuOptions::AddOption_AddProp(prop.modelName, prop.model);
-
-						if (Menu::IsLastDrawnOptionSelected())
-						{
-							if (Menu::usingControllerInput)
-							{
-								Menu::add_IB(INPUT_SCRIPT_RLEFT, "Remove");
-								if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
-								{
-									FavouritesManagement::RemovePropFromFavourites(prop.modelName, prop.model.hash);
-									s_favPropCache.needsRebuild = true;
-									if (Menu::IsSelectionAtBottom())
-										Menu::Up();
-									return;
-								}
-								Menu::add_IB(INPUT_SCRIPT_RRIGHT, "Change category");
-								if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RRIGHT))
-								{
-									dict = prop.modelName;
-									Menu::pendingSubmenu = SUB::SPOONER_SPAWN_PROP_FAVOURITES_CATSELECT;
-								}
-							}
-							else
-							{
-								Menu::add_IB(VirtualKey::B, "Remove");
-								if (IsKeyJustUp(VirtualKey::B))
-								{
-									FavouritesManagement::RemovePropFromFavourites(prop.modelName, prop.model.hash);
-									s_favPropCache.needsRebuild = true;
-									if (Menu::IsSelectionAtBottom())
-										Menu::Up();
-									return;
-								}
-								Menu::add_IB(VirtualKey::C, "Change category");
-								if (IsKeyJustUp(VirtualKey::C))
-								{
-									dict = prop.modelName;
-									Menu::pendingSubmenu = SUB::SPOONER_SPAWN_PROP_FAVOURITES_CATSELECT;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		void Sub_SpawnProp_Favourites_CatSelect()
-		{
-			std::string modelName = dict;
-			if (modelName.empty())
-			{
-				Menu::SetPreviousMenu();
-				return;
-			}
-
-			std::string currentCategory;
-			std::set<std::string> allCategories;
-			{
-				for (auto& kv : s_favPropCache.byCategory)
-				{
-					if (kv.first.empty())
-						continue;
-					allCategories.insert(kv.first);
-					for (auto& prop : kv.second)
-					{
-						if (prop.modelName == modelName)
-							currentCategory = kv.first;
-					}
-				}
-			}
-
-			AddTitle("Select Category");
-
-			for (auto& cat : allCategories)
-			{
-				bool isSelected = (cat == currentCategory);
-				bool pressed = false;
-				AddTickol(cat, isSelected, pressed, pressed, TICKOL::TICK, TICKOL::NONE);
-				if (pressed)
-				{
-					FavouritesManagement::SetPropCategory(modelName, cat);
-					s_favPropCache.needsRebuild = true;
-					Menu::SetPreviousMenu();
-					return;
-				}
-			}
-
-			if (!allCategories.empty())
-				AddBreak("---");
-
-			bool newCatPressed = false;
-			AddOption("New Category", newCatPressed);
-			if (newCatPressed)
-			{
-				std::string newCat = Game::InputBox("", 64U, "NEW CATEGORY", "");
-				if (!newCat.empty())
-				{
-					FavouritesManagement::SetPropCategory(modelName, newCat);
-					s_favPropCache.needsRebuild = true;
-					Menu::SetPreviousMenu();
-				}
-			}
-
-			if (!currentCategory.empty())
-			{
-				bool removeCatPressed = false;
-				AddOption("Remove from Category", removeCatPressed);
-				if (removeCatPressed)
-				{
-					FavouritesManagement::SetPropCategory(modelName, "");
-					s_favPropCache.needsRebuild = true;
-					Menu::SetPreviousMenu();
-				}
-			}
-		}
-		void Sub_SpawnPed()
-		{
-			bool modelChangerInput = false;
-			AddTitle("Spawn Ped");
-
-			AddOption("Favourites", null, nullFunc, SUB::MODELCHANGER_FAVOURITES);
-			AddOption("~b~Search~s~ Peds", null, nullFunc, SUB::MODELCHANGER_SEARCH);
-
-			AddOption("Player", null, nullFunc, SUB::MODELCHANGER_PLAYER);
-			AddOption("Animals", null, nullFunc, SUB::MODELCHANGER_ANIMAL);
-			AddOption("Ambient Females", null, nullFunc, SUB::MODELCHANGER_AMBFEMALES);
-			AddOption("Ambient Males", null, nullFunc, SUB::MODELCHANGER_AMBMALES);
-			AddOption("Cutscene Models", null, nullFunc, SUB::MODELCHANGER_CS);
-			AddOption("Gang Females", null, nullFunc, SUB::MODELCHANGER_GANGFEMALES);
-			AddOption("Gang Males", null, nullFunc, SUB::MODELCHANGER_GANGMALES);
-			AddOption("Story Models", null, nullFunc, SUB::MODELCHANGER_STORY);
-			AddOption("Multiplayer Models", null, nullFunc, SUB::MODELCHANGER_MP);
-			AddOption("Scenario Females", null, nullFunc, SUB::MODELCHANGER_SCENARIOFEMALES);
-			AddOption("Scenario Males", null, nullFunc, SUB::MODELCHANGER_SCENARIOMALES);
-			AddOption("Story Scenario Females", null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOFEMALES);
-			AddOption("Story Scenario Males", null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOMALES);
-			AddOption("Others", null, nullFunc, SUB::MODELCHANGER_OTHERS);
-			AddOption("~b~Input~s~ Model", modelChangerInput);
-
-			if (modelChangerInput)
-				EntityManagement::InputEntityIntoDb(EntityType::PED);
-		}
-		void Sub_SpawnVehicle()
-		{
-			using VehicleSpawner::AddVehicleCategoryOption;
-			typedef VehicleSpawner::Indices Indices;
-
-			g_activePedHandle = PLAYER_PED_ID();
-
-			AddTitle("Spawn Vehicle");
-			AddOption("Favourites", null, nullFunc, SUB::SPAWNVEHICLE_FAVOURITES);
-			AddOption("~b~Search~s~ Vehicles", null, nullFunc, SUB::SPAWNVEHICLE_SEARCH);
-
-			AddBreak("---Cars---");
-			AddVehicleCategoryOption("Open Wheel", Indices::OPENWHEEL);
-			AddVehicleCategoryOption("Super", Indices::SUPER);
-			AddVehicleCategoryOption("Sports", Indices::SPORT);
-			AddVehicleCategoryOption("Sports Classics", Indices::SPORTSCLASSIC);
-			AddVehicleCategoryOption("Coupes", Indices::COUPE);
-			AddVehicleCategoryOption("Muscle", Indices::MUSCLE);
-			AddVehicleCategoryOption("Offroad", Indices::OFFROAD);
-			AddVehicleCategoryOption("SUVs", Indices::SUV);
-			AddVehicleCategoryOption("Sedans", Indices::SEDAN);
-			AddVehicleCategoryOption("Compacts", Indices::COMPACT);
-			AddVehicleCategoryOption("Drift", Indices::DRIFT);
-
-			AddBreak("---Industrial---");
-			AddVehicleCategoryOption("Vans", Indices::VAN);
-			AddVehicleCategoryOption("Services", Indices::SERVICE);
-			AddVehicleCategoryOption("Industrial", Indices::INDUSTRIAL);
-			AddVehicleCategoryOption("Commercial", Indices::COMMERCIAL);
-			AddVehicleCategoryOption("Utility", Indices::UTILITY);
-			AddVehicleCategoryOption("Trains", Indices::TRAIN);
-
-			AddBreak("---Others---");
-			AddVehicleCategoryOption("Emergency", Indices::EMERGENCY);
-			AddVehicleCategoryOption("Military", Indices::MILITARY);
-			AddVehicleCategoryOption("Motorcycles", Indices::MOTORCYCLE);
-			AddVehicleCategoryOption("Bicycles", Indices::BICYCLE);
-			AddVehicleCategoryOption("Planes", Indices::PLANE);
-			AddVehicleCategoryOption("Helicopters", Indices::HELICOPTER);
-			AddVehicleCategoryOption("Boats", Indices::BOAT);
-			AddVehicleCategoryOption("Others", Indices::OTHER);
-		}
-	}
-
-
-	void EntityAlphaLevelSub_()
-	{
-		GTAentity entity = Spooner::Submenus::s_selectedEntityTarget;
-		auto alphaLevel = entity.GetAlpha();
-
-		AddTitle("Opacity");
-
-		bool bReset = false;
-		AddOption("Reset", bReset); if (bReset)
-		{
-			entity.RequestControl();
-			entity.ResetAlpha();
-		}
-
-		std::array<BYTE, 5> alphaLevels = { 0, 50, 89, 160, 255 };
-
-		for (auto& lvl : alphaLevels)
-		{
-			bool bAlphaLevelPressed = false;
-			AddTickol(std::to_string((int)(((float)(lvl) / 255.0f) * 100)) + "%", alphaLevel == lvl, bAlphaLevelPressed, null); if (bAlphaLevelPressed)
-			{
-				entity.RequestControl();
-				entity.SetAlpha(lvl);
-			}
-		}
-
-		AddBreak("---Manual---");
-		bool bInputPressed = false, bPlusPressed = false, bMinusPressed = false;
-		AddNumber("Level", alphaLevel, 0, bInputPressed, bPlusPressed, bMinusPressed);
-		if (bPlusPressed) { if (alphaLevel < 255) { alphaLevel++; entity.RequestControl(); entity.SetAlpha(alphaLevel); } }
-		if (bMinusPressed) { if (alphaLevel > 0) { alphaLevel--; entity.RequestControl(); entity.SetAlpha(alphaLevel); } }
-		if (bInputPressed)
-		{
-			std::string inputStr = Game::InputBox(std::string(), 4U, "Enter an alpha level (0-255):", std::to_string(alphaLevel));
-			if (inputStr.length() > 0)
-			{
-				try
-				{
-					alphaLevel = stoi(inputStr);
-					if (alphaLevel < 0 || alphaLevel > 255)
-						throw;
-					entity.RequestControl();
-					entity.SetAlpha(alphaLevel);
-				}
-				catch (...)
-				{
-					Game::Print::PrintErrorInvalidInput(inputStr);
-				}
-			}
-			//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::AlphaLevelMenuInput, std::string(), 3U, "Enter an alpha level (0-255):", std::to_string(alphaLevel));
-			//OnscreenKeyboard::State::arg1._int = entity.GetHandle();
-			//OnscreenKeyboard::State::arg2._int = alphaLevel;
-		}
-
-	}
-
-	void PedExplosionSub()
-	{
-		GTAped thisPed = g_activePedHandle;
-
-		if (!thisPed.Exists())
-		{
-			Menu::SetPreviousMenu();
-			return;
-		}
-
-		AddTitle("Explosions");
-
-		static std::array<std::pair<EXPLOSION::EXPLOSION, std::string>, 16> vExplosionNames
-		{ {
-			{ EXPLOSION::MOLOTOV, "Molotov" },
-			{ EXPLOSION::TANKSHELL, "Tankshell" },
-			{ EXPLOSION::CAR, "Car" },
-			{ EXPLOSION::PLANE, "Plane" },
-			{ EXPLOSION::PETROL_PUMP, "Petrol Pump" },
-			{ EXPLOSION::DIR_STEAM, "Steam" },
-			{ EXPLOSION::DIR_FLAME, "Flame" },
-			{ EXPLOSION::DIR_WATER_HYDRANT, "Water Hydrant" },
-			{ EXPLOSION::SHIP_DESTROY, "Ship" },
-			{ EXPLOSION::FLARE, "Flare" },
-			{ EXPLOSION::BULLET, "Bullet" },
-			{ EXPLOSION::TRAIN, "Train" },
-			{ EXPLOSION::BLIMP, "Blimp" },
-			{ EXPLOSION::DIR_FLAME_EXPLODE, "Stronger Flame" },
-			{ EXPLOSION::FIREWORK, "Firework" },
-			{ EXPLOSION::VALKYRIE_CANNON, "Valkyrie Cannon" },
-			} };
-
-		for (auto& i : vExplosionNames)
-		{
-			bool bPressed = false;
-			AddOption(i.second, bPressed); if (bPressed)
-			{
-				World::AddExplosion(thisPed.GetPosition(), i.first, 10.0f, 1.5f, true, true);
-			}
-		}
-
-		bool bInvisible_pressed = false;
-		AddOption("Invisible", bInvisible_pressed); if (bInvisible_pressed)
-		{
-			World::AddExplosion(thisPed.GetPosition(), EXPLOSION::BLIMP, 10.0f, 0.1f, false, false);
-		}
-
-		bool bTaze_pressed = false;
-		AddOption("Taze Ped", bTaze_pressed); if (bTaze_pressed)
-		{
-			auto& ped = thisPed;
-			Vector3 startPos = ped.GetOffsetInWorldCoords(0.5f, 2.8f, 1.0f);
-			Vector3 targPos = ped.GetPosition(); //GET_PED_BONE_COORDS(ped.Handle(), Bone::Chest, 0, 0, 0);
-			 //ped.RequestControl();
-			CLEAR_AREA_OF_PROJECTILES(startPos.x, startPos.y, startPos.z, 4.0f, 0);
-			World::ShootBullet(startPos, targPos, 0, WEAPON_STUNGUN, 5, 2000.0f, false, true);
-		}
-
-		bool bApplyDamage_Pressed = false;
-		AddOption("Hurt Ped (Do Damage)", bApplyDamage_Pressed); if (bApplyDamage_Pressed)
-		{
-			thisPed.ApplyDamage(600);
-		}
-	}
-
-	void AttachFunnyObjectSub()
-	{
-		bool Network_ObjectSub_Coffin = 0,
-			Network_ObjectSub_Gnome = 0,
-			Network_ObjectSub_PeeHose = 0,
-			Network_ObjectSub_Marker1 = 0,
-			Network_ObjectSub_Cone = 0,
-			Network_ObjectSub_Egg = 0,
-			Network_ObjectSub_Weed = 0,
-			Network_ObjectSub_OrangeBall = 0,
-			Network_ObjectSub_InflatedLenny = 0,
-			Network_ObjectSub_fatTV = 0,
-			Network_ObjectSub_TV = 0,
-			Network_ObjectSub_Headset = 0,
-			Network_ObjectSub_Snowman = 0,
-			Network_ObjectSub_Dildo = 0,
-			Network_ObjectSub_BigClock = 0,
-			Network_ObjectSub_Glove = 0,
-			Network_ObjectSub_Katana = 0,
-			Network_ObjectSub_BigShit = 0,
-			Network_ObjectSub_YetiMask = 0,
-			Network_ObjectSub_SkiMask = 0,
-			Network_ObjectSub_CowboyHat = 0,
-			Network_ObjectSub_HardHat = 0,
-			Network_ObjectSub_BeachFire = 0,
-			Network_ObjectSub_Custom = 0,
-			Network_ObjectSub_Clear = 0,
-			Network_ObjectSub_Mani = 0,
-			Network_ObjectSub_Chop = 0,
-			Network_ObjectSub_Alien = 0,
-			Network_ObjectSub_Cow = 0,
-			Network_ObjectSub_CustomPed = 0,
-			Network_ObjectSub_ClearPeds = 0,
-			Network_ObjectSub_ClearVehicles = 0;
-
-
-		AddTitle("Attach Objects");
-		AddOption("Coffin", Network_ObjectSub_Coffin);
-		AddOption("Garden Gnome", Network_ObjectSub_Gnome); // NEEDS TO BE DONE WITH BONE ID 31086
-		AddOption("Pee-Hose", Network_ObjectSub_PeeHose);
-		AddOption("Placement Marker", Network_ObjectSub_Marker1);
-		AddOption("Traffic Cone", Network_ObjectSub_Cone);
-		AddOption("Alien Egg", Network_ObjectSub_Egg);
-		AddOption("W33d", Network_ObjectSub_Weed);
-		AddOption("Orange Ball", Network_ObjectSub_OrangeBall);
-		AddOption("Inflated Lenny", Network_ObjectSub_InflatedLenny);
-		AddOption("Fat-screen TV", Network_ObjectSub_fatTV);
-		AddOption("Flatscreen TV", Network_ObjectSub_TV);
-		AddOption("Headset", Network_ObjectSub_Headset);
-		AddOption("Snowman", Network_ObjectSub_Snowman);
-		AddOption("Dildo", Network_ObjectSub_Dildo);
-		AddOption("Big Clock", Network_ObjectSub_BigClock);
-		AddOption("Boxing Gloves", Network_ObjectSub_Glove);
-		AddOption("Katanas", Network_ObjectSub_Katana);
-		AddOption("Poo", Network_ObjectSub_BigShit);
-		AddOption("Yeti Mask", Network_ObjectSub_YetiMask);
-		AddOption("Ski Mask", Network_ObjectSub_SkiMask);
-		AddOption("Cowboy Hat", Network_ObjectSub_CowboyHat);
-		AddOption("Hard Hat", Network_ObjectSub_HardHat);
-		AddOption("Mad Fire", Network_ObjectSub_BeachFire);
-		AddOption("Mani", Network_ObjectSub_Mani);
-		AddOption("Chop", Network_ObjectSub_Chop);
-		AddOption("Alien", Network_ObjectSub_Alien);
-		AddOption("Cow", Network_ObjectSub_Cow);
-		AddOption("Input Object Model", Network_ObjectSub_Custom);
-		AddOption("Input Ped Model", Network_ObjectSub_CustomPed);
-		AddOption("Clear Objects", Network_ObjectSub_Clear);
-		AddOption("Clear Peds", Network_ObjectSub_ClearPeds);
-		AddOption("Clear Vehicles", Network_ObjectSub_ClearVehicles);
-
-
-		if (Network_ObjectSub_Coffin) {
-			Hash tempHash = 460248592; // prop_coffin_02
-			int tempBone = 1;
-			float att_x = 0.0f;
-			float att_y = 0.0f;
-			float att_z = 0.01f;
-			float att_rx = 89.0f;
-			float att_ry = 181.0f;
-			float att_rz = 0.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_Gnome) {
-			Hash tempHash = 4283117964; // gnome
-			int tempBone = 31086;
-			float att_x = -0.17f;
-			float att_y = 0.14f;
-			float att_z = -0.01f;
-			float att_rx = 14.21f;
-			float att_ry = -92.0f;
-			float att_rz = 176.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_PeeHose) {
-			Hash tempHash = 1864388154; // sprinkler
-			int tempBone = 1;
-			float att_x = 0.0f;
-			float att_y = 0.0f;
-			float att_z = -0.243f;
-			float att_rx = -0.046f;
-			float att_ry = 0.0f;
-			float att_rz = 283.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_Marker1) {
-			Hash tempHash = 3712170306; // prop_mp_placement_sm
-			int tempBone = 0;
-			float att_x = 0.0f;
-			float att_y = 0.0f;
-			float att_z = -0.54f;
-			float att_rx = 0.0f;
-			float att_ry = 0.0f;
-			float att_rz = 0.0f;
-			Model(tempHash).Load(2000);
-			//tempBone = GET_PED_BONE_INDEX(Static_241, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_Cone) {
-			Hash tempHash = 3760607069;
-			int tempBone = 31086;
-			float att_x = 0.1f;
-			float att_y = 0.02f;
-			float att_z = 0.0f;
-			float att_rx = 0.0f;
-			float att_ry = 90.0f;
-			float att_rz = 0.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_Egg) {
-			Hash tempHash = 1803116220;
-			int tempBone = 31086;
-			float att_x = 0.1f;
-			float att_y = 0.02f;
-			float att_z = 0.0f;
-			float att_rx = 0.0f;
-			float att_ry = 90.0f;
-			float att_rz = 0.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_Weed) {
-			Hash tempHash = 452618762;
-			int tempBone = 31086;
-			float att_x = 0.1f;
-			float att_y = 0.02f;
-			float att_z = 0.0f;
-			float att_rx = 0.0f;
-			float att_ry = 90.0f;
-			float att_rz = 0.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_OrangeBall) {
-			Hash tempHash = 148511758; // prop_juicestand
-			int tempBone = 31086;
-			float att_x = 0.0f;
-			float att_y = 0.0f;
-			float att_z = 0.0f;
-			float att_rx = 0.0f;
-			float att_ry = 0.0f;
-			float att_rz = 0.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_InflatedLenny) {
-			Hash tempHash = 2402097066;
-			int tempBone = 31086;
-			float att_x = -0.01f;
-			float att_y = -0.03f;
-			float att_z = -0.02f;
-			float att_rx = 181.6272f;
-			float att_ry = 92.7292f;
-			float att_rz = -0.39f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_fatTV) {
-			Hash tempHash = 480355301;
-			int tempBone = 31086;
-			float att_x = 1.0f;
-			float att_y = 0.03f;
-			float att_z = -0.08f;
-			float att_rx = 181.0999f;
-			float att_ry = 86.0f;
-			float att_rz = 2.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_TV) {
-			Hash tempHash = 1036195894;
-			int tempBone = 31086;
-			float att_x = 0.22f;
-			float att_y = 0.0f;
-			float att_z = 0.0f;
-			float att_rx = 180.0f;
-			float att_ry = 90.0f;
-			float att_rz = -11.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_Headset) {
-			Hash tempHash = 3885918439;
-			int tempBone = 31086;
-			float att_x = 0.07f;
-			float att_y = -0.01f;
-			float att_z = 0.0f;
-			float att_rx = -175.0f;
-			float att_ry = 85.0f;
-			float att_rz = -11.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_Snowman) {
-			Hash tempHash = 2677555217;
-			int tempBone = -1;
-			float att_x = 0.0f;
-			float att_y = 0.0f;
-			float att_z = 0.0f;
-			float att_rx = 0.0f;
-			float att_ry = 0.0f;
-			float att_rz = -32.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_Dildo) {
-			Hash tempHash = 3872089630;
-			int tempBone = 31086;
-			float att_x = 0.22f;
-			float att_y = 0.0f;
-			float att_z = 0.0f;
-			float att_rx = 180.0f;
-			float att_ry = 90.0f;
-			float att_rz = -11.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_BigClock) {
-			Hash tempHash = 3948540099;
-			int tempBone = 31086;
-			float att_x = 0.1f;
-			float att_y = 0.02f;
-			float att_z = 0.0f;
-			float att_rx = 0.0f;
-			float att_ry = 90.0f;
-			float att_rz = 0.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_Glove) {
-			Hash tempHash = 335898267; // prop_boxing_glove_01
-			int tempBone = Bone::RightHand;
-			float att_x = -0.06f;
-			float att_y = 0.0f;
-			float att_z = -0.03f;
-			float att_rx = 90.0f;
-			float att_ry = 90.0f;
-			float att_rz = 0.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			tempBone = Bone::LeftHand;
-			att_x = -0.05f;
-			att_y = 0.0f;
-			att_z = 0.03f;
-			att_rx = -90.0f;
-			att_ry = 90.0f;
-			att_rz = 0.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			SET_MODEL_AS_NO_LONGER_NEEDED(tempHash);
-			return;
-		}
-
-		if (Network_ObjectSub_Katana) {
-			Hash tempHash = 3803840879;
-			int tempBone = 28422;
-			float att_x = 0.056f;
-			float att_y = 0.05f;
-			float att_z = -0.01f;
-			float att_rx = -77.0f;
-			float att_ry = 10.6f;
-			float att_rz = 0.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			tempHash = 3803840879;
-			tempBone = 60309;
-			att_x = 0.0500f;
-			att_y = 0.0400f;
-			att_z = 0.0000f;
-			att_rx = -122.5596f;
-			att_ry = 0.0000f;
-			att_rz = 0.0000f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_BigShit) {
-			for (int i = 0; i < 100; i++)
-			{
-				Hash tempHash = 2223607550;
-				int tempBone = 31086;
-				float att_x = 0.1f;
-				float att_y = 0.03f;
-				float att_z = 0.0f;
-				float att_rx = 0.0f;
-				float att_ry = 90.0f;
-				float att_rz = 0.0f;
-				Model(tempHash).Load(2000);
-				tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-				int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-				ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-				SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			}
-			return;
-		}
-
-		if (Network_ObjectSub_YetiMask) {
-			Hash tempHash = 3379896055;
-			int tempBone = 31086;
-			float att_x = 0.007f;
-			float att_y = -0.019f;
-			float att_z = 0.001f;
-			float att_rx = 168.999f;
-			float att_ry = 93.0001f;
-			float att_rz = -3.0011f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_SkiMask) {
-			Hash tempHash = 3083173879;
-			int tempBone = 31086;
-			float att_x = 0.02f;
-			float att_y = 0.022f;
-			float att_z = 0.002f;
-			float att_rx = 178.13f;
-			float att_ry = 88.4692f;
-			float att_rz = 6.7001f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_CowboyHat) {
-			Hash tempHash = 2365581599;
-			int tempBone = 31086;
-			float att_x = 0.12f;
-			float att_y = 0.0f;
-			float att_z = 0.0f;
-			float att_rx = -173.47f;
-			float att_ry = 92.0799f;
-			float att_rz = -10.92f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_HardHat) {
-			Hash tempHash = 3757476377;
-			int tempBone = 31086;
-			float att_x = 0.1f;
-			float att_y = 0.0f;
-			float att_z = 0.0f;
-			float att_rx = 180.0f;
-			float att_ry = 85.0f;
-			float att_rz = -11.0f;
-			Model(tempHash).Load(2000);
-			tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-			int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-			ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-			SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			return;
-		}
-
-		if (Network_ObjectSub_BeachFire) {
-			for (int i = 0; i < 3; i++)
-			{
-				Hash tempHash = 3229200997;
-				int tempBone = -1;
-				float att_x = 0.0f;
-				float att_y = 0.0f;
-				float att_z = 0.0f;
-				float att_rx = 0.0f;
-				float att_ry = 0.0f;
-				float att_rz = 0.0f;
-				Model(tempHash).Load(2000);
-				tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
-				int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-				ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z - 0.26f, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-				SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-			}
-			return;
-		}
-
-		if (Network_ObjectSub_Custom) {
-			std::string inputStr = Game::InputBox("", 64U, "Enter prop name:");
-			if (inputStr.length() > 0)
-			{
-				Entity tempEntity = g_activePedHandle;
-				Hash tempHash = GET_HASH_KEY(inputStr);
-				if (!IS_MODEL_IN_CDIMAGE(tempHash)) Game::Print::PrintErrorInvalidModel(inputStr);
-				else
-				{
-					if (IS_PED_IN_ANY_VEHICLE(g_activePedHandle, 0)) tempEntity = GET_VEHICLE_PED_IS_IN(g_activePedHandle, 0);
-
-					float att_x = 0.0f;
-					float att_y = 0.0f;
-					float att_z = 0.0f;
-					float att_rx = 0.0f;
-					float att_ry = 0.0f;
-					float att_rz = 0.0f;
-					if (Model(tempHash).Load(2000))
-					{
-						int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
-						ATTACH_ENTITY_TO_ENTITY(tempObject, tempEntity, 0, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
-						SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
-					}
-				}
-			}
-			//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::NetworkAttachObjectsCustomProp, "", 64U, "Enter prop name:");
-			return;
-		}
-
-		if (Network_ObjectSub_Clear) {
-			Vector3 temp = GET_ENTITY_COORDS(g_activePedHandle, 1);
-			ClearAttachmentsOffEntity(g_activePedHandle, EntityType::PROP);
-			CLEAR_AREA_OF_OBJECTS(temp.x, temp.y, temp.z, 2.5f, 0);
-			return;
-		}
-
-		if (Network_ObjectSub_Mani) {
-			AttachPedToVehicle(PedHash::Mani, g_activePedHandle, Vector3(), Vector3(), false, true);
-			return;
-		}
-
-		if (Network_ObjectSub_Chop) {
-			AttachPedToVehicle(PedHash::Chop, g_activePedHandle, Vector3(), Vector3(), false, true);
-			return;
-		}
-
-		if (Network_ObjectSub_Alien) {
-			AttachPedToVehicle(PedHash::MovAlien01, g_activePedHandle, Vector3(), Vector3(), false, true);
-			return;
-		}
-
-		if (Network_ObjectSub_Cow) {
-			AttachPedToVehicle(PedHash::Cow, g_activePedHandle, Vector3(), Vector3(), false, false);
-			return;
-		}
-
-		if (Network_ObjectSub_CustomPed) {
-			std::string inputStr = Game::InputBox("", 64U, "Enter ped name:");
-			if (inputStr.length() > 0)
-			{
-				Hash tempHash = GET_HASH_KEY(inputStr);
-				if (!IS_MODEL_IN_CDIMAGE(tempHash)) Game::Print::PrintErrorInvalidModel(inputStr);
-				else
-				{
-					Entity tempEntity = g_activePedHandle;
-					if (IS_PED_IN_ANY_VEHICLE(g_activePedHandle, 0)) tempEntity = GET_VEHICLE_PED_IS_IN(g_activePedHandle, 0);
-					AttachPedToVehicle(tempHash, tempEntity, Vector3(), Vector3(), false, true);
-				}
-			}
-			//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::NetworkAttachObjectsCustomPed, "", 64U, "Enter ped name:");
-			return;
-		}
-
-		if (Network_ObjectSub_ClearPeds) {
-			Vector3 temp = GET_ENTITY_COORDS(g_activePedHandle, 1);
-			ClearAttachmentsOffEntity(g_activePedHandle, EntityType::PED);
-			CLEAR_AREA_OF_PEDS(temp.x, temp.y, temp.z, 2.5f, 0);
-			return;
-		}
-
-		if (Network_ObjectSub_ClearVehicles) {
-			Vector3 temp = GET_ENTITY_COORDS(g_activePedHandle, 1);
-			ClearAttachmentsOffEntity(g_activePedHandle, EntityType::VEHICLE);
-			CLEAR_AREA_OF_PEDS(temp.x, temp.y, temp.z, 2.5f, 0);
-			return;
-		}
-
-		
-	}
-
+void Sub_SelectedEntityOps()
+{
+    SpoonerMode::editingState.SetMode(SpoonerMode::eEditMode::Disabled);
+    if (!selectedEntity.handle.Exists())
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+    selectedEntity.handle.RequestControlOnce();
+    auto thisEntityIndexInDb = EntityManagement::GetEntityIndexInDb(selectedEntity);
+    bool isThisEntityInDb = thisEntityIndexInDb >= 0;
+    if (isThisEntityInDb)
+    {
+        selectedEntity.taskSequence = Databases::EntityDb[thisEntityIndexInDb].taskSequence;
+        Databases::EntityDb[thisEntityIndexInDb] = selectedEntity;
+    }
+    Model selectedEntityModel = selectedEntity.handle.Model();
+
+    AddTitle(selectedEntity.hashName);
+
+    switch (selectedEntity.type)
+    {
+    case EntityType::PROP:
+    {
+        bool bIsAFav = FavouritesManagement::IsPropAFavourite(selectedEntity.hashName, selectedEntityModel.hash);
+        bool bAddToFav = false, bRemoveFromFav = false;
+        AddTickol("Model Is A Favourite", bIsAFav, bAddToFav, bRemoveFromFav, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        if (bAddToFav)
+        {
+            FavouritesManagement::AddPropToFavourites(selectedEntity.hashName, selectedEntityModel.hash);
+        }
+        else if (bRemoveFromFav)
+        {
+            FavouritesManagement::RemovePropFromFavourites(selectedEntity.hashName, selectedEntityModel.hash);
+        }
+    }
+    break;
+    case EntityType::VEHICLE:
+    {
+        bool bIsAFav = FavouritesManagement::IsVehicleAFavourite(selectedEntityModel);
+        bool bAddToFav = false, bRemoveFromFav = false;
+        AddTickol("Model Is A Favourite", bIsAFav, bAddToFav, bRemoveFromFav, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        if (bAddToFav)
+        {
+            std::string inputStr = Game::InputBox("", 28U, "Enter custom name:", selectedEntityModel.VehicleDisplayName(true));
+            if (inputStr.length() > 0)
+            {
+                FavouritesManagement::AddVehicleToFavourites(selectedEntityModel, inputStr);
+            }
+            //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::FavouriteVehicleModelCurrent, std::string(), 28U, "Enter custom name:", selectedEntityModel.VehicleDisplayName(true));
+            //OnscreenKeyboard::State::arg1._uint = selectedEntityModel.hash;
+        }
+        else if (bRemoveFromFav)
+        {
+            FavouritesManagement::RemoveVehicleFromFavourites(selectedEntityModel);
+        }
+    }
+    break;
+    }
+
+    bool bAddToOrDb = false, bRemoveFromDb = false;
+    AddTickol("Entity Is In Database", isThisEntityInDb, bAddToOrDb, bRemoveFromDb, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription("Database entities are saved to files and managed by Spooner.");
+    if (bAddToOrDb)
+    {
+        EntityManagement::AddEntityToDb(selectedEntity);
+        Game::Print::PrintBottomLeft(selectedEntity.hashName + " added to database.");
+    }
+    else if (bRemoveFromDb)
+    {
+        EntityManagement::RemoveEntityFromDb(selectedEntity);
+        Game::Print::PrintBottomLeft(selectedEntity.hashName + " removed from database. Properties will no longer be stored in Spooner's memory.");
+        if (Menu::submenuHistory[Menu::menuHistoryIndex] == SUB::SPOONER_MANAGEDB)
+        {
+            Menu::optionSelectionHistory[Menu::menuHistoryIndex] -= 1;
+        }
+    }
+
+    bool bCopyPressed = false, bCopy_plus = false, bCopy_minus = false;
+    AddTexter("Copy", _copyEntTexterValue, std::vector<std::string>{"This Entity Only", "With Attachments"}, bCopyPressed, bCopy_plus, bCopy_minus);
+    AddOptionDescription("Creates a duplicate. Left/right chooses whether attachments are copied too.");
+    if (bCopy_plus)
+    {
+        if (_copyEntTexterValue < 1U)
+            _copyEntTexterValue++;
+    }
+    if (bCopy_minus)
+    {
+        if (_copyEntTexterValue > 0)
+            _copyEntTexterValue--;
+    }
+    if (bCopyPressed)
+    {
+        const SpoonerEntity& copiedEntity = EntityManagement::CopyEntity(selectedEntity, isThisEntityInDb, true, _copyEntTexterValue);
+        //EntityManagement::AddEntityToDb(copiedEntity);
+        selectedEntity = copiedEntity;
+    }
+
+    bool bDeletePressed = false;
+    AddOption("Delete", bDeletePressed);
+    if (bDeletePressed)
+    {
+        selectedEntity.handle.RequestControl(600);
+        EntityManagement::DeleteEntity(selectedEntity);
+        if (Menu::submenuHistory[Menu::menuHistoryIndex] == SUB::SPOONER_MANAGEDB)
+        {
+            Menu::optionSelectionHistory[Menu::menuHistoryIndex] -= 1;
+        }
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    sub::Spooner::SpoonerBlip* existingBlip = nullptr;
+    for (auto& blip : Databases::BlipDb)
+    {
+        if (blip.BlipType == SpoonerBlip::Type::Entity && blip.EntityHandle == selectedEntity.handle.GetHandle())
+        {
+            existingBlip = &blip;
+            break;
+        }
+    }
+
+    if (existingBlip)
+    {
+        bool bDeleteBlipPressed = false;
+        AddOption("Delete Entity Blip", bDeleteBlipPressed);
+        if (bDeleteBlipPressed)
+        {
+            BlipCustoms::RemoveBlip(*existingBlip);
+        }
+    }
+    else
+    {
+        bool bAddEntityBlipPressed = false;
+        AddOption("Add Entity Blip", bAddEntityBlipPressed);
+        if (bAddEntityBlipPressed)
+        {
+            sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(SpoonerBlip::Type::Entity, selectedEntity.hashName);
+
+            auto mapping = GetBlipMappingForEntity(selectedEntity.handle);
+            sub::Spooner::SelectedBlip->EntityHandle = selectedEntity.handle.GetHandle();
+            sub::Spooner::SelectedBlip->bAttached = true;
+            sub::Spooner::SelectedBlip->Icon = mapping.icon;
+            sub::Spooner::SelectedBlip->bSyncRotation = mapping.syncRotation;
+            sub::Spooner::SelectedBlip->Alpha = 255;
+            sub::Spooner::SelectedBlip->Scale = (mapping.icon == BlipIcon::Standard || mapping.icon == BlipIcon::Enemy) ? 0.80f : 1.0f;
+            BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
+            Menu::pendingSubmenu = SUB::SPOONER_BLIPS_ENTITYINBLIP;
+        }
+    }
+
+    bool bDynamicPressed = false;
+    AddLocal("Dynamic", selectedEntity.dynamic, bDynamicPressed, bDynamicPressed);
+    AddOptionDescription("Reacts to physics. Off: frozen in place.");
+    if (bDynamicPressed)
+    {
+        selectedEntity.dynamic = !selectedEntity.dynamic;
+        selectedEntity.handle.SetDynamic(selectedEntity.dynamic);
+        selectedEntity.handle.FreezePosition(!selectedEntity.dynamic);
+    }
+
+    bool bFreezePosPressed = false;
+    AddLocal("Frozen In Place", selectedEntity.handle.IsPositionFrozen(), bFreezePosPressed, bFreezePosPressed);
+    if (bFreezePosPressed)
+    {
+        selectedEntity.handle.FreezePosition(!selectedEntity.handle.IsPositionFrozen());
+    }
+    if (selectedEntity.type == EntityType::VEHICLE && selectedEntity.handle.GetLandingGearState() != -1)
+    {
+        bool bLandingGearDown = (selectedEntity.handle.GetLandingGearState() == 0); // 0 = Deployed
+        bool oldValue = bLandingGearDown;
+
+        AddToggle("Landing Gear", bLandingGearDown);
+
+        if (bLandingGearDown != oldValue)
+        {
+            selectedEntity.handle.SetLandingGear(bLandingGearDown);
+        }
+    }
+
+    if (selectedEntity.type == EntityType::PROP)
+    {
+        auto& thisTextureVariation = selectedEntity.textureVariation;
+        bool bTextureVariation_plus = false, bTextureVariation_minus = false;
+        AddNumber("Texture Variation", thisTextureVariation, 0, null, bTextureVariation_plus, bTextureVariation_minus);
+        AddOptionDescription("Object tint/texture variant.");
+        if (bTextureVariation_plus)
+        {
+            if (thisTextureVariation < UINT8_MAX)
+            {
+                thisTextureVariation++;
+                SET_OBJECT_TINT_INDEX(selectedEntity.handle.Handle(), thisTextureVariation);
+            }
+        }
+        if (bTextureVariation_minus)
+        {
+            if (thisTextureVariation > 0)
+            {
+                thisTextureVariation--;
+                SET_OBJECT_TINT_INDEX(selectedEntity.handle.Handle(), thisTextureVariation);
+            }
+        }
+    }
+
+    int thisHealth = selectedEntity.handle.GetHealth();
+    bool bHealth_plus = false, bHealth_minus = false, bHealth_input = false;
+    AddNumber("Health", thisHealth, 0, bHealth_input, bHealth_plus, bHealth_minus);
+    if (bHealth_plus)
+    {
+        if (thisHealth < INT_MAX)
+        {
+            thisHealth++;
+            if (selectedEntity.handle.GetMaxHealth() < thisHealth)
+            {
+                selectedEntity.handle.SetMaxHealth(thisHealth);
+            }
+            selectedEntity.handle.SetHealth(thisHealth);
+        }
+    }
+    if (bHealth_minus)
+    {
+        if (thisHealth > 0)
+        {
+            thisHealth--;
+            if (selectedEntity.handle.GetMaxHealth() > thisHealth + 30)
+            {
+                selectedEntity.handle.SetMaxHealth(thisHealth + 30);
+            }
+            selectedEntity.handle.SetHealth(thisHealth);
+        }
+    }
+    if (bHealth_input)
+    {
+        GTAentity& ent = selectedEntity.handle;
+        std::string inputStr = Game::InputBox("", 5U, "", std::to_string(thisHealth));
+        if (inputStr.length() > 0)
+        {
+            try
+            {
+                thisHealth = stoi(inputStr);
+                if (ent.GetMaxHealth() < thisHealth)
+                {
+                    ent.SetMaxHealth(thisHealth);
+                }
+                ent.SetHealth(thisHealth);
+            }
+            catch (...)
+            {
+                Game::Print::PrintErrorInvalidInput(inputStr);
+            }
+        }
+        //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SpoonerEoHealth, std::string(), 4U, std::string(), std::to_string(thisHealth));
+        //OnscreenKeyboard::State::arg1._int = ent.GetHandle();
+    }
+
+    bool bInvinciblePressed = false;
+    AddLocal("Invincible", selectedEntity.handle.IsInvincible(), bInvinciblePressed, bInvinciblePressed);
+    if (bInvinciblePressed)
+    {
+        bool bEnable = !selectedEntity.handle.IsInvincible();
+        selectedEntity.handle.SetInvincible(bEnable);
+        selectedEntity.handle.SetExplosionProof(bEnable);
+        selectedEntity.handle.SetMeleeProof(bEnable);
+    }
+
+    bool bFireProofPressed = false;
+    AddLocal("Fireproof", selectedEntity.handle.IsFireProof(), bFireProofPressed, bFireProofPressed);
+    if (bFireProofPressed)
+    {
+        bool bEnable = !selectedEntity.handle.IsFireProof();
+        selectedEntity.handle.SetFireProof(bEnable);
+    }
+    bool bOnFirePressed = false;
+    AddLocal("Is On Fire (For Peds)", selectedEntity.handle.IsOnFire(), bOnFirePressed, bOnFirePressed);
+    if (bOnFirePressed)
+    {
+        bool bEnable = !selectedEntity.handle.IsOnFire();
+        selectedEntity.handle.SetOnFire(bEnable);
+    }
+
+    bool bVisiblePressed = false;
+    AddLocal("Visible", selectedEntity.handle.IsVisible(), bVisiblePressed, bVisiblePressed);
+    if (bVisiblePressed)
+    {
+        selectedEntity.handle.SetVisible(!selectedEntity.handle.IsVisible());
+    }
+
+    AddOption("Opacity (Local)", null, SetSelectedEntityAsVehicleTarget, SUB::ENTITYALPHALEVEL);
+    AddOptionDescription("Transparency. Only visible to you.");
+
+    bool bCollisionPressed = false;
+    AddLocal("Collision", selectedEntity.handle.GetIsCollisionEnabled(), bCollisionPressed, bCollisionPressed);
+    if (bCollisionPressed)
+    {
+        GTAentity attBaseEnt;
+        EntityManagement::GetEntityThisEntityIsAttachedTo(selectedEntity.handle, attBaseEnt);
+        selectedEntity.handle.SetIsCollisionEnabled(!selectedEntity.handle.GetIsCollisionEnabled());
+        if (selectedEntity.attachmentArgs.isAttached)
+        {
+            EntityManagement::AttachEntity(selectedEntity, attBaseEnt, selectedEntity.attachmentArgs.boneIndex, selectedEntity.attachmentArgs.offset, selectedEntity.attachmentArgs.rotation);
+        }
+    }
+
+    bool bHasGravity = selectedEntity.handle.GetHasGravity();
+    bool bGravityTogglePressed = false;
+    AddLocal("Gravity", bHasGravity, bGravityTogglePressed, bGravityTogglePressed);
+    AddOptionDescription("Off: the entity floats.");
+    if (bGravityTogglePressed)
+    {
+        switch (selectedEntity.type)
+        {
+        case EntityType::PED:
+            GTAped(selectedEntity.handle).SetHasGravity(!bHasGravity);
+            break;
+        case EntityType::VEHICLE:
+            GTAvehicle(selectedEntity.handle).SetHasGravity(!bHasGravity);
+            break;
+        case EntityType::PROP:
+            GTAprop(selectedEntity.handle).SetHasGravity(!bHasGravity);
+            break;
+        default:
+            selectedEntity.handle.SetHasGravity(!bHasGravity);
+            break;
+        }
+        bHasGravity = !bHasGravity;
+    }
+
+    bool bGoToEntityPressed = false;
+    AddOption("Go To Entity", bGoToEntityPressed);
+    if (bGoToEntityPressed)
+    {
+        if (SpoonerCamera::camera.IsActive())
+        {
+            auto& cam = SpoonerCamera::camera;
+            cam.SetPosition(selectedEntity.handle.GetOffsetInWorldCoords(0, -5.0f - selectedEntity.handle.Dim2().y, 0));
+        }
+        else
+        {
+            GTAped myPed = PLAYER_PED_ID();
+            myPed.SetPosition(selectedEntity.handle.GetPosition());
+        }
+    }
+
+    bool bBringEntityToSelfPressed = false;
+    AddOption((std::string) "Bring Entity To Self" + (selectedEntity.handle.IsAttached() ? " (And Detach)" : ""), bBringEntityToSelfPressed);
+    if (bBringEntityToSelfPressed)
+    {
+        //GTAentity entityToTele = selectedEntity.handle;
+        //GTAentity entityToTeleMaybe;
+        //while (EntityManagement::GetEntityThisEntityIsAttachedTo(entityToTele, entityToTeleMaybe))
+        //entityToTele = entityToTeleMaybe;
+        if (selectedEntity.handle.IsAttached())
+            EntityManagement::DetachEntity(selectedEntity); // Detach if attached :(
+
+        if (SpoonerCamera::camera.IsActive())
+        {
+            auto& cam = SpoonerCamera::camera;
+            selectedEntity.handle.SetPosition(cam.GetOffsetInWorldCoords(0, 5.0f + selectedEntity.handle.Dim2().y, 0));
+        }
+        else
+        {
+            GTAped myPed = PLAYER_PED_ID();
+            selectedEntity.handle.SetPosition(myPed.GetPosition() + (myPed.ForwardVector() * (selectedEntity.handle.Dim1().y + 4.0f)));
+        }
+    }
+
+    bool bPlaceOnGround = false;
+    AddOption("Place On Ground", bPlaceOnGround);
+    AddOptionDescription("Snaps the entity down onto the ground.");
+    if (bPlaceOnGround)
+    {
+        selectedEntity.handle.PlaceOnGround();
+    }
+
+    bool bResetRotation = false;
+    AddOption("Reset rotation", bResetRotation);
+    if (bResetRotation)
+    {
+        selectedEntity.handle.SetRotation(Vector3::Zero());
+    }
+
+    AddOption("TriggerFX", null, SetSelectedEntityAsActivePed, SUB::PTFXSUB);
+
+    bool bGoToTaskSeqMenu = false;
+    AddTexter("Task Sequence", selectedEntity.taskSequence.IsActive() ? 1 : 0, std::vector<std::string>{"Inactive", "Active"}, bGoToTaskSeqMenu);
+    AddOptionDescription("Press to edit this entity's task sequence.");
+    if (bGoToTaskSeqMenu)
+    {
+        Menu::pendingSubmenu = SUB::SPOONER_TASKSEQUENCE_TASKLIST;
+    }
+
+    // peds can access anims from ped options menu
+    if (selectedEntity.handle.IsVehicle() || selectedEntity.handle.IsProp())
+    {
+        AddOption("Animations", null, SetSelectedEntityAsActivePed, SUB::ANIMATIONSUB);
+    }
+
+    if (selectedEntity.type == EntityType::PED)
+    {
+        AddOption("Ped Options", null, nullFunc, SUB::SPOONER_PEDOPS);
+    }
+    else if (selectedEntity.type == EntityType::VEHICLE)
+    {
+        AddOption("Menyoo Customs", null, SetSelectedEntityAsVehicleTarget, SUB::MODSHOP);
+    }
+
+    AddOption("Attachment Options", null, nullFunc, SUB::SPOONER_ATTACHMENTOPS);
+    AddOption("Manual Editing", null, nullFunc, SUB::SPOONER_MANUALEDITING);
 }
+
+void Sub_AttachmentOps()
+{
+    if (!selectedEntity.handle.Exists())
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+    selectedEntity.handle.RequestControlOnce();
+    auto thisEntityIndexInDb = EntityManagement::GetEntityIndexInDb(selectedEntity);
+    bool isThisEntityInDb = thisEntityIndexInDb >= 0;
+    if (isThisEntityInDb)
+    {
+        selectedEntity.taskSequence = Databases::EntityDb[thisEntityIndexInDb].taskSequence;
+        Databases::EntityDb[thisEntityIndexInDb] = selectedEntity;
+    }
+
+    GTAentity parentEntity;
+    bool seIsAttached = EntityManagement::GetEntityThisEntityIsAttachedTo(selectedEntity.handle, parentEntity);
+    EntityType parentEntityType = (EntityType)parentEntity.Type();
+
+    AddTitle("Attachment");
+
+    if (!seIsAttached)
+    {
+        AddOption("Attach To Something", null, nullFunc, SUB::SPOONER_ATTACHMENTOPS_ATTACHTO);
+    }
+    else
+    {
+        bool bDetachPressed = false;
+        AddOption("Detach", bDetachPressed);
+        if (bDetachPressed)
+        {
+            EntityManagement::DetachEntity(selectedEntity);
+        }
+    }
+
+    if (seIsAttached)
+    {
+        int nextBoneIndex = selectedEntity.attachmentArgs.boneIndex;
+        Vector3 nextOffset = selectedEntity.attachmentArgs.offset;
+        Vector3 nextRot = selectedEntity.attachmentArgs.rotation;
+
+        SpoonerMode::UpdateEntityEditingState(nextOffset, nextRot);
+
+        SpoonerMode::editingState.transformMode = static_cast<SpoonerMode::eTransformMode>(
+            AddTexterCycler("Editing", (int)SpoonerMode::editingState.transformMode > 1 ? 0 : (int)SpoonerMode::editingState.transformMode, {"Position", "Rotation"})
+        );
+        AddOptionDescription("Whether the values below change position or rotation.");
+
+        // Bone text scroller if type is PED or VEHICLE
+        if (parentEntityType == EntityType::PED)
+        {
+            int obj_currentPedBoneArrayIndex = 17;
+            for (int i = 0; i < Bone::vBoneNames.size(); i++)
+            {
+                if (nextBoneIndex == GTAped(parentEntity).GetBoneIndex(Bone::vBoneNames[i].boneid))
+                {
+                    obj_currentPedBoneArrayIndex = i;
+                    break;
+                }
+            }
+            std::vector<std::string> vCurrentPedBoneNameStr{Bone::vBoneNames[obj_currentPedBoneArrayIndex].name};
+
+            bool pbone_plus = 0, pbone_minus = 0, pbone_input = 0;
+            AddTexter("Bone", 0, vCurrentPedBoneNameStr, pbone_input, pbone_plus, pbone_minus);
+            if (pbone_plus)
+            {
+                if (obj_currentPedBoneArrayIndex < Bone::vBoneNames.size() - 1)
+                {
+                    obj_currentPedBoneArrayIndex++;
+                    nextBoneIndex = GTAped(parentEntity).GetBoneIndex(Bone::vBoneNames[obj_currentPedBoneArrayIndex].boneid);
+                }
+            }
+            if (pbone_minus)
+            {
+                if (obj_currentPedBoneArrayIndex > 0)
+                {
+                    obj_currentPedBoneArrayIndex--;
+                    nextBoneIndex = GTAped(parentEntity).GetBoneIndex(Bone::vBoneNames[obj_currentPedBoneArrayIndex].boneid);
+                }
+            }
+            if (pbone_input)
+            {
+                Menu::pendingSubmenu = SUB::SPOONER_ATTACHMENTOPS_SELECTBONE;
+            }
+        }
+        else if (parentEntityType == EntityType::VEHICLE)
+        {
+            int obj_currentVehBoneArrayIndex = 10;
+            for (int i = 0; i < VBone::vNames.size(); i++)
+            {
+                if (nextBoneIndex == GTAvehicle(parentEntity).GetBoneIndex(VBone::vNames[i]))
+                {
+                    obj_currentVehBoneArrayIndex = i;
+                    break;
+                }
+            }
+            std::vector<std::string> vCurrentVehBoneNameStr{VBone::vNames[obj_currentVehBoneArrayIndex]};
+
+            bool vbone_plus = 0, vbone_minus = 0, vbone_input = 0;
+            AddTexter("Bone", 0, vCurrentVehBoneNameStr, vbone_input, vbone_plus, vbone_minus);
+            if (vbone_plus)
+            {
+                if (obj_currentVehBoneArrayIndex < VBone::vNames.size() - 1)
+                {
+                    obj_currentVehBoneArrayIndex++;
+                    nextBoneIndex = GTAvehicle(parentEntity).GetBoneIndex(VBone::vNames[obj_currentVehBoneArrayIndex]);
+                }
+            }
+            if (vbone_minus)
+            {
+                if (obj_currentVehBoneArrayIndex > 0)
+                {
+                    obj_currentVehBoneArrayIndex--;
+                    nextBoneIndex = GTAvehicle(parentEntity).GetBoneIndex(VBone::vNames[obj_currentVehBoneArrayIndex]);
+                }
+            }
+            if (vbone_input)
+            {
+                Menu::pendingSubmenu = SUB::SPOONER_ATTACHMENTOPS_SELECTBONE;
+            }
+        }
+
+        AddBreak("---Values---");
+
+        auto& precision = SpoonerMode::editingState.transformMode == SpoonerMode::eTransformMode::Position ? SpoonerMode::editingState.precisionPos : SpoonerMode::editingState.precisionRot;
+
+        AddNumberMultiplier("Scroll Sensitivity", precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+        AddOptionDescription("Step size used by the values below. Each press multiplies or divides it by 10 (0.0001 to 10).");
+
+        switch (SpoonerMode::editingState.transformMode)
+        {
+        case SpoonerMode::eTransformMode::Position:
+        {
+            AddNumberStepper("X", nextOffset.x, 4, (double)precision);
+            AddNumberStepper("Y", nextOffset.y, 4, (double)precision);
+            AddNumberStepper("Z", nextOffset.z, 4, (double)precision);
+            break;
+        }
+        case SpoonerMode::eTransformMode::Rotation:
+        {
+            bool bResetRot = false;
+            AddNumberStepper("Pitch", nextRot.x, 4, (double)precision);
+            AddNumberStepper("Roll", nextRot.y, 4, (double)precision);
+            AddNumberStepper("Yaw", nextRot.z, 4, (double)precision);
+            AddOption("Reset rotation", bResetRot);
+            if (bResetRot)
+                nextRot = Vector3();
+            break;
+        }
+        }
+
+
+        WrapAngle(nextRot.x);
+        WrapAngle(nextRot.y);
+        WrapAngle(nextRot.z);
+
+        if (nextOffset != selectedEntity.attachmentArgs.offset || nextRot != selectedEntity.attachmentArgs.rotation || nextBoneIndex != selectedEntity.attachmentArgs.boneIndex)
+        {
+            EntityManagement::AttachEntity(selectedEntity, parentEntity, nextBoneIndex, nextOffset, nextRot);
+        }
+
+        AddBreak("---Options---");
+        AddOption("Snapping", null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
+
+        SpoonerMode::editingState.SetMode(static_cast<SpoonerMode::eEditMode>(AddTexterCycler("Entity manipulation mode", (int)SpoonerMode::editingState.mode, {"None", "Keyboard", "Gizmo"})));
+        AddOptionDescription(
+            "None: no editing. Keyboard: move the entity with the keyboard, camera movement is locked. Gizmo: drag the on-screen handles, press V to lock the camera and use the cursor."
+        );
+        if (SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled && SpoonerMode::editingState.transformMode != SpoonerMode::eTransformMode::Scale)
+        {
+            AddToggle("Local Space", SpoonerMode::editingState.localSpace);
+            AddOptionDescription("Move and rotate along the entity's own axes instead of the world axes.");
+        }
+    }
+}
+
+void Sub_AttachmentOps_AttachTo()
+{
+    if (!selectedEntity.handle.Exists())
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+    GTAped myPed = PLAYER_PED_ID();
+    GTAvehicle myVehicle = g_myVeh;
+
+    AddTitle("Attach To Something");
+
+    bool bToggleKeepPosWhenAttaching = false;
+    AddTickol("Keep World Position When Attaching", Settings::bKeepPositionWhenAttaching, bToggleKeepPosWhenAttaching, bToggleKeepPosWhenAttaching, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription("On: stays where it is when attached. Off: snaps to the attach point.");
+    if (bToggleKeepPosWhenAttaching)
+        Settings::bKeepPositionWhenAttaching = !Settings::bKeepPositionWhenAttaching;
+
+    AddBreak("---Available Entities---");
+
+    bool bSelf = false;
+    AddOption("Self", bSelf);
+    if (bSelf)
+    {
+        EntityManagement::AttachEntityInit(selectedEntity, myPed, Settings::bKeepPositionWhenAttaching);
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    if (myVehicle.Exists())
+    {
+        bool bSelfVeh = false;
+        AddOption(std::string(myPed.IsInVehicle() ? "Current" : "Last Seated") + " Vehicle", bSelfVeh);
+        if (bSelfVeh)
+        {
+            EntityManagement::AttachEntityInit(selectedEntity, myVehicle, Settings::bKeepPositionWhenAttaching);
+            Menu::SetPreviousMenu();
+            return;
+        }
+    }
+
+    if (!Databases::EntityDb.empty())
+    {
+        if (Databases::EntityDb.size() > 1 || Databases::EntityDb.front().handle != selectedEntity.handle)
+        {
+            AddBreak("---Database---");
+            for (auto& e : Databases::EntityDb)
+            {
+                if (e.handle != selectedEntity.handle)
+                {
+                    if (e.handle.Exists())
+                    {
+                        if (!selectedEntity.handle.IsAttachedTo(e.handle))
+                        {
+                            bool bEntityPressed = false;
+                            AddOption(e.hashName, bEntityPressed);
+                            if (bEntityPressed)
+                            {
+                                EntityManagement::AttachEntityInit(selectedEntity, e.handle, Settings::bKeepPositionWhenAttaching);
+                                Menu::SetPreviousMenu();
+                                return;
+                            }
+                            if (Menu::IsLastDrawnOptionSelected())
+                                EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(0, 255, 0, 200));
+                        }
+                        else
+                        {
+                            AddOption(e.hashName + " (already attached)", null);
+                            if (Menu::IsLastDrawnOptionSelected())
+                                EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(255, 0, 0, 200));
+                        }
+                    }
+                    else
+                    {
+                        AddOption(e.hashName + " (Invalid)", null);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Sub_AttachmentOps_SelectBone()
+{
+    if (!selectedEntity.handle.Exists())
+    {
+        Menu::SetPreviousMenu();
+        Menu::selectedOptionIndex = 1;
+        return;
+    }
+    selectedEntity.handle.RequestControlOnce();
+    auto thisEntityIndexInDb = EntityManagement::GetEntityIndexInDb(selectedEntity);
+    bool isThisEntityInDb = thisEntityIndexInDb >= 0;
+    if (isThisEntityInDb)
+    {
+        selectedEntity.taskSequence = Databases::EntityDb[thisEntityIndexInDb].taskSequence;
+        Databases::EntityDb[thisEntityIndexInDb] = selectedEntity;
+    }
+
+    GTAentity baseEntity;
+    bool seIsAttached = EntityManagement::GetEntityThisEntityIsAttachedTo(selectedEntity.handle, baseEntity);
+    EntityType parentEntityType = (EntityType)baseEntity.Type();
+    if (!baseEntity.Exists())
+    {
+        Menu::SetPreviousMenu();
+        Menu::selectedOptionIndex = 1;
+        return;
+    }
+
+    int nextBoneIndex = selectedEntity.attachmentArgs.boneIndex;
+    Vector3 nextOffset = selectedEntity.attachmentArgs.offset;
+    Vector3 nextRot = selectedEntity.attachmentArgs.rotation;
+
+    bool bSelectedBoneIndexExists = false; // Idek what this is doing here
+    int defaultBone;
+
+    AddTitle("Bone");
+
+    // Bone text scroller if type is PED or VEHICLE. Reattach and reset args on bone change.
+    if (parentEntityType == EntityType::PED)
+    {
+        GTAped baseEntityPed = baseEntity;
+        defaultBone = baseEntityPed.GetBoneIndex(Bone::SKEL_ROOT);
+
+        bSelectedBoneIndexExists = nextBoneIndex == baseEntityPed.GetBoneIndex(Bone::vBoneNames.front().boneid);
+        for (auto& b : Bone::vBoneNames)
+        {
+            bool bBoneNamePressed = false;
+            if (bSelectedBoneIndexExists && nextBoneIndex == baseEntityPed.GetBoneIndex(b.boneid))
+            {
+                continue;
+            }
+            bSelectedBoneIndexExists = (nextBoneIndex == baseEntityPed.GetBoneIndex(b.boneid)); // And is selected (in this case)
+            AddTickol(b.name, bSelectedBoneIndexExists, bBoneNamePressed, bBoneNamePressed);
+            if (bBoneNamePressed)
+            {
+                nextBoneIndex = baseEntityPed.GetBoneIndex(b.boneid);
+                //nextOffset = Vector3::Zero();
+                //nextRot = Vector3::Zero();
+                break;
+            }
+        }
+    }
+    else if (parentEntityType == EntityType::VEHICLE)
+    {
+        GTAvehicle baseEntityVeh = baseEntity;
+        defaultBone = baseEntityVeh.GetBoneIndex(VBone::bodyshell);
+
+        bSelectedBoneIndexExists = nextBoneIndex == baseEntityVeh.GetBoneIndex(VBone::vNames.front());
+        for (auto& b : VBone::vNames)
+        {
+            bool bBoneNamePressed = false;
+            if (!baseEntityVeh.HasBone(b) || (bSelectedBoneIndexExists && nextBoneIndex == baseEntityVeh.GetBoneIndex(b)))
+            {
+                continue;
+            }
+            bSelectedBoneIndexExists = (nextBoneIndex == baseEntityVeh.GetBoneIndex(b)); // And is selected (in this case)
+            AddTickol(b, bSelectedBoneIndexExists, bBoneNamePressed, bBoneNamePressed);
+            if (bBoneNamePressed)
+            {
+                nextBoneIndex = baseEntityVeh.GetBoneIndex(b);
+                //nextOffset = Vector3::Zero();
+                //nextRot = Vector3::Zero();
+                break;
+            }
+        }
+    }
+
+    if (nextBoneIndex != selectedEntity.attachmentArgs.boneIndex)
+    {
+        EntityManagement::AttachEntity(selectedEntity, baseEntity, nextBoneIndex, nextOffset, nextRot);
+    }
+}
+
+void Sub_Snapping()
+{
+    AddTitle("Snapping Options");
+
+    AddToggle("Grid Snap", Settings::bGridSnapEnabled);
+    AddOptionDescription("Snaps position and rotation to the grid while moving entities.");
+    AddNumberStepper("Grid Size (m)", Settings::gridSnapSize, 2, 0.25, 0.01);
+    AddOptionDescription("Size of each grid step.");
+    AddNumberStepper("Rotation Snap (deg)", Settings::rotationSnapDegrees, 1, 5.0, 0.0);
+    AddOptionDescription("Rotation step size. 0 turns off rotation snapping.");
+    AddToggle("Snap to Ground", Settings::bSnapToGround);
+    AddOptionDescription("Keeps moved entities on the ground.");
+    AddToggle("Draw Grid On Screen", Settings::bDrawGrid);
+}
+
+void Sub_ManualEditing()
+{
+    if (!selectedEntity.handle.Exists())
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+    selectedEntity.handle.RequestControlOnce();
+
+    AddTitle("Manual Editing");
+
+    Vector3 currPos = selectedEntity.handle.GetPosition();
+    Vector3 currRot = selectedEntity.handle.GetRotation();
+
+    Entity handle = selectedEntity.handle.Handle();
+    auto& scaleState = IS_ENTITY_A_VEHICLE(handle) ? _vehScale : IS_ENTITY_A_PED(handle) ? _pedScale : _objScale;
+
+    Vector3 nextPos = currPos;
+    Vector3 nextRot = currRot;
+    Vector3 nextScale = scaleState.scale;
+
+    SpoonerMode::UpdateEntityEditingState(nextPos, nextRot);
+    // Mode selector
+    SpoonerMode::editingState.transformMode =
+        static_cast<SpoonerMode::eTransformMode>(AddTexterCycler("Editing", static_cast<int>(SpoonerMode::editingState.transformMode), {"Position", "Rotation", "Scale"}));
+    AddOptionDescription("Whether the values below change position, rotation or scale.");
+
+    AddBreak("---Values---");
+
+    float& precision = SpoonerMode::editingState.transformMode == SpoonerMode::eTransformMode::Position   ? SpoonerMode::editingState.precisionPos
+                       : SpoonerMode::editingState.transformMode == SpoonerMode::eTransformMode::Rotation ? SpoonerMode::editingState.precisionRot
+                                                                                                          : SpoonerMode::editingState.precisionScale;
+
+    AddNumberMultiplier("Scroll Sensitivity", precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+    AddOptionDescription("Step size used by the values below. Each press multiplies or divides it by 10 (0.0001 to 10).");
+
+    switch (SpoonerMode::editingState.transformMode)
+    {
+    case SpoonerMode::eTransformMode::Position:
+    {
+        AddNumberStepper("X", nextPos.x, 4, (double)precision);
+        AddNumberStepper("Y", nextPos.y, 4, (double)precision);
+        AddNumberStepper("Z", nextPos.z, 4, (double)precision);
+        break;
+    }
+    case SpoonerMode::eTransformMode::Rotation:
+    {
+        bool bResetRot = false;
+        AddNumberStepper("Pitch", nextRot.x, 4, (double)precision);
+        AddNumberStepper("Roll", nextRot.y, 4, (double)precision);
+        AddNumberStepper("Yaw", nextRot.z, 4, (double)precision);
+        AddOption("Reset rotation", bResetRot);
+        if (bResetRot)
+            nextRot = Vector3();
+        break;
+    }
+    case SpoonerMode::eTransformMode::Scale:
+    {
+        bool bResetScale = false;
+        AddNumberStepper("Width (X)", nextScale.x, 4, (double)precision, 0.01);
+        AddNumberStepper("Length (Y)", nextScale.y, 4, (double)precision, 0.01);
+        AddNumberStepper("Height (Z)", nextScale.z, 4, (double)precision, 0.01);
+        AddOption("Reset scale", bResetScale);
+        if (bResetScale)
+            nextScale = Vector3(1.0f, 1.0f, 1.0f);
+        break;
+    }
+    }
+
+    AddBreak("---Options---");
+    AddOption("Snapping", null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
+
+
+    SpoonerMode::editingState.SetMode(static_cast<SpoonerMode::eEditMode>(AddTexterCycler("Entity manipulation mode", (int)SpoonerMode::editingState.mode, {"None", "Keyboard", "Gizmo"})));
+    AddOptionDescription("None: no editing. Keyboard: move the entity with the keyboard, camera movement is locked. Gizmo: drag the on-screen handles, press V to lock the camera and use the cursor.");
+
+    // don't show if not in editing mode or if in scale mode (because scaling is always local-space)
+    if (SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled && SpoonerMode::editingState.transformMode != SpoonerMode::eTransformMode::Scale)
+    {
+        AddToggle("Local Space", SpoonerMode::editingState.localSpace);
+        AddOptionDescription("Move and rotate along the entity's own axes instead of the world axes.");
+    }
+
+
+    // Apply position changes
+    if (nextPos != currPos)
+    {
+        selectedEntity.handle.SetPosition(SpoonerMode::SnapPos(nextPos));
+        currPos = selectedEntity.handle.GetPosition();
+        GTAentity attBase;
+        if (EntityManagement::GetEntityThisEntityIsAttachedTo(selectedEntity.handle, attBase))
+            World::DrawLine(attBase.GetPosition(), currPos, RGBA::AllWhite());
+    }
+    // Apply rotation changes
+    if (nextRot != currRot)
+    {
+        WrapAngle(nextRot.x);
+        WrapAngle(nextRot.y);
+        WrapAngle(nextRot.z);
+        selectedEntity.handle.SetRotation(SpoonerMode::SnapRot(nextRot));
+        currRot = selectedEntity.handle.GetRotation();
+        GTAentity attBase;
+        if (EntityManagement::GetEntityThisEntityIsAttachedTo(selectedEntity.handle, attBase))
+            World::DrawLine(attBase.GetPosition(), currPos, RGBA::AllWhite());
+    }
+    // Apply scale changes
+    if (nextScale != scaleState.scale)
+    {
+        if (scaleState.handle != handle)
+            scaleState.handle = handle;
+        scaleState.scale = nextScale;
+        selectedEntity.handle.SetScale(nextScale);
+        if (!IS_ENTITY_A_VEHICLE(handle) && !IS_ENTITY_A_PED(handle))
+        {
+            selectedEntity.handle.SetIsCollisionEnabled(false);
+            selectedEntity.handle.FreezePosition(true);
+        }
+    }
+}
+
+void Sub_Vector3_ManualEditing()
+{
+    auto& ptrs = SpoonerVector3ManualEditingPtrs;
+    bool hasPos = std::get<1>(ptrs) != nullptr;
+    bool hasRot = std::get<2>(ptrs) != nullptr;
+
+    if (!hasPos && !hasRot)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    // Draw debug marker at position
+    if (hasPos)
+    {
+        Vector3 markerPos = *std::get<1>(ptrs);
+        if (std::get<0>(ptrs).Exists())
+        {
+            markerPos = std::get<0>(ptrs).GetOffsetInWorldCoords(markerPos);
+        }
+        World::DrawLightWithRange(markerPos, g_fadedRGB, 2.3f, 1.5f);
+        World::DrawMarker(MarkerType::DebugSphere, markerPos, Vector3(), Vector3(), Vector3(0.1f, 0.1f, 0.1f), g_fadedRGB.ToRGBA(190));
+    }
+
+    AddTitle("Vector3 Manual Editing");
+
+    // Clamp editing mode to available ptrs
+    auto& editMode = SpoonerMode::editingState.transformMode;
+    if ((!hasPos && editMode == SpoonerMode::eTransformMode::Position) || (!hasRot && editMode == SpoonerMode::eTransformMode::Rotation))
+    {
+        editMode = hasPos ? SpoonerMode::eTransformMode::Position : SpoonerMode::eTransformMode::Rotation;
+    }
+
+    // Transform mode cycler (Position / Rotation only)
+    {
+        std::vector<std::string> modeNames;
+        if (hasPos)
+            modeNames.push_back("Position");
+        if (hasRot)
+            modeNames.push_back("Rotation");
+        if (modeNames.size() > 1)
+        {
+            editMode = static_cast<SpoonerMode::eTransformMode>(AddTexterCycler("Editing", static_cast<int>(editMode), modeNames));
+            AddOptionDescription("Whether the values below change position or rotation.");
+        }
+    }
+
+    AddBreak("---Values---");
+
+    float& precision = editMode == SpoonerMode::eTransformMode::Position ? SpoonerMode::editingState.precisionPos : SpoonerMode::editingState.precisionRot;
+
+    AddNumberMultiplier("Scroll Sensitivity", precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+    AddOptionDescription("Step size used by the values below. Each press multiplies or divides it by 10 (0.0001 to 10).");
+
+    if (editMode == SpoonerMode::eTransformMode::Position)
+    {
+        Vector3& pos = *std::get<1>(ptrs);
+        AddNumberStepper("X", pos.x, 4, (double)precision);
+        AddNumberStepper("Y", pos.y, 4, (double)precision);
+        AddNumberStepper("Z", pos.z, 4, (double)precision);
+    }
+    else
+    {
+        Vector3& rot = *std::get<2>(ptrs);
+        bool bResetRot = false;
+        AddNumberStepper("Pitch", rot.x, 4, (double)precision);
+        AddNumberStepper("Roll", rot.y, 4, (double)precision);
+        AddNumberStepper("Yaw", rot.z, 4, (double)precision);
+        AddOption("Reset rotation", bResetRot);
+        if (bResetRot)
+            rot = Vector3();
+
+        WrapAngle(rot.x);
+        WrapAngle(rot.y);
+        WrapAngle(rot.z);
+    }
+}
+
+void Sub_MultiSelect()
+{
+    // show in-game indicator of which entities are selected
+    for (const auto& entity : MultiSelect::g_selectedEntities)
+    {
+        if (entity.handle.Exists())
+            EntityManagement::ShowArrowAboveEntity(entity.handle, RGBA(127, 0, 255, 200));
+    }
+
+    if (!g_multiSelectEditActive)
+    {
+        g_multiSelectPrevSelected = selectedEntity;
+        g_multiSelectEditActive = true;
+    }
+
+    // Create pivot at centroid if entities are selected but no pivot exists yet
+    if (!g_multiSelectPivot.Exists() && !MultiSelect::g_selectedEntities.empty())
+        MultiSelect::CreatePivot();
+
+    // Point gizmo at pivot
+    if (g_multiSelectPivot.Exists())
+    {
+        selectedEntity.handle = g_multiSelectPivot;
+        selectedEntity.attachmentArgs.isAttached = false;
+    }
+
+    // Restore state on sub-back
+    if (Menu::OnSubBack == nullptr)
+    {
+        Menu::OnSubBack = []()
+        {
+            if (g_multiSelectEditActive)
+            {
+                selectedEntity = g_multiSelectPrevSelected;
+                g_multiSelectEditActive = false;
+            }
+            MultiSelect::DestroyPivot();
+        };
+    }
+
+    AddTitle("Multi-Select");
+
+    bool bSelectAll = false, bClearAll = false;
+    //if (MultiSelect::g_selectedEntities.size() < Databases::EntityDb.size()) //Commented out these statements as it causes the selection to move up and down when selecting/deselecting entities in the list
+    {
+        AddOption("Select All (" + std::to_string(Databases::EntityDb.size()) + ")", bSelectAll);
+        if (bSelectAll)
+        {
+            MultiSelect::DestroyPivot();
+            MultiSelect::SelectAll();
+            if (g_multiSelectEditActive)
+            {
+                selectedEntity = g_multiSelectPrevSelected;
+                g_multiSelectEditActive = false;
+            }
+            *Menu::activeOptionIndex = 1;
+            return;
+        }
+    }
+    //if (!MultiSelect::g_selectedEntities.empty()) //Commented out these statements as it causes the selection to move up and down when selecting/deselecting entities in the list
+    {
+        AddOption("Clear Selection (" + std::to_string(MultiSelect::g_selectedEntities.size()) + ")", bClearAll);
+        if (bClearAll)
+        {
+            MultiSelect::DestroyPivot();
+            MultiSelect::Clear();
+            if (g_multiSelectEditActive)
+            {
+                selectedEntity = g_multiSelectPrevSelected;
+                g_multiSelectEditActive = false;
+            }
+            *Menu::activeOptionIndex = 1;
+            return;
+        }
+    }
+    if (!Databases::EntityDb.empty())
+    {
+        AddBreak("---Entities---");
+
+        for (auto& e : Databases::EntityDb)
+        {
+            if (!e.handle.Exists())
+            {
+                AddOption(e.hashName + " (Invalid)", null);
+                continue;
+            }
+
+            bool bInMultiSelect = MultiSelect::IsSelected(e.handle);
+            // selected entities are being attached to the pivot, so only unselected ones can be genuinely attached
+            bool bBlocked = !bInMultiSelect && e.handle.IsAttached();
+            bool bEntityPressed = false;
+            AddTickol(e.hashName + (bBlocked ? " ~r~(Attached)" : ""), bInMultiSelect, bEntityPressed, bEntityPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+            if (bBlocked)
+                AddOptionDescription("Attached entities can't be multi-selected. Detach it first.");
+            if (Menu::IsLastDrawnOptionSelected())
+                EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(127, 0, 255, 200));
+
+            if (bEntityPressed && !bBlocked)
+            {
+                MultiSelect::DestroyPivot();
+                if (bInMultiSelect)
+                    MultiSelect::Remove(e.handle);
+                else
+                    MultiSelect::Add(e);
+            }
+        }
+    }
+
+
+    // Display pivot position and rotation and allow editing of all selected entities
+    if (!MultiSelect::g_selectedEntities.empty() && g_multiSelectPivot.Exists())
+    {
+        bool isOnTheLine = NETWORK_IS_IN_SESSION() != 0;
+        bool bDelete = false;
+        Vector3 pivotPos = g_multiSelectPivot.GetPosition();
+        Vector3 pivotRot = g_multiSelectPivot.GetRotation();
+        Vector3 basePos = pivotPos;
+        Vector3 baseRot = pivotRot;
+
+        float& precisionPos = SpoonerMode::editingState.precisionPos;
+        float& precisionRot = SpoonerMode::editingState.precisionRot;
+        float opacityDelta = 0.0f;
+
+        SpoonerMode::UpdateEntityEditingState(pivotPos, pivotRot);
+
+        AddBreak("---Bulk Edit---");
+
+        AddOption("Delete", bDelete);
+        AddNumberMultiplier("Scroll Sensitivity (Position)", precisionPos, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+        AddOptionDescription("Step size used by Pos X/Y/Z. Each press multiplies or divides it by 10 (0.0001 to 10).");
+        AddNumberMultiplier("Scroll Sensitivity (Rotation)", precisionRot, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+        AddOptionDescription("Step size used by Pitch/Roll/Yaw. Each press multiplies or divides it by 10 (0.0001 to 10).");
+
+        AddNumberStepper("Pos X", pivotPos.x, 4, (double)precisionPos);
+        AddNumberStepper("Pos Y", pivotPos.y, 4, (double)precisionPos);
+        AddNumberStepper("Pos Z", pivotPos.z, 4, (double)precisionPos);
+        AddNumberStepper("Pitch", pivotRot.x, 4, (double)precisionRot);
+        AddNumberStepper("Roll", pivotRot.y, 4, (double)precisionRot);
+        AddNumberStepper("Yaw", pivotRot.z, 4, (double)precisionRot);
+        AddNumberStepper("Opacity (Local)", opacityDelta, 0, 1.0);
+        AddOptionDescription("Changes the opacity of all selected entities by this amount.");
+
+        if (bDelete)
+        {
+            for (auto& e : MultiSelect::g_selectedEntities)
+            {
+                if (!e.handle.Exists())
+                    continue;
+                if (isOnTheLine)
+                    e.handle.RequestControl();
+                EntityManagement::DeleteEntity(e);
+            }
+            MultiSelect::Clear();
+        }
+
+        // Apply pivot pos/rot to pivot itself
+        if (pivotPos.x != basePos.x || pivotPos.y != basePos.y || pivotPos.z != basePos.z)
+        {
+            if (isOnTheLine)
+                g_multiSelectPivot.RequestControl();
+            g_multiSelectPivot.SetPosition(SpoonerMode::SnapPos(pivotPos));
+        }
+        if (pivotRot.x != baseRot.x || pivotRot.y != baseRot.y || pivotRot.z != baseRot.z)
+        {
+            WrapAngle(pivotRot.x);
+            WrapAngle(pivotRot.y);
+            WrapAngle(pivotRot.z);
+            if (isOnTheLine)
+                g_multiSelectPivot.RequestControl();
+            g_multiSelectPivot.SetRotation(SpoonerMode::SnapRot(pivotRot));
+        }
+
+        // Apply opacity delta to all selected entities
+        if (opacityDelta != 0.0f)
+        {
+            for (auto& e : MultiSelect::g_selectedEntities)
+            {
+                if (!e.handle.Exists())
+                    continue;
+                if (isOnTheLine)
+                    e.handle.RequestControl();
+                int alpha = e.handle.GetAlpha() + static_cast<int>(opacityDelta);
+                e.handle.SetAlpha(alpha);
+            }
+        }
+
+        AddBreak("---Task Sequences---");
+
+        bool bStartTaskSequences = false;
+        AddOption("Start Task Sequences", bStartTaskSequences);
+        if (bStartTaskSequences)
+        {
+            for (auto& e : MultiSelect::g_selectedEntities)
+            {
+                auto eiidb = EntityManagement::GetEntityIndexInDb(e);
+                if (eiidb >= 0)
+                {
+                    if (isOnTheLine)
+                        e.handle.RequestControl();
+                    Databases::EntityDb[eiidb].taskSequence.Start();
+                }
+            }
+        }
+
+        bool bStopTaskSequences = false;
+        AddOption("Stop Task Sequences", bStopTaskSequences);
+        if (bStopTaskSequences)
+        {
+            for (auto& e : MultiSelect::g_selectedEntities)
+            {
+                auto eiidb = EntityManagement::GetEntityIndexInDb(e);
+                if (eiidb >= 0)
+                {
+                    if (e.handle.IsPed())
+                    {
+                        if (isOnTheLine)
+                            e.handle.RequestControl();
+                        TASK_CLEAR_LOOK_AT(e.handle.Handle());
+                        CLEAR_PED_TASKS_IMMEDIATELY(e.handle.Handle());
+                    }
+                    Databases::EntityDb[eiidb].taskSequence.Reset();
+                }
+            }
+        }
+
+        bool bCopyPressed = false, bCopy_plus = false, bCopy_minus = false;
+        AddTexter("Copy", _copyEntTexterValue, std::vector<std::string>{"Selected Only", "Copy With Attachments"}, bCopyPressed, bCopy_plus, bCopy_minus);
+        AddOptionDescription("Creates a duplicate. Left/right chooses whether attachments are copied too.");
+        if (bCopy_plus)
+        {
+            if (_copyEntTexterValue < 1U)
+                _copyEntTexterValue++;
+        }
+        if (bCopy_minus)
+        {
+            if (_copyEntTexterValue > 0)
+                _copyEntTexterValue--;
+        }
+        if (bCopyPressed)
+        {
+            for (auto& e : MultiSelect::g_selectedEntities)
+            {
+                EntityManagement::CopyEntity(e, true, true, _copyEntTexterValue);
+            }
+        }
+    }
+
+    // Always show DB entity list with checkboxes
+}
+
+void Sub_PedOps()
+{
+    if (!selectedEntity.handle.Exists())
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+    selectedEntity.handle.RequestControlOnce();
+    auto thisEntityIndexInDb = EntityManagement::GetEntityIndexInDb(selectedEntity);
+    bool isThisEntityInDb = thisEntityIndexInDb >= 0;
+    if (isThisEntityInDb)
+    {
+        selectedEntity.taskSequence = Databases::EntityDb[thisEntityIndexInDb].taskSequence;
+        Databases::EntityDb[thisEntityIndexInDb] = selectedEntity;
+    }
+
+    GTAped myPed = PLAYER_PED_ID();
+    GTAped thisPed = selectedEntity.handle;
+    bool butAmIOnline = NETWORK_IS_IN_SESSION() != 0;
+    bool isPedMyPed = thisPed.Handle() == myPed.Handle();
+    bool bIsPedShortHeighted = GET_PED_CONFIG_FLAG(thisPed.Handle(), ePedConfigFlags::_Shrink, false) != 0;
+    PedGroup myPedGroup = myPed.GetCurrentPedGroup();
+
+    bool pedops_isStill_toggle = false, pedops_canRagdoll_toggle = false, pedops_shortHeighted_toggle = false, pedops_friend = false, pedops_burn = false, pedops_piggyback = false,
+         pedops_shoulderRide = false, pedops_warp_nearest = false, pedops_wp_walk = false, pedops_become_ped = false;
+
+    AddTitle("Ped Options");
+
+    if (!isPedMyPed)
+        MenuOptions::AddOption_RelationshipTextScroller();
+    AddToggle("Is Still (Block Fleeing)", selectedEntity.isStill, pedops_isStill_toggle, pedops_isStill_toggle);
+    AddOptionDescription("The ped doesn't react or run away.");
+    if (pedops_isStill_toggle)
+    {
+        thisPed.SetBlockPermanentEvent(selectedEntity.isStill);
+    }
+    AddLocal("Can Ragdoll", thisPed.GetCanRagdoll(), pedops_canRagdoll_toggle, pedops_canRagdoll_toggle);
+    if (pedops_canRagdoll_toggle)
+    {
+        bool ns = !thisPed.GetCanRagdoll();
+        thisPed.SetCanRagdoll(ns);
+        SET_PED_RAGDOLL_ON_COLLISION(thisPed.Handle(), ns);
+    }
+    AddLocal("Is Short Heighted (Small)", bIsPedShortHeighted, pedops_shortHeighted_toggle, pedops_shortHeighted_toggle);
+    AddOptionDescription("Shrinks the ped.");
+    if (pedops_shortHeighted_toggle)
+    {
+        SET_PED_CONFIG_FLAG(selectedEntity.handle.Handle(), ePedConfigFlags::_Shrink, bIsPedShortHeighted ? 0 : 1);
+    }
+
+    int thisArmour = thisPed.GetArmour();
+    bool bArmour_plus = false, bArmour_minus = false, bArmour_input = false;
+    AddNumber("Armour", thisArmour, 0, bArmour_input, bArmour_plus, bArmour_minus);
+    if (bArmour_plus)
+    {
+        if (thisArmour < INT_MAX)
+        {
+            thisArmour++;
+            thisPed.SetArmour(thisArmour);
+        }
+    }
+    if (bArmour_minus)
+    {
+        if (thisArmour > 0)
+        {
+            thisArmour--;
+            thisPed.SetArmour(thisArmour);
+        }
+    }
+    if (bArmour_input)
+    {
+        std::string inputStr = Game::InputBox("", 5U, "", std::to_string(thisArmour));
+        if (inputStr.length() > 0)
+        {
+            try
+            {
+                thisArmour = stoi(inputStr);
+                thisPed.SetArmour(thisArmour);
+            }
+            catch (...)
+            {
+                Game::Print::PrintErrorInvalidInput(inputStr);
+            }
+        }
+        //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SpoonerEoArmour, std::string(), 4U, std::string(), std::to_string(thisHealth));
+        //OnscreenKeyboard::State::arg1._int = ent.GetHandle();
+    }
+
+    AddOption("Wardrobe", null, SetSelectedEntityAsActivePed, SUB::COMPONENTS);
+
+    AddOption("Animations", null, SetSelectedEntityAsActivePed, SUB::ANIMATIONSUB);
+    AddOption("Scenario Actions", null, SetSelectedEntityAsActivePed, SUB::AnimationTaskScenarios);
+    AddOption("Moods", null, SetSelectedEntityAsActivePed, SUB::FACIALMOOD);
+    AddOption("Movement Styles", null, SetSelectedEntityAsActivePed, SUB::MOVEMENTGROUP);
+    AddOption("Weapon", null, nullFunc, SUB::SPOONER_PEDOPS_WEAPON);
+    AddOption("Speech Player  (Doesn't Save)", null, SetSelectedEntityAsActivePed, SUB::SPEECHPLAYER);
+    AddOption("Voice Changer  (Doesn't Save)", null, SetSelectedEntityAsActivePed, SUB::VOICECHANGER);
+    AddOption("Explosions  (Doesn't Save)", null, SetSelectedEntityAsActivePed, SUB::PEDEXPLOSIONSUB);
+    //AddOption("Ped Flags (Doesn't Save)", null, SetSelectedEntityAsActivePed, SUB::PEDFLAGMANAGER_NAMEDLIST);
+    //AddOption("Give Vehicle", null, SetSelectedEntityAsActivePed, SUB::SPAWNVEHICLE);
+    AddOption("Attach Objects (Doesn't Save)", null, SetSelectedEntityAsActivePed, SUB::ATTACHFUNNYOBJECTSUB);
+    AddLocal("Companion (7 Max) (Doesn't Save) (Obsolete)", myPedGroup.Contains(thisPed), pedops_friend, pedops_friend);
+    AddOptionDescription("Adds the ped to your group. Max 7, not saved.");
+    AddLocal("Burn Ped", thisPed.IsOnFire(), pedops_burn, pedops_burn);
+    if (!isPedMyPed)
+        AddLocal(
+            "Piggyback Ride  (Doesn't Save)",
+            (GET_ENTITY_ATTACHED_TO(myPed.Handle() == thisPed.Handle()) && IS_ENTITY_PLAYING_ANIM(myPed.Handle(), "mini@prostitutes@sexnorm_veh", "bj_loop_male", 3)),
+            pedops_piggyback,
+            pedops_piggyback
+        );
+    if (!isPedMyPed)
+        AddLocal(
+            "Shoulder Ride  (Doesn't Save)",
+            (GET_ENTITY_ATTACHED_TO(myPed.Handle() == thisPed.Handle()) && IS_ENTITY_PLAYING_ANIM(myPed.Handle(), "amb@prop_human_seat_chair@male@elbows_on_knees@idle_a", "idle_a", 3)),
+            pedops_shoulderRide,
+            pedops_shoulderRide
+        );
+    //AddOption("Warp Into Nearest Car", pedops_warp_nearest);
+    AddOption("Travel To Waypoint", pedops_wp_walk);
+    if (!isPedMyPed)
+    {
+        AddOption("Become This Ped (Soul-Steal) (SP)", butAmIOnline ? null : pedops_become_ped);
+        AddOptionDescription("Take control of this ped (story mode only).");
+    }
+
+
+    if (pedops_friend)
+    {
+        NETWORK_REQUEST_CONTROL_OF_NETWORK_ID(thisPed.NetID());
+        if (myPedGroup.Exists())
+        {
+            if (!myPedGroup.Contains(thisPed))
+            {
+                myPedGroup.Add(thisPed, false);
+                myPedGroup.SetSeparationRange(100.0f);
+                myPedGroup.SetFormationSpacing(1.5f);
+                thisPed.Task().FightAgainstHatedTargets(400.0f);
+            }
+            else
+            {
+                myPedGroup.Remove(thisPed);
+            }
+        }
+        else
+        {
+            myPedGroup = PedGroup::CreateNewGroup();
+            myPedGroup.Add(myPed, true);
+            myPedGroup.SetSeparationRange(100.0f);
+            myPedGroup.SetFormationSpacing(1.5f);
+        }
+    }
+
+    if (pedops_burn)
+    {
+        thisPed.SetOnFire(!thisPed.IsOnFire());
+    }
+
+    if (pedops_piggyback)
+    {
+        if (thisPed == myPed)
+            Game::Print::ShowNotification("~r~Error:", "Can't do that to yourself.");
+        else
+        {
+            if (GET_ENTITY_ATTACHED_TO(myPed.Handle()) != thisPed.Handle())
+            {
+                thisPed.RequestControl();
+                myPed.AttachTo(thisPed, -1, false, Vector3(0.0f, -0.3f, 0.0f), Vector3(0, 0, 0));
+                myPed.Task().PlayAnimation("mini@prostitutes@sexnorm_veh", "bj_loop_male", 8.0f, 0.0f, -1, 9, 0, false);
+            }
+            else
+            {
+                myPed.Detach();
+                myPed.Task().ClearAllImmediately();
+            }
+        }
+    }
+
+    if (pedops_shoulderRide)
+    {
+        if (thisPed == myPed)
+            Game::Print::ShowNotification("~r~Error:", "Can't do that to yourself.");
+        else
+        {
+            if (GET_ENTITY_ATTACHED_TO(myPed.Handle()) != thisPed.Handle())
+            {
+                //set_ped_shoulder_ride_ped(myPed, thisPed, true);
+                myPed.AttachTo(thisPed, Bone::SKEL_ROOT, Vector3(0, -0.25, 0.35f), Vector3(45.0f, 0, 0), true, true, false, true, 1, true);
+                myPed.Task().PlayAnimation("amb@prop_human_seat_chair@male@elbows_on_knees@idle_a", "idle_a", 1000.0f, -1.5f, -1, AnimFlag::Loop, 0.445f, false);
+            }
+            else
+            {
+                //set_ped_shoulder_ride_ped(myPed, thisPed, false);
+                myPed.Detach();
+                myPed.Task().ClearAllImmediately();
+            }
+        }
+    }
+
+    if (pedops_warp_nearest)
+    {
+        const auto& closestVeh = World::GetClosestVehicle(thisPed.GetPosition(), 100.0f);
+        if (closestVeh.Exists())
+            thisPed.SetIntoVehicle(closestVeh, closestVeh.FirstFreeSeat(SEAT_DRIVER));
+        else
+            Game::Print::ShowNotification("~r~Error:", "Unable to find a vehicle.");
+    }
+
+    if (pedops_wp_walk)
+    {
+        if (!IS_WAYPOINT_ACTIVE())
+            Game::Print::ShowNotification("~r~Error:", "No Waypoint Set.");
+        else
+        {
+            Vector3 coord = GET_BLIP_INFO_ID_COORD(GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint));
+            coord.z = World::GetGroundHeight(coord);
+            //thisPed.Task().GoTo(coord);
+            TASK_GO_TO_COORD_ANY_MEANS(thisPed.Handle(), coord.x, coord.y, coord.z, 3.0f, 0, 0, 786603, -1082130432);
+        }
+    }
+
+    if (pedops_become_ped)
+    {
+        SetBecomePed(thisPed);
+    }
+}
+
+void Sub_PedOps_Weapon()
+{
+    auto& selectedCategoryIndex = s_spoonerPedWeaponCategory;
+    GTAped myPed = PLAYER_PED_ID();
+    GTAped thisPed = selectedEntity.handle;
+    Hash pedCurrWeapon = thisPed.GetWeapon();
+    bool isPedMyPed = thisPed.Handle() == myPed.Handle();
+
+    AddTitle("Weapon");
+
+    bool bSetToNonePressed = false;
+    AddTickol("None", pedCurrWeapon == WEAPON_UNARMED, bSetToNonePressed, bSetToNonePressed);
+    if (bSetToNonePressed)
+    {
+        pedCurrWeapon = WEAPON_UNARMED;
+        SET_CURRENT_PED_WEAPON(thisPed.Handle(), pedCurrWeapon, true);
+    }
+
+    bool bMyCurrWeapon = false;
+    if (!isPedMyPed)
+        AddOption("Your Current Weapon", bMyCurrWeapon);
+    if (bMyCurrWeapon)
+    {
+        //std::vector<s_Weapon_Components_Tint> weaponsBackup;
+        //myPed.StoreWeaponsInArray(weaponsBackup);
+        //GTAped(thisPed).GiveWeaponsFromArray(weaponsBackup);
+        Hash weaponHash = myPed.GetWeapon();
+        GIVE_DELAYED_WEAPON_TO_PED(thisPed.Handle(), weaponHash, 9999, true);
+        GIVE_WEAPON_TO_PED(thisPed.Handle(), weaponHash, 1, true, false);
+        int ammo;
+        GET_MAX_AMMO(thisPed.Handle(), weaponHash, &ammo);
+        SET_PED_AMMO(thisPed.Handle(), weaponHash, ammo, 0);
+        SET_AMMO_IN_CLIP(thisPed.Handle(), weaponHash, GET_MAX_AMMO_IN_CLIP(thisPed.Handle(), weaponHash, true));
+        SET_CURRENT_PED_WEAPON(thisPed.Handle(), weaponHash, true);
+    }
+
+    for (UINT i = 0; i < WeaponIndivs::vCategoryNames.size(); i++)
+    {
+        bool bCategoryPressed = false;
+        AddOption(WeaponIndivs::vCategoryNames[i], bCategoryPressed, nullFunc, SUB::SPOONER_PEDOPS_WEAPON_INCATEGORY);
+        if (bCategoryPressed)
+        {
+            selectedCategoryIndex = i;
+        }
+    }
+}
+
+void Sub_PedOps_Weapon_InCategory()
+{
+    auto& selectedCategoryIndex = s_spoonerPedWeaponCategory;
+    AddTitle(WeaponIndivs::vCategoryNames[selectedCategoryIndex]);
+
+    GTAped thisPed = selectedEntity.handle;
+    Hash currentWeapon = thisPed.GetWeapon();
+
+    for (auto& wc : *WeaponIndivs::vAllWeapons[selectedCategoryIndex])
+    {
+        bool bWeapPressed = false;
+        AddTickol(GetWeaponLabel(wc.weaponHash, true), currentWeapon == wc.weaponHash, bWeapPressed, bWeapPressed);
+        if (bWeapPressed)
+        {
+            GIVE_DELAYED_WEAPON_TO_PED(thisPed.Handle(), wc.weaponHash, 9999, true);
+            GIVE_WEAPON_TO_PED(thisPed.Handle(), wc.weaponHash, 1, true, false);
+            int ammo;
+            GET_MAX_AMMO(thisPed.Handle(), wc.weaponHash, &ammo);
+            SET_PED_AMMO(thisPed.Handle(), wc.weaponHash, ammo, 0);
+            SET_AMMO_IN_CLIP(thisPed.Handle(), wc.weaponHash, GET_MAX_AMMO_IN_CLIP(thisPed.Handle(), wc.weaponHash, true));
+            SET_CURRENT_PED_WEAPON(thisPed.Handle(), wc.weaponHash, true);
+        }
+    }
+}
+
+void Sub_ManageMarkers()
+{
+    int markerIndexInDbToDelete = -1;
+
+    AddTitle("Markers");
+
+    AddOption("Removal", null, nullFunc, SUB::SPOONER_MANAGEMARKERS_REMOVAL);
+
+    AddBreak("---Database---");
+    for (UINT i = 0; i < Databases::MarkerDb.size(); i++)
+    {
+        auto& m = Databases::MarkerDb[i];
+        bool bMarkerPressed = false;
+
+        AddOption(m.m_name, bMarkerPressed);
+        if (bMarkerPressed)
+        {
+            SelectedMarker = &m;
+            Menu::pendingSubmenu = SUB::SPOONER_MANAGEMARKERS_INMARKER;
+        }
+
+
+        if (Menu::IsLastDrawnOptionSelected())
+        {
+            m.m_selectedInSub = true;
+
+            bool bShortcutDeletePressed;
+            if (Menu::usingControllerInput)
+            {
+                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Marker");
+                bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
+            }
+            else
+            {
+                Menu::add_IB(VirtualKey::B, "Delete Marker");
+                bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
+            }
+
+            if (bShortcutDeletePressed)
+            {
+                markerIndexInDbToDelete = i;
+            }
+        }
+    }
+
+    bool bAddNewMarkerPressed = false;
+    AddTickol("ADD NEW MARKER", true, bAddNewMarkerPressed, bAddNewMarkerPressed, TICKOL::SMALLNEWSTAR);
+    if (bAddNewMarkerPressed)
+    {
+        auto& spoocam = SpoonerCamera::camera;
+        if (!spoocam.IsActive())
+        {
+            GTAentity myPed = PLAYER_PED_ID();
+            Vector3 myPos = myPed.GetPosition();
+            SelectedMarker = MarkerManagement::AddMarker(myPos, Vector3(0, 0, myPed.GetHeading()));
+        }
+        else
+        {
+            Vector3 spawnPos = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f + SpoonerMarker().m_scale / 2);
+            spawnPos.z += SpoonerMarker().m_scale / 2;
+            SelectedMarker = MarkerManagement::AddMarker(spawnPos, Vector3(0, 0, spoocam.GetRotation().z));
+        }
+        Menu::pendingSubmenu = SUB::SPOONER_MANAGEMARKERS_INMARKER;
+    }
+
+
+    if (markerIndexInDbToDelete != -1)
+    {
+        MarkerManagement::RemoveMarker(markerIndexInDbToDelete);
+    }
+
+    if (Menu::IsSelectionPastDrawnOptions())
+        Menu::Up(); // Go up if you're too far down due to removing a marker from DB from the properties menu and coming back here again.
+}
+
+void Sub_ManageMarkers_Removal()
+{
+    auto& fMarkerRemovalRadius = _fSaveRangeRadius;
+    GTAentity myPed = PLAYER_PED_ID();
+    const Vector3& myPos = myPed.GetPosition();
+
+    AddTitle("Removal");
+
+    bool bInRange_plus = false, bInRange_minus = false, bInRange_execute = false;
+    AddNumber("Delete Markers In Range", fMarkerRemovalRadius, 0, bInRange_execute, bInRange_plus, bInRange_minus);
+    AddOptionDescription("Deletes markers within this radius. Left/right changes the radius; press to delete.");
+    if (Menu::IsLastDrawnOptionSelected())
+        EntityManagement::DrawRadiusDisplayingMarker(myPos, fMarkerRemovalRadius);
+    if (bInRange_plus)
+    {
+        if (fMarkerRemovalRadius < FLT_MAX)
+            fMarkerRemovalRadius += 1.0f;
+    }
+    if (bInRange_minus)
+    {
+        if (fMarkerRemovalRadius > 0.0f)
+            fMarkerRemovalRadius -= 1.0f;
+    }
+    if (bInRange_execute)
+    {
+        MarkerManagement::RemoveAllMarkersInRange(myPos, fMarkerRemovalRadius);
+    }
+
+    AddOption("Delete All Markers (" + std::to_string(Databases::MarkerDb.size()) + ")", null, MarkerManagement::RemoveAllMarkers);
+}
+
+void Sub_ManageMarkers_InMarker()
+{
+    if (SelectedMarker == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    AddTitle(SelectedMarker->m_name);
+
+    Vector3 finalPosition, finalRotation;
+    if (SelectedMarker->m_attachmentArgs.attachedTo.Exists())
+    {
+        finalPosition = SelectedMarker->m_attachmentArgs.attachedTo.GetOffsetInWorldCoords(SelectedMarker->m_attachmentArgs.offset);
+        finalRotation = SelectedMarker->m_attachmentArgs.attachedTo.GetRotation() + SelectedMarker->m_attachmentArgs.rotation;
+    }
+    else
+    {
+        finalPosition = SelectedMarker->m_position;
+        finalRotation = SelectedMarker->m_rotation;
+    }
+
+    SpoonerMarkerPosition* dest = SelectedMarker->m_destinationPtr == nullptr ? &SelectedMarker->m_destinationVal : SelectedMarker->m_destinationPtr;
+    Vector3 finalDest;
+    float finalDestHeading;
+    if (dest->m_attachmentArgs.attachedTo.Exists())
+    {
+        finalDest = dest->m_attachmentArgs.attachedTo.GetOffsetInWorldCoords(dest->m_attachmentArgs.offset);
+        finalDestHeading = dest->m_attachmentArgs.attachedTo.GetRotation().z + SelectedMarker->m_destinationHeading;
+    }
+    else
+    {
+        finalDest = dest->m_position;
+        finalDestHeading = SelectedMarker->m_destinationHeading;
+    }
+
+    if (!dest->m_position.IsZero())
+    {
+        World::DrawLine(finalPosition, finalDest, RGBA(SelectedMarker->m_colour, 200));
+        World::DrawLightWithRange(finalDest, RgbS(SelectedMarker->m_colour), 2.3f, 1.5f);
+
+        const Vector3& helpingSpherePos = finalDest.PointOnCircle(1.16f, finalDestHeading + 90.0f);
+        World::DrawLine(finalDest, helpingSpherePos, RGBA(SelectedMarker->m_colour, 200));
+        World::DrawMarker(MarkerType::DebugSphere, helpingSpherePos, Vector3(), Vector3(), Vector3(0.1f, 0.1f, 0.1f), RGBA(SelectedMarker->m_colour, 200));
+    }
+
+    auto& spoocam = SpoonerCamera::camera;
+
+    bool bEditNamePressed = false;
+    AddTexter("Name", 0, std::vector<std::string>{SelectedMarker->m_name}, bEditNamePressed);
+    if (bEditNamePressed)
+    {
+        SelectedMarker->m_name = Game::InputBox(SelectedMarker->m_name, 26U, "Enter custom marker name:", SelectedMarker->m_name);
+        //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SetArg1String, SelectedMarker->m_name, 26U, "Enter custom marker name:", SelectedMarker->m_name);
+        //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&SelectedMarker->m_name);
+    }
+
+    bool bType_plus = false, bType_minus = false;
+    AddTexter("Type", SelectedMarker->m_type, MarkerType::vNames, null, bType_plus, bType_minus);
+    if (bType_plus)
+    {
+        if (SelectedMarker->m_type < MarkerType::vNames.size() - 1)
+            SelectedMarker->m_type++;
+    }
+    if (bType_minus)
+    {
+        if (SelectedMarker->m_type > 0)
+            SelectedMarker->m_type--;
+    }
+
+    bool bScale_plus = false, bScale_minus = false;
+    AddNumber("Size", SelectedMarker->m_scale, 2, null, bScale_plus, bScale_minus);
+    if (bScale_plus)
+    {
+        if (SelectedMarker->m_scale < 10.0f)
+            SelectedMarker->m_scale += 0.05f;
+    }
+    if (bScale_minus)
+    {
+        if (SelectedMarker->m_scale > 0.0f)
+            SelectedMarker->m_scale -= 0.05f;
+    }
+
+    bool bShowNameToggle = false;
+    AddTickol("Show Name", SelectedMarker->m_showName, bShowNameToggle, bShowNameToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription("Shows the marker's name above it.");
+    if (bShowNameToggle)
+        SelectedMarker->m_showName = !SelectedMarker->m_showName;
+
+    bool bRotateContinuouslyToggle = false;
+    AddTickol("Rotate Continuously", SelectedMarker->m_rotateContinuously, bRotateContinuouslyToggle, bRotateContinuouslyToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    if (bRotateContinuouslyToggle)
+        SelectedMarker->m_rotateContinuously = !SelectedMarker->m_rotateContinuously;
+
+    bool bAllowVehiclesToggle = false;
+    AddTickol("Allow Vehicle Teleportation", SelectedMarker->m_allowVehicles, bAllowVehiclesToggle, bAllowVehiclesToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription("Your vehicle teleports with you through this marker.");
+    if (bAllowVehiclesToggle)
+        SelectedMarker->m_allowVehicles = !SelectedMarker->m_allowVehicles;
+
+    AddsettingscolOption("Colour", SelectedMarker->m_colour);
+
+    AddBreak("---Position---");
+    {
+        AddOption("~italic~" + finalPosition.ToString(), null);
+
+        if (!spoocam.IsActive())
+        {
+            bool bSetPosToMe = false;
+            AddOption("Set To Player Position", bSetPosToMe);
+            if (bSetPosToMe)
+            {
+                Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
+                SelectedMarker->m_position = myPos;
+                SelectedMarker->m_attachmentArgs.attachedTo = 0;
+            }
+        }
+        else
+        {
+            bool bSetPosToHitCoords = false;
+            AddOption("Set To Camera Target", bSetPosToHitCoords);
+            AddOptionDescription("Uses the point your camera is aiming at.");
+            if (bSetPosToHitCoords)
+            {
+                Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
+                SelectedMarker->m_position = hitCoords;
+                SelectedMarker->m_attachmentArgs.attachedTo = 0;
+            }
+        }
+        if (IS_WAYPOINT_ACTIVE())
+        {
+            bool bSetPosToWp = false;
+            AddOption("Set To Waypoint", bSetPosToWp);
+            if (bSetPosToWp)
+            {
+                GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
+                Vector3 wpCoords = wpBlip.GetPosition();
+                wpCoords.z = World::GetGroundHeight(wpCoords);
+                SelectedMarker->m_position = wpCoords;
+                SelectedMarker->m_attachmentArgs.attachedTo = 0;
+            }
+        }
+
+        if (!Databases::EntityDb.empty())
+        {
+            AddOption("Attach To Entity", null, nullFunc, SUB::SPOONER_MANAGEMARKERS_INMARKER_ATTACH);
+        }
+
+        if (SelectedMarker->m_attachmentArgs.attachedTo.Exists())
+        {
+            bool bAdjustAttachmentForPosPressed = false;
+            AddOption("Adjust Attachment", bAdjustAttachmentForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+            if (bAdjustAttachmentForPosPressed)
+            {
+                SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_attachmentArgs.offset, &SelectedMarker->m_attachmentArgs.rotation);
+            }
+        }
+        else
+        {
+            bool bManualEditingForPosPressed = false;
+            AddOption("Manual Editing", bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+            if (bManualEditingForPosPressed)
+            {
+                SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_position, &SelectedMarker->m_rotation);
+            }
+        }
+    }
+
+    AddBreak("---Destination---");
+    {
+        AddOption("~italic~" + finalDest.ToString(), null);
+
+        bool bSetPosToNull = false;
+        AddTickol("No Destination", SelectedMarker->m_destinationVal.m_position.IsZero(), bSetPosToNull, bSetPosToNull);
+        AddOptionDescription("The marker is decorative and doesn't teleport.");
+        if (bSetPosToNull)
+        {
+            SelectedMarker->m_destinationVal.m_position.clear();
+            SelectedMarker->m_destinationVal.m_attachmentArgs.attachedTo = 0;
+            SelectedMarker->m_destinationPtr = nullptr;
+        }
+
+        if (!spoocam.IsActive())
+        {
+            bool bSetPosToMe = false;
+            AddOption("Set To Player Position", bSetPosToMe);
+            if (bSetPosToMe)
+            {
+                Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
+                SelectedMarker->m_destinationVal.m_position = myPos;
+                SelectedMarker->m_destinationVal.m_attachmentArgs.attachedTo = 0;
+                SelectedMarker->m_destinationPtr = nullptr;
+            }
+        }
+        else
+        {
+            bool bSetPosToHitCoords = false;
+            AddOption("Set To Camera Target", bSetPosToHitCoords);
+            AddOptionDescription("Uses the point your camera is aiming at.");
+            if (bSetPosToHitCoords)
+            {
+                Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
+                SelectedMarker->m_destinationVal.m_position = hitCoords;
+                SelectedMarker->m_destinationVal.m_attachmentArgs.attachedTo = 0;
+                SelectedMarker->m_destinationPtr = nullptr;
+            }
+        }
+        if (IS_WAYPOINT_ACTIVE())
+        {
+            bool bSetPosToWp = false;
+            AddOption("Set To Waypoint", bSetPosToWp);
+            if (bSetPosToWp)
+            {
+                GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
+                Vector3 wpCoords = wpBlip.GetPosition();
+                wpCoords.z = World::GetGroundHeight(wpCoords);
+                SelectedMarker->m_destinationVal.m_position = wpCoords;
+                SelectedMarker->m_destinationVal.m_attachmentArgs.attachedTo = 0;
+                SelectedMarker->m_destinationPtr = nullptr;
+            }
+        }
+
+        if (Databases::MarkerDb.size() > 1)
+        {
+            AddOption(
+                "Link With Marker" + (SelectedMarker->m_destinationPtr == nullptr ? "" : " ('" + SelectedMarker->m_destinationPtr->m_name + "')"),
+                null,
+                nullFunc,
+                SUB::SPOONER_MANAGEMARKERS_INMARKER_DEST2MARKER
+            );
+            AddOptionDescription("Teleports to another marker's position.");
+        }
+
+        if (SelectedMarker->m_destinationPtr == nullptr)
+        {
+            if (SelectedMarker->m_destinationVal.m_attachmentArgs.attachedTo.Exists())
+            {
+                bool bAdjustAttachmentForPosPressed = false;
+                AddOption("Adjust Attachment", bAdjustAttachmentForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+                if (bAdjustAttachmentForPosPressed)
+                {
+                    SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_destinationVal.m_attachmentArgs.offset, nullptr);
+                }
+            }
+            else
+            {
+                bool bManualEditingForPosPressed = false;
+                AddOption("Manual Editing", bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+                if (bManualEditingForPosPressed)
+                {
+                    SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_destinationVal.m_position, nullptr);
+                }
+            }
+        }
+
+        bool bDestHeading_plus = false, bDestHeading_minus = false;
+        AddNumber("Post-Teleport Direction (To Face)", SelectedMarker->m_destinationHeading, 1, null, bDestHeading_plus, bDestHeading_minus);
+        AddOptionDescription("Heading you face after teleporting.");
+        if (bDestHeading_plus)
+        {
+            SelectedMarker->m_destinationHeading += 1.0f;
+        }
+        if (bDestHeading_minus)
+        {
+            SelectedMarker->m_destinationHeading -= 1.0f;
+        }
+    }
+
+    AddBreak("---Other---");
+
+    bool bCopyMarkerPressed = false;
+    AddOption("Copy Marker", bCopyMarkerPressed);
+    if (bCopyMarkerPressed)
+    {
+        SelectedMarker = MarkerManagement::CopyMarker(*SelectedMarker); // std::vector array location may change
+        SelectedMarker->m_name = Game::InputBox(SelectedMarker->m_name, 26U, "Enter custom marker name:", SelectedMarker->m_name);
+        //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SetArg1String, SelectedMarker->m_name, 26U, "Enter custom marker name:", SelectedMarker->m_name);
+        //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&SelectedMarker->m_name);
+        Menu::optionSelectionHistory[Menu::menuHistoryIndex]++;
+    }
+}
+
+void Sub_ManageMarkers_InMarker_Dest2Marker()
+{
+    if (SelectedMarker == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    AddTitle("Select Marker");
+
+    for (UINT i = 0; i < Databases::MarkerDb.size(); i++)
+    {
+        auto& m = Databases::MarkerDb[i];
+        if (&m != SelectedMarker)
+        {
+            bool bMarkerPressed = false;
+            AddOption(m.m_name, bMarkerPressed);
+            if (bMarkerPressed)
+            {
+                SelectedMarker->m_destinationPtr = &m;
+                SelectedMarker->m_destinationVal = m;
+                Menu::SetPreviousMenu();
+                return;
+            }
+
+            if (Menu::IsLastDrawnOptionSelected())
+            {
+                m.m_selectedInSub = true;
+
+                Vector3 finalPosition, finalRotation;
+                if (SelectedMarker->m_attachmentArgs.attachedTo.Exists())
+                {
+                    finalPosition = SelectedMarker->m_attachmentArgs.attachedTo.GetOffsetInWorldCoords(SelectedMarker->m_attachmentArgs.offset);
+                    finalRotation = SelectedMarker->m_attachmentArgs.attachedTo.GetRotation() + SelectedMarker->m_attachmentArgs.rotation;
+                }
+                else
+                {
+                    finalPosition = SelectedMarker->m_position;
+                    finalRotation = SelectedMarker->m_rotation;
+                }
+
+                SpoonerMarkerPosition* dest = &m;
+                Vector3 finalDest;
+                float finalDestHeading;
+                if (dest->m_attachmentArgs.attachedTo.Exists())
+                {
+                    finalDest = dest->m_attachmentArgs.attachedTo.GetOffsetInWorldCoords(dest->m_attachmentArgs.offset);
+                    finalDestHeading = dest->m_attachmentArgs.attachedTo.GetRotation().z + SelectedMarker->m_destinationHeading;
+                }
+                else
+                {
+                    finalDest = dest->m_position;
+                    finalDestHeading = SelectedMarker->m_destinationHeading;
+                }
+
+                World::DrawLine(finalPosition, finalDest, RGBA(SelectedMarker->m_colour, 200));
+                World::DrawLightWithRange(finalDest, RgbS(SelectedMarker->m_colour), 2.3f, 1.5f);
+            }
+        }
+    }
+}
+
+void Sub_ManageMarkers_InMarker_Attach()
+{
+    if (SelectedMarker == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    AddTitle("Attach To Something");
+
+    bool bToggleKeepPosWhenAttaching = false;
+    AddTickol("Keep World Position When Attaching", Settings::bKeepPositionWhenAttaching, bToggleKeepPosWhenAttaching, bToggleKeepPosWhenAttaching, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription("On: stays where it is when attached. Off: snaps to the attach point.");
+    if (bToggleKeepPosWhenAttaching)
+        Settings::bKeepPositionWhenAttaching = !Settings::bKeepPositionWhenAttaching;
+
+    bool bDetachPressed = false;
+    AddTickol("Detach", !SelectedMarker->m_attachmentArgs.attachedTo.GetHandle(), bDetachPressed, bDetachPressed, TICKOL::TICK2);
+    if (bDetachPressed)
+    {
+        if (SelectedMarker->m_attachmentArgs.attachedTo.Exists())
+        {
+            SelectedMarker->m_position = SelectedMarker->m_attachmentArgs.attachedTo.GetOffsetInWorldCoords(SelectedMarker->m_attachmentArgs.offset);
+            SelectedMarker->m_rotation = SelectedMarker->m_attachmentArgs.attachedTo.GetRotation() + SelectedMarker->m_attachmentArgs.rotation;
+        }
+        SelectedMarker->m_attachmentArgs.attachedTo = 0;
+        SelectedMarker->m_attachmentArgs.offset.clear();
+        SelectedMarker->m_attachmentArgs.rotation.clear();
+    }
+
+    if (!Databases::EntityDb.empty())
+    {
+        AddBreak("---Database---");
+        for (auto& e : Databases::EntityDb)
+        {
+            if (e.handle.Exists())
+            {
+                bool bEntityPressed = false;
+                AddTickol(e.hashName, SelectedMarker->m_attachmentArgs.attachedTo == e.handle, bEntityPressed, bEntityPressed, TICKOL::TICK2);
+                if (bEntityPressed)
+                {
+                    SelectedMarker->m_attachmentArgs.attachedTo = e.handle;
+                    if (Settings::bKeepPositionWhenAttaching)
+                    {
+                        SelectedMarker->m_attachmentArgs.offset = e.handle.GetOffsetGivenWorldCoords(SelectedMarker->m_position);
+                        SelectedMarker->m_attachmentArgs.rotation = SelectedMarker->m_rotation - e.handle.GetRotation();
+                    }
+                    else
+                    {
+                        SelectedMarker->m_attachmentArgs.offset.clear();
+                        SelectedMarker->m_attachmentArgs.rotation.clear();
+                    }
+                    Menu::SetPreviousMenu();
+                    return;
+                }
+
+                if (Menu::IsLastDrawnOptionSelected())
+                    EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(0, 255, 0, 200));
+            }
+            else
+            {
+                AddOption(e.hashName + " (Invalid)", null);
+            }
+        }
+    }
+}
+
+void Sub_ManageLights()
+{
+    int lightIndexInDbToDelete = -1;
+
+    LightManagement::DrawPreviewMarkers();
+
+    AddTitle("Light Sources");
+
+    AddOption("Removal", null, nullFunc, SUB::SPOONER_MANAGELIGHTS_REMOVAL);
+    AddOption("Manage Presets", null, nullFunc, SUB::SPOONER_MANAGELIGHTS_PRESETS);
+
+    AddBreak("---Database---");
+    for (UINT i = 0; i < Databases::LightDb.size(); i++)
+    {
+        auto& l = Databases::LightDb[i];
+        bool bLightPressed = false;
+
+        AddOption(l.m_name, bLightPressed);
+        if (bLightPressed)
+        {
+            SelectedLight = &l;
+            Menu::pendingSubmenu = SUB::SPOONER_MANAGELIGHTS_INLIGHT;
+        }
+
+        if (Menu::IsLastDrawnOptionSelected())
+        {
+            l.m_selectedInSub = true;
+
+            bool bShortcutDeletePressed;
+            if (Menu::usingControllerInput)
+            {
+                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Light");
+                bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
+            }
+            else
+            {
+                Menu::add_IB(VirtualKey::B, "Delete Light");
+                bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
+            }
+
+            if (bShortcutDeletePressed)
+            {
+                lightIndexInDbToDelete = i;
+            }
+        }
+    }
+
+    bool bAddNewLightPressed = false;
+    AddTickol("ADD NEW LIGHT", true, bAddNewLightPressed, bAddNewLightPressed, TICKOL::SMALLNEWSTAR);
+    if (bAddNewLightPressed)
+    {
+        auto& spoonerCam = SpoonerCamera::camera;
+        if (!spoonerCam.IsActive())
+        {
+            GTAentity myPed = PLAYER_PED_ID();
+            Vector3 pos = myPed.GetPosition() + myPed.ForwardVector() * 3.0f;
+            pos.z += 1.0f;
+            Vector3 dir = myPed.ForwardVector();
+            SelectedLight = LightManagement::Add(SpoonerLight(pos, dir));
+        }
+        else
+        {
+            Vector3 pos = spoonerCam.GetPosition();
+            Vector3 target = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
+            Vector3 dir = Vector3::Normalize(target - pos);
+            SelectedLight = LightManagement::Add(SpoonerLight(pos, dir));
+        }
+        Menu::pendingSubmenu = SUB::SPOONER_MANAGELIGHTS_INLIGHT;
+    }
+
+    if (!LightManagement::PresetDb.empty())
+    {
+        AddBreak("---Presets---");
+        for (auto& p : LightManagement::PresetDb)
+        {
+            bool bPresetPressed = false;
+            std::string presetLabel = (p.m_lightType == SpoonerLight::LightType::Omni ? "[Omni] " : "[Spot] ") + p.m_name;
+            AddOption(presetLabel, bPresetPressed);
+            if (bPresetPressed)
+            {
+                SpoonerLight copy = p;
+                auto& spoonerCam = SpoonerCamera::camera;
+                if (spoonerCam.IsActive())
+                {
+                    copy.m_position = spoonerCam.GetPosition();
+                    Vector3 target = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
+                    copy.m_direction = Vector3::Normalize(target - copy.m_position);
+                }
+                else
+                {
+                    GTAped myPed = PLAYER_PED_ID();
+                    copy.m_position = myPed.GetPosition() + myPed.ForwardVector() * 3.0f;
+                    copy.m_direction = myPed.ForwardVector();
+                }
+                SelectedLight = LightManagement::Add(copy);
+                Menu::pendingSubmenu = SUB::SPOONER_MANAGELIGHTS_INLIGHT;
+            }
+        }
+    }
+
+    if (lightIndexInDbToDelete != -1)
+    {
+        LightManagement::Remove(lightIndexInDbToDelete);
+    }
+
+    if (Menu::IsSelectionPastDrawnOptions())
+        Menu::Up();
+}
+
+void Sub_ManageLights_Removal()
+{
+    LightManagement::DrawPreviewMarkers();
+
+    auto& fLightRemovalRadius = _fSaveRangeRadius;
+    GTAentity myPed = PLAYER_PED_ID();
+    const Vector3& myPos = myPed.GetPosition();
+
+    AddTitle("Removal");
+
+    bool bInRange_plus = false, bInRange_minus = false, bInRange_execute = false;
+    AddNumber("Delete Lights In Range", fLightRemovalRadius, 0, bInRange_execute, bInRange_plus, bInRange_minus);
+    AddOptionDescription("Deletes lights within this radius. Left/right changes the radius; press to delete.");
+    if (Menu::IsLastDrawnOptionSelected())
+        EntityManagement::DrawRadiusDisplayingMarker(myPos, fLightRemovalRadius);
+    if (bInRange_plus)
+    {
+        if (fLightRemovalRadius < FLT_MAX)
+            fLightRemovalRadius += 1.0f;
+    }
+    if (bInRange_minus)
+    {
+        if (fLightRemovalRadius > 0.0f)
+            fLightRemovalRadius -= 1.0f;
+    }
+    if (bInRange_execute)
+    {
+        for (int i = static_cast<int>(Databases::LightDb.size()) - 1; i >= 0; i--)
+        {
+            if (myPos.DistanceTo(Databases::LightDb[i].m_position) <= fLightRemovalRadius)
+                LightManagement::Remove(i);
+        }
+    }
+
+    AddOption("Delete All Lights (" + std::to_string(Databases::LightDb.size()) + ")", null, LightManagement::RemoveAll);
+}
+
+void Sub_ManageLights_InLight()
+{
+    if (SelectedLight == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    LightManagement::DrawPreviewMarkers();
+
+    auto& spoonerCam = SpoonerCamera::camera;
+
+    AddTitle(SelectedLight->m_name);
+
+    bool bEditNamePressed = false;
+    AddTexter("Name", 0, std::vector<std::string>{SelectedLight->m_name}, bEditNamePressed);
+    if (bEditNamePressed)
+    {
+        SelectedLight->m_name = Game::InputBox(SelectedLight->m_name, 26U, "Enter light name:", SelectedLight->m_name);
+    }
+
+    SelectedLight->m_lightType = static_cast<SpoonerLight::LightType>(AddTexterCycler("Type", static_cast<int>(SelectedLight->m_lightType), {"Omnidirectional Light", "Spot Light"}));
+
+    bool bActiveToggle = false;
+    AddTickol("Active", SelectedLight->m_active, bActiveToggle, bActiveToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    if (bActiveToggle)
+        SelectedLight->m_active = !SelectedLight->m_active;
+
+    AddBreak("---Colour---");
+    {
+        bool bColourPressed = false;
+        AddOption("Colour", bColourPressed, nullFunc, SUB::SPOONER_MANAGELIGHTS_COLOUR);
+    }
+
+    if (SelectedLight->m_lightType == SpoonerLight::LightType::Omni)
+    {
+        AddBreak("---Omni Properties---");
+
+        AddNumberStepper("Range", SelectedLight->m_range, 1, 0.5, 0.0, 1000.0);
+        AddOptionDescription("How far the light reaches.");
+        AddNumberStepper("Intensity", SelectedLight->m_intensity, 2, 0.1, 0.0, 100.0);
+    }
+    else
+    {
+        AddBreak("---Spot Properties---");
+
+        AddNumberStepper("Distance", SelectedLight->m_spotDistance, 1, 0.5, 0.0, 1000.0);
+        AddOptionDescription("How far the spotlight shines.");
+        AddNumberStepper("Brightness", SelectedLight->m_spotBrightness, 2, 0.1, 0.0, 100.0);
+        AddNumberStepper("Roundness", SelectedLight->m_spotRoundness, 2, 0.1, 0.0, 10.0);
+        AddOptionDescription("Softness of the spotlight cone's edge.");
+        AddNumberStepper("Radius", SelectedLight->m_spotRadius, 2, 0.1, 0.0, 100.0);
+        AddOptionDescription("Width of the spotlight cone.");
+        AddNumberStepper("Falloff", SelectedLight->m_spotFalloff, 2, 0.1, 0.0, 100.0);
+        AddOptionDescription("How quickly brightness fades across the cone.");
+
+        bool bShadowToggle = false;
+        AddTickol("Light Draws Shadows", SelectedLight->m_useShadow, bShadowToggle, bShadowToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        AddOptionDescription("Casts shadows. Affects performance.");
+        if (bShadowToggle)
+            SelectedLight->m_useShadow = !SelectedLight->m_useShadow;
+    }
+
+    AddBreak("---Position---");
+    {
+        AddOption("~italic~" + SelectedLight->m_position.ToString(), null);
+
+        if (!spoonerCam.IsActive())
+        {
+            bool bSetPosToMe = false;
+            AddOption("Set To Player Position", bSetPosToMe);
+            if (bSetPosToMe)
+            {
+                SelectedLight->m_position = GTAentity(PLAYER_PED_ID()).GetPosition();
+            }
+        }
+        else
+        {
+            bool bSetPosToHitCoords = false;
+            AddOption("Set To Camera Target", bSetPosToHitCoords);
+            AddOptionDescription("Uses the point your camera is aiming at.");
+            if (bSetPosToHitCoords)
+            {
+                Vector3 hitCoords = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
+                SelectedLight->m_position = hitCoords;
+            }
+        }
+        if (spoonerCam.IsActive())
+        {
+            bool bSetPosToCam = false;
+            AddOption("Set To Camera Position", bSetPosToCam);
+            AddOptionDescription("Uses the camera's own position.");
+            if (bSetPosToCam)
+            {
+                SelectedLight->m_position = spoonerCam.GetPosition();
+            }
+        }
+
+        if (IS_WAYPOINT_ACTIVE())
+        {
+            bool bSetPosToWp = false;
+            AddOption("Set To Waypoint", bSetPosToWp);
+            if (bSetPosToWp)
+            {
+                GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
+                Vector3 wpCoords = wpBlip.GetPosition();
+                wpCoords.z = World::GetGroundHeight(wpCoords);
+                SelectedLight->m_position = wpCoords;
+            }
+        }
+
+        bool bManualEditingForPosPressed = false;
+        AddOption("Manual Editing", bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+        if (bManualEditingForPosPressed)
+        {
+            SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedLight->m_position, nullptr);
+        }
+    }
+
+    if (SelectedLight->m_lightType == SpoonerLight::LightType::Spot)
+    {
+        AddBreak("---Direction---");
+        {
+            AddOption("~italic~" + SelectedLight->m_direction.ToString(), null);
+
+            if (spoonerCam.IsActive())
+            {
+                bool bPointAtCursor = false;
+                AddOption("Point At Cursor", bPointAtCursor);
+                AddOptionDescription("Points the spotlight at what's in the centre of the Spooner camera view.");
+                if (bPointAtCursor)
+                {
+                    Vector3 target = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
+                    Vector3 dir = Vector3::Normalize(target - SelectedLight->m_position);
+                    SelectedLight->m_direction = dir;
+                }
+            }
+
+            bool bManualEditingForDirPressed = false;
+            AddOption("Manual Editing", bManualEditingForDirPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+            if (bManualEditingForDirPressed)
+            {
+                SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedLight->m_direction, nullptr);
+            }
+        }
+    }
+
+    AddBreak("---Other---");
+
+    bool bCopyLightPressed = false;
+    AddOption("Copy Light", bCopyLightPressed);
+    if (bCopyLightPressed)
+    {
+        SelectedLight = LightManagement::Copy(*SelectedLight);
+        Menu::optionSelectionHistory[Menu::menuHistoryIndex]++;
+    }
+
+    bool bSavePresetPressed = false;
+    AddOption("Save As Preset", bSavePresetPressed);
+    if (bSavePresetPressed)
+    {
+        std::string presetName = Game::InputBox(SelectedLight->m_name, 26U, "Enter preset name:", SelectedLight->m_name);
+        if (presetName.length() > 0)
+        {
+            SpoonerLight copy = *SelectedLight;
+            copy.m_name = presetName;
+            LightManagement::SavePresetToFile(copy);
+        }
+    }
+}
+
+void Sub_ManageLights_Presets()
+{
+    AddTitle("Presets");
+
+    if (SelectedLight != nullptr)
+    {
+        bool bSaveCurrentPressed = false;
+        AddOption("Save Current Light As Preset", bSaveCurrentPressed);
+        if (bSaveCurrentPressed)
+        {
+            std::string presetName = Game::InputBox(SelectedLight->m_name, 26U, "Enter preset name:", SelectedLight->m_name);
+            if (presetName.length() > 0)
+            {
+                SpoonerLight copy = *SelectedLight;
+                copy.m_name = presetName;
+                LightManagement::SavePresetToFile(copy);
+                LightManagement::LoadPresetsFromFile(GetPathffA(Pathff::RootDir, true) + "FavouriteLights.xml");
+            }
+        }
+    }
+
+    LightManagement::LoadPresetsFromFile(GetPathffA(Pathff::RootDir, true) + "FavouriteLights.xml");
+
+    if (!LightManagement::PresetDb.empty())
+    {
+        AddBreak("---Saved Presets---");
+        for (size_t i = 0; i < LightManagement::PresetDb.size(); i++)
+        {
+            auto& p = LightManagement::PresetDb[i];
+            bool bPresetPressed = false;
+            std::string presetLabel = (p.m_lightType == SpoonerLight::LightType::Omni ? "[Omni] " : "[Spot] ") + p.m_name;
+            AddOption(presetLabel, bPresetPressed);
+            if (bPresetPressed)
+            {
+                SpoonerLight copy = p;
+                auto& spoonerCam = SpoonerCamera::camera;
+                if (spoonerCam.IsActive())
+                {
+                    copy.m_position = spoonerCam.GetPosition();
+                    Vector3 target = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
+                    copy.m_direction = Vector3::Normalize(target - copy.m_position);
+                }
+                else
+                {
+                    GTAped myPed = PLAYER_PED_ID();
+                    copy.m_position = myPed.GetPosition() + myPed.ForwardVector() * 3.0f;
+                    copy.m_direction = myPed.ForwardVector();
+                }
+                LightManagement::Add(copy);
+                Game::Print::ShowNotification("Light added from preset");
+            }
+
+            if (Menu::IsLastDrawnOptionSelected())
+            {
+                bool bDeletePressed;
+                if (Menu::usingControllerInput)
+                {
+                    Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Preset");
+                    bDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
+                }
+                else
+                {
+                    Menu::add_IB(VirtualKey::B, "Delete Preset");
+                    bDeletePressed = IsKeyJustUp(VirtualKey::B);
+                }
+                if (bDeletePressed)
+                {
+                    LightManagement::PresetDb.erase(LightManagement::PresetDb.begin() + i);
+                    LightManagement::SaveAllPresetsToFile();
+                    Menu::optionSelectionHistory[Menu::menuHistoryIndex]--;
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        AddOption("No presets found", null);
+    }
+}
+
+void Sub_ManageLights_Colour()
+{
+    if (SelectedLight == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    LightManagement::DrawPreviewMarkers();
+
+    RGBA* colour = &SelectedLight->m_colour;
+
+    AddTitle("Light Colour");
+    AddNumberStepper("Red", colour->R, 0, 1.0, 0, 255);
+    AddNumberStepper("Green", colour->G, 0, 1.0, 0, 255);
+    AddNumberStepper("Blue", colour->B, 0, 1.0, 0, 255);
+
+    switch (*Menu::activeOptionIndex)
+    {
+    case 1:
+    case 2:
+    case 3:
+        AddPresetColourOptionsPreviews(colour->R, colour->G, colour->B);
+        break;
+    }
+
+    {
+        bool bHexInputPressed = false;
+        AddOption("Input Hex Colour", bHexInputPressed);
+        if (bHexInputPressed)
+        {
+            std::string input = Game::InputBox("", 10U, "Enter hex colour (RRGGBB or RRGGBBAA):", "#");
+            if (!HexToRGBA(input, *colour))
+                Game::Print::ShowNotification("~r~Invalid hex colour.");
+        }
+    }
+}
+
+void Sub_Blip_Management()
+{
+    int blipIndexInDbToDelete = -1;
+    AddTitle("Blip Management");
+
+    //AddOption("Add Blip", null, nullFunc, SUB::SPOONER_BLIPS_ADD_SELECT);
+
+    bool bAttachBlipToEntityPressed = false;
+    AddTickol("Create Entity Blip", true, bAttachBlipToEntityPressed, bAttachBlipToEntityPressed, TICKOL::SMALLNEWSTAR);
+    AddOptionDescription("A blip that follows an entity.");
+    if (bAttachBlipToEntityPressed)
+    {
+        Menu::pendingSubmenu = SUB::SPOONER_BLIPS_ENTITY_SELECT;
+    }
+
+    bool bAddNewCoordBlipPressed = false;
+    AddTickol("Create Coord Blip", true, bAddNewCoordBlipPressed, bAddNewCoordBlipPressed, TICKOL::SMALLNEWSTAR);
+    AddOptionDescription("A blip at a fixed position.");
+    if (bAddNewCoordBlipPressed)
+    {
+        auto& spoocam = SpoonerCamera::camera;
+
+        if (!spoocam.IsActive())
+        {
+            GTAentity myPed = PLAYER_PED_ID();
+            Vector3 myPos = myPed.GetPosition();
+
+            sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(myPos, Vector3(0, 0, myPed.GetHeading()));
+        }
+        else
+        {
+            Vector3 spawnPos = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
+
+            sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(spawnPos, Vector3(0, 0, spoocam.GetRotation().z));
+        }
+
+        sub::Spooner::SelectedBlip->BlipType = SpoonerBlip::Type::Coord;
+        sub::Spooner::SelectedBlip->Alpha = 255;
+        sub::Spooner::SelectedBlip->Scale = 0.80f;
+        BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
+        Menu::pendingSubmenu = SUB::SPOONER_BLIPS_COORDINBLIP;
+    }
+
+    bool bAddNewRadialBlipPressed = false;
+    AddTickol("Create Radial Blip", true, bAddNewRadialBlipPressed, bAddNewRadialBlipPressed, TICKOL::SMALLNEWSTAR);
+    AddOptionDescription("A circle or rectangle marking an area on the map.");
+    if (bAddNewRadialBlipPressed)
+    {
+        auto& spoocam = SpoonerCamera::camera;
+
+        if (!spoocam.IsActive())
+        {
+            GTAentity myPed = PLAYER_PED_ID();
+            Vector3 myPos = myPed.GetPosition();
+
+            sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(myPos, Vector3(0, 0, myPed.GetHeading()));
+        }
+        else
+        {
+            Vector3 spawnPos = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
+
+            sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(spawnPos, Vector3(0, 0, spoocam.GetRotation().z));
+        }
+
+        sub::Spooner::SelectedBlip->BlipType = SpoonerBlip::Type::Radial;
+        sub::Spooner::SelectedBlip->Alpha = 160;
+        sub::Spooner::SelectedBlip->Scale = 0.80f;
+        BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
+        Menu::pendingSubmenu = SUB::SPOONER_BLIPS_RADIALINBLIP;
+    }
+
+    AddBreak("---Entity Blips---");
+    bool bHasEntity = false;
+    for (auto& b : Databases::BlipDb)
+        if (b.BlipType == SpoonerBlip::Type::Entity)
+        {
+            bHasEntity = true;
+            break;
+        }
+    if (!bHasEntity)
+    {
+        bool bAddEntity = false;
+        AddOption("Add Entity Blip", bAddEntity);
+        if (bAddEntity)
+            Menu::pendingSubmenu = SUB::SPOONER_BLIPS_ENTITY_SELECT;
+    }
+    for (UINT i = 0; i < Databases::BlipDb.size(); i++)
+    {
+        auto& m = Databases::BlipDb[i];
+        if (m.BlipType != SpoonerBlip::Type::Entity)
+            continue;
+
+        bool bBlipPressed = false;
+        std::string displayName = m.label.empty() ? m.Name : m.label;
+        AddOption(displayName, bBlipPressed);
+        if (bBlipPressed)
+        {
+            sub::Spooner::SelectedBlip = &m;
+            Menu::pendingSubmenu = SUB::SPOONER_BLIPS_RADIALINBLIP;
+        }
+
+
+        if (*Menu::activeOptionIndex == Menu::currentOptionCount)
+        {
+            m.m_selectedInSub = true;
+
+            GTAentity ent = m.EntityHandle;
+            EntityManagement::ShowArrowAboveEntity(ent, RGBA(0, 255, 255, 200));
+
+            bool bShortcutDeletePressed;
+            if (Menu::usingControllerInput)
+            {
+                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Entity Blip");
+                bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
+            }
+            else
+            {
+                Menu::add_IB(VirtualKey::B, "Delete Entity Blip");
+                bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
+            }
+
+            if (bShortcutDeletePressed)
+                blipIndexInDbToDelete = i;
+        }
+    }
+
+    AddBreak("---Coord Blips---");
+    bool bHasCoord = false;
+    for (auto& b : Databases::BlipDb)
+        if (b.BlipType == SpoonerBlip::Type::Coord)
+        {
+            bHasCoord = true;
+            break;
+        }
+    if (!bHasCoord)
+    {
+        bool bAddCoord = false;
+        AddOption("Add Coord Blip", bAddCoord);
+        if (bAddCoord)
+        {
+            auto& spoocam = SpoonerCamera::camera;
+            if (!spoocam.IsActive())
+            {
+                GTAentity myPed = PLAYER_PED_ID();
+                sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(myPed.GetPosition(), Vector3(0, 0, myPed.GetHeading()));
+            }
+            else
+            {
+                Vector3 spawnPos = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
+                sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(spawnPos, Vector3(0, 0, spoocam.GetRotation().z));
+            }
+            sub::Spooner::SelectedBlip->BlipType = SpoonerBlip::Type::Coord;
+            sub::Spooner::SelectedBlip->Alpha = 255;
+            sub::Spooner::SelectedBlip->Scale = 0.80f;
+            BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
+            Menu::pendingSubmenu = SUB::SPOONER_BLIPS_COORDINBLIP;
+        }
+    }
+    for (UINT i = 0; i < Databases::BlipDb.size(); i++)
+    {
+        auto& m = Databases::BlipDb[i];
+        if (m.BlipType != SpoonerBlip::Type::Coord)
+            continue;
+
+        bool bBlipPressed = false;
+        std::string displayName = m.label.empty() ? BlipIcon::vNames.at(m.Icon) : m.label;
+        AddOption(displayName, bBlipPressed);
+        if (bBlipPressed)
+        {
+            sub::Spooner::SelectedBlip = &m;
+            Menu::pendingSubmenu = SUB::SPOONER_BLIPS_COORDINBLIP;
+        }
+
+        if (*Menu::activeOptionIndex == Menu::currentOptionCount)
+        {
+            m.m_selectedInSub = true;
+
+            bool bShortcutDeletePressed;
+            if (Menu::usingControllerInput)
+            {
+                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Coord Blip");
+                bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
+            }
+            else
+            {
+                Menu::add_IB(VirtualKey::B, "Delete Coord Blip");
+                bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
+            }
+
+            if (bShortcutDeletePressed)
+                blipIndexInDbToDelete = i;
+        }
+    }
+
+    AddBreak("---Radial Blips---");
+    bool bHasRadial = false;
+    for (auto& b : Databases::BlipDb)
+        if (b.BlipType == SpoonerBlip::Type::Radial)
+        {
+            bHasRadial = true;
+            break;
+        }
+    if (!bHasRadial)
+    {
+        bool bAddRadial = false;
+        AddOption("Add Radial Blip", bAddRadial);
+        if (bAddRadial)
+        {
+            auto& spoocam = SpoonerCamera::camera;
+            if (!spoocam.IsActive())
+            {
+                GTAentity myPed = PLAYER_PED_ID();
+                sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(myPed.GetPosition(), Vector3(0, 0, myPed.GetHeading()));
+            }
+            else
+            {
+                Vector3 spawnPos = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 120.0f, 30.0f);
+                sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(spawnPos, Vector3(0, 0, spoocam.GetRotation().z));
+            }
+            sub::Spooner::SelectedBlip->BlipType = SpoonerBlip::Type::Radial;
+            sub::Spooner::SelectedBlip->Alpha = 160;
+            sub::Spooner::SelectedBlip->Scale = 0.80f;
+            BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
+            Menu::pendingSubmenu = SUB::SPOONER_BLIPS_RADIALINBLIP;
+        }
+    }
+    for (UINT i = 0; i < Databases::BlipDb.size(); i++)
+    {
+        auto& m = Databases::BlipDb[i];
+        if (m.BlipType != SpoonerBlip::Type::Radial)
+            continue;
+
+        bool bBlipPressed = false;
+        std::string displayName = m.label.empty() ? "Radial Blip" : m.label;
+        AddOption(displayName, bBlipPressed);
+        if (bBlipPressed)
+        {
+            sub::Spooner::SelectedBlip = &m;
+            Menu::pendingSubmenu = SUB::SPOONER_BLIPS_RADIALINBLIP;
+        }
+
+        if (*Menu::activeOptionIndex == Menu::currentOptionCount)
+        {
+            m.m_selectedInSub = true;
+
+            bool bShortcutDeletePressed;
+            if (Menu::usingControllerInput)
+            {
+                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Radial Blip");
+                bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
+            }
+            else
+            {
+                Menu::add_IB(VirtualKey::B, "Delete Radial Blip");
+                bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
+            }
+
+            if (bShortcutDeletePressed)
+                blipIndexInDbToDelete = i;
+        }
+    }
+
+    if (blipIndexInDbToDelete != -1)
+        BlipCustoms::RemoveBlip(blipIndexInDbToDelete);
+
+    if (*Menu::activeOptionIndex > Menu::currentOptionCount)
+        Menu::Up();
+}
+
+void Sub_Blip_Radial()
+{
+    AddTitle("Radial Blip");
+
+    bool bDeletePressed = false;
+    AddOption("Delete Blip", bDeletePressed);
+    if (bDeletePressed)
+    {
+        sub::Spooner::BlipCustoms::RemoveBlip(*sub::Spooner::SelectedBlip);
+        sub::Spooner::SelectedBlip = nullptr;
+        Menu::SetPreviousMenu();
+    }
+}
+
+void Sub_Blip_Entity()
+{
+    AddTitle("Entity Blip");
+}
+
+void Sub_Blip_Entity_Select()
+{
+    AddTitle("Select Entity");
+
+    if (Databases::EntityDb.empty())
+    {
+        AddOption("No Entities In Database", null);
+        return;
+    }
+
+    for (auto& e : Databases::EntityDb)
+    {
+        if (e.handle.Exists())
+        {
+            bool bEntityPressed = false;
+            AddOption(e.hashName, bEntityPressed);
+            if (bEntityPressed)
+            {
+                sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(SpoonerBlip::Type::Entity, e.hashName);
+
+                sub::Spooner::SelectedBlip->EntityHandle = e.handle.GetHandle();
+                sub::Spooner::SelectedBlip->bAttached = true;
+                sub::Spooner::SelectedBlip->Alpha = 255;
+                sub::Spooner::SelectedBlip->Scale = 0.80f;
+                sub::Spooner::SelectedBlip->Icon = BlipIcon::Standard;
+                BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
+                Menu::pendingSubmenu = SUB::SPOONER_BLIPS_ENTITYINBLIP;
+                return;
+            }
+
+            if (*Menu::activeOptionIndex == Menu::currentOptionCount)
+                EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(0, 255, 0, 200));
+        }
+        else
+        {
+            AddOption(e.hashName + " (Invalid)", null);
+        }
+    }
+}
+
+void Sub_Blip_EntityInBlip()
+{
+    if (sub::Spooner::SelectedBlip == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    auto blip = sub::Spooner::SelectedBlip;
+
+    AddTitle("Entity Blip Options");
+
+    bool bEditLabelPressed = false;
+    AddTexter("Label", 0, std::vector<std::string>{blip->label.empty() ? "" : blip->label}, bEditLabelPressed);
+    if (bEditLabelPressed)
+    {
+        blip->label = Game::InputBox(blip->label, 26U, "Enter blip label:", blip->label);
+        BlipCustoms::RefreshBlip(*blip);
+    }
+
+    bool colour_plus = false;
+    bool colour_minus = false;
+
+    AddTexter("Colour", 0, std::vector<std::string>{BlipColour::vNames.at(blip->Colour)}, null, colour_plus, colour_minus);
+
+    if (colour_plus)
+    {
+        auto it = BlipColour::vNames.find(blip->Colour);
+        if (std::next(it) != BlipColour::vNames.end())
+        {
+            ++it;
+            blip->Colour = it->first;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    if (colour_minus)
+    {
+        auto it = BlipColour::vNames.find(blip->Colour);
+        if (it != BlipColour::vNames.begin())
+        {
+            --it;
+            blip->Colour = it->first;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    AddOption("Icon: " + BlipIcon::vNames.at(blip->Icon), null, nullFunc, SUB::SPOONER_BLIPS_ICONS);
+
+    bool scale_plus = false;
+    bool scale_minus = false;
+
+    AddNumber("Scale", blip->Scale, 2, null, scale_plus, scale_minus);
+
+    if (scale_plus)
+    {
+        if (blip->Scale < 10.0f)
+        {
+            blip->Scale += 0.1f;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    if (scale_minus)
+    {
+        if (blip->Scale > 0.1f)
+        {
+            blip->Scale -= 0.1f;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    bool bToggleRotation = false;
+    AddTickol("Sync Rotation With Entity", blip->bSyncRotation, bToggleRotation, bToggleRotation, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription("The blip rotates with the entity's heading.");
+    if (bToggleRotation)
+    {
+        blip->bSyncRotation = !blip->bSyncRotation;
+        if (!blip->bSyncRotation)
+            BlipCustoms::RefreshBlip(*blip);
+    }
+
+    bool bToggleRoute = false;
+    AddTickol("Show Route", blip->bShowRoute, bToggleRoute, bToggleRoute, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    if (bToggleRoute)
+    {
+        blip->bShowRoute = !blip->bShowRoute;
+        HUD::SET_BLIP_ROUTE(blip->BlipHandle, blip->bShowRoute);
+    }
+
+    if (blip->bShowRoute)
+    {
+        bool routeColour_plus = false;
+        bool routeColour_minus = false;
+
+        AddTexter("Route Colour", 0, std::vector<std::string>{BlipColour::vNames.at(blip->RouteColour)}, null, routeColour_plus, routeColour_minus);
+
+        if (routeColour_plus)
+        {
+            auto it = BlipColour::vNames.find(blip->RouteColour);
+            if (std::next(it) != BlipColour::vNames.end())
+                ++it;
+            else
+                it = BlipColour::vNames.begin();
+            blip->RouteColour = it->first;
+            HUD::SET_BLIP_ROUTE_COLOUR(blip->BlipHandle, blip->RouteColour);
+        }
+
+        if (routeColour_minus)
+        {
+            auto it = BlipColour::vNames.find(blip->RouteColour);
+            if (it != BlipColour::vNames.begin())
+                --it;
+            else
+                it = std::prev(BlipColour::vNames.end());
+            blip->RouteColour = it->first;
+            HUD::SET_BLIP_ROUTE_COLOUR(blip->BlipHandle, blip->RouteColour);
+        }
+    }
+
+    bool bToggleCone = false;
+    AddTickol("Show Cone (Only for peds)", blip->bShowCone, bToggleCone, bToggleCone, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription("Shows the ped's field-of-view cone on the minimap.");
+    if (bToggleCone)
+    {
+        blip->bShowCone = !blip->bShowCone;
+        HUD::SET_BLIP_SHOW_CONE(blip->BlipHandle, blip->bShowCone, 9);
+    }
+
+    bool bToggleShortRange = false;
+    AddTickol("Short Range", blip->bShortRange, bToggleShortRange, bToggleShortRange, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription("The blip only shows on the minimap when nearby.");
+    if (bToggleShortRange)
+    {
+        blip->bShortRange = !blip->bShortRange;
+        HUD::SET_BLIP_AS_SHORT_RANGE(blip->BlipHandle, blip->bShortRange);
+    }
+
+    bool bToggleSelectable = false;
+    AddTickol("Selectable On Map", blip->bSelectableOnMap, bToggleSelectable, bToggleSelectable, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription("The blip can be selected on the pause map.");
+    if (bToggleSelectable)
+    {
+        blip->bSelectableOnMap = !blip->bSelectableOnMap;
+        HUD::SET_BLIP_DISPLAY(blip->BlipHandle, blip->bSelectableOnMap ? 2 : 8);
+    }
+
+    bool priority_plus = false;
+    bool priority_minus = false;
+
+    static const std::vector<int> priorityValues = {2, 3, 5, 6, 7, 9};
+    auto priorityIt = std::find(priorityValues.begin(), priorityValues.end(), blip->Priority);
+    if (priorityIt == priorityValues.end())
+        priorityIt = priorityValues.begin();
+
+    AddTexter("Priority", 0, std::vector<std::string>{std::to_string(blip->Priority)}, null, priority_plus, priority_minus);
+    AddOptionDescription("Which blips draw on top when they overlap.");
+
+    if (priority_plus)
+    {
+        if (std::next(priorityIt) != priorityValues.end())
+            ++priorityIt;
+        else
+            priorityIt = priorityValues.begin();
+        blip->Priority = *priorityIt;
+        HUD::SET_BLIP_PRIORITY(blip->BlipHandle, blip->Priority);
+    }
+
+    if (priority_minus)
+    {
+        if (priorityIt != priorityValues.begin())
+            --priorityIt;
+        else
+            priorityIt = std::prev(priorityValues.end());
+        blip->Priority = *priorityIt;
+        HUD::SET_BLIP_PRIORITY(blip->BlipHandle, blip->Priority);
+    }
+
+    bool deletePressed = false;
+
+    AddOption("Delete Blip", deletePressed);
+
+    if (deletePressed)
+    {
+        BlipCustoms::RemoveBlip(*blip);
+        sub::Spooner::SelectedBlip = nullptr;
+        Menu::SetPreviousMenu();
+        return;
+    }
+}
+
+void Sub_Blip_Coord()
+{
+    AddTitle("Coord Blip");
+}
+
+void Sub_Blip_CoordInBlip()
+{
+    if (sub::Spooner::SelectedBlip == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    auto blip = sub::Spooner::SelectedBlip;
+
+    AddTitle("Coord Blip Options");
+
+    bool bEditLabelPressed = false;
+    AddTexter("Label", 0, std::vector<std::string>{blip->label.empty() ? "" : blip->label}, bEditLabelPressed);
+    if (bEditLabelPressed)
+    {
+        blip->label = Game::InputBox(blip->label, 26U, "Enter blip name:", blip->label);
+        BlipCustoms::RefreshBlip(*blip);
+    }
+
+    bool colour_plus = false;
+    bool colour_minus = false;
+
+    AddTexter("Colour", 0, std::vector<std::string>{BlipColour::vNames.at(blip->Colour)}, null, colour_plus, colour_minus);
+
+    if (colour_plus)
+    {
+        auto it = BlipColour::vNames.find(blip->Colour);
+        if (std::next(it) != BlipColour::vNames.end())
+        {
+            ++it;
+            blip->Colour = it->first;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    if (colour_minus)
+    {
+        auto it = BlipColour::vNames.find(blip->Colour);
+        if (it != BlipColour::vNames.begin())
+        {
+            --it;
+            blip->Colour = it->first;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    AddOption("Icon: " + BlipIcon::vNames.at(blip->Icon), null, nullFunc, SUB::SPOONER_BLIPS_ICONS);
+
+    bool scale_plus = false;
+    bool scale_minus = false;
+
+    AddNumber("Scale", blip->Scale, 2, null, scale_plus, scale_minus);
+
+    if (scale_plus)
+    {
+        if (blip->Scale < 10.0f)
+        {
+            blip->Scale += 0.1f;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    if (scale_minus)
+    {
+        if (blip->Scale > 0.1f)
+        {
+            blip->Scale -= 0.1f;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    bool alpha_plus = false;
+    bool alpha_minus = false;
+
+    AddNumber("Alpha", blip->Alpha, 2, null, alpha_plus, alpha_minus);
+
+    if (alpha_plus)
+    {
+        if (blip->Alpha < 255)
+        {
+            blip->Alpha++;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    if (alpha_minus)
+    {
+        if (blip->Alpha > 0)
+        {
+            blip->Alpha--;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    bool bToggleRoute = false;
+    AddTickol("Show Route", blip->bShowRoute, bToggleRoute, bToggleRoute, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    if (bToggleRoute)
+    {
+        blip->bShowRoute = !blip->bShowRoute;
+        HUD::SET_BLIP_ROUTE(blip->BlipHandle, blip->bShowRoute);
+    }
+
+    bool bToggleShortRange = false;
+    AddTickol("Short Range", blip->bShortRange, bToggleShortRange, bToggleShortRange, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription("The blip only shows on the minimap when nearby.");
+    if (bToggleShortRange)
+    {
+        blip->bShortRange = !blip->bShortRange;
+        HUD::SET_BLIP_AS_SHORT_RANGE(blip->BlipHandle, blip->bShortRange);
+    }
+
+    bool bToggleSelectable = false;
+    AddTickol("Selectable On Map", blip->bSelectableOnMap, bToggleSelectable, bToggleSelectable, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription("The blip can be selected on the pause map.");
+    if (bToggleSelectable)
+    {
+        blip->bSelectableOnMap = !blip->bSelectableOnMap;
+        HUD::SET_BLIP_DISPLAY(blip->BlipHandle, blip->bSelectableOnMap ? 2 : 8);
+    }
+
+    bool priority_plus = false;
+    bool priority_minus = false;
+
+    static const std::vector<int> priorityValues = {2, 3, 5, 6, 7, 9};
+    auto priorityIt = std::find(priorityValues.begin(), priorityValues.end(), blip->Priority);
+    if (priorityIt == priorityValues.end())
+        priorityIt = priorityValues.begin();
+
+    AddTexter("Priority", 0, std::vector<std::string>{std::to_string(blip->Priority)}, null, priority_plus, priority_minus);
+    AddOptionDescription("Which blips draw on top when they overlap.");
+
+    if (priority_plus)
+    {
+        if (std::next(priorityIt) != priorityValues.end())
+            ++priorityIt;
+        else
+            priorityIt = priorityValues.begin();
+        blip->Priority = *priorityIt;
+        HUD::SET_BLIP_PRIORITY(blip->BlipHandle, blip->Priority);
+    }
+
+    if (priority_minus)
+    {
+        if (priorityIt != priorityValues.begin())
+            --priorityIt;
+        else
+            priorityIt = std::prev(priorityValues.end());
+        blip->Priority = *priorityIt;
+        HUD::SET_BLIP_PRIORITY(blip->BlipHandle, blip->Priority);
+    }
+
+    bool deletePressed = false;
+
+    AddOption("Delete Blip", deletePressed);
+
+    if (deletePressed)
+    {
+        BlipCustoms::RemoveBlip(*blip);
+        sub::Spooner::SelectedBlip = nullptr;
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    AddBreak("---Position---");
+    {
+        AddOption("~italic~" + Vector3(blip->X, blip->Y, blip->Z).ToString(), null);
+
+        bool bSetToPlayer = false;
+        AddOption("Set To Player Position", bSetToPlayer);
+        if (bSetToPlayer)
+        {
+            Vector3 pos = ENTITY::GET_ENTITY_COORDS(PLAYER_PED_ID(), true);
+            blip->X = pos.x;
+            blip->Y = pos.y;
+            blip->Z = pos.z;
+            BlipCustoms::RefreshBlip(*blip);
+        }
+
+        if (IS_WAYPOINT_ACTIVE())
+        {
+            bool bSetToWp = false;
+            AddOption("Set To Waypoint", bSetToWp);
+            if (bSetToWp)
+            {
+                Blip wp = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
+                Vector3 wpCoords = GET_BLIP_COORDS(wp);
+                wpCoords.z = World::GetGroundHeight(wpCoords);
+
+                blip->X = wpCoords.x;
+                blip->Y = wpCoords.y;
+                blip->Z = wpCoords.z;
+                BlipCustoms::RefreshBlip(*blip);
+            }
+        }
+
+        bool bManual = false;
+        AddOption("Manual Placement", bManual, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
+        if (bManual)
+        {
+            SpoonerVector3ManualEditingPtrs = std::make_tuple((GTAentity)0, &blip->Offset, (Vector3*)nullptr);
+        }
+    }
+}
+
+void Sub_Blip_RadialInBlip()
+{
+    if (sub::Spooner::SelectedBlip == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    auto blip = sub::Spooner::SelectedBlip;
+
+    AddTitle("Radial Blip Options");
+
+    bool shape_plus = false;
+    bool shape_minus = false;
+
+    std::string shapeName = (blip->Shape == SpoonerBlip::RadialShape::Circle) ? "Circle" : "Square";
+
+    AddTexter("Shape", 0, std::vector<std::string>{shapeName}, null, shape_plus, shape_minus);
+
+    if (shape_plus || shape_minus)
+    {
+        blip->Shape = (blip->Shape == SpoonerBlip::RadialShape::Circle) ? SpoonerBlip::RadialShape::Square : SpoonerBlip::RadialShape::Circle;
+        sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+    }
+
+    //Circle options
+    if (blip->Shape == SpoonerBlip::RadialShape::Circle)
+    {
+        bool radius_plus = false;
+        bool radius_minus = false;
+
+        AddNumber("Radius", blip->RadialSize, 2, null, radius_plus, radius_minus);
+
+        if (radius_plus)
+        {
+            if (blip->RadialSize < 5000.0f)
+            {
+                blip->RadialSize += 1.0f;
+                sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+            }
+        }
+
+        if (radius_minus)
+        {
+            if (blip->RadialSize > 1.0f)
+            {
+                blip->RadialSize -= 1.0f;
+                sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+            }
+        }
+    }
+
+    //Square options
+    if (blip->Shape == SpoonerBlip::RadialShape::Square)
+    {
+        bool width_plus = false;
+        bool width_minus = false;
+
+        AddNumber("Width", blip->AreaWidth, 2, null, width_plus, width_minus);
+
+        if (width_plus)
+        {
+            if (blip->AreaWidth < 5000.0f)
+            {
+                blip->AreaWidth += 1.0f;
+                sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+            }
+        }
+
+        if (width_minus)
+        {
+            if (blip->AreaWidth > 1.0f)
+            {
+                blip->AreaWidth -= 1.0f;
+                sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+            }
+        }
+
+        bool height_plus = false;
+        bool height_minus = false;
+
+        AddNumber("Height", blip->AreaHeight, 2, null, height_plus, height_minus);
+
+        if (height_plus)
+        {
+            if (blip->AreaHeight < 5000.0f)
+            {
+                blip->AreaHeight += 1.0f;
+                sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+            }
+        }
+
+        if (height_minus)
+        {
+            if (blip->AreaHeight > 1.0f)
+            {
+                blip->AreaHeight -= 1.0f;
+                sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+            }
+        }
+        bool heading_plus = false;
+        bool heading_minus = false;
+
+        AddNumber("Rotation", blip->Heading, 2, null, heading_plus, heading_minus);
+
+        if (heading_plus)
+        {
+            if (blip->Heading < 90.0f)
+            {
+                blip->Heading += 1.0f;
+                sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+            }
+        }
+
+        if (heading_minus)
+        {
+            if (blip->Heading > 0.0f)
+            {
+                blip->Heading -= 1.0f;
+                sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+            }
+        }
+    }
+
+    bool colour_plus = false;
+    bool colour_minus = false;
+
+    AddTexter("Colour", 0, std::vector<std::string>{BlipColour::vNames.at(blip->Colour)}, null, colour_plus, colour_minus);
+
+    if (colour_plus)
+    {
+        auto it = BlipColour::vNames.find(blip->Colour);
+        if (std::next(it) != BlipColour::vNames.end())
+        {
+            ++it;
+            blip->Colour = it->first;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    if (colour_minus)
+    {
+        auto it = BlipColour::vNames.find(blip->Colour);
+        if (it != BlipColour::vNames.begin())
+        {
+            --it;
+            blip->Colour = it->first;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    bool alpha_plus = false;
+    bool alpha_minus = false;
+
+    AddNumber("Alpha", blip->Alpha, 2, null, alpha_plus, alpha_minus);
+
+    if (alpha_plus)
+    {
+        if (blip->Alpha < 255)
+        {
+            blip->Alpha++;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    if (alpha_minus)
+    {
+        if (blip->Alpha > 0)
+        {
+            blip->Alpha--;
+            sub::Spooner::BlipCustoms::RefreshBlip(*blip);
+        }
+    }
+
+    bool deletePressed = false;
+
+    AddOption("Delete Blip", deletePressed);
+
+    if (deletePressed)
+    {
+        BlipCustoms::RemoveBlip(*blip);
+        sub::Spooner::SelectedBlip = nullptr;
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    AddBreak("---Position---");
+    {
+        AddOption("~italic~" + Vector3(blip->X, blip->Y, blip->Z).ToString(), null);
+
+        bool bSetToPlayer = false;
+        AddOption("Set To Player Position", bSetToPlayer);
+        if (bSetToPlayer)
+        {
+            Vector3 pos = ENTITY::GET_ENTITY_COORDS(PLAYER_PED_ID(), true);
+            blip->X = pos.x;
+            blip->Y = pos.y;
+            blip->Z = pos.z;
+            blip->EntityHandle = 0;
+            blip->bAttached = false;
+            BlipCustoms::RefreshBlip(*blip);
+        }
+
+        if (IS_WAYPOINT_ACTIVE())
+        {
+            bool bSetToWp = false;
+            AddOption("Set To Waypoint", bSetToWp);
+            if (bSetToWp)
+            {
+                Blip wp = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
+                Vector3 wpCoords = GET_BLIP_COORDS(wp);
+                wpCoords.z = World::GetGroundHeight(wpCoords);
+
+                blip->X = wpCoords.x;
+                blip->Y = wpCoords.y;
+                blip->Z = wpCoords.z;
+                blip->EntityHandle = 0;
+                blip->bAttached = false;
+                BlipCustoms::RefreshBlip(*blip);
+            }
+        }
+
+        AddOption("Attach To Entity", null, nullFunc, SUB::SPOONER_BLIPS_ATTACH);
+
+        if (blip->bAttached)
+        {
+            bool bAdjust = false;
+            AddOption("Adjust Attachment", bAdjust, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
+            if (bAdjust)
+            {
+                SpoonerVector3ManualEditingPtrs = std::make_tuple((GTAentity)blip->EntityHandle, &blip->Offset, (Vector3*)nullptr);
+            }
+        }
+        else
+        {
+            bool bManual = false;
+            AddOption("Manual Placement", bManual, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
+            if (bManual)
+            {
+                SpoonerVector3ManualEditingPtrs = std::make_tuple((GTAentity)0, &blip->Offset, (Vector3*)nullptr);
+            }
+        }
+    }
+}
+
+void Sub_Blip_Attach()
+{
+    if (sub::Spooner::SelectedBlip == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    auto blip = sub::Spooner::SelectedBlip;
+
+    AddTitle("Attachment");
+
+    bool bDetachPressed = false;
+    AddTickol("Detach", !blip->bAttached, bDetachPressed, bDetachPressed, TICKOL::TICK2);
+    if (bDetachPressed)
+    {
+        if (blip->bAttached)
+        {
+            Vector3 worldPos = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(blip->EntityHandle, blip->Offset.x, blip->Offset.y, blip->Offset.z);
+            blip->X = worldPos.x;
+            blip->Y = worldPos.y;
+            blip->Z = worldPos.z;
+        }
+        blip->EntityHandle = 0;
+        blip->bAttached = false;
+        blip->Offset.clear();
+        BlipCustoms::RefreshBlip(*blip);
+    }
+
+    if (!Databases::EntityDb.empty())
+    {
+        AddBreak("---Database---");
+        for (auto& e : Databases::EntityDb)
+        {
+            if (e.handle.Exists())
+            {
+                bool bEntityPressed = false;
+                AddTickol(e.hashName, blip->EntityHandle == e.handle.GetHandle(), bEntityPressed, bEntityPressed, TICKOL::TICK2);
+                if (bEntityPressed)
+                {
+                    blip->EntityHandle = e.handle.GetHandle();
+                    blip->Offset.clear();
+                    blip->bAttached = true;
+                    BlipCustoms::RefreshBlip(*blip);
+                    Menu::SetPreviousMenu();
+                    return;
+                }
+
+                if (*Menu::activeOptionIndex == Menu::currentOptionCount)
+                    EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(0, 255, 0, 200));
+            }
+            else
+            {
+                AddOption(e.hashName + " (Invalid)", null);
+            }
+        }
+    }
+}
+
+void Sub_Blip_Icons()
+{
+    if (sub::Spooner::SelectedBlip == nullptr)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    AddTitle("Blip Icons");
+
+    bool bSearchPressed = false;
+    AddOption(_searchStr.empty() ? "SEARCH" : boost::to_upper_copy(_searchStr), bSearchPressed, nullFunc, -1, true);
+    if (bSearchPressed)
+    {
+        _searchStr = Game::InputBox(_searchStr, 126U, "SEARCH", _searchStr);
+        boost::to_lower(_searchStr);
+    }
+
+    static int sortMode = 0;
+    bool sort_plus = false;
+    bool sort_minus = false;
+    AddTexter("Sort", 0, std::vector<std::string>{sortMode == 0 ? "Regular" : "Alphabetic"}, null, sort_plus, sort_minus);
+    if (sort_plus || sort_minus)
+        sortMode = sortMode == 0 ? 1 : 0;
+
+    std::vector<std::pair<int, std::string>> entries(BlipIcon::vNames.begin(), BlipIcon::vNames.end());
+
+    if (!_searchStr.empty())
+    {
+        entries.erase(
+            std::remove_if(
+                entries.begin(),
+                entries.end(),
+                [](const std::pair<int, std::string>& e)
+                {
+                    std::string nameLower = boost::to_lower_copy(e.second);
+                    return nameLower.find(_searchStr) == std::string::npos;
+                }
+            ),
+            entries.end()
+        );
+    }
+
+    if (sortMode == 1)
+    {
+        std::sort(entries.begin(), entries.end(), [](const std::pair<int, std::string>& a, const std::pair<int, std::string>& b) { return a.second < b.second; });
+    }
+
+    std::vector<int> favourites;
+    FavouritesManagement::GetFavouriteBlipIcons(favourites);
+
+    std::vector<std::pair<int, std::string>> favEntries, otherEntries;
+    for (auto& e : entries)
+    {
+        if (std::find(favourites.begin(), favourites.end(), e.first) != favourites.end())
+            favEntries.push_back(e);
+        else
+            otherEntries.push_back(e);
+    }
+
+    if (!favEntries.empty())
+        AddBreak("---Favourites---");
+
+    for (const auto& [icon, name] : favEntries)
+    {
+        bool bIconPressed = false;
+        AddTickol(name, sub::Spooner::SelectedBlip->Icon == icon, bIconPressed, bIconPressed, TICKOL::TICK2);
+
+        if (Menu::currentOptionCount == *Menu::activeOptionIndex)
+        {
+            sub::Spooner::SelectedBlip->Icon = icon;
+            sub::Spooner::BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
+            if (Menu::usingControllerInput)
+            {
+                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Remove from favourites");
+                if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
+                    FavouritesManagement::RemoveBlipIconFromFavourites(icon);
+            }
+            else
+            {
+                Menu::add_IB(VirtualKey::B, "Remove from favourites");
+                if (IsKeyJustUp(VirtualKey::B))
+                    FavouritesManagement::RemoveBlipIconFromFavourites(icon);
+            }
+        }
+    }
+
+    if (!otherEntries.empty())
+        AddBreak("---All Icons---");
+
+    for (const auto& [icon, name] : otherEntries)
+    {
+        bool bIconPressed = false;
+        AddTickol(name, sub::Spooner::SelectedBlip->Icon == icon, bIconPressed, bIconPressed, TICKOL::TICK2);
+
+        if (Menu::currentOptionCount == *Menu::activeOptionIndex)
+        {
+            sub::Spooner::SelectedBlip->Icon = icon;
+            sub::Spooner::BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
+            if (Menu::usingControllerInput)
+            {
+                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Add to favourites");
+                if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
+                    FavouritesManagement::AddBlipIconToFavourites(icon);
+            }
+            else
+            {
+                Menu::add_IB(VirtualKey::B, "Add to favourites");
+                if (IsKeyJustUp(VirtualKey::B))
+                    FavouritesManagement::AddBlipIconToFavourites(icon);
+            }
+        }
+    }
+}
+
+void Sub_SpawnCategories()
+{
+    _searchStr.clear();
+
+    AddTitle("Spawn Into World");
+    AddOption("Object", null, nullFunc, SUB::SPOONER_SPAWN_PROP);
+    AddOption("Ped", null, nullFunc, SUB::SPOONER_SPAWN_PED);
+    AddOption("Vehicle", null, nullFunc, SUB::SPOONER_SPAWN_VEHICLE);
+}
+
+namespace ObjectSearch
+{
+static constexpr size_t MaxVisibleResults = 500;
+static int sortIndex = 0;
+static int categoryFilter = 0;
+static int dlcFilter = 0;
+static int stuntFilter = 0;
+static int lodFilter = 0;
+static int sizeFilter = 0;
+static std::vector<std::string> results;
+static std::vector<std::string> categoryOptions;
+static std::vector<std::string> dlcOptions;
+static std::vector<std::string> stuntOptions;
+static std::vector<std::string> sizeOptions;
+static std::string lastSearch = "\x01";
+static int lastSort = -1, lastCategory = -1, lastDlc = -1, lastStunt = -1, lastLod = -1, lastSize = -1;
+static size_t lastObjectCount = 0;
+static bool dirty = true;
+
+static const std::vector<std::string> sortOptionsList = {"Name (A-Z)", "Name (Z-A)"};
+static const std::vector<std::string> lodOptionsList = {"Hide LOD", "Show All"};
+
+void BuildCategoryOptions()
+{
+    std::array<int, ObjectCategories::Category_Count> counts = {};
+    for (const auto& modelName : objectModels)
+    {
+        counts[ObjectCategories::GetObjectCategory(modelName)]++;
+    }
+
+    categoryOptions.clear();
+    categoryOptions.push_back("All (" + std::to_string(objectModels.size()) + ")");
+    for (int i = 0; i < ObjectCategories::Category_Count; i++)
+    {
+        const auto category = static_cast<ObjectCategories::Category>(i);
+        categoryOptions.push_back(std::string(ObjectCategories::GetObjectCategoryName(category)) + " (" + std::to_string(counts[i]) + ")");
+    }
+}
+
+void BuildDlcOptions()
+{
+    std::array<int, ObjectCategories::DLC_Count> counts = {};
+    for (const auto& modelName : objectModels)
+    {
+        counts[ObjectCategories::GetObjectDlcGroup(modelName)]++;
+    }
+
+    dlcOptions.clear();
+    dlcOptions.push_back("All (" + std::to_string(objectModels.size()) + ")");
+    for (int i = 0; i < ObjectCategories::DLC_Count; i++)
+    {
+        const auto group = static_cast<ObjectCategories::DlcGroup>(i);
+        dlcOptions.push_back(std::string(ObjectCategories::GetObjectDlcGroupName(group)) + " (" + std::to_string(counts[i]) + ")");
+    }
+}
+
+void BuildStuntOptions()
+{
+    std::array<int, ObjectCategories::Stunt_Count> counts = {};
+    for (const auto& modelName : objectModels)
+    {
+        auto st = ObjectCategories::GetStuntType(modelName);
+        if (st != ObjectCategories::Stunt_None)
+            counts[st]++;
+    }
+
+    int totalStunt = 0;
+    for (int i = 1; i < ObjectCategories::Stunt_Count; i++)
+        totalStunt += counts[i];
+
+    stuntOptions.clear();
+    stuntOptions.push_back("All");
+    stuntOptions.push_back("All Stunt (" + std::to_string(totalStunt) + ")");
+    for (int i = 1; i < ObjectCategories::Stunt_Count; i++)
+    {
+        if (counts[i] > 0)
+            stuntOptions.push_back(std::string(ObjectCategories::GetStuntTypeName(static_cast<ObjectCategories::StuntType>(i))) + " (" + std::to_string(counts[i]) + ")");
+        else
+            stuntOptions.push_back(ObjectCategories::GetStuntTypeName(static_cast<ObjectCategories::StuntType>(i)));
+    }
+}
+
+void BuildSizeOptions()
+{
+    std::array<int, ObjectCategories::Size_Count> counts = {};
+    for (const auto& modelName : objectModels)
+    {
+        auto sz = ObjectCategories::GetNamedSize(modelName);
+        if (sz != ObjectCategories::Size_Unknown)
+            counts[sz]++;
+    }
+
+    int totalSized = 0;
+    for (int i = 1; i < ObjectCategories::Size_Count; i++)
+        totalSized += counts[i];
+
+    sizeOptions.clear();
+    sizeOptions.push_back("All");
+    sizeOptions.push_back("Has Size (" + std::to_string(totalSized) + ")");
+    for (int i = 1; i < ObjectCategories::Size_Count; i++)
+    {
+        auto sz = static_cast<ObjectCategories::SizeClass>(i);
+        sizeOptions.push_back(std::string(ObjectCategories::GetSizeClassName(sz)) + " (" + std::to_string(counts[i]) + ")");
+    }
+}
+
+void EnsureOptions()
+{
+    if (categoryOptions.empty() || dlcOptions.empty() || stuntOptions.empty() || sizeOptions.empty() || lastObjectCount != objectModels.size())
+    {
+        BuildCategoryOptions();
+        BuildDlcOptions();
+        BuildStuntOptions();
+        BuildSizeOptions();
+        lastObjectCount = objectModels.size();
+        dirty = true;
+    }
+}
+
+void RebuildResults(const std::string& searchStr)
+{
+    results.clear();
+    std::string searchUpper = boost::to_upper_copy(searchStr);
+
+    for (const auto& modelName : objectModels)
+    {
+        if (lodFilter == 0 && ObjectCategories::IsLodProxy(modelName))
+            continue;
+
+        if (categoryFilter != 0)
+        {
+            const auto category = ObjectCategories::GetObjectCategory(modelName);
+            if (static_cast<int>(category) != (categoryFilter - 1))
+                continue;
+        }
+
+        if (dlcFilter != 0)
+        {
+            const auto dlcGroup = ObjectCategories::GetObjectDlcGroup(modelName);
+            if (static_cast<int>(dlcGroup) != (dlcFilter - 1))
+                continue;
+        }
+
+        if (stuntFilter != 0)
+        {
+            auto st = ObjectCategories::GetStuntType(modelName);
+            if (stuntFilter == 1)
+            {
+                if (st == ObjectCategories::Stunt_None)
+                    continue;
+            }
+            else
+            {
+                if (static_cast<int>(st) != (stuntFilter - 1))
+                    continue;
+            }
+        }
+
+        if (sizeFilter != 0)
+        {
+            auto sz = ObjectCategories::GetNamedSize(modelName);
+            if (sizeFilter == 1)
+            {
+                if (sz == ObjectCategories::Size_Unknown)
+                    continue;
+            }
+            else
+            {
+                if (static_cast<int>(sz) != (sizeFilter - 1))
+                    continue;
+            }
+        }
+
+        if (!searchUpper.empty())
+        {
+            std::string modelUpper = boost::to_upper_copy(modelName);
+            if (modelUpper.find(searchUpper) == std::string::npos)
+                continue;
+        }
+
+        results.push_back(modelName);
+    }
+
+    switch (sortIndex)
+    {
+    case 0:
+        std::sort(results.begin(), results.end(), [](const auto& a, const auto& b) { return boost::to_lower_copy(a) < boost::to_lower_copy(b); });
+        break;
+    case 1:
+        std::sort(results.begin(), results.end(), [](const auto& a, const auto& b) { return boost::to_lower_copy(a) > boost::to_lower_copy(b); });
+        break;
+    }
+}
+} // namespace ObjectSearch
+
+void ObjectSpawnerSearchMenu()
+{
+    using namespace ObjectSearch;
+    auto& searchStr = dict;
+
+    EnsureOptions();
+
+    AddTitle("Object Search");
+
+    bool bSearchPressed = false;
+    AddOption(searchStr.empty() ? "~b~SEARCH~s~" : ("~b~" + searchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
+    if (bSearchPressed)
+    {
+        searchStr = Game::InputBox(searchStr, 64U, "Search objects:", boost::to_lower_copy(searchStr));
+        boost::to_upper(searchStr);
+    }
+
+    bool sortRight = false, sortLeft = false;
+    AddTexter("Sort", sortIndex, sortOptionsList, null, sortRight, sortLeft);
+    if (sortRight && sortIndex < (int)(sortOptionsList.size() - 1))
+        sortIndex++;
+    if (sortLeft && sortIndex > 0)
+        sortIndex--;
+
+    bool catRight = false, catLeft = false;
+    AddTexter("Category", categoryFilter, categoryOptions, null, catRight, catLeft);
+    if (catRight && categoryFilter < (int)(categoryOptions.size() - 1))
+        categoryFilter++;
+    if (catLeft && categoryFilter > 0)
+        categoryFilter--;
+
+    bool dlcRight = false, dlcLeft = false;
+    AddTexter("DLC", dlcFilter, dlcOptions, null, dlcRight, dlcLeft);
+    if (dlcRight && dlcFilter < (int)(dlcOptions.size() - 1))
+        dlcFilter++;
+    if (dlcLeft && dlcFilter > 0)
+        dlcFilter--;
+
+    bool stuntRight = false, stuntLeft = false;
+    AddTexter("Stunt", stuntFilter, stuntOptions, null, stuntRight, stuntLeft);
+    if (stuntRight && stuntFilter < (int)(stuntOptions.size() - 1))
+        stuntFilter++;
+    if (stuntLeft && stuntFilter > 0)
+        stuntFilter--;
+
+    bool sizeRight = false, sizeLeft = false;
+    AddTexter("Size", sizeFilter, sizeOptions, null, sizeRight, sizeLeft);
+    AddOptionDescription("Filters objects by physical size.");
+    if (sizeRight && sizeFilter < (int)(sizeOptions.size() - 1))
+        sizeFilter++;
+    if (sizeLeft && sizeFilter > 0)
+        sizeFilter--;
+
+    bool lodRight = false, lodLeft = false;
+    AddTexter("LOD/Proxy", lodFilter, lodOptionsList, null, lodRight, lodLeft);
+    AddOptionDescription("Filters out, or shows only, low-detail placeholder models.");
+    if (lodRight && lodFilter < 1)
+        lodFilter++;
+    if (lodLeft && lodFilter > 0)
+        lodFilter--;
+
+    if (searchStr != lastSearch || sortIndex != lastSort || categoryFilter != lastCategory || dlcFilter != lastDlc || stuntFilter != lastStunt || lodFilter != lastLod || sizeFilter != lastSize)
+    {
+        dirty = true;
+    }
+
+    if (dirty)
+    {
+        RebuildResults(searchStr);
+        lastSearch = searchStr;
+        lastSort = sortIndex;
+        lastCategory = categoryFilter;
+        lastDlc = dlcFilter;
+        lastStunt = stuntFilter;
+        lastLod = lodFilter;
+        lastSize = sizeFilter;
+        dirty = false;
+    }
+
+    if (results.size() > MaxVisibleResults)
+        AddBreak("---Results: " + std::to_string(results.size()) + " (showing " + std::to_string(MaxVisibleResults) + ")---");
+    else
+        AddBreak("---Results: " + std::to_string(results.size()) + "---");
+
+    const size_t visibleCount = results.size() < MaxVisibleResults ? results.size() : MaxVisibleResults;
+    for (size_t i = 0; i < visibleCount; i++)
+    {
+        const auto& modelName = results[i];
+        Model currentModel = GET_HASH_KEY(modelName);
+
+        MenuOptions::AddOption_AddProp(modelName, currentModel.hash);
+
+        if (Menu::IsLastDrawnOptionSelected())
+        {
+            bool bIsAFav = FavouritesManagement::IsPropAFavourite(modelName, currentModel.hash);
+            if (Menu::usingControllerInput)
+            {
+                Menu::add_IB(INPUT_SCRIPT_RLEFT, (!bIsAFav ? "Add to" : "Remove from") + (std::string) " favourites");
+
+                if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
+                {
+                    !bIsAFav ? FavouritesManagement::AddPropToFavourites(modelName, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(modelName, currentModel.hash);
+                }
+            }
+            else
+            {
+                Menu::add_IB(VirtualKey::B, (!bIsAFav ? "Add to" : "Remove from") + (std::string) " favourites");
+
+                if (IsKeyJustUp(VirtualKey::B))
+                {
+                    !bIsAFav ? FavouritesManagement::AddPropToFavourites(modelName, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(modelName, currentModel.hash);
+                }
+            }
+        }
+    }
+}
+
+void Sub_SpawnProp()
+{
+    AddTitle("Spawn Object");
+
+    AddOption("Favourites", null, nullFunc, SUB::SPOONER_SPAWN_PROP_FAVOURITES);
+    bool bOpenObjectSearch = false;
+    AddOption("Search Objects", bOpenObjectSearch, nullFunc, SUB::OBJECTSPAWNER_SEARCH);
+    if (bOpenObjectSearch)
+        dict.clear();
+
+    bool bSearchPressed = false;
+    AddOption(_searchStr.empty() ? "SEARCH" : boost::to_upper_copy(_searchStr), bSearchPressed, nullFunc, -1, true);
+    if (bSearchPressed)
+    {
+        _searchStr = Game::InputBox(_searchStr, 126U, "SEARCH", _searchStr);
+        boost::to_lower(_searchStr);
+        //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SearchToLower, _searchStr, 126U, std::string(), _searchStr);
+        //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_searchStr);
+    }
+
+    // Display props models loop
+    for (const auto& current : objectModels)
+    {
+        if (!_searchStr.empty())
+        {
+            if (current.find(_searchStr) == std::string::npos)
+                continue;
+        }
+
+        Model currentModel = GET_HASH_KEY(current);
+
+        MenuOptions::AddOption_AddProp(current, currentModel.hash);
+
+        if (Menu::IsLastDrawnOptionSelected())
+        {
+            bool bIsAFav = FavouritesManagement::IsPropAFavourite(current, currentModel.hash);
+            if (Menu::usingControllerInput)
+            {
+                Menu::add_IB(INPUT_SCRIPT_RLEFT, (!bIsAFav ? "Add to" : "Remove from") + (std::string) " favourites");
+
+                if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
+                {
+                    !bIsAFav ? FavouritesManagement::AddPropToFavourites(current, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(current, currentModel.hash);
+                }
+            }
+            else
+            {
+                Menu::add_IB(VirtualKey::B, (!bIsAFav ? "Add to" : "Remove from") + (std::string) " favourites");
+
+                if (IsKeyJustUp(VirtualKey::B))
+                {
+                    !bIsAFav ? FavouritesManagement::AddPropToFavourites(current, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(current, currentModel.hash);
+                }
+            }
+        }
+    }
+
+    bool bInputPressed = false;
+    AddOption("INPUT MODEL", bInputPressed);
+    if (bInputPressed)
+    {
+        EntityManagement::InputEntityIntoDb(EntityType::PROP);
+    }
+}
+
+void RebuildFavPropCache(const std::string& searchStr)
+{
+    s_favPropCache.byCategory.clear();
+    s_favPropCache.sortedCategories.clear();
+
+    using FavouritesManagement::xmlFavouriteProps;
+    pugi::xml_document doc;
+    if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouriteProps).c_str()).status != pugi::status_ok)
+        return;
+    pugi::xml_node nodeRoot = doc.child("FavouriteProps");
+    if (!nodeRoot)
+        return;
+
+    std::string searchUpper = boost::to_upper_copy(searchStr);
+
+    for (auto node = nodeRoot.first_child(); node; node = node.next_sibling())
+    {
+        std::string modelName = node.attribute("modelName").as_string();
+        if (!searchUpper.empty())
+        {
+            std::string nameUpper = boost::to_upper_copy(modelName);
+            if (nameUpper.find(searchUpper) == std::string::npos)
+                continue;
+        }
+        Model model = node.attribute("modelHash").as_uint(0);
+        if (model.hash == 0)
+            model = GET_HASH_KEY(modelName);
+        std::string category = node.attribute("category").as_string("");
+        s_favPropCache.byCategory[category].push_back({modelName, model, category});
+    }
+
+    for (auto& kv : s_favPropCache.byCategory)
+        s_favPropCache.sortedCategories.push_back(kv.first);
+    std::sort(
+        s_favPropCache.sortedCategories.begin(),
+        s_favPropCache.sortedCategories.end(),
+        [](const std::string& a, const std::string& b)
+        {
+            if (a.empty())
+                return false;
+            if (b.empty())
+                return true;
+            return a < b;
+        }
+    );
+
+    s_favPropCache.needsRebuild = false;
+}
+
+void Sub_SpawnProp_Favourites()
+{
+    AddTitle("Favourites");
+
+    Menu::OnSubBack = []() { s_favPropCache.needsRebuild = true; };
+
+    bool searchActive = !s_favPropSearchStr.empty();
+
+    bool bSearchPressed = false;
+    AddOption(s_favPropSearchStr.empty() ? "~b~SEARCH~s~" : ("~b~" + s_favPropSearchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
+    if (bSearchPressed)
+    {
+        s_favPropSearchStr = Game::InputBox(s_favPropSearchStr, 64U, "Search favourites:", boost::to_lower_copy(s_favPropSearchStr));
+        boost::to_upper(s_favPropSearchStr);
+        s_favPropCache.needsRebuild = true;
+    }
+
+    if (s_favPropCache.needsRebuild)
+        RebuildFavPropCache(s_favPropSearchStr);
+
+    if (searchActive)
+        MenuCategory::ExpandAll();
+    else
+        MenuCategory::RestoreExpandedState();
+
+    bool bInputAdd = false;
+    AddOption("Add New Object Model", bInputAdd);
+    if (bInputAdd)
+    {
+        std::string inputStr = Game::InputBox("", 40U, "Enter model name:");
+        if (inputStr.length() > 0)
+        {
+            if (FavouritesManagement::AddPropToFavourites(inputStr, GET_HASH_KEY(inputStr)))
+            {
+                Game::Print::PrintBottomLeft("Model ~b~added~s~.");
+                s_favPropCache.needsRebuild = true;
+            }
+            else
+                Game::Print::PrintBottomLeft("~r~Error:~s~ Unable to add model.");
+        }
+    }
+
+    AddBreak("---");
+
+    MenuCategory::ResetCategoryState();
+    for (auto& cat : s_favPropCache.sortedCategories)
+    {
+        auto it = s_favPropCache.byCategory.find(cat);
+        if (it == s_favPropCache.byCategory.end())
+            continue;
+
+        auto& props = it->second;
+        std::string catName = cat.empty() ? "UNORDERED" : cat;
+        std::string catLabel = "— ~b~" + catName + "~s~ ~c~(" + std::to_string(props.size()) + ")~s~";
+
+        if (MenuCategory::AddCategory(catLabel))
+        {
+            for (auto& prop : props)
+            {
+                MenuOptions::AddOption_AddProp(prop.modelName, prop.model);
+
+                if (Menu::IsLastDrawnOptionSelected())
+                {
+                    if (Menu::usingControllerInput)
+                    {
+                        Menu::add_IB(INPUT_SCRIPT_RLEFT, "Remove");
+                        if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
+                        {
+                            FavouritesManagement::RemovePropFromFavourites(prop.modelName, prop.model.hash);
+                            s_favPropCache.needsRebuild = true;
+                            if (Menu::IsSelectionAtBottom())
+                                Menu::Up();
+                            return;
+                        }
+                        Menu::add_IB(INPUT_SCRIPT_RRIGHT, "Change category");
+                        if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RRIGHT))
+                        {
+                            dict = prop.modelName;
+                            Menu::pendingSubmenu = SUB::SPOONER_SPAWN_PROP_FAVOURITES_CATSELECT;
+                        }
+                    }
+                    else
+                    {
+                        Menu::add_IB(VirtualKey::B, "Remove");
+                        if (IsKeyJustUp(VirtualKey::B))
+                        {
+                            FavouritesManagement::RemovePropFromFavourites(prop.modelName, prop.model.hash);
+                            s_favPropCache.needsRebuild = true;
+                            if (Menu::IsSelectionAtBottom())
+                                Menu::Up();
+                            return;
+                        }
+                        Menu::add_IB(VirtualKey::C, "Change category");
+                        if (IsKeyJustUp(VirtualKey::C))
+                        {
+                            dict = prop.modelName;
+                            Menu::pendingSubmenu = SUB::SPOONER_SPAWN_PROP_FAVOURITES_CATSELECT;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Sub_SpawnProp_Favourites_CatSelect()
+{
+    std::string modelName = dict;
+    if (modelName.empty())
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    std::string currentCategory;
+    std::set<std::string> allCategories;
+    {
+        for (auto& kv : s_favPropCache.byCategory)
+        {
+            if (kv.first.empty())
+                continue;
+            allCategories.insert(kv.first);
+            for (auto& prop : kv.second)
+            {
+                if (prop.modelName == modelName)
+                    currentCategory = kv.first;
+            }
+        }
+    }
+
+    AddTitle("Select Category");
+
+    for (auto& cat : allCategories)
+    {
+        bool isSelected = (cat == currentCategory);
+        bool pressed = false;
+        AddTickol(cat, isSelected, pressed, pressed, TICKOL::TICK, TICKOL::NONE);
+        if (pressed)
+        {
+            FavouritesManagement::SetPropCategory(modelName, cat);
+            s_favPropCache.needsRebuild = true;
+            Menu::SetPreviousMenu();
+            return;
+        }
+    }
+
+    if (!allCategories.empty())
+        AddBreak("---");
+
+    bool newCatPressed = false;
+    AddOption("New Category", newCatPressed);
+    if (newCatPressed)
+    {
+        std::string newCat = Game::InputBox("", 64U, "NEW CATEGORY", "");
+        if (!newCat.empty())
+        {
+            FavouritesManagement::SetPropCategory(modelName, newCat);
+            s_favPropCache.needsRebuild = true;
+            Menu::SetPreviousMenu();
+        }
+    }
+
+    if (!currentCategory.empty())
+    {
+        bool removeCatPressed = false;
+        AddOption("Remove from Category", removeCatPressed);
+        if (removeCatPressed)
+        {
+            FavouritesManagement::SetPropCategory(modelName, "");
+            s_favPropCache.needsRebuild = true;
+            Menu::SetPreviousMenu();
+        }
+    }
+}
+
+void Sub_SpawnPed()
+{
+    bool modelChangerInput = false;
+    AddTitle("Spawn Ped");
+
+    AddOption("Favourites", null, nullFunc, SUB::MODELCHANGER_FAVOURITES);
+    AddOption("~b~Search~s~ Peds", null, nullFunc, SUB::MODELCHANGER_SEARCH);
+
+    AddOption("Player", null, nullFunc, SUB::MODELCHANGER_PLAYER);
+    AddOption("Animals", null, nullFunc, SUB::MODELCHANGER_ANIMAL);
+    AddOption("Ambient Females", null, nullFunc, SUB::MODELCHANGER_AMBFEMALES);
+    AddOption("Ambient Males", null, nullFunc, SUB::MODELCHANGER_AMBMALES);
+    AddOption("Cutscene Models", null, nullFunc, SUB::MODELCHANGER_CS);
+    AddOption("Gang Females", null, nullFunc, SUB::MODELCHANGER_GANGFEMALES);
+    AddOption("Gang Males", null, nullFunc, SUB::MODELCHANGER_GANGMALES);
+    AddOption("Story Models", null, nullFunc, SUB::MODELCHANGER_STORY);
+    AddOption("Multiplayer Models", null, nullFunc, SUB::MODELCHANGER_MP);
+    AddOption("Scenario Females", null, nullFunc, SUB::MODELCHANGER_SCENARIOFEMALES);
+    AddOption("Scenario Males", null, nullFunc, SUB::MODELCHANGER_SCENARIOMALES);
+    AddOption("Story Scenario Females", null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOFEMALES);
+    AddOption("Story Scenario Males", null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOMALES);
+    AddOption("Others", null, nullFunc, SUB::MODELCHANGER_OTHERS);
+    AddOption("~b~Input~s~ Model", modelChangerInput);
+
+    if (modelChangerInput)
+        EntityManagement::InputEntityIntoDb(EntityType::PED);
+}
+
+void Sub_SpawnVehicle()
+{
+    using VehicleSpawner::AddVehicleCategoryOption;
+    typedef VehicleSpawner::Indices Indices;
+
+    g_activePedHandle = PLAYER_PED_ID();
+
+    AddTitle("Spawn Vehicle");
+    AddOption("Favourites", null, nullFunc, SUB::SPAWNVEHICLE_FAVOURITES);
+    AddOption("~b~Search~s~ Vehicles", null, nullFunc, SUB::SPAWNVEHICLE_SEARCH);
+
+    AddBreak("---Cars---");
+    AddVehicleCategoryOption("Open Wheel", Indices::OPENWHEEL);
+    AddVehicleCategoryOption("Super", Indices::SUPER);
+    AddVehicleCategoryOption("Sports", Indices::SPORT);
+    AddVehicleCategoryOption("Sports Classics", Indices::SPORTSCLASSIC);
+    AddVehicleCategoryOption("Coupes", Indices::COUPE);
+    AddVehicleCategoryOption("Muscle", Indices::MUSCLE);
+    AddVehicleCategoryOption("Offroad", Indices::OFFROAD);
+    AddVehicleCategoryOption("SUVs", Indices::SUV);
+    AddVehicleCategoryOption("Sedans", Indices::SEDAN);
+    AddVehicleCategoryOption("Compacts", Indices::COMPACT);
+    AddVehicleCategoryOption("Drift", Indices::DRIFT);
+
+    AddBreak("---Industrial---");
+    AddVehicleCategoryOption("Vans", Indices::VAN);
+    AddVehicleCategoryOption("Services", Indices::SERVICE);
+    AddVehicleCategoryOption("Industrial", Indices::INDUSTRIAL);
+    AddVehicleCategoryOption("Commercial", Indices::COMMERCIAL);
+    AddVehicleCategoryOption("Utility", Indices::UTILITY);
+    AddVehicleCategoryOption("Trains", Indices::TRAIN);
+
+    AddBreak("---Others---");
+    AddVehicleCategoryOption("Emergency", Indices::EMERGENCY);
+    AddVehicleCategoryOption("Military", Indices::MILITARY);
+    AddVehicleCategoryOption("Motorcycles", Indices::MOTORCYCLE);
+    AddVehicleCategoryOption("Bicycles", Indices::BICYCLE);
+    AddVehicleCategoryOption("Planes", Indices::PLANE);
+    AddVehicleCategoryOption("Helicopters", Indices::HELICOPTER);
+    AddVehicleCategoryOption("Boats", Indices::BOAT);
+    AddVehicleCategoryOption("Others", Indices::OTHER);
+}
+} // namespace Spooner::Submenus
+
+void EntityAlphaLevelSub_()
+{
+    GTAentity entity = Spooner::Submenus::s_selectedEntityTarget;
+    auto alphaLevel = entity.GetAlpha();
+
+    AddTitle("Opacity");
+
+    bool bReset = false;
+    AddOption("Reset", bReset);
+    if (bReset)
+    {
+        entity.RequestControl();
+        entity.ResetAlpha();
+    }
+
+    std::array<BYTE, 5> alphaLevels = {0, 50, 89, 160, 255};
+
+    for (auto& lvl : alphaLevels)
+    {
+        bool bAlphaLevelPressed = false;
+        AddTickol(std::to_string((int)(((float)(lvl) / 255.0f) * 100)) + "%", alphaLevel == lvl, bAlphaLevelPressed, null);
+        if (bAlphaLevelPressed)
+        {
+            entity.RequestControl();
+            entity.SetAlpha(lvl);
+        }
+    }
+
+    AddBreak("---Manual---");
+    bool bInputPressed = false, bPlusPressed = false, bMinusPressed = false;
+    AddNumber("Level", alphaLevel, 0, bInputPressed, bPlusPressed, bMinusPressed);
+    if (bPlusPressed)
+    {
+        if (alphaLevel < 255)
+        {
+            alphaLevel++;
+            entity.RequestControl();
+            entity.SetAlpha(alphaLevel);
+        }
+    }
+    if (bMinusPressed)
+    {
+        if (alphaLevel > 0)
+        {
+            alphaLevel--;
+            entity.RequestControl();
+            entity.SetAlpha(alphaLevel);
+        }
+    }
+    if (bInputPressed)
+    {
+        std::string inputStr = Game::InputBox(std::string(), 4U, "Enter an alpha level (0-255):", std::to_string(alphaLevel));
+        if (inputStr.length() > 0)
+        {
+            try
+            {
+                alphaLevel = stoi(inputStr);
+                if (alphaLevel < 0 || alphaLevel > 255)
+                    throw;
+                entity.RequestControl();
+                entity.SetAlpha(alphaLevel);
+            }
+            catch (...)
+            {
+                Game::Print::PrintErrorInvalidInput(inputStr);
+            }
+        }
+        //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::AlphaLevelMenuInput, std::string(), 3U, "Enter an alpha level (0-255):", std::to_string(alphaLevel));
+        //OnscreenKeyboard::State::arg1._int = entity.GetHandle();
+        //OnscreenKeyboard::State::arg2._int = alphaLevel;
+    }
+}
+
+void PedExplosionSub()
+{
+    GTAped thisPed = g_activePedHandle;
+
+    if (!thisPed.Exists())
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    AddTitle("Explosions");
+
+    static std::array<std::pair<EXPLOSION::EXPLOSION, std::string>, 16> vExplosionNames{{
+        {EXPLOSION::MOLOTOV, "Molotov"},
+        {EXPLOSION::TANKSHELL, "Tankshell"},
+        {EXPLOSION::CAR, "Car"},
+        {EXPLOSION::PLANE, "Plane"},
+        {EXPLOSION::PETROL_PUMP, "Petrol Pump"},
+        {EXPLOSION::DIR_STEAM, "Steam"},
+        {EXPLOSION::DIR_FLAME, "Flame"},
+        {EXPLOSION::DIR_WATER_HYDRANT, "Water Hydrant"},
+        {EXPLOSION::SHIP_DESTROY, "Ship"},
+        {EXPLOSION::FLARE, "Flare"},
+        {EXPLOSION::BULLET, "Bullet"},
+        {EXPLOSION::TRAIN, "Train"},
+        {EXPLOSION::BLIMP, "Blimp"},
+        {EXPLOSION::DIR_FLAME_EXPLODE, "Stronger Flame"},
+        {EXPLOSION::FIREWORK, "Firework"},
+        {EXPLOSION::VALKYRIE_CANNON, "Valkyrie Cannon"},
+    }};
+
+    for (auto& i : vExplosionNames)
+    {
+        bool bPressed = false;
+        AddOption(i.second, bPressed);
+        if (bPressed)
+        {
+            World::AddExplosion(thisPed.GetPosition(), i.first, 10.0f, 1.5f, true, true);
+        }
+    }
+
+    bool bInvisible_pressed = false;
+    AddOption("Invisible", bInvisible_pressed);
+    if (bInvisible_pressed)
+    {
+        World::AddExplosion(thisPed.GetPosition(), EXPLOSION::BLIMP, 10.0f, 0.1f, false, false);
+    }
+
+    bool bTaze_pressed = false;
+    AddOption("Taze Ped", bTaze_pressed);
+    if (bTaze_pressed)
+    {
+        auto& ped = thisPed;
+        Vector3 startPos = ped.GetOffsetInWorldCoords(0.5f, 2.8f, 1.0f);
+        Vector3 targPos = ped.GetPosition(); //GET_PED_BONE_COORDS(ped.Handle(), Bone::Chest, 0, 0, 0);
+                                             //ped.RequestControl();
+        CLEAR_AREA_OF_PROJECTILES(startPos.x, startPos.y, startPos.z, 4.0f, 0);
+        World::ShootBullet(startPos, targPos, 0, WEAPON_STUNGUN, 5, 2000.0f, false, true);
+    }
+
+    bool bApplyDamage_Pressed = false;
+    AddOption("Hurt Ped (Do Damage)", bApplyDamage_Pressed);
+    if (bApplyDamage_Pressed)
+    {
+        thisPed.ApplyDamage(600);
+    }
+}
+
+void AttachFunnyObjectSub()
+{
+    bool Network_ObjectSub_Coffin = 0, Network_ObjectSub_Gnome = 0, Network_ObjectSub_PeeHose = 0, Network_ObjectSub_Marker1 = 0, Network_ObjectSub_Cone = 0, Network_ObjectSub_Egg = 0,
+         Network_ObjectSub_Weed = 0, Network_ObjectSub_OrangeBall = 0, Network_ObjectSub_InflatedLenny = 0, Network_ObjectSub_fatTV = 0, Network_ObjectSub_TV = 0, Network_ObjectSub_Headset = 0,
+         Network_ObjectSub_Snowman = 0, Network_ObjectSub_Dildo = 0, Network_ObjectSub_BigClock = 0, Network_ObjectSub_Glove = 0, Network_ObjectSub_Katana = 0, Network_ObjectSub_BigShit = 0,
+         Network_ObjectSub_YetiMask = 0, Network_ObjectSub_SkiMask = 0, Network_ObjectSub_CowboyHat = 0, Network_ObjectSub_HardHat = 0, Network_ObjectSub_BeachFire = 0, Network_ObjectSub_Custom = 0,
+         Network_ObjectSub_Clear = 0, Network_ObjectSub_Mani = 0, Network_ObjectSub_Chop = 0, Network_ObjectSub_Alien = 0, Network_ObjectSub_Cow = 0, Network_ObjectSub_CustomPed = 0,
+         Network_ObjectSub_ClearPeds = 0, Network_ObjectSub_ClearVehicles = 0;
+
+
+    AddTitle("Attach Objects");
+    AddOption("Coffin", Network_ObjectSub_Coffin);
+    AddOption("Garden Gnome", Network_ObjectSub_Gnome); // NEEDS TO BE DONE WITH BONE ID 31086
+    AddOption("Pee-Hose", Network_ObjectSub_PeeHose);
+    AddOption("Placement Marker", Network_ObjectSub_Marker1);
+    AddOption("Traffic Cone", Network_ObjectSub_Cone);
+    AddOption("Alien Egg", Network_ObjectSub_Egg);
+    AddOption("W33d", Network_ObjectSub_Weed);
+    AddOption("Orange Ball", Network_ObjectSub_OrangeBall);
+    AddOption("Inflated Lenny", Network_ObjectSub_InflatedLenny);
+    AddOption("Fat-screen TV", Network_ObjectSub_fatTV);
+    AddOption("Flatscreen TV", Network_ObjectSub_TV);
+    AddOption("Headset", Network_ObjectSub_Headset);
+    AddOption("Snowman", Network_ObjectSub_Snowman);
+    AddOption("Dildo", Network_ObjectSub_Dildo);
+    AddOption("Big Clock", Network_ObjectSub_BigClock);
+    AddOption("Boxing Gloves", Network_ObjectSub_Glove);
+    AddOption("Katanas", Network_ObjectSub_Katana);
+    AddOption("Poo", Network_ObjectSub_BigShit);
+    AddOption("Yeti Mask", Network_ObjectSub_YetiMask);
+    AddOption("Ski Mask", Network_ObjectSub_SkiMask);
+    AddOption("Cowboy Hat", Network_ObjectSub_CowboyHat);
+    AddOption("Hard Hat", Network_ObjectSub_HardHat);
+    AddOption("Mad Fire", Network_ObjectSub_BeachFire);
+    AddOption("Mani", Network_ObjectSub_Mani);
+    AddOption("Chop", Network_ObjectSub_Chop);
+    AddOption("Alien", Network_ObjectSub_Alien);
+    AddOption("Cow", Network_ObjectSub_Cow);
+    AddOption("Input Object Model", Network_ObjectSub_Custom);
+    AddOption("Input Ped Model", Network_ObjectSub_CustomPed);
+    AddOption("Clear Objects", Network_ObjectSub_Clear);
+    AddOption("Clear Peds", Network_ObjectSub_ClearPeds);
+    AddOption("Clear Vehicles", Network_ObjectSub_ClearVehicles);
+
+
+    if (Network_ObjectSub_Coffin)
+    {
+        Hash tempHash = 460248592; // prop_coffin_02
+        int tempBone = 1;
+        float att_x = 0.0f;
+        float att_y = 0.0f;
+        float att_z = 0.01f;
+        float att_rx = 89.0f;
+        float att_ry = 181.0f;
+        float att_rz = 0.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_Gnome)
+    {
+        Hash tempHash = 4283117964; // gnome
+        int tempBone = 31086;
+        float att_x = -0.17f;
+        float att_y = 0.14f;
+        float att_z = -0.01f;
+        float att_rx = 14.21f;
+        float att_ry = -92.0f;
+        float att_rz = 176.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_PeeHose)
+    {
+        Hash tempHash = 1864388154; // sprinkler
+        int tempBone = 1;
+        float att_x = 0.0f;
+        float att_y = 0.0f;
+        float att_z = -0.243f;
+        float att_rx = -0.046f;
+        float att_ry = 0.0f;
+        float att_rz = 283.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_Marker1)
+    {
+        Hash tempHash = 3712170306; // prop_mp_placement_sm
+        int tempBone = 0;
+        float att_x = 0.0f;
+        float att_y = 0.0f;
+        float att_z = -0.54f;
+        float att_rx = 0.0f;
+        float att_ry = 0.0f;
+        float att_rz = 0.0f;
+        Model(tempHash).Load(2000);
+        //tempBone = GET_PED_BONE_INDEX(Static_241, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_Cone)
+    {
+        Hash tempHash = 3760607069;
+        int tempBone = 31086;
+        float att_x = 0.1f;
+        float att_y = 0.02f;
+        float att_z = 0.0f;
+        float att_rx = 0.0f;
+        float att_ry = 90.0f;
+        float att_rz = 0.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_Egg)
+    {
+        Hash tempHash = 1803116220;
+        int tempBone = 31086;
+        float att_x = 0.1f;
+        float att_y = 0.02f;
+        float att_z = 0.0f;
+        float att_rx = 0.0f;
+        float att_ry = 90.0f;
+        float att_rz = 0.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_Weed)
+    {
+        Hash tempHash = 452618762;
+        int tempBone = 31086;
+        float att_x = 0.1f;
+        float att_y = 0.02f;
+        float att_z = 0.0f;
+        float att_rx = 0.0f;
+        float att_ry = 90.0f;
+        float att_rz = 0.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_OrangeBall)
+    {
+        Hash tempHash = 148511758; // prop_juicestand
+        int tempBone = 31086;
+        float att_x = 0.0f;
+        float att_y = 0.0f;
+        float att_z = 0.0f;
+        float att_rx = 0.0f;
+        float att_ry = 0.0f;
+        float att_rz = 0.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_InflatedLenny)
+    {
+        Hash tempHash = 2402097066;
+        int tempBone = 31086;
+        float att_x = -0.01f;
+        float att_y = -0.03f;
+        float att_z = -0.02f;
+        float att_rx = 181.6272f;
+        float att_ry = 92.7292f;
+        float att_rz = -0.39f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_fatTV)
+    {
+        Hash tempHash = 480355301;
+        int tempBone = 31086;
+        float att_x = 1.0f;
+        float att_y = 0.03f;
+        float att_z = -0.08f;
+        float att_rx = 181.0999f;
+        float att_ry = 86.0f;
+        float att_rz = 2.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_TV)
+    {
+        Hash tempHash = 1036195894;
+        int tempBone = 31086;
+        float att_x = 0.22f;
+        float att_y = 0.0f;
+        float att_z = 0.0f;
+        float att_rx = 180.0f;
+        float att_ry = 90.0f;
+        float att_rz = -11.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_Headset)
+    {
+        Hash tempHash = 3885918439;
+        int tempBone = 31086;
+        float att_x = 0.07f;
+        float att_y = -0.01f;
+        float att_z = 0.0f;
+        float att_rx = -175.0f;
+        float att_ry = 85.0f;
+        float att_rz = -11.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_Snowman)
+    {
+        Hash tempHash = 2677555217;
+        int tempBone = -1;
+        float att_x = 0.0f;
+        float att_y = 0.0f;
+        float att_z = 0.0f;
+        float att_rx = 0.0f;
+        float att_ry = 0.0f;
+        float att_rz = -32.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_Dildo)
+    {
+        Hash tempHash = 3872089630;
+        int tempBone = 31086;
+        float att_x = 0.22f;
+        float att_y = 0.0f;
+        float att_z = 0.0f;
+        float att_rx = 180.0f;
+        float att_ry = 90.0f;
+        float att_rz = -11.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_BigClock)
+    {
+        Hash tempHash = 3948540099;
+        int tempBone = 31086;
+        float att_x = 0.1f;
+        float att_y = 0.02f;
+        float att_z = 0.0f;
+        float att_rx = 0.0f;
+        float att_ry = 90.0f;
+        float att_rz = 0.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_Glove)
+    {
+        Hash tempHash = 335898267; // prop_boxing_glove_01
+        int tempBone = Bone::RightHand;
+        float att_x = -0.06f;
+        float att_y = 0.0f;
+        float att_z = -0.03f;
+        float att_rx = 90.0f;
+        float att_ry = 90.0f;
+        float att_rz = 0.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        tempBone = Bone::LeftHand;
+        att_x = -0.05f;
+        att_y = 0.0f;
+        att_z = 0.03f;
+        att_rx = -90.0f;
+        att_ry = 90.0f;
+        att_rz = 0.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        SET_MODEL_AS_NO_LONGER_NEEDED(tempHash);
+        return;
+    }
+
+    if (Network_ObjectSub_Katana)
+    {
+        Hash tempHash = 3803840879;
+        int tempBone = 28422;
+        float att_x = 0.056f;
+        float att_y = 0.05f;
+        float att_z = -0.01f;
+        float att_rx = -77.0f;
+        float att_ry = 10.6f;
+        float att_rz = 0.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        tempHash = 3803840879;
+        tempBone = 60309;
+        att_x = 0.0500f;
+        att_y = 0.0400f;
+        att_z = 0.0000f;
+        att_rx = -122.5596f;
+        att_ry = 0.0000f;
+        att_rz = 0.0000f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_BigShit)
+    {
+        for (int i = 0; i < 100; i++)
+        {
+            Hash tempHash = 2223607550;
+            int tempBone = 31086;
+            float att_x = 0.1f;
+            float att_y = 0.03f;
+            float att_z = 0.0f;
+            float att_rx = 0.0f;
+            float att_ry = 90.0f;
+            float att_rz = 0.0f;
+            Model(tempHash).Load(2000);
+            tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+            int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+            ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+            SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        }
+        return;
+    }
+
+    if (Network_ObjectSub_YetiMask)
+    {
+        Hash tempHash = 3379896055;
+        int tempBone = 31086;
+        float att_x = 0.007f;
+        float att_y = -0.019f;
+        float att_z = 0.001f;
+        float att_rx = 168.999f;
+        float att_ry = 93.0001f;
+        float att_rz = -3.0011f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_SkiMask)
+    {
+        Hash tempHash = 3083173879;
+        int tempBone = 31086;
+        float att_x = 0.02f;
+        float att_y = 0.022f;
+        float att_z = 0.002f;
+        float att_rx = 178.13f;
+        float att_ry = 88.4692f;
+        float att_rz = 6.7001f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_CowboyHat)
+    {
+        Hash tempHash = 2365581599;
+        int tempBone = 31086;
+        float att_x = 0.12f;
+        float att_y = 0.0f;
+        float att_z = 0.0f;
+        float att_rx = -173.47f;
+        float att_ry = 92.0799f;
+        float att_rz = -10.92f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_HardHat)
+    {
+        Hash tempHash = 3757476377;
+        int tempBone = 31086;
+        float att_x = 0.1f;
+        float att_y = 0.0f;
+        float att_z = 0.0f;
+        float att_rx = 180.0f;
+        float att_ry = 85.0f;
+        float att_rz = -11.0f;
+        Model(tempHash).Load(2000);
+        tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+        int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+        ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+        SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        return;
+    }
+
+    if (Network_ObjectSub_BeachFire)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            Hash tempHash = 3229200997;
+            int tempBone = -1;
+            float att_x = 0.0f;
+            float att_y = 0.0f;
+            float att_z = 0.0f;
+            float att_rx = 0.0f;
+            float att_ry = 0.0f;
+            float att_rz = 0.0f;
+            Model(tempHash).Load(2000);
+            tempBone = GET_PED_BONE_INDEX(g_activePedHandle, tempBone);
+            int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+            ATTACH_ENTITY_TO_ENTITY(tempObject, g_activePedHandle, tempBone, att_x, att_y, att_z - 0.26f, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+            SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+        }
+        return;
+    }
+
+    if (Network_ObjectSub_Custom)
+    {
+        std::string inputStr = Game::InputBox("", 64U, "Enter prop name:");
+        if (inputStr.length() > 0)
+        {
+            Entity tempEntity = g_activePedHandle;
+            Hash tempHash = GET_HASH_KEY(inputStr);
+            if (!IS_MODEL_IN_CDIMAGE(tempHash))
+                Game::Print::PrintErrorInvalidModel(inputStr);
+            else
+            {
+                if (IS_PED_IN_ANY_VEHICLE(g_activePedHandle, 0))
+                    tempEntity = GET_VEHICLE_PED_IS_IN(g_activePedHandle, 0);
+
+                float att_x = 0.0f;
+                float att_y = 0.0f;
+                float att_z = 0.0f;
+                float att_rx = 0.0f;
+                float att_ry = 0.0f;
+                float att_rz = 0.0f;
+                if (Model(tempHash).Load(2000))
+                {
+                    int tempObject = CREATE_OBJECT(tempHash, 0.0f, 0.0f, 0.0f, 1, 1, 0);
+                    ATTACH_ENTITY_TO_ENTITY(tempObject, tempEntity, 0, att_x, att_y, att_z, att_rx, att_ry, att_rz, 1, 1, 0, 0, 2, 1, 0);
+                    SET_OBJECT_AS_NO_LONGER_NEEDED(&tempObject);
+                }
+            }
+        }
+        //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::NetworkAttachObjectsCustomProp, "", 64U, "Enter prop name:");
+        return;
+    }
+
+    if (Network_ObjectSub_Clear)
+    {
+        Vector3 temp = GET_ENTITY_COORDS(g_activePedHandle, 1);
+        ClearAttachmentsOffEntity(g_activePedHandle, EntityType::PROP);
+        CLEAR_AREA_OF_OBJECTS(temp.x, temp.y, temp.z, 2.5f, 0);
+        return;
+    }
+
+    if (Network_ObjectSub_Mani)
+    {
+        AttachPedToVehicle(PedHash::Mani, g_activePedHandle, Vector3(), Vector3(), false, true);
+        return;
+    }
+
+    if (Network_ObjectSub_Chop)
+    {
+        AttachPedToVehicle(PedHash::Chop, g_activePedHandle, Vector3(), Vector3(), false, true);
+        return;
+    }
+
+    if (Network_ObjectSub_Alien)
+    {
+        AttachPedToVehicle(PedHash::MovAlien01, g_activePedHandle, Vector3(), Vector3(), false, true);
+        return;
+    }
+
+    if (Network_ObjectSub_Cow)
+    {
+        AttachPedToVehicle(PedHash::Cow, g_activePedHandle, Vector3(), Vector3(), false, false);
+        return;
+    }
+
+    if (Network_ObjectSub_CustomPed)
+    {
+        std::string inputStr = Game::InputBox("", 64U, "Enter ped name:");
+        if (inputStr.length() > 0)
+        {
+            Hash tempHash = GET_HASH_KEY(inputStr);
+            if (!IS_MODEL_IN_CDIMAGE(tempHash))
+                Game::Print::PrintErrorInvalidModel(inputStr);
+            else
+            {
+                Entity tempEntity = g_activePedHandle;
+                if (IS_PED_IN_ANY_VEHICLE(g_activePedHandle, 0))
+                    tempEntity = GET_VEHICLE_PED_IS_IN(g_activePedHandle, 0);
+                AttachPedToVehicle(tempHash, tempEntity, Vector3(), Vector3(), false, true);
+            }
+        }
+        //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::NetworkAttachObjectsCustomPed, "", 64U, "Enter ped name:");
+        return;
+    }
+
+    if (Network_ObjectSub_ClearPeds)
+    {
+        Vector3 temp = GET_ENTITY_COORDS(g_activePedHandle, 1);
+        ClearAttachmentsOffEntity(g_activePedHandle, EntityType::PED);
+        CLEAR_AREA_OF_PEDS(temp.x, temp.y, temp.z, 2.5f, 0);
+        return;
+    }
+
+    if (Network_ObjectSub_ClearVehicles)
+    {
+        Vector3 temp = GET_ENTITY_COORDS(g_activePedHandle, 1);
+        ClearAttachmentsOffEntity(g_activePedHandle, EntityType::VEHICLE);
+        CLEAR_AREA_OF_PEDS(temp.x, temp.y, temp.z, 2.5f, 0);
+        return;
+    }
+}
+
+} // namespace sub
 
 #include "..\..\Menu\submenu_switch.h"
 #include "..\..\Menu\submenu_enum.h"
-REGISTER_SUBMENU(PEDEXPLOSIONSUB,      									sub::PedExplosionSub)
-REGISTER_SUBMENU(ATTACHFUNNYOBJECTSUB, 									sub::AttachFunnyObjectSub)
-REGISTER_SUBMENU(ENTITYALPHALEVEL,     									sub::EntityAlphaLevelSub_)
-REGISTER_SUBMENU(SPOONER_MAIN,                                        	sub::Spooner::Submenus::Sub_SpoonerMain)
-REGISTER_SUBMENU(SPOONER_SPAWN_CATEGORIES,                            	sub::Spooner::Submenus::Sub_SpawnCategories)
-REGISTER_SUBMENU(SPOONER_SPAWN_PROP,                                  	sub::Spooner::Submenus::Sub_SpawnProp)
-REGISTER_SUBMENU(SPOONER_SPAWN_PROP_FAVOURITES,                       	sub::Spooner::Submenus::Sub_SpawnProp_Favourites)
-REGISTER_SUBMENU(SPOONER_SPAWN_PROP_FAVOURITES_CATSELECT,             	sub::Spooner::Submenus::Sub_SpawnProp_Favourites_CatSelect)
-REGISTER_SUBMENU(SPOONER_SPAWN_PED,                                   	sub::Spooner::Submenus::Sub_SpawnPed)
-REGISTER_SUBMENU(SPOONER_SPAWN_VEHICLE,                               	sub::Spooner::Submenus::Sub_SpawnVehicle)
-REGISTER_SUBMENU(SPOONER_MANAGEMARKERS,                               	sub::Spooner::Submenus::Sub_ManageMarkers)
-REGISTER_SUBMENU(SPOONER_MANAGEMARKERS_REMOVAL,                       	sub::Spooner::Submenus::Sub_ManageMarkers_Removal)
-REGISTER_SUBMENU(SPOONER_MANAGEMARKERS_INMARKER,                      	sub::Spooner::Submenus::Sub_ManageMarkers_InMarker)
-REGISTER_SUBMENU(SPOONER_MANAGEMARKERS_INMARKER_DEST2MARKER,          	sub::Spooner::Submenus::Sub_ManageMarkers_InMarker_Dest2Marker)
-REGISTER_SUBMENU(SPOONER_MANAGEMARKERS_INMARKER_ATTACH,               	sub::Spooner::Submenus::Sub_ManageMarkers_InMarker_Attach)
-REGISTER_SUBMENU(SPOONER_MANAGELIGHTS,                                 	sub::Spooner::Submenus::Sub_ManageLights)
-REGISTER_SUBMENU(SPOONER_MANAGELIGHTS_REMOVAL,                         	sub::Spooner::Submenus::Sub_ManageLights_Removal)
-REGISTER_SUBMENU(SPOONER_MANAGELIGHTS_INLIGHT,                         	sub::Spooner::Submenus::Sub_ManageLights_InLight)
-REGISTER_SUBMENU(SPOONER_MANAGELIGHTS_PRESETS,                         	sub::Spooner::Submenus::Sub_ManageLights_Presets)
-REGISTER_SUBMENU(SPOONER_MANAGELIGHTS_COLOUR,                          	sub::Spooner::Submenus::Sub_ManageLights_Colour)
-REGISTER_SUBMENU(SPOONER_MANAGEDB,                                    	sub::Spooner::Submenus::Sub_ManageEntities)
-REGISTER_SUBMENU(SPOONER_MANAGEDB_REMOVAL,                            	sub::Spooner::Submenus::Sub_ManageEntities_Removal)
-REGISTER_SUBMENU(SPOONER_SAVEFILES,                                   	sub::Spooner::Submenus::Sub_SaveFiles)
-REGISTER_SUBMENU(SPOONER_SAVEFILES_LOAD,                              	sub::Spooner::Submenus::Sub_SaveFiles_Load)
-REGISTER_SUBMENU(SPOONER_SAVEFILES_LOAD_LEGACYSP00N,                  	sub::Spooner::Submenus::Sub_SaveFiles_Load_LegacySP00N)
-REGISTER_SUBMENU(SPOONER_AUTOSAVE,                                    	sub::Spooner::Submenus::Sub_AutoSave)
-REGISTER_SUBMENU(SPOONER_VECTOR3_MANUALEDITING,                     	sub::Spooner::Submenus::Sub_Vector3_ManualEditing)
-REGISTER_SUBMENU(SPOONER_MULTISELECT,                                  	sub::Spooner::Submenus::Sub_MultiSelect)
-REGISTER_SUBMENU(SPOONER_JOBIMPORTER,                                    	sub::Spooner::Submenus::Sub_JobImporter)
-REGISTER_SUBMENU(SPOONER_JOBBROWSER,                                     	sub::Spooner::Submenus::Sub_JobBrowser)
-REGISTER_SUBMENU(SPOONER_JOBBROWSER_MYCONTENT,                                	sub::Spooner::Submenus::Sub_JobBrowser)
-REGISTER_SUBMENU(SPOONER_JOBBROWSER_FRIENDCONTENT,                            	sub::Spooner::Submenus::Sub_JobBrowser)
-REGISTER_SUBMENU(SPOONER_JOBBROWSER_MOSTRECENT,                               	sub::Spooner::Submenus::Sub_JobBrowser)
-REGISTER_SUBMENU(SPOONER_JOBBROWSER_TOPRATED,                                 	sub::Spooner::Submenus::Sub_JobBrowser)
-REGISTER_SUBMENU(SPOONER_JOBBROWSER_CREWCONTENT,                              	sub::Spooner::Submenus::Sub_JobBrowser)
-REGISTER_SUBMENU(SPOONER_JOBBROWSER_INFO,                                	sub::Spooner::Submenus::Sub_JobBrowser_Info)
-REGISTER_SUBMENU(SPOONER_SETTINGS,                                    	sub::Spooner::Submenus::Sub_Settings)
-REGISTER_SUBMENU(SPOONER_SELECTEDENTITYOPS,                           	sub::Spooner::Submenus::Sub_SelectedEntityOps)
-REGISTER_SUBMENU(SPOONER_PEDOPS,                                      	sub::Spooner::Submenus::Sub_PedOps)
-REGISTER_SUBMENU(SPOONER_PEDOPS_WEAPON,                               	sub::Spooner::Submenus::Sub_PedOps_Weapon)
-REGISTER_SUBMENU(SPOONER_PEDOPS_WEAPON_INCATEGORY,                   	sub::Spooner::Submenus::Sub_PedOps_Weapon_InCategory)
-REGISTER_SUBMENU(SPOONER_ATTACHMENTOPS,                               	sub::Spooner::Submenus::Sub_AttachmentOps)
-REGISTER_SUBMENU(SPOONER_ATTACHMENTOPS_ATTACHTO,                      	sub::Spooner::Submenus::Sub_AttachmentOps_AttachTo)
-REGISTER_SUBMENU(SPOONER_ATTACHMENTOPS_SELECTBONE,                    	sub::Spooner::Submenus::Sub_AttachmentOps_SelectBone)
-REGISTER_SUBMENU(SPOONER_MANUALEDITING,                               	sub::Spooner::Submenus::Sub_ManualEditing)
-REGISTER_SUBMENU(SPOONER_MANUALEDITING_SNAP,                          	sub::Spooner::Submenus::Sub_Snapping)
-REGISTER_SUBMENU(OBJECTSPAWNER_SEARCH,                                	sub::Spooner::Submenus::ObjectSpawnerSearchMenu)
-REGISTER_SUBMENU(SPOONER_BLIPS,											sub::Spooner::Submenus::Sub_Blip_Management)
-REGISTER_SUBMENU(SPOONER_BLIPS_ADD_RADIAL,								sub::Spooner::Submenus::Sub_Blip_Radial)
-REGISTER_SUBMENU(SPOONER_BLIPS_ADD_ENTITY,								sub::Spooner::Submenus::Sub_Blip_Entity)
-REGISTER_SUBMENU(SPOONER_BLIPS_ADD_COORD,								sub::Spooner::Submenus::Sub_Blip_Coord)
-REGISTER_SUBMENU(SPOONER_BLIPS_RADIALINBLIP,							sub::Spooner::Submenus::Sub_Blip_RadialInBlip)
-REGISTER_SUBMENU(SPOONER_BLIPS_COORDINBLIP,								sub::Spooner::Submenus::Sub_Blip_CoordInBlip)
-REGISTER_SUBMENU(SPOONER_BLIPS_ENTITYINBLIP,							sub::Spooner::Submenus::Sub_Blip_EntityInBlip)
-REGISTER_SUBMENU(SPOONER_BLIPS_ENTITY_SELECT,							sub::Spooner::Submenus::Sub_Blip_Entity_Select)
-REGISTER_SUBMENU(SPOONER_BLIPS_ATTACH,									sub::Spooner::Submenus::Sub_Blip_Attach)
-REGISTER_SUBMENU(SPOONER_BLIPS_ICONS,									sub::Spooner::Submenus::Sub_Blip_Icons)
+REGISTER_SUBMENU(PEDEXPLOSIONSUB, sub::PedExplosionSub)
+REGISTER_SUBMENU(ATTACHFUNNYOBJECTSUB, sub::AttachFunnyObjectSub)
+REGISTER_SUBMENU(ENTITYALPHALEVEL, sub::EntityAlphaLevelSub_)
+REGISTER_SUBMENU(SPOONER_MAIN, sub::Spooner::Submenus::Sub_SpoonerMain)
+REGISTER_SUBMENU(SPOONER_SPAWN_CATEGORIES, sub::Spooner::Submenus::Sub_SpawnCategories)
+REGISTER_SUBMENU(SPOONER_SPAWN_PROP, sub::Spooner::Submenus::Sub_SpawnProp)
+REGISTER_SUBMENU(SPOONER_SPAWN_PROP_FAVOURITES, sub::Spooner::Submenus::Sub_SpawnProp_Favourites)
+REGISTER_SUBMENU(SPOONER_SPAWN_PROP_FAVOURITES_CATSELECT, sub::Spooner::Submenus::Sub_SpawnProp_Favourites_CatSelect)
+REGISTER_SUBMENU(SPOONER_SPAWN_PED, sub::Spooner::Submenus::Sub_SpawnPed)
+REGISTER_SUBMENU(SPOONER_SPAWN_VEHICLE, sub::Spooner::Submenus::Sub_SpawnVehicle)
+REGISTER_SUBMENU(SPOONER_MANAGEMARKERS, sub::Spooner::Submenus::Sub_ManageMarkers)
+REGISTER_SUBMENU(SPOONER_MANAGEMARKERS_REMOVAL, sub::Spooner::Submenus::Sub_ManageMarkers_Removal)
+REGISTER_SUBMENU(SPOONER_MANAGEMARKERS_INMARKER, sub::Spooner::Submenus::Sub_ManageMarkers_InMarker)
+REGISTER_SUBMENU(SPOONER_MANAGEMARKERS_INMARKER_DEST2MARKER, sub::Spooner::Submenus::Sub_ManageMarkers_InMarker_Dest2Marker)
+REGISTER_SUBMENU(SPOONER_MANAGEMARKERS_INMARKER_ATTACH, sub::Spooner::Submenus::Sub_ManageMarkers_InMarker_Attach)
+REGISTER_SUBMENU(SPOONER_MANAGELIGHTS, sub::Spooner::Submenus::Sub_ManageLights)
+REGISTER_SUBMENU(SPOONER_MANAGELIGHTS_REMOVAL, sub::Spooner::Submenus::Sub_ManageLights_Removal)
+REGISTER_SUBMENU(SPOONER_MANAGELIGHTS_INLIGHT, sub::Spooner::Submenus::Sub_ManageLights_InLight)
+REGISTER_SUBMENU(SPOONER_MANAGELIGHTS_PRESETS, sub::Spooner::Submenus::Sub_ManageLights_Presets)
+REGISTER_SUBMENU(SPOONER_MANAGELIGHTS_COLOUR, sub::Spooner::Submenus::Sub_ManageLights_Colour)
+REGISTER_SUBMENU(SPOONER_MANAGEDB, sub::Spooner::Submenus::Sub_ManageEntities)
+REGISTER_SUBMENU(SPOONER_MANAGEDB_REMOVAL, sub::Spooner::Submenus::Sub_ManageEntities_Removal)
+REGISTER_SUBMENU(SPOONER_SAVEFILES, sub::Spooner::Submenus::Sub_SaveFiles)
+REGISTER_SUBMENU(SPOONER_SAVEFILES_LOAD, sub::Spooner::Submenus::Sub_SaveFiles_Load)
+REGISTER_SUBMENU(SPOONER_SAVEFILES_LOAD_LEGACYSP00N, sub::Spooner::Submenus::Sub_SaveFiles_Load_LegacySP00N)
+REGISTER_SUBMENU(SPOONER_AUTOSAVE, sub::Spooner::Submenus::Sub_AutoSave)
+REGISTER_SUBMENU(SPOONER_VECTOR3_MANUALEDITING, sub::Spooner::Submenus::Sub_Vector3_ManualEditing)
+REGISTER_SUBMENU(SPOONER_MULTISELECT, sub::Spooner::Submenus::Sub_MultiSelect)
+REGISTER_SUBMENU(SPOONER_JOBIMPORTER, sub::Spooner::Submenus::Sub_JobImporter)
+REGISTER_SUBMENU(SPOONER_JOBBROWSER, sub::Spooner::Submenus::Sub_JobBrowser)
+REGISTER_SUBMENU(SPOONER_JOBBROWSER_MYCONTENT, sub::Spooner::Submenus::Sub_JobBrowser)
+REGISTER_SUBMENU(SPOONER_JOBBROWSER_FRIENDCONTENT, sub::Spooner::Submenus::Sub_JobBrowser)
+REGISTER_SUBMENU(SPOONER_JOBBROWSER_MOSTRECENT, sub::Spooner::Submenus::Sub_JobBrowser)
+REGISTER_SUBMENU(SPOONER_JOBBROWSER_TOPRATED, sub::Spooner::Submenus::Sub_JobBrowser)
+REGISTER_SUBMENU(SPOONER_JOBBROWSER_CREWCONTENT, sub::Spooner::Submenus::Sub_JobBrowser)
+REGISTER_SUBMENU(SPOONER_JOBBROWSER_INFO, sub::Spooner::Submenus::Sub_JobBrowser_Info)
+REGISTER_SUBMENU(SPOONER_SETTINGS, sub::Spooner::Submenus::Sub_Settings)
+REGISTER_SUBMENU(SPOONER_SELECTEDENTITYOPS, sub::Spooner::Submenus::Sub_SelectedEntityOps)
+REGISTER_SUBMENU(SPOONER_PEDOPS, sub::Spooner::Submenus::Sub_PedOps)
+REGISTER_SUBMENU(SPOONER_PEDOPS_WEAPON, sub::Spooner::Submenus::Sub_PedOps_Weapon)
+REGISTER_SUBMENU(SPOONER_PEDOPS_WEAPON_INCATEGORY, sub::Spooner::Submenus::Sub_PedOps_Weapon_InCategory)
+REGISTER_SUBMENU(SPOONER_ATTACHMENTOPS, sub::Spooner::Submenus::Sub_AttachmentOps)
+REGISTER_SUBMENU(SPOONER_ATTACHMENTOPS_ATTACHTO, sub::Spooner::Submenus::Sub_AttachmentOps_AttachTo)
+REGISTER_SUBMENU(SPOONER_ATTACHMENTOPS_SELECTBONE, sub::Spooner::Submenus::Sub_AttachmentOps_SelectBone)
+REGISTER_SUBMENU(SPOONER_MANUALEDITING, sub::Spooner::Submenus::Sub_ManualEditing)
+REGISTER_SUBMENU(SPOONER_MANUALEDITING_SNAP, sub::Spooner::Submenus::Sub_Snapping)
+REGISTER_SUBMENU(OBJECTSPAWNER_SEARCH, sub::Spooner::Submenus::ObjectSpawnerSearchMenu)
+REGISTER_SUBMENU(SPOONER_BLIPS, sub::Spooner::Submenus::Sub_Blip_Management)
+REGISTER_SUBMENU(SPOONER_BLIPS_ADD_RADIAL, sub::Spooner::Submenus::Sub_Blip_Radial)
+REGISTER_SUBMENU(SPOONER_BLIPS_ADD_ENTITY, sub::Spooner::Submenus::Sub_Blip_Entity)
+REGISTER_SUBMENU(SPOONER_BLIPS_ADD_COORD, sub::Spooner::Submenus::Sub_Blip_Coord)
+REGISTER_SUBMENU(SPOONER_BLIPS_RADIALINBLIP, sub::Spooner::Submenus::Sub_Blip_RadialInBlip)
+REGISTER_SUBMENU(SPOONER_BLIPS_COORDINBLIP, sub::Spooner::Submenus::Sub_Blip_CoordInBlip)
+REGISTER_SUBMENU(SPOONER_BLIPS_ENTITYINBLIP, sub::Spooner::Submenus::Sub_Blip_EntityInBlip)
+REGISTER_SUBMENU(SPOONER_BLIPS_ENTITY_SELECT, sub::Spooner::Submenus::Sub_Blip_Entity_Select)
+REGISTER_SUBMENU(SPOONER_BLIPS_ATTACH, sub::Spooner::Submenus::Sub_Blip_Attach)
+REGISTER_SUBMENU(SPOONER_BLIPS_ICONS, sub::Spooner::Submenus::Sub_Blip_Icons)

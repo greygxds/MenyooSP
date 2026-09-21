@@ -10,7 +10,7 @@
 #pragma once
 
 #include "..\Natives\types.h" //RGBA
-#include "..\Util\GTAmath.h" //Vector2
+#include "..\Util\GTAmath.h"  //Vector2
 
 #include <string>
 #include <sstream>
@@ -20,7 +20,7 @@ typedef unsigned long DWORD, Hash;
 typedef signed char INT8;
 typedef unsigned char UINT8;
 
-typedef char *PCHAR;
+typedef char* PCHAR;
 
 class GTAentity;
 class GTAped;
@@ -34,113 +34,114 @@ std::wostream& operator<<(std::wostream& stream, std::string& text);
 
 namespace Game
 {
-	extern const std::pair<int, int> defaultScreenRes;
-	inline constexpr float defaultNotificationDuration = 2.5f;
+extern const std::pair<int, int> defaultScreenRes;
+inline constexpr float defaultNotificationDuration = 2.5f;
 
-	// Request asset
-	bool RequestControlOfId(int netid);
-	bool RequestAnimDict(const std::string& anim_dict, DWORD timeOut = 1800);
-	bool RequestAnimSet(const std::string& anim_set, DWORD timeOut = 1800);
-	void RequestScript(const std::string& scriptName, int stackSize = 14000);
+// Request asset
+bool RequestControlOfId(int netid);
+bool RequestAnimDict(const std::string& anim_dict, DWORD timeOut = 1800);
+bool RequestAnimSet(const std::string& anim_set, DWORD timeOut = 1800);
+void RequestScript(const std::string& scriptName, int stackSize = 14000);
 
-	// GXT
-	inline bool DoesGXTEntryExist(const std::string& entry);
-	std::string GetGXTEntry(const std::string& entry, const std::string& fallback = std::string());
-	std::string GetGXTEntry(Hash entry, const std::string& fallback = std::string());
+// GXT
+inline bool DoesGXTEntryExist(const std::string& entry);
+std::string GetGXTEntry(const std::string& entry, const std::string& fallback = std::string());
+std::string GetGXTEntry(Hash entry, const std::string& fallback = std::string());
 
-	namespace Sound
-	{
-		class GameSound
-		{
-		private:
-			std::string soundSet;
-			std::string sound;
-			int soundID;
+namespace Sound
+{
+class GameSound
+{
+  private:
+    std::string soundSet;
+    std::string sound;
+    int soundID;
 
-		public:
-			bool active;
+  public:
+    bool active;
 
-			GameSound();
-			GameSound(const std::string& nsoundSet, const std::string& nsound);
+    GameSound();
+    GameSound(const std::string& nsoundSet, const std::string& nsound);
 
-			static bool LoadBank(const std::string& audioBank);
-			static void UnloadBank(const std::string& audioBank);
+    static bool LoadBank(const std::string& audioBank);
+    static void UnloadBank(const std::string& audioBank);
 
-			void Play(GTAentity entity);
+    void Play(GTAentity entity);
 
-			void Stop();
+    void Stop();
 
-			void Destroy();
-		};
+    void Destroy();
+};
 
-		void PlayFrontend(const std::string& sound_dict, const std::string& sound_name);
-		void PlayFrontend_default(const std::string& sound_name);
-	}
+void PlayFrontend(const std::string& sound_dict, const std::string& sound_name);
+void PlayFrontend_default(const std::string& sound_name);
+} // namespace Sound
 
-	namespace Print
-	{
-		void ShowNotification(const std::string& title, const std::string& description, float displayTimeInSeconds = defaultNotificationDuration);
-		void ShowNotification(const std::string& description, float displayTimeInSeconds = defaultNotificationDuration);
-		void ShowNotification(std::ostream& description, float displayTimeInSeconds = defaultNotificationDuration);
-		void ShowNotification(std::wostream& description, float displayTimeInSeconds = defaultNotificationDuration);
-		void TickNotifications();
-		void TickPrintBottomCentre();
+namespace Print
+{
+void ShowNotification(const std::string& title, const std::string& description, float displayTimeInSeconds = defaultNotificationDuration);
+void ShowNotification(const std::string& description, float displayTimeInSeconds = defaultNotificationDuration);
+void ShowNotification(std::ostream& description, float displayTimeInSeconds = defaultNotificationDuration);
+void ShowNotification(std::wostream& description, float displayTimeInSeconds = defaultNotificationDuration);
+void TickNotifications();
+void TickPrintBottomCentre();
 
-		// Game - Print/draw
-		void setupdraw();
-		void SetupDraw(INT8 font, const Vector2& scale, bool centred, bool right_justified, bool outline, RGBA colour = { 255, 255, 255, 255 }, Vector2 wrap = { 0, 1 });
-		void drawstring(const std::string& s, float X, float Y);
-		void DrawString(std::ostream& os, float X, float Y);
-		void drawstringGXT(const std::string& s, float X, float Y);
-		void drawstringGXT(std::ostream& os, float X, float Y);
-		void drawinteger(int text, float X, float Y);
-		void drawfloat(double text, UINT8 decimal_places, float X, float Y);
-		
-		void PrintBottomCentre(std::string s, int time = 2500);
-		void PrintBottomCentre(std::ostream& s, int time = 2500);
-		void PrintBottomCentre(std::wostream& s, int time = 2500);
+// Game - Print/draw
+void setupdraw();
+void SetupDraw(INT8 font, const Vector2& scale, bool centred, bool right_justified, bool outline, RGBA colour = {255, 255, 255, 255}, Vector2 wrap = {0, 1});
+void drawstring(const std::string& s, float X, float Y);
+void DrawString(std::ostream& os, float X, float Y);
+void drawstringGXT(const std::string& s, float X, float Y);
+void drawstringGXT(std::ostream& os, float X, float Y);
+void drawinteger(int text, float X, float Y);
+void drawfloat(double text, UINT8 decimal_places, float X, float Y);
 
-		class GameFeedNotification
-		{
-		public:
-			GameFeedNotification(int newHandle) : mHandle(newHandle)
-			{
-			}
-			int& Handle()
-			{
-				return mHandle;
-			}
+void PrintBottomCentre(std::string s, int time = 2500);
+void PrintBottomCentre(std::ostream& s, int time = 2500);
+void PrintBottomCentre(std::wostream& s, int time = 2500);
 
-			void Hide();
+class GameFeedNotification
+{
+  public:
+    GameFeedNotification(int newHandle) : mHandle(newHandle)
+    {
+    }
 
-		private:
-			int mHandle;
-		};
-		GameFeedNotification PrintBottomLeft(std::string s, bool gxt = false);
-		GameFeedNotification PrintBottomLeft(std::ostream& s, bool gxt = 0);
-		GameFeedNotification PrintBottomLeft(std::wostream& s, bool gxt = 0);
-		GameFeedNotification PrintBottomLeft(std::string s, const std::string& sender, const std::string& subject, const std::string& picName, int iconType, bool flash, bool gxt);
-		GameFeedNotification PrintBottomLeft(std::ostream& s, const std::string& sender, const std::string& subject, const std::string& picName, int iconType, bool flash, bool gxt);
-		GameFeedNotification PrintBottomLeft(std::wostream& s, const std::string& sender, const std::string& subject, const std::string& picName, int iconType, bool flash, bool gxt);
+    int& Handle()
+    {
+        return mHandle;
+    }
 
-		// Messages - Errors
-		void PrintErrorInvalidInput(std::string inputStr);
-		void PrintErrorInvalidModel(std::string inputStr);
+    void Hide();
 
-		// Text width
-		float GetTextWidth(const std::string& s, bool gxt = false);
-		float GetTextWidth(int inumber);
-		float GetTextWidth(float fnumber, UINT8 decimal_places);
-	}
+  private:
+    int mHandle;
+};
 
-	//On screen keyboard
-	std::string InputBox(const std::string& escReturn = "", int maxChars = 64U, std::string titlegxt = "", std::string preText = "");
+GameFeedNotification PrintBottomLeft(std::string s, bool gxt = false);
+GameFeedNotification PrintBottomLeft(std::ostream& s, bool gxt = 0);
+GameFeedNotification PrintBottomLeft(std::wostream& s, bool gxt = 0);
+GameFeedNotification PrintBottomLeft(std::string s, const std::string& sender, const std::string& subject, const std::string& picName, int iconType, bool flash, bool gxt);
+GameFeedNotification PrintBottomLeft(std::ostream& s, const std::string& sender, const std::string& subject, const std::string& picName, int iconType, bool flash, bool gxt);
+GameFeedNotification PrintBottomLeft(std::wostream& s, const std::string& sender, const std::string& subject, const std::string& picName, int iconType, bool flash, bool gxt);
 
-	//PLAYER_PED_ID()
-	GTAplayer Player();
-	GTAplayer Player(int index);
-	GTAped PlayerPed();
-	GTAped PlayerPed(int index);
+// Messages - Errors
+void PrintErrorInvalidInput(std::string inputStr);
+void PrintErrorInvalidModel(std::string inputStr);
 
-}
+// Text width
+float GetTextWidth(const std::string& s, bool gxt = false);
+float GetTextWidth(int inumber);
+float GetTextWidth(float fnumber, UINT8 decimal_places);
+} // namespace Print
 
+//On screen keyboard
+std::string InputBox(const std::string& escReturn = "", int maxChars = 64U, std::string titlegxt = "", std::string preText = "");
+
+//PLAYER_PED_ID()
+GTAplayer Player();
+GTAplayer Player(int index);
+GTAped PlayerPed();
+GTAped PlayerPed(int index);
+
+} // namespace Game

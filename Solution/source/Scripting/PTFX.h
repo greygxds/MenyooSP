@@ -21,105 +21,108 @@ typedef unsigned short UINT16;
 
 namespace PTFX
 {
-	class sFxData
-	{
-	public:
-		std::string asset; std::string effect;
-		sFxData()
-		{
-		}
-		sFxData(const std::string& a, const std::string& e)
-			: asset(a), effect(e)
-		{
-		}
-	};
+class sFxData
+{
+  public:
+    std::string asset;
+    std::string effect;
 
-	class LoopedPTFX
-	{
-	protected:
-		float scale;
-		int mHandle;
-		std::string asset;
-		std::string effect;
-	public:
-		int& Handle();
+    sFxData()
+    {
+    }
 
-		LoopedPTFX();
-		LoopedPTFX(const std::string& assetName, const std::string& fxName);
-		LoopedPTFX(const sFxData& newFxData);
+    sFxData(const std::string& a, const std::string& e) : asset(a), effect(e)
+    {
+    }
+};
 
-		void operator = (const LoopedPTFX& right);
+class LoopedPTFX
+{
+  protected:
+    float scale;
+    int mHandle;
+    std::string asset;
+    std::string effect;
 
-		sFxData GetFxData() const;
-		void SetFxData(const sFxData& d);
+  public:
+    int& Handle();
 
-		bool Exists() const;
-		bool IsAssetLoaded() const;
-		void LoadAsset();
-		void UnloadAsset();
+    LoopedPTFX();
+    LoopedPTFX(const std::string& assetName, const std::string& fxName);
+    LoopedPTFX(const sFxData& newFxData);
 
-		// bone does not require GetBoneIndex for peds.
-		void Start(GTAentity entity, float scale, const Vector3& offset, const Vector3& rotation, RGBA col = { 255, 255, 255, 255 }, int bone = -1);
-		// bone does not require GetBoneIndex for peds.
-		void EasyStart(GTAentity entity, float scale, const Vector3& offset, const Vector3& rotation, RGBA col = { 255, 255, 255, 255 }, int bone = -1);
+    void operator=(const LoopedPTFX& right);
 
-		void Start(GTAentity entity, float scale);
-		void EasyStart(GTAentity entity, float scale);
+    sFxData GetFxData() const;
+    void SetFxData(const sFxData& d);
 
-		void Start(const Vector3& position, float scale, const Vector3& rotation);
-		void EasyStart(const Vector3& position, float scale, const Vector3& rotation);
+    bool Exists() const;
+    bool IsAssetLoaded() const;
+    void LoadAsset();
+    void UnloadAsset();
 
-		void Start(const Vector3& position, float scale);
-		void EasyStart(const Vector3& position, float scale);
+    // bone does not require GetBoneIndex for peds.
+    void Start(GTAentity entity, float scale, const Vector3& offset, const Vector3& rotation, RGBA col = {255, 255, 255, 255}, int bone = -1);
+    // bone does not require GetBoneIndex for peds.
+    void EasyStart(GTAentity entity, float scale, const Vector3& offset, const Vector3& rotation, RGBA col = {255, 255, 255, 255}, int bone = -1);
 
-		void SetOffsets(const Vector3& offset, const Vector3& rotOffset);
-		void SetScale(float value);
-		void SetAlpha(UINT8 value);
-		void SetColour(const RgbS& value);
+    void Start(GTAentity entity, float scale);
+    void EasyStart(GTAentity entity, float scale);
 
-		void Remove();
-		static void RemoveInRange(const Vector3& position, float radius);
-	};
+    void Start(const Vector3& position, float scale, const Vector3& rotation);
+    void EasyStart(const Vector3& position, float scale, const Vector3& rotation);
 
-	class NonLoopedPTFX
-	{
-	protected:
-		std::string asset;
-		std::string effect;
-	public:
-		NonLoopedPTFX();
-		NonLoopedPTFX(const std::string& assetName, const std::string& fxName);
-		NonLoopedPTFX(const sFxData& newFxData);
+    void Start(const Vector3& position, float scale);
+    void EasyStart(const Vector3& position, float scale);
 
-		sFxData GetFxData() const;
-		void SetFxData(const sFxData& d);
+    void SetOffsets(const Vector3& offset, const Vector3& rotOffset);
+    void SetScale(float value);
+    void SetAlpha(UINT8 value);
+    void SetColour(const RgbS& value);
 
-		void operator = (const NonLoopedPTFX& right);
+    void Remove();
+    static void RemoveInRange(const Vector3& position, float radius);
+};
 
-		bool IsAssetLoaded() const;
-		void LoadAsset();
-		bool LoadAsset(DWORD timeOut);
-		void UnloadAsset();
+class NonLoopedPTFX
+{
+  protected:
+    std::string asset;
+    std::string effect;
 
-		// pedBone does not require GetBoneIndex for peds.
-		void Start(GTAentity entity, float scale, const Vector3& offset, const Vector3& rotation, RGBA col = { 255, 255, 255, 255 }, int pedBone = -1);
-		// pedBone does not require GetBoneIndex for peds.
-		void EasyStart(GTAentity entity, float scale, const Vector3& offset, const Vector3& rotation, RGBA col = { 255, 255, 255, 255 }, int pedBone = -1);
+  public:
+    NonLoopedPTFX();
+    NonLoopedPTFX(const std::string& assetName, const std::string& fxName);
+    NonLoopedPTFX(const sFxData& newFxData);
 
-		void Start(GTAentity entity, float scale);
-		void EasyStart(GTAentity entity, float scale);
+    sFxData GetFxData() const;
+    void SetFxData(const sFxData& d);
 
-		void Start(const Vector3& position, float scale, const Vector3& rotation);
-		void EasyStart(const Vector3& position, float scale, const Vector3& rotation);
+    void operator=(const NonLoopedPTFX& right);
 
-		void Start(const Vector3& position, float scale);
-		void EasyStart(const Vector3& position, float scale);
+    bool IsAssetLoaded() const;
+    void LoadAsset();
+    bool LoadAsset(DWORD timeOut);
+    void UnloadAsset();
 
-		static void SetColour(const RgbS& value);
-		static void SetAlpha(UINT8 value);
-	};
+    // pedBone does not require GetBoneIndex for peds.
+    void Start(GTAentity entity, float scale, const Vector3& offset, const Vector3& rotation, RGBA col = {255, 255, 255, 255}, int pedBone = -1);
+    // pedBone does not require GetBoneIndex for peds.
+    void EasyStart(GTAentity entity, float scale, const Vector3& offset, const Vector3& rotation, RGBA col = {255, 255, 255, 255}, int pedBone = -1);
 
-	void TriggerPTFX(const std::string& asset2, const std::string& name2, GTAentity entity, Vector3 position, Vector3 rotation, float scale, int pedBone = -1);
+    void Start(GTAentity entity, float scale);
+    void EasyStart(GTAentity entity, float scale);
 
-}
+    void Start(const Vector3& position, float scale, const Vector3& rotation);
+    void EasyStart(const Vector3& position, float scale, const Vector3& rotation);
 
+    void Start(const Vector3& position, float scale);
+    void EasyStart(const Vector3& position, float scale);
+
+    static void SetColour(const RgbS& value);
+    static void SetAlpha(UINT8 value);
+};
+
+void TriggerPTFX(const std::string& asset2, const std::string& name2, GTAentity entity, Vector3 position, Vector3 rotation, float scale, int pedBone = -1);
+
+} // namespace PTFX

@@ -34,12 +34,12 @@
 
 namespace sub
 {
-	namespace AnimalRiding
-	{
-		void PopulateAnimals();
-		void ToggleOnOff();
-		void Tick();
-		bool& Enabled();
-		void AnimalRidingMenu();
-	}
-}
+namespace AnimalRiding
+{
+void PopulateAnimals();
+void ToggleOnOff();
+void Tick();
+bool& Enabled();
+void AnimalRidingMenu();
+} // namespace AnimalRiding
+} // namespace sub

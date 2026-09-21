@@ -14,14 +14,11 @@ typedef char *PCHAR;
 
 namespace sub::TeleportLocations_catind
 {
-	namespace ArenaWar
-	{
+namespace ArenaWar
+{
 
-		void Sub_ArenaWar();
-
-	}
+void Sub_ArenaWar();
 
 }
 
-
-
+} // namespace sub::TeleportLocations_catind

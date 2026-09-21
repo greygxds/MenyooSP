@@ -17,86 +17,106 @@ class GTAentity;
 
 namespace sub
 {
-	struct FavouriteAnimation { std::string dict, name, category; };
+struct FavouriteAnimation
+{
+    std::string dict, name, category;
+};
 
-	struct FavMenuCache
-	{
-		std::map<std::string, std::vector<FavouriteAnimation>> animationsByCategory;
-		std::vector<std::string> sortedCategoryNames;
-		bool needsRebuild = true;
-	};
+struct FavMenuCache
+{
+    std::map<std::string, std::vector<FavouriteAnimation>> animationsByCategory;
+    std::vector<std::string> sortedCategoryNames;
+    bool needsRebuild = true;
+};
 
-	extern FavMenuCache s_favCache;
-	bool RebuildFavCache(const std::string& searchStr = "");
+extern FavMenuCache s_favCache;
+bool RebuildFavCache(const std::string& searchStr = "");
 
-	struct AnimationSettings
-	{
-		std::string dict = "Enter Dictionary";
-		std::string name = "Enter Name";
-		float speed = 4;
-		float speedMult = -4;
-		float playbackRate = 0;
-		int duration = -1;
-		int flag = 1; // AnimFlag::Loop
-		bool lockPos = false;
-	};
-	extern AnimationSettings g_customAnimSettings;
+struct AnimationSettings
+{
+    std::string dict = "Enter Dictionary";
+    std::string name = "Enter Name";
+    float speed = 4;
+    float speedMult = -4;
+    float playbackRate = 0;
+    int duration = -1;
+    int flag = 1; // AnimFlag::Loop
+    bool lockPos = false;
+};
 
-	namespace AnimationMenu
-	{
-		struct NamedAnimation { std::string caption; std::string animDict, animName; };
-		extern const std::vector<AnimationMenu::NamedAnimation> presetPedAnims;
-		extern std::map<std::string, std::vector<std::string>> allPedAnims;
-		extern std::pair<const std::string, std::vector<std::string>>* selectedAnimDictPtr;
+extern AnimationSettings g_customAnimSettings;
 
-		void PopulateAllPedAnimsList();
-		void AllPedAnimsMenu();
-		void Sub_AllPedAnims_InDict();
-	}
+namespace AnimationMenu
+{
+struct NamedAnimation
+{
+    std::string caption;
+    std::string animDict, animName;
+};
 
-	void GetFavouriteAnimations(std::vector<FavouriteAnimation>& result);
-	bool IsAnimationAFavourite(const std::string animDict, const std::string& animName);
-	void AddAnimationToFavourites(const std::string animDict, const std::string& animName, const std::string& category = "");
-	void RemoveAnimationFromFavourites(const std::string animDict, const std::string& animName);
-	void SetAnimationCategory(const std::string& animDict, const std::string& animName, const std::string& category);
-	void AnimationStopAnimationCallback();
-	void PedAnimationMenu();
-	void AnimationSub_Settings();
-	void AnimationFavouritesMenu();
-	void AnimationFavouritesMenu_CategorySelect();
-	void AnimationSub_Flags();
-	void AnimationSub_Custom();
-	void DeerAnimationMenu();
-	void SharkAnimationMenu();
-	void MissionRappelAnimationMenu();
-	void GestureSitAnimationMenu();
-	void SwatAnimationMenu();
-	void GuardReactAnimationMenu();
-	void RandomArrestAnimationMenu();
+extern const std::vector<AnimationMenu::NamedAnimation> presetPedAnims;
+extern std::map<std::string, std::vector<std::string>> allPedAnims;
+extern std::pair<const std::string, std::vector<std::string>>* selectedAnimDictPtr;
 
-	namespace AnimationTaskScenarios
-	{
-		extern std::vector<std::string> vValues_TaskScenarios;
-		struct NamedScenario { std::string name; std::string label; };
-		extern std::vector<NamedScenario> vNamedScenarios;
+void PopulateAllPedAnimsList();
+void AllPedAnimsMenu();
+void Sub_AllPedAnims_InDict();
+} // namespace AnimationMenu
 
-		void AnimationTaskScenarios1();
-		void AnimationTaskScenarios2();
+void GetFavouriteAnimations(std::vector<FavouriteAnimation>& result);
+bool IsAnimationAFavourite(const std::string animDict, const std::string& animName);
+void AddAnimationToFavourites(const std::string animDict, const std::string& animName, const std::string& category = "");
+void RemoveAnimationFromFavourites(const std::string animDict, const std::string& animName);
+void SetAnimationCategory(const std::string& animDict, const std::string& animName, const std::string& category);
+void AnimationStopAnimationCallback();
+void PedAnimationMenu();
+void AnimationSub_Settings();
+void AnimationFavouritesMenu();
+void AnimationFavouritesMenu_CategorySelect();
+void AnimationSub_Flags();
+void AnimationSub_Custom();
+void DeerAnimationMenu();
+void SharkAnimationMenu();
+void MissionRappelAnimationMenu();
+void GestureSitAnimationMenu();
+void SwatAnimationMenu();
+void GuardReactAnimationMenu();
+void RandomArrestAnimationMenu();
 
-	}
+namespace AnimationTaskScenarios
+{
+extern std::vector<std::string> vValues_TaskScenarios;
 
-	std::string GetPedMovementClipSet(const GTAentity& ped);
-	void SetPedMovementClipSet(GTAentity ped, const std::string& setName);
-	std::string GetPedWeaponMovementClipSet(const GTAentity& ped);
-	void SetPedWeaponMovementClipSet(GTAentity ped, const std::string& setName);
-	void MovementGroupMenu();
+struct NamedScenario
+{
+    std::string name;
+    std::string label;
+};
 
-	namespace FacialAnims
-	{
-		struct NamedFacialAnim { std::string caption; std::string animName; };
-		extern const std::vector<NamedFacialAnim> vFacialAnims;
+extern std::vector<NamedScenario> vNamedScenarios;
 
-		void FacialMoodMenu();
-	}
+void AnimationTaskScenarios1();
+void AnimationTaskScenarios2();
 
-}
+} // namespace AnimationTaskScenarios
+
+std::string GetPedMovementClipSet(const GTAentity& ped);
+void SetPedMovementClipSet(GTAentity ped, const std::string& setName);
+std::string GetPedWeaponMovementClipSet(const GTAentity& ped);
+void SetPedWeaponMovementClipSet(GTAentity ped, const std::string& setName);
+void MovementGroupMenu();
+
+namespace FacialAnims
+{
+struct NamedFacialAnim
+{
+    std::string caption;
+    std::string animName;
+};
+
+extern const std::vector<NamedFacialAnim> vFacialAnims;
+
+void FacialMoodMenu();
+} // namespace FacialAnims
+
+} // namespace sub

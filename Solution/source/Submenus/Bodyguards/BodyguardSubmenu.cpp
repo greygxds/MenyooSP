@@ -13,115 +13,121 @@
 
 namespace sub
 {
-    void ComponentChanger();
+void ComponentChanger();
 }
 
 namespace sub::BodyguardMenu
 {
-    void SetSelectedBodyguardAsActivePed() { g_activePedHandle = SelectedBodyguard->Handle.Handle(); }
-    void BodyguardEntityOps()
-    {
-        // Determine the title dynamically
-        std::string title = "Bodyguard";
+void SetSelectedBodyguardAsActivePed()
+{
+    g_activePedHandle = SelectedBodyguard->Handle.Handle();
+}
 
-        if (SelectedBodyguard)
+void BodyguardEntityOps()
+{
+    // Determine the title dynamically
+    std::string title = "Bodyguard";
+
+    if (SelectedBodyguard)
+    {
+        if (SelectedBodyguard->Handle.Exists())
         {
-            if (SelectedBodyguard->Handle.Exists())
+            // Prefer a friendly name if provided
+            if (!SelectedBodyguard->Name.empty())
             {
-                // Prefer a friendly name if provided
-                if (!SelectedBodyguard->Name.empty())
-                {
-                    title = SelectedBodyguard->Name;
-                }
-                // Otherwise use a stored hash-name (if present)
-                else if (!SelectedBodyguard->hashName.empty())
-                {
-                    title = SelectedBodyguard->hashName;
-                }
-                // Fallback: use the model hash as hex string
-                else
-                {
-                    auto model = SelectedBodyguard->Handle.Model();
-                    title = IntToHexString(model.hash, true);
-                }
+                title = SelectedBodyguard->Name;
             }
+            // Otherwise use a stored hash-name (if present)
+            else if (!SelectedBodyguard->hashName.empty())
+            {
+                title = SelectedBodyguard->hashName;
+            }
+            // Fallback: use the model hash as hex string
             else
             {
-                // Ped doesn't exist — show that in the title so it's obvious
-                title = "Bodyguard (missing)";
+                auto model = SelectedBodyguard->Handle.Model();
+                title = IntToHexString(model.hash, true);
             }
-        }
-
-        AddTitle(title);
-
-        // Keep the rest of your existing logic unchanged
-        if (!SelectedBodyguard)
-        {
-            AddOption("No bodyguard selected");
-            return;
-        }
-
-        if (!SelectedBodyguard->Handle.Exists())
-        {
-            AddOption("Bodyguard no longer exists");
-            return;
-        }
-
-        AddOption("Wardrobe", null, SetSelectedBodyguardAsActivePed, SUB::COMPONENTS);
-        AddOption("Voice Changer", null, SetSelectedBodyguardAsActivePed, SUB::VOICECHANGER);
-        AddOption("Weapons", null, nullFunc, SUB::BODYGUARD_WEAPONOPS);
-        AddOption("Loadouts", null, SetSelectedBodyguardAsActivePed, SUB::WEAPONOPS_LOADOUTS);
-    }
-    void BodyguardWeaponOps()
-    {
-        if (!SelectedBodyguard || !SelectedBodyguard->Handle.Exists())
-            return;
-
-        Ped ped = SelectedBodyguard->Handle.GetHandle();
-
-        g_WeaponOpsPedOverride = ped;
-        g_WeaponOpsPlayerOverride = -1;
-        g_WeaponMenuPedOverride = ped;
-
-
-        WeaponIndivs_catind::Sub_CategoriesList();
-
-        g_WeaponOpsPedOverride = 0;
-        g_WeaponOpsPlayerOverride = -1;
-        g_WeaponMenuPedOverride = 0;
-    }
-    void BodyguardWeaponLoadoutOps()
-    {
-        if (!SelectedBodyguard || !SelectedBodyguard->Handle.Exists())
-            return;
-
-        Ped ped = SelectedBodyguard->Handle.GetHandle();
-
-        g_WeaponOpsPedOverride = ped;
-        g_WeaponOpsPlayerOverride = -1;
-        g_WeaponMenuPedOverride = ped;
-
-        if (g_WeaponOpsPedOverride != 0)
-        {
-            g_activePedHandle = g_WeaponOpsPedOverride;
-            g_activePlayerId = g_WeaponOpsPlayerOverride;
         }
         else
         {
-            g_activePedHandle = PLAYER::PLAYER_PED_ID();
-            g_activePlayerId = PLAYER::PLAYER_ID();
+            // Ped doesn't exist — show that in the title so it's obvious
+            title = "Bodyguard (missing)";
         }
-
-        WeaponsLoadouts_catind::Sub_Loadouts_InItem();
-
-        g_WeaponOpsPedOverride = 0;
-        g_WeaponOpsPlayerOverride = -1;
-        g_WeaponMenuPedOverride = 0;
     }
 
+    AddTitle(title);
+
+    // Keep the rest of your existing logic unchanged
+    if (!SelectedBodyguard)
+    {
+        AddOption("No bodyguard selected");
+        return;
+    }
+
+    if (!SelectedBodyguard->Handle.Exists())
+    {
+        AddOption("Bodyguard no longer exists");
+        return;
+    }
+
+    AddOption("Wardrobe", null, SetSelectedBodyguardAsActivePed, SUB::COMPONENTS);
+    AddOption("Voice Changer", null, SetSelectedBodyguardAsActivePed, SUB::VOICECHANGER);
+    AddOption("Weapons", null, nullFunc, SUB::BODYGUARD_WEAPONOPS);
+    AddOption("Loadouts", null, SetSelectedBodyguardAsActivePed, SUB::WEAPONOPS_LOADOUTS);
 }
+
+void BodyguardWeaponOps()
+{
+    if (!SelectedBodyguard || !SelectedBodyguard->Handle.Exists())
+        return;
+
+    Ped ped = SelectedBodyguard->Handle.GetHandle();
+
+    g_WeaponOpsPedOverride = ped;
+    g_WeaponOpsPlayerOverride = -1;
+    g_WeaponMenuPedOverride = ped;
+
+
+    WeaponIndivs_catind::Sub_CategoriesList();
+
+    g_WeaponOpsPedOverride = 0;
+    g_WeaponOpsPlayerOverride = -1;
+    g_WeaponMenuPedOverride = 0;
+}
+
+void BodyguardWeaponLoadoutOps()
+{
+    if (!SelectedBodyguard || !SelectedBodyguard->Handle.Exists())
+        return;
+
+    Ped ped = SelectedBodyguard->Handle.GetHandle();
+
+    g_WeaponOpsPedOverride = ped;
+    g_WeaponOpsPlayerOverride = -1;
+    g_WeaponMenuPedOverride = ped;
+
+    if (g_WeaponOpsPedOverride != 0)
+    {
+        g_activePedHandle = g_WeaponOpsPedOverride;
+        g_activePlayerId = g_WeaponOpsPlayerOverride;
+    }
+    else
+    {
+        g_activePedHandle = PLAYER::PLAYER_PED_ID();
+        g_activePlayerId = PLAYER::PLAYER_ID();
+    }
+
+    WeaponsLoadouts_catind::Sub_Loadouts_InItem();
+
+    g_WeaponOpsPedOverride = 0;
+    g_WeaponOpsPlayerOverride = -1;
+    g_WeaponMenuPedOverride = 0;
+}
+
+} // namespace sub::BodyguardMenu
 
 #include "..\..\Menu\submenu_switch.h"
 #include "..\..\Menu\submenu_enum.h"
-REGISTER_SUBMENU(BODYGUARD_ENTITYOPS,   sub::BodyguardMenu::BodyguardEntityOps)
-REGISTER_SUBMENU(BODYGUARD_WEAPONOPS,   sub::BodyguardMenu::BodyguardWeaponOps)
+REGISTER_SUBMENU(BODYGUARD_ENTITYOPS, sub::BodyguardMenu::BodyguardEntityOps)
+REGISTER_SUBMENU(BODYGUARD_WEAPONOPS, sub::BodyguardMenu::BodyguardWeaponOps)

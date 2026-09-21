@@ -14,27 +14,24 @@ typedef char *PCHAR;
 
 namespace sub::TeleportLocations_catind
 {
-	namespace GunRunningInteriors
-	{
-		namespace Bunkers
-		{
+namespace GunRunningInteriors
+{
+namespace Bunkers
+{
 
-			void Sub_Bunkers();
-			void Sub_Bunkers_InLoc();
+void Sub_Bunkers();
+void Sub_Bunkers_InLoc();
 
-		}
+} // namespace Bunkers
 
-		namespace Moc
-		{
+namespace Moc
+{
 
-			void Sub_Moc();
-			void Sub_Moc_InLoc();
+void Sub_Moc();
+void Sub_Moc_InLoc();
 
-		}
+} // namespace Moc
 
-	}
+} // namespace GunRunningInteriors
 
-}
-
-
-
+} // namespace sub::TeleportLocations_catind

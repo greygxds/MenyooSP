@@ -10,18 +10,16 @@
 #pragma once
 
 typedef unsigned __int8 UINT8;
+
 //typedef char *PCHAR;
 
 namespace sub::TeleportLocations_catind
 {
-	namespace Nightclubs
-	{
+namespace Nightclubs
+{
 
-		void Sub_Nightclubs();
-
-	}
+void Sub_Nightclubs();
 
 }
 
-
-
+} // namespace sub::TeleportLocations_catind

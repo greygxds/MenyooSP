@@ -22,85 +22,73 @@
 
 namespace sub::Spooner
 {
-	// SpoonerMarker
+// SpoonerMarker
 
-	SpoonerMarker::SpoonerMarker()
-	{
-		SpoonerMarker::iMarkerIdIter++;
-		this->m_id = SpoonerMarker::iMarkerIdIter;
-		//this->m_name = name;
-		this->m_type = MarkerType::UpsideDownCone;
-		this->m_scale = 0.9f;
-		this->m_showName = false;
-		this->m_rotateContinuously = true;
-		this->m_allowVehicles = false;
-		this->m_colour = RGBA(102, 0, 204, 190);
-		this->m_selectedInSub = false;
-		this->m_destinationPtr = nullptr;
-	}
-	SpoonerMarker::SpoonerMarker(const std::string& name, const Vector3& pos, const Vector3& rot)
-	{
-		SpoonerMarker::iMarkerIdIter++;
-		this->m_id = SpoonerMarker::iMarkerIdIter;
-		this->m_name = name;
-		this->m_type = MarkerType::UpsideDownCone;
-		this->m_scale = 0.9f;
-		this->m_showName = false;
-		this->m_rotateContinuously = true;
-		this->m_allowVehicles = false;
-		this->m_selectedInSub = false;
-		this->m_colour = RGBA(102, 0, 204, 190);
-		this->m_position = pos;
-		this->m_rotation = rot;
-		this->m_destinationHeading = round(rot.z);
-		this->m_destinationPtr = nullptr;
-	}
-
-	bool operator == (const SpoonerMarker& left, const SpoonerMarker& right)
-	{
-		return
-			left.m_name == right.m_name &&
-			left.m_type == right.m_type &&
-			left.m_scale == right.m_scale &&
-			left.m_showName == right.m_showName &&
-			left.m_rotateContinuously == right.m_rotateContinuously &&
-			left.m_allowVehicles == right.m_allowVehicles &&
-			left.m_colour == right.m_colour &&
-			(left.m_attachmentArgs.attachedTo != right.m_attachmentArgs.attachedTo ?
-				left.m_position == right.m_position &&
-				left.m_rotation == right.m_rotation
-				: true) &&
-			left.m_attachmentArgs.attachedTo == right.m_attachmentArgs.attachedTo &&
-			left.m_attachmentArgs.offset == right.m_attachmentArgs.offset &&
-			left.m_attachmentArgs.rotation == right.m_attachmentArgs.rotation;
-	}
-	SpoonerMarker& SpoonerMarker::operator = (const SpoonerMarker& right)
-	{
-		this->m_name = right.m_name;
-		this->m_type = right.m_type;
-		this->m_scale = right.m_scale;
-		this->m_showName = right.m_showName;
-		this->m_rotateContinuously = right.m_rotateContinuously;
-		this->m_allowVehicles = right.m_allowVehicles;
-		this->m_selectedInSub = right.m_selectedInSub;
-		this->m_colour = right.m_colour;
-		this->m_position = right.m_position;
-		this->m_rotation = right.m_rotation;
-		this->m_destinationVal = right.m_destinationVal;
-		this->m_destinationPtr = right.m_destinationPtr;
-		this->m_destinationHeading = right.m_destinationHeading;
-		this->m_attachmentArgs = right.m_attachmentArgs;
-		return *this;
-	}
-
-	
-	bool SpoonerMarker::bPlayerJustTeleportedBetweenMarkers = false;
-
-	UINT SpoonerMarker::iMarkerIdIter = 0;
-
-	SpoonerMarker* SelectedMarker;
-
+SpoonerMarker::SpoonerMarker()
+{
+    SpoonerMarker::iMarkerIdIter++;
+    this->m_id = SpoonerMarker::iMarkerIdIter;
+    //this->m_name = name;
+    this->m_type = MarkerType::UpsideDownCone;
+    this->m_scale = 0.9f;
+    this->m_showName = false;
+    this->m_rotateContinuously = true;
+    this->m_allowVehicles = false;
+    this->m_colour = RGBA(102, 0, 204, 190);
+    this->m_selectedInSub = false;
+    this->m_destinationPtr = nullptr;
 }
 
+SpoonerMarker::SpoonerMarker(const std::string& name, const Vector3& pos, const Vector3& rot)
+{
+    SpoonerMarker::iMarkerIdIter++;
+    this->m_id = SpoonerMarker::iMarkerIdIter;
+    this->m_name = name;
+    this->m_type = MarkerType::UpsideDownCone;
+    this->m_scale = 0.9f;
+    this->m_showName = false;
+    this->m_rotateContinuously = true;
+    this->m_allowVehicles = false;
+    this->m_selectedInSub = false;
+    this->m_colour = RGBA(102, 0, 204, 190);
+    this->m_position = pos;
+    this->m_rotation = rot;
+    this->m_destinationHeading = round(rot.z);
+    this->m_destinationPtr = nullptr;
+}
 
+bool operator==(const SpoonerMarker& left, const SpoonerMarker& right)
+{
+    return left.m_name == right.m_name && left.m_type == right.m_type && left.m_scale == right.m_scale && left.m_showName == right.m_showName &&
+           left.m_rotateContinuously == right.m_rotateContinuously && left.m_allowVehicles == right.m_allowVehicles && left.m_colour == right.m_colour &&
+           (left.m_attachmentArgs.attachedTo != right.m_attachmentArgs.attachedTo ? left.m_position == right.m_position && left.m_rotation == right.m_rotation : true) &&
+           left.m_attachmentArgs.attachedTo == right.m_attachmentArgs.attachedTo && left.m_attachmentArgs.offset == right.m_attachmentArgs.offset &&
+           left.m_attachmentArgs.rotation == right.m_attachmentArgs.rotation;
+}
 
+SpoonerMarker& SpoonerMarker::operator=(const SpoonerMarker& right)
+{
+    this->m_name = right.m_name;
+    this->m_type = right.m_type;
+    this->m_scale = right.m_scale;
+    this->m_showName = right.m_showName;
+    this->m_rotateContinuously = right.m_rotateContinuously;
+    this->m_allowVehicles = right.m_allowVehicles;
+    this->m_selectedInSub = right.m_selectedInSub;
+    this->m_colour = right.m_colour;
+    this->m_position = right.m_position;
+    this->m_rotation = right.m_rotation;
+    this->m_destinationVal = right.m_destinationVal;
+    this->m_destinationPtr = right.m_destinationPtr;
+    this->m_destinationHeading = right.m_destinationHeading;
+    this->m_attachmentArgs = right.m_attachmentArgs;
+    return *this;
+}
+
+bool SpoonerMarker::bPlayerJustTeleportedBetweenMarkers = false;
+
+UINT SpoonerMarker::iMarkerIdIter = 0;
+
+SpoonerMarker* SelectedMarker;
+
+} // namespace sub::Spooner

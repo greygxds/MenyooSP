@@ -19,33 +19,32 @@
 
 namespace FPSCounter
 {
-	FpsCounter::FpsCounter()
-		: fpsValue(0), frameCounter(0), timer(GetTickCount())
-	{
-	}
-
-	DWORD FpsCounter::Get()
-	{
-		this->Tick();
-		return fpsValue;
-	}
-
-	void FpsCounter::Tick()
-	{
-		frameCounter++;
-
-		if (GetTickCount() - timer > 500) //0.5sec
-		{
-			// store frame count to fpsValue
-			fpsValue = frameCounter * 2;
-
-			// reset
-			frameCounter = 0;
-			timer = GetTickCount();
-		}
-	}
-
-	FpsCounter g_fpsCounter;
-
-	bool bDisplayFps = false;
+FpsCounter::FpsCounter() : fpsValue(0), frameCounter(0), timer(GetTickCount())
+{
 }
+
+DWORD FpsCounter::Get()
+{
+    this->Tick();
+    return fpsValue;
+}
+
+void FpsCounter::Tick()
+{
+    frameCounter++;
+
+    if (GetTickCount() - timer > 500) //0.5sec
+    {
+        // store frame count to fpsValue
+        fpsValue = frameCounter * 2;
+
+        // reset
+        frameCounter = 0;
+        timer = GetTickCount();
+    }
+}
+
+FpsCounter g_fpsCounter;
+
+bool bDisplayFps = false;
+} // namespace FPSCounter

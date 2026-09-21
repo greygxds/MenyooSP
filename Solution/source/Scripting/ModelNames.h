@@ -17,8 +17,10 @@
 #include <string>
 
 typedef unsigned __int32 UINT32;
-namespace GTAmodel {
-	class Model;
+
+namespace GTAmodel
+{
+class Model;
 }
 
 extern std::vector<GTAmodel::Model> g_vehHashes;
@@ -49,7 +51,12 @@ extern std::vector<GTAmodel::Model> g_vehHashes_OTHER;
 extern std::vector<GTAmodel::Model> g_vehHashes_DRIFT;
 void PopulateVehicleModelsArray();
 
-struct NamedRgbS{ std::string name; RgbS rgb; };
+struct NamedRgbS
+{
+    std::string name;
+    RgbS rgb;
+};
+
 extern const std::vector<NamedRgbS> _vNeonColours;
 
 extern std::vector<std::pair<std::string, std::string>> g_pedModels;
@@ -78,9 +85,3 @@ void PopulateGlobalEntityModelsArrays();
 std::string GetPedModelLabel(const GTAmodel::Model& model, bool properName);
 std::string get_vehicle_model_label(const GTAmodel::Model& model, bool properName);
 std::string get_prop_model_label(const GTAmodel::Model& model);
-
-
-
-
-
-

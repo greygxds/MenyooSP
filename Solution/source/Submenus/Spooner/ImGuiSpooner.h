@@ -2,11 +2,11 @@
 
 namespace sub::Spooner::ImGuiSpooner
 {
-	bool Initialize();
-	void Shutdown();
+bool Initialize();
+void Shutdown();
 
-	void Tick();
+void Tick();
 
-	void SetVisible(bool visible);
-	bool IsVisible();
-}
+void SetVisible(bool visible);
+bool IsVisible();
+} // namespace sub::Spooner::ImGuiSpooner

@@ -14,15 +14,12 @@ typedef char *PCHAR;
 
 namespace sub::TeleportLocations_catind
 {
-	namespace OfficeGarages
-	{
+namespace OfficeGarages
+{
 
-		void Sub_OfficeGarages();
-		void Sub_OfficeGarages_InLoc();
+void Sub_OfficeGarages();
+void Sub_OfficeGarages_InLoc();
 
-	}
+} // namespace OfficeGarages
 
-}
-
-
-
+} // namespace sub::TeleportLocations_catind

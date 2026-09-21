@@ -23,188 +23,192 @@ class Camera;
 class PedHeadBlendData;
 class GTAentity;
 class GTAped;
-namespace GTAmodel 
+
+namespace GTAmodel
 {
-	class Model;
+class Model;
 }
 
 enum class PedHeadOverlay : int;
 
 namespace sub
 {
-	// Wardrobe front view camera
+// Wardrobe front view camera
 
-	namespace WardrobeCamera
-	{
-		enum class Framing : UINT8 { Body, Head };
+namespace WardrobeCamera
+{
+enum class Framing : UINT8
+{
+    Body,
+    Head
+};
 
-		bool IsActive();
-		// active or still easing back to the previous view
-		bool IsBusy();
-		void Enable(const GTAped& ped);
-		// restoreView = false when another camera is taking over the view
-		void Disable(bool restoreView = true);
-		void SetFraming(const GTAped& ped, Framing framing);
-		void Tick();
-	}
+bool IsActive();
+// active or still easing back to the previous view
+bool IsBusy();
+void Enable(const GTAped& ped);
+// restoreView = false when another camera is taking over the view
+void Disable(bool restoreView = true);
+void SetFraming(const GTAped& ped, Framing framing);
+void Tick();
+} // namespace WardrobeCamera
 
-	// Component changer
+// Component changer
 
-	void AddPedComponentOption(const std::string& text, int index);
-	void AddPedPropOption(const std::string& text, int index);
+void AddPedComponentOption(const std::string& text, int index);
+void AddPedPropOption(const std::string& text, int index);
 
-	void ComponentChanger();
-	void ComponentChanger2();
-	bool HasPedSpecificDrawable(int drawableNew);
-	void ComponentChangerProps();
-	void ComponentChangerProps2();
-	bool HasPedSpecificPropType(int propTypeNew);
+void ComponentChanger();
+void ComponentChanger2();
+bool HasPedSpecificDrawable(int drawableNew);
+void ComponentChangerProps();
+void ComponentChangerProps2();
+bool HasPedSpecificPropType(int propTypeNew);
 
-	// Decals - tattoos & badges
+// Decals - tattoos & badges
 
-	namespace PedDecals
-	{
-		struct PedDecalValue
-		{
-			Hash collection, value;
-			PedDecalValue(Hash newCollection, Hash newValue) : collection(newCollection), value(newValue)
-			{
-			}
-		};
+namespace PedDecals
+{
+struct PedDecalValue
+{
+    Hash collection, value;
 
-		extern std::map<Ped, std::vector<PedDecalValue>> vPedsAndDecals;
+    PedDecalValue(Hash newCollection, Hash newValue) : collection(newCollection), value(newValue)
+    {
+    }
+};
 
-		struct NamedPedDecal
-		{
-			Hash collection, value;
-			std::string caption;
-			bool IsOnPed(GTAentity ped) const;
-			void Apply(GTAentity ped) const;
-			void Remove(GTAentity ped) const;
+extern std::map<Ped, std::vector<PedDecalValue>> vPedsAndDecals;
 
-		};
+struct NamedPedDecal
+{
+    Hash collection, value;
+    std::string caption;
+    bool IsOnPed(GTAentity ped) const;
+    void Apply(GTAentity ped) const;
+    void Remove(GTAentity ped) const;
+};
 
-		extern std::map<Hash, std::map<std::string, std::map<std::string, std::vector<NamedPedDecal>>>> vAllDecals; // PedHash[Type][Zone]
-		void PopulateDecalsDict();
-		std::string GetDecalCaption(Hash collection, Hash value);
+extern std::map<Hash, std::map<std::string, std::map<std::string, std::vector<NamedPedDecal>>>> vAllDecals; // PedHash[Type][Zone]
+void PopulateDecalsDict();
+std::string GetDecalCaption(Hash collection, Hash value);
 
-		extern std::pair<std::string, std::map<std::string, std::vector<NamedPedDecal>>>* selectedType;
-		extern std::pair<std::string, std::vector<NamedPedDecal>>* selectedZone;
+extern std::pair<std::string, std::map<std::string, std::vector<NamedPedDecal>>>* selectedType;
+extern std::pair<std::string, std::vector<NamedPedDecal>>* selectedZone;
 
-		extern bool g_tattooPreviewMode;
-		extern const NamedPedDecal* g_previewTattoo;
+extern bool g_tattooPreviewMode;
+extern const NamedPedDecal* g_previewTattoo;
 
-		void Sub_Decals_Types();
-		void Sub_Decals_Zones();
-		void Sub_Decals_InZone();
-		void OpenSubDecals();
+void Sub_Decals_Types();
+void Sub_Decals_Zones();
+void Sub_Decals_InZone();
+void OpenSubDecals();
 
-	}
+} // namespace PedDecals
 
-	// Damage/blood textures
+// Damage/blood textures
 
-	namespace PedDamageTextures
-	{
-		extern std::map<Ped, std::vector<std::string>> vPedsAndDamagePacks;
+namespace PedDamageTextures
+{
+extern std::map<Ped, std::vector<std::string>> vPedsAndDamagePacks;
 
-		void ClearAllBloodDamage(GTAped ped);
-		void ClearAllVisibleDamage(GTAped ped);
-		void ClearAll241BloodDamage();
-		void ClearAll241VisibleDamage();
+void ClearAllBloodDamage(GTAped ped);
+void ClearAllVisibleDamage(GTAped ped);
+void ClearAll241BloodDamage();
+void ClearAll241VisibleDamage();
 
-		void Sub_CategoryList();
-		void Sub_BoneSelection();
-		void Sub_Blood();
-		void Sub_DamageDecals();
-		void Sub_DamagePacks();
-	}
+void Sub_CategoryList();
+void Sub_BoneSelection();
+void Sub_Blood();
+void Sub_DamageDecals();
+void Sub_DamagePacks();
+} // namespace PedDamageTextures
 
-	// Head features (freemode m/f)
+// Head features (freemode m/f)
 
-	namespace PedHeadFeatures_catind
-	{
-		struct sPedHeadOverlayData
-		{
-			float opacity;
-			int colour;
-			int colourSecondary;
+namespace PedHeadFeatures_catind
+{
+struct sPedHeadOverlayData
+{
+    float opacity;
+    int colour;
+    int colourSecondary;
 
-			sPedHeadOverlayData()
-			{
-				this->opacity = 1.0f;
-				this->colour = -1;
-				this->colourSecondary = -1;
-			}
-		};
-		struct sPedHeadFeatures
-		{
-			std::array<sPedHeadOverlayData, 13> overlayData;
-			std::array<float, 20>  facialFeatureData;
-			int hairColour;
-			int hairColourStreaks;
-			int eyeColour;
+    sPedHeadOverlayData()
+    {
+        this->opacity = 1.0f;
+        this->colour = -1;
+        this->colourSecondary = -1;
+    }
+};
 
-			sPedHeadFeatures()
-			{
-				this->facialFeatureData.fill(0);
-				this->hairColour = 0;
-				this->hairColourStreaks = 0;
-				this->eyeColour = 1;
-			}
-		};
+struct sPedHeadFeatures
+{
+    std::array<sPedHeadOverlayData, 13> overlayData;
+    std::array<float, 20> facialFeatureData;
+    int hairColour;
+    int hairColourStreaks;
+    int eyeColour;
 
-		extern std::map<Ped, sPedHeadFeatures> vPedHeads;
-		extern std::map<Ped, sPedHeadFeatures>::mapped_type* pedHead;
+    sPedHeadFeatures()
+    {
+        this->facialFeatureData.fill(0);
+        this->hairColour = 0;
+        this->hairColourStreaks = 0;
+        this->eyeColour = 1;
+    }
+};
 
-		extern const std::vector<std::pair<std::string, std::vector<std::string>>> vCaptions_headOverlays;
-		extern const std::vector<std::string> vCaptions_facialFeatures;
+extern std::map<Ped, sPedHeadFeatures> vPedHeads;
+extern std::map<Ped, sPedHeadFeatures>::mapped_type* pedHead;
 
-		//extern UINT8 max_shapeAndSkinIDs;
-		UINT8 GetPedHeadOverlayColourType(const PedHeadOverlay& overlayIndex);
-		bool DoesPedModelSupportHeadFeatures(const GTAmodel::Model& pedModel);
-		void UpdatePedHeadBlendData(GTAped& ped, const PedHeadBlendData& blendData, bool bUnused);
+extern const std::vector<std::pair<std::string, std::vector<std::string>>> vCaptions_headOverlays;
+extern const std::vector<std::string> vCaptions_facialFeatures;
 
-		void Sub_Main();
-		void Sub_HeadOverlays();
-		void ApplyHeadOverlayTint(GTAped ped, int overlayIndex, int colourType, int primary, int secondary);
-		void Sub_HeadOverlays_InItem();
-		void Sub_FaceFeatures();
-		void Sub_SkinTone();
+//extern UINT8 max_shapeAndSkinIDs;
+UINT8 GetPedHeadOverlayColourType(const PedHeadOverlay& overlayIndex);
+bool DoesPedModelSupportHeadFeatures(const GTAmodel::Model& pedModel);
+void UpdatePedHeadBlendData(GTAped& ped, const PedHeadBlendData& blendData, bool bUnused);
 
-		namespace PedFaceGen
-		{
-			struct sFaceGenData
-			{
-				bool useThirdParent = false;
-				bool useNonRockstarParents = false;
-				int parentGenderFilter = 0; // 0=Any, 1=Male, 2=Female
-				int skinColorFilter = 0; // 0=Any, 1=White, 2=Black, 3=Hispanic, 4=Asian, 5=Arab, 6=Pakistani
-				int nonRockstarMax = 46;
-				Hash lastPedModel = 0;
-			};
+void Sub_Main();
+void Sub_HeadOverlays();
+void ApplyHeadOverlayTint(GTAped ped, int overlayIndex, int colourType, int primary, int secondary);
+void Sub_HeadOverlays_InItem();
+void Sub_FaceFeatures();
+void Sub_SkinTone();
 
-			extern const std::vector<int> parentIdsByGenderSkin[2][6];
-			extern sFaceGenData settings;
-		}
+namespace PedFaceGen
+{
+struct sFaceGenData
+{
+    bool useThirdParent = false;
+    bool useNonRockstarParents = false;
+    int parentGenderFilter = 0; // 0=Any, 1=Male, 2=Female
+    int skinColorFilter = 0;    // 0=Any, 1=White, 2=Black, 3=Hispanic, 4=Asian, 5=Arab, 6=Pakistani
+    int nonRockstarMax = 46;
+    Hash lastPedModel = 0;
+};
 
-		void Sub_FaceGenerator();
+extern const std::vector<int> parentIdsByGenderSkin[2][6];
+extern sFaceGenData settings;
+} // namespace PedFaceGen
 
-	}
+void Sub_FaceGenerator();
 
-	// Outfits (saver)
+} // namespace PedHeadFeatures_catind
 
-	namespace ComponentChangerOutfit
-	{
-		extern UINT8 persistentAttachmentsTexterIndex;
-		extern bool legacyXMLFormat;
-		bool Create(GTAentity ped, std::string filePath, bool legacyXMLFormat = false);
-		bool Apply(GTAped ep, const std::string& filePath, bool applyModelAndHead, bool applyProps, bool applyComps, bool applyDecals, bool applyDamageTextures, bool applyAttachedEntities);
+// Outfits (saver)
 
-	}
+namespace ComponentChangerOutfit
+{
+extern UINT8 persistentAttachmentsTexterIndex;
+extern bool legacyXMLFormat;
+bool Create(GTAentity ped, std::string filePath, bool legacyXMLFormat = false);
+bool Apply(GTAped ep, const std::string& filePath, bool applyModelAndHead, bool applyProps, bool applyComps, bool applyDecals, bool applyDamageTextures, bool applyAttachedEntities);
 
-	void ComponentChanger_Outfits();
-	void ComponentChanger_Outfits2();
-	void ComponentChanger_DefaultOutfits();
-}
+} // namespace ComponentChangerOutfit
 
-
+void ComponentChanger_Outfits();
+void ComponentChanger_Outfits2();
+void ComponentChanger_DefaultOutfits();
+} // namespace sub

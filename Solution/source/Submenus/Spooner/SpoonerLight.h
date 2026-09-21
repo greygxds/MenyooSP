@@ -18,67 +18,72 @@
 typedef unsigned char UINT8;
 typedef unsigned int UINT;
 
-namespace pugi {
-	class xml_node;
+namespace pugi
+{
+class xml_node;
 }
 
 class STSTask;
 
 namespace sub::Spooner
 {
-	class SpoonerLight
-	{
-	public:
-		enum class LightType : UINT8 { Omni = 0, Spot = 1 };
-		static UINT iLightIdIter;
+class SpoonerLight
+{
+  public:
+    enum class LightType : UINT8
+    {
+        Omni = 0,
+        Spot = 1
+    };
+    static UINT iLightIdIter;
 
-		UINT m_id;
-		std::string m_name;
-		LightType m_lightType;
-		bool m_active;
-		bool m_selectedInSub;
+    UINT m_id;
+    std::string m_name;
+    LightType m_lightType;
+    bool m_active;
+    bool m_selectedInSub;
 
-		RGBA m_colour;
+    RGBA m_colour;
 
-		Vector3 m_position;
+    Vector3 m_position;
 
-		// Omni
-		float m_range;
-		float m_intensity;
+    // Omni
+    float m_range;
+    float m_intensity;
 
-		// Spot
-		Vector3 m_direction;
-		float m_spotDistance;
-		float m_spotBrightness;
-		float m_spotRoundness;
-		float m_spotRadius;
-		float m_spotFalloff;
-		bool m_useShadow;
-		int m_shadowId;
+    // Spot
+    Vector3 m_direction;
+    float m_spotDistance;
+    float m_spotBrightness;
+    float m_spotRoundness;
+    float m_spotRadius;
+    float m_spotFalloff;
+    bool m_useShadow;
+    int m_shadowId;
 
-		SpoonerLight();
-		SpoonerLight(const Vector3& position, const Vector3& direction);
+    SpoonerLight();
+    SpoonerLight(const Vector3& position, const Vector3& direction);
 
-		void Draw() const;
-	};
+    void Draw() const;
+};
 
-	namespace LightManagement
-	{
-		void DrawAll();
-		SpoonerLight* Add(const SpoonerLight& light);
-		void Remove(int indexInDb);
-		void RemoveAll();
-		void Clear();
-		SpoonerLight* Copy(const SpoonerLight& light);
+namespace LightManagement
+{
+void DrawAll();
+SpoonerLight* Add(const SpoonerLight& light);
+void Remove(int indexInDb);
+void RemoveAll();
+void Clear();
+SpoonerLight* Copy(const SpoonerLight& light);
 
-		bool LoadPresetsFromFile(const std::string& filePath);
-		bool SavePresetToFile(const SpoonerLight& light);
-		bool SaveAllPresetsToFile();
-		void DrawPreviewMarkers();
-		void RemoveOrphanedLightTasks(UINT lightId, const std::string& lightName);
-		bool IsLightAssignedToAnyTask(UINT lightId, STSTask* excludeTask = nullptr);
-		extern std::vector<SpoonerLight> PresetDb;
-	}
+bool LoadPresetsFromFile(const std::string& filePath);
+bool SavePresetToFile(const SpoonerLight& light);
+bool SaveAllPresetsToFile();
+void DrawPreviewMarkers();
+void RemoveOrphanedLightTasks(UINT lightId, const std::string& lightName);
+bool IsLightAssignedToAnyTask(UINT lightId, STSTask* excludeTask = nullptr);
+extern std::vector<SpoonerLight> PresetDb;
+} // namespace LightManagement
 
-	extern SpoonerLight* SelectedLight;
-}
+extern SpoonerLight* SelectedLight;
+} // namespace sub::Spooner

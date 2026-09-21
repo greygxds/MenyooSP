@@ -27,107 +27,104 @@
 
 namespace sub::BodyguardMenu
 {
-	extern int health;
-	extern int armor;
-	extern bool godmode;
-	std::string  _searchStr = std::string();
-	void BodyguardSpawn()
-	{
-			AddTitle("Spawn Bodyguard");
+extern int health;
+extern int armor;
+extern bool godmode;
+std::string _searchStr = std::string();
 
-			AddOption("Favourites", null, nullFunc, SUB::MODELCHANGER_FAVOURITES);
-			AddOption("~b~Search~s~ Peds", null, nullFunc, SUB::MODELCHANGER_SEARCH);
+void BodyguardSpawn()
+{
+    AddTitle("Spawn Bodyguard");
 
-			AddBreak("---Categories---");
-			AddOption("Player", null, nullFunc, SUB::MODELCHANGER_PLAYER);
-			AddOption("Animals", null, nullFunc, SUB::MODELCHANGER_ANIMAL);
-			AddOption("Ambient Females", null, nullFunc, SUB::MODELCHANGER_AMBFEMALES);
-			AddOption("Ambient Males", null, nullFunc, SUB::MODELCHANGER_AMBMALES);
-			AddOption("Cutscene Models", null, nullFunc, SUB::MODELCHANGER_CS);
-			AddOption("Gang Females", null, nullFunc, SUB::MODELCHANGER_GANGFEMALES);
-			AddOption("Gang Males", null, nullFunc, SUB::MODELCHANGER_GANGMALES);
-			AddOption("Story Models", null, nullFunc, SUB::MODELCHANGER_STORY);
-			AddOption("Multiplayer Models", null, nullFunc, SUB::MODELCHANGER_MP);
-			AddOption("Scenario Females", null, nullFunc, SUB::MODELCHANGER_SCENARIOFEMALES);
-			AddOption("Scenario Males", null, nullFunc, SUB::MODELCHANGER_SCENARIOMALES);
-			AddOption("Story Scenario Females", null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOFEMALES);
-			AddOption("Story Scenario Males", null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOMALES);
-			AddOption("Others", null, nullFunc, SUB::MODELCHANGER_OTHERS);
-	}
+    AddOption("Favourites", null, nullFunc, SUB::MODELCHANGER_FAVOURITES);
+    AddOption("~b~Search~s~ Peds", null, nullFunc, SUB::MODELCHANGER_SEARCH);
 
+    AddBreak("---Categories---");
+    AddOption("Player", null, nullFunc, SUB::MODELCHANGER_PLAYER);
+    AddOption("Animals", null, nullFunc, SUB::MODELCHANGER_ANIMAL);
+    AddOption("Ambient Females", null, nullFunc, SUB::MODELCHANGER_AMBFEMALES);
+    AddOption("Ambient Males", null, nullFunc, SUB::MODELCHANGER_AMBMALES);
+    AddOption("Cutscene Models", null, nullFunc, SUB::MODELCHANGER_CS);
+    AddOption("Gang Females", null, nullFunc, SUB::MODELCHANGER_GANGFEMALES);
+    AddOption("Gang Males", null, nullFunc, SUB::MODELCHANGER_GANGMALES);
+    AddOption("Story Models", null, nullFunc, SUB::MODELCHANGER_STORY);
+    AddOption("Multiplayer Models", null, nullFunc, SUB::MODELCHANGER_MP);
+    AddOption("Scenario Females", null, nullFunc, SUB::MODELCHANGER_SCENARIOFEMALES);
+    AddOption("Scenario Males", null, nullFunc, SUB::MODELCHANGER_SCENARIOMALES);
+    AddOption("Story Scenario Females", null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOFEMALES);
+    AddOption("Story Scenario Males", null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOMALES);
+    AddOption("Others", null, nullFunc, SUB::MODELCHANGER_OTHERS);
 }
+
+} // namespace sub::BodyguardMenu
+
 namespace sub::BodyguardMenu::BodyguardManagement
 {
-	std::vector<Ped> s_bodyguards;
-	void AddOptionBodyGuardPed(const std::string& text, const GTAmodel::Model& model)
-	{
-		bool bPressed = false;
-		AddOption(text, bPressed);
+std::vector<Ped> s_bodyguards;
 
-		if (!bPressed) return;
+void AddOptionBodyGuardPed(const std::string& text, const GTAmodel::Model& model)
+{
+    bool bPressed = false;
+    AddOption(text, bPressed);
 
-		if (sub::BodyguardMenu::BodyguardDb.size() >= MAX_BODYGUARDS)
-		{
-			Game::Print::PrintBottomLeft("Maximum of 7 bodyguards reached.");
-			return;
-		}
+    if (!bPressed)
+        return;
 
-		if (!model.IsInCdImage())
-			return;
+    if (sub::BodyguardMenu::BodyguardDb.size() >= MAX_BODYGUARDS)
+    {
+        Game::Print::PrintBottomLeft("Maximum of 7 bodyguards reached.");
+        return;
+    }
 
-		if (!model.Load(4000))
-		{
-			Game::Print::PrintBottomLeft("Failed to load model.");
-			model.Unload();
-			return;
-		}
+    if (!model.IsInCdImage())
+        return;
 
-		int pedType = 26;
+    if (!model.Load(4000))
+    {
+        Game::Print::PrintBottomLeft("Failed to load model.");
+        model.Unload();
+        return;
+    }
 
-		GTAped player(PLAYER::PLAYER_PED_ID());
-		Vector3 pos = player.GetOffsetInWorldCoords(Vector3(2.f, 0.f, 0.f));
+    int pedType = 26;
 
-		Ped ped = PED::CREATE_PED(
-			pedType,
-			model.hash,
-			pos.x, pos.y, pos.z,
-			0.f,
-			true, true
-		);
+    GTAped player(PLAYER::PLAYER_PED_ID());
+    Vector3 pos = player.GetOffsetInWorldCoords(Vector3(2.f, 0.f, 0.f));
 
-		ENTITY::SET_ENTITY_MAX_HEALTH(ped, sub::BodyguardMenu::health);
-		ENTITY::SET_ENTITY_HEALTH(ped, sub::BodyguardMenu::health, 0);
-		PED::SET_PED_ARMOUR(ped, sub::BodyguardMenu::armor);
-		if (sub::BodyguardMenu::godmode)
-			SetPedInvincibleOn(ped);
-		else
-			SetPedInvincibleOff(ped);
+    Ped ped = PED::CREATE_PED(pedType, model.hash, pos.x, pos.y, pos.z, 0.f, true, true);
+
+    ENTITY::SET_ENTITY_MAX_HEALTH(ped, sub::BodyguardMenu::health);
+    ENTITY::SET_ENTITY_HEALTH(ped, sub::BodyguardMenu::health, 0);
+    PED::SET_PED_ARMOUR(ped, sub::BodyguardMenu::armor);
+    if (sub::BodyguardMenu::godmode)
+        SetPedInvincibleOn(ped);
+    else
+        SetPedInvincibleOff(ped);
 
 
-		PED::SET_PED_AS_GROUP_MEMBER(ped, PLAYER::GET_PLAYER_GROUP(PLAYER::PLAYER_ID()));
-		PED::SET_PED_NEVER_LEAVES_GROUP(ped, true);
-		PED::SET_PED_COMBAT_ABILITY(ped, 2);
-		PED::SET_PED_COMBAT_MOVEMENT(ped, 2);
-		PED::SET_PED_COMBAT_ATTRIBUTES(ped, 46, true);
+    PED::SET_PED_AS_GROUP_MEMBER(ped, PLAYER::GET_PLAYER_GROUP(PLAYER::PLAYER_ID()));
+    PED::SET_PED_NEVER_LEAVES_GROUP(ped, true);
+    PED::SET_PED_COMBAT_ABILITY(ped, 2);
+    PED::SET_PED_COMBAT_MOVEMENT(ped, 2);
+    PED::SET_PED_COMBAT_ATTRIBUTES(ped, 46, true);
 
-		BodyguardEntity ent{};
-		ent.Handle = GTAentity(ped);
-		ent.Type = EntityType::PED;
-		ent.Name = text;
-		ent.hashName = IntToHexString(model.hash, true);
+    BodyguardEntity ent{};
+    ent.Handle = GTAentity(ped);
+    ent.Type = EntityType::PED;
+    ent.Name = text;
+    ent.hashName = IntToHexString(model.hash, true);
 
-		sub::BodyguardMenu::BodyguardManagement::AddBodyguardToDb(ent);
-		for (auto& bg : sub::BodyguardMenu::BodyguardDb)
-		{
-			if (bg.Handle.Exists())
-				ApplyBodyguardBlip(bg.Handle.GetHandle(), sub::BodyguardMenu::blipIcon);
-		}
+    sub::BodyguardMenu::BodyguardManagement::AddBodyguardToDb(ent);
+    for (auto& bg : sub::BodyguardMenu::BodyguardDb)
+    {
+        if (bg.Handle.Exists())
+            ApplyBodyguardBlip(bg.Handle.GetHandle(), sub::BodyguardMenu::blipIcon);
+    }
 
-		s_bodyguards.push_back(ped);
+    s_bodyguards.push_back(ped);
 
-		Game::Print::PrintBottomLeft("Bodyguard spawned");
-		model.Unload();
-	}
-
+    Game::Print::PrintBottomLeft("Bodyguard spawned");
+    model.Unload();
 }
 
+} // namespace sub::BodyguardMenu::BodyguardManagement

@@ -64,11 +64,12 @@ using namespace ZONE;
 //#define WAIT scriptWait
 static inline void WAIT(DWORD time)
 {
-	scriptWait(time);
+    scriptWait(time);
 }
+
 static inline void TERMINATE()
 {
-	WAIT(MAXDWORD);
+    WAIT(MAXDWORD);
 }
 
 Hash GET_HASH_KEY(const char* value);

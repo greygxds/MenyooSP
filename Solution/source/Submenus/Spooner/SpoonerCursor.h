@@ -2,7 +2,7 @@
 
 namespace sub::Spooner::SpoonerCursor
 {
-	void Tick();
-	void Reset();
-	bool IsDragging();
-}
+void Tick();
+void Reset();
+bool IsDragging();
+} // namespace sub::Spooner::SpoonerCursor

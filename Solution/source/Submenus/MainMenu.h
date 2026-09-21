@@ -19,9 +19,5 @@
 
 namespace sub
 {
-	void MainMenu();
+void MainMenu();
 }
-
-
-
-

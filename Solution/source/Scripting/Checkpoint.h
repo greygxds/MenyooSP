@@ -28,102 +28,101 @@ class RGBA;
 
 enum class CheckpointIcon : int
 {
-	CylinderSingleArrow,
-	CylinderDoubleArrow,
-	CylinderTripleArrow,
-	CylinderCycleArrow,
-	CylinderCheckerboard,
-	CylinderSingleArrow2,
-	CylinderDoubleArrow2,
-	CylinderTripleArrow2,
-	CylinderCycleArrow2,
-	CylinderCheckerboard2,
-	RingSingleArrow,
-	RingDoubleArrow,
-	RingTripleArrow,
-	RingCycleArrow,
-	RingCheckerboard,
-	SingleArrow,
-	DoubleArrow,
-	TripleArrow,
-	CycleArrow,
-	Checkerboard,
-	CylinderSingleArrow3,
-	CylinderDoubleArrow3,
-	CylinderTripleArrow3,
-	CylinderCycleArrow3,
-	CylinderCheckerboard3,
-	CylinderSingleArrow4,
-	CylinderDoubleArrow4,
-	CylinderTripleArrow4,
-	CylinderCycleArrow4,
-	CylinderCheckerboard4,
-	CylinderSingleArrow5,
-	CylinderDoubleArrow5,
-	CylinderTripleArrow5,
-	CylinderCycleArrow5,
-	CylinderCheckerboard5,
-	RingPlaneUp,
-	RingPlaneLeft,
-	RingPlaneRight,
-	RingPlaneDown,
-	Empty,
-	Ring,
-	Empty2,
-	//CylinderCustomShape,
-	//CylinderCustomShape2,
-	//CylinderCustomShape3,
-	Cyclinder = 45,
-	Cyclinder2,
-	Cyclinder3,
+    CylinderSingleArrow,
+    CylinderDoubleArrow,
+    CylinderTripleArrow,
+    CylinderCycleArrow,
+    CylinderCheckerboard,
+    CylinderSingleArrow2,
+    CylinderDoubleArrow2,
+    CylinderTripleArrow2,
+    CylinderCycleArrow2,
+    CylinderCheckerboard2,
+    RingSingleArrow,
+    RingDoubleArrow,
+    RingTripleArrow,
+    RingCycleArrow,
+    RingCheckerboard,
+    SingleArrow,
+    DoubleArrow,
+    TripleArrow,
+    CycleArrow,
+    Checkerboard,
+    CylinderSingleArrow3,
+    CylinderDoubleArrow3,
+    CylinderTripleArrow3,
+    CylinderCycleArrow3,
+    CylinderCheckerboard3,
+    CylinderSingleArrow4,
+    CylinderDoubleArrow4,
+    CylinderTripleArrow4,
+    CylinderCycleArrow4,
+    CylinderCheckerboard4,
+    CylinderSingleArrow5,
+    CylinderDoubleArrow5,
+    CylinderTripleArrow5,
+    CylinderCycleArrow5,
+    CylinderCheckerboard5,
+    RingPlaneUp,
+    RingPlaneLeft,
+    RingPlaneRight,
+    RingPlaneDown,
+    Empty,
+    Ring,
+    Empty2,
+    //CylinderCustomShape,
+    //CylinderCustomShape2,
+    //CylinderCustomShape3,
+    Cyclinder = 45,
+    Cyclinder2,
+    Cyclinder3,
 };
 
 class Checkpoint
 {
-public:
-	Checkpoint(int handle);
-	Checkpoint();
+  public:
+    Checkpoint(int handle);
+    Checkpoint();
 
-	UINT64 MemoryAddress() const;
+    UINT64 MemoryAddress() const;
 
-	Vector3 GetPosition() const;
-	void SetPosition(const Vector3& value);
+    Vector3 GetPosition() const;
+    void SetPosition(const Vector3& value);
 
-	Vector3 GetTargetPosition() const;
-	void SetTargetPosition(const Vector3& value);
+    Vector3 GetTargetPosition() const;
+    void SetTargetPosition(const Vector3& value);
 
-	CheckpointIcon GetIcon() const;
-	void SetIcon(const CheckpointIcon& value);
+    CheckpointIcon GetIcon() const;
+    void SetIcon(const CheckpointIcon& value);
 
-	BYTE GetReserved() const;
-	void SetReserved(BYTE value);
+    BYTE GetReserved() const;
+    void SetReserved(BYTE value);
 
-	float GetRadius() const;
-	void SetRadius(float value);
+    float GetRadius() const;
+    void SetRadius(float value);
 
-	RGBA GetColour() const;
-	void SetColour(const RGBA& value);
-	RGBA GetIconColour() const;
-	void SetIconColour(const RGBA& value);
+    RGBA GetColour() const;
+    void SetColour(const RGBA& value);
+    RGBA GetIconColour() const;
+    void SetIconColour(const RGBA& value);
 
-	float GetCylinderNearHeight() const;
-	void SetCylinderNearHeight(float value);
+    float GetCylinderNearHeight() const;
+    void SetCylinderNearHeight(float value);
 
-	float GetCylinderFarHeight() const;
-	void SetCyclinderFarHeight(float value);
+    float GetCylinderFarHeight() const;
+    void SetCyclinderFarHeight(float value);
 
-	float GetCylinderRadius() const;
-	void SetCylinderRadius(float value);
+    float GetCylinderRadius() const;
+    void SetCylinderRadius(float value);
 
-	void Delete();
-	bool Exists();
+    void Delete();
+    bool Exists();
 
-	bool Equals(const Checkpoint& obj);
+    bool Equals(const Checkpoint& obj);
 
-	friend bool operator == (const Checkpoint& left, const Checkpoint& right);
-	friend bool operator != (const Checkpoint& left, const Checkpoint& right);
+    friend bool operator==(const Checkpoint& left, const Checkpoint& right);
+    friend bool operator!=(const Checkpoint& left, const Checkpoint& right);
 
-private:
-	int mHandle;
+  private:
+    int mHandle;
 };
-

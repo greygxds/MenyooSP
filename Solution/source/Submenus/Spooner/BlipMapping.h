@@ -6,11 +6,11 @@
 
 namespace sub::Spooner
 {
-    struct BlipMapping
-    {
-        int icon;
-        bool syncRotation;
-    };
+struct BlipMapping
+{
+    int icon;
+    bool syncRotation;
+};
 
-    BlipMapping GetBlipMappingForEntity(GTAentity& ent);
-}
+BlipMapping GetBlipMappingForEntity(GTAentity& ent);
+} // namespace sub::Spooner

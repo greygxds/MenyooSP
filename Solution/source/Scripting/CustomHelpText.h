@@ -20,33 +20,32 @@ typedef unsigned long DWORD;
 
 namespace Game
 {
-	class CustomHelpText final
-	{
-	private:
-		static DWORD _timer;
-		static std::string _tag;
-		static std::string _text;
+class CustomHelpText final
+{
+  private:
+    static DWORD _timer;
+    static std::string _tag;
+    static std::string _text;
 
-		static bool Drawing();
+    static bool Drawing();
 
-	public:
-		static void SetTag(const std::string& newTag);
+  public:
+    static void SetTag(const std::string& newTag);
 
-		static void SetText(const std::string& newText);
+    static void SetText(const std::string& newText);
 
-		static void ShowThisFrame(const std::string& textToShow);
-		static void ShowThisFrame(std::ostream& s);
-		static void ShowThisFrame(std::wostream& s);
-		static void ShowThisFrame();
+    static void ShowThisFrame(const std::string& textToShow);
+    static void ShowThisFrame(std::ostream& s);
+    static void ShowThisFrame(std::wostream& s);
+    static void ShowThisFrame();
 
-		static void End();
+    static void End();
 
-		static void Tick();
+    static void Tick();
 
-		static void ShowTimedText(const std::string& text, DWORD how_many_ms);
-		static void ShowTimedText(std::ostream& s, DWORD how_many_ms);
-		static void ShowTimedText(std::wostream& s, DWORD how_many_ms);
-	};
+    static void ShowTimedText(const std::string& text, DWORD how_many_ms);
+    static void ShowTimedText(std::ostream& s, DWORD how_many_ms);
+    static void ShowTimedText(std::wostream& s, DWORD how_many_ms);
+};
 
-}
-
+} // namespace Game

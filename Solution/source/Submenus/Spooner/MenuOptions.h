@@ -18,24 +18,21 @@ typedef unsigned char UINT8;
 typedef unsigned long DWORD, Hash;
 typedef int Ped;
 
-namespace GTAmodel {
-	class Model;
+namespace GTAmodel
+{
+class Model;
 }
 
 namespace sub::Spooner
 {
-	namespace MenuOptions
-	{
-		void AddOption_AddProp(const std::string& text, const GTAmodel::Model& model);
-		void AddOptionAddPed(const std::string& text, const GTAmodel::Model& model);
-		void AddOption_AddVehicle(const std::string& text, const GTAmodel::Model& model);
+namespace MenuOptions
+{
+void AddOption_AddProp(const std::string& text, const GTAmodel::Model& model);
+void AddOptionAddPed(const std::string& text, const GTAmodel::Model& model);
+void AddOption_AddVehicle(const std::string& text, const GTAmodel::Model& model);
 
-		void AddOption_RelationshipTextScroller();
-		void AddOption_AddPedWithCallback(const std::string& text, const GTAmodel::Model& model,
-			const std::function<void(Ped, const std::string&)>& callback);
-	}
+void AddOption_RelationshipTextScroller();
+void AddOption_AddPedWithCallback(const std::string& text, const GTAmodel::Model& model, const std::function<void(Ped, const std::string&)>& callback);
+} // namespace MenuOptions
 
-}
-
-
-
+} // namespace sub::Spooner

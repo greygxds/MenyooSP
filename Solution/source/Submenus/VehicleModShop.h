@@ -42,100 +42,108 @@ typedef int INT, Vehicle, Ped, Object, Entity, ScrHandle;
 
 namespace sub
 {
-	void SetVehicleModShopTarget(Vehicle vehicle);
-	Vehicle GetVehicleModShopTarget();
-	void SelectSpawnPrimaryPaint();
-	void SelectSpawnSecondaryPaint();
-	void SetSelectedHudColour(int colour);
-	void PopulateAllPaintIDs();
+void SetVehicleModShopTarget(Vehicle vehicle);
+Vehicle GetVehicleModShopTarget();
+void SelectSpawnPrimaryPaint();
+void SelectSpawnSecondaryPaint();
+void SetSelectedHudColour(int colour);
+void PopulateAllPaintIDs();
 
-	// vehicle - upgrades
-	void SetVehicleMaxUpgrades(Vehicle vehicle, bool upgradeIt = true, bool invincible = false, INT8 plateType = 5, std::string plateText = std::string(),
-		bool neonIt = false, UINT8 NeonR = 0, UINT8 NeonG = 0, UINT8 NeonB = 0, INT16 prim_col_index = -3, INT16 sec_col_index = -3);
+// vehicle - upgrades
+void SetVehicleMaxUpgrades(
+    Vehicle vehicle,
+    bool upgradeIt = true,
+    bool invincible = false,
+    INT8 plateType = 5,
+    std::string plateText = std::string(),
+    bool neonIt = false,
+    UINT8 NeonR = 0,
+    UINT8 NeonG = 0,
+    UINT8 NeonB = 0,
+    INT16 prim_col_index = -3,
+    INT16 sec_col_index = -3
+);
 
 
-	// ModShop
+// ModShop
 
-	void ModShop_();
+void ModShop_();
 
-	// Bennys
+// Bennys
 
-	namespace Bennys_catind
-	{
+namespace Bennys_catind
+{
 
-		void Sub_BennysMain();
-	}
-
-	// Selected vehicle mod submenu (for selection of mod value)
-
-	void MSCatall_();
-
-	// Emblem
-
-	void MSEmblem_();
-
-	// Wheels
-
-	void MSWheels_();
-	void MSWheels2_();
-	void MSWheels3_();
-
-	namespace RemovableComponents
-	{
-		void Menu();
-	}
-
-	// Windows
-
-	namespace MSWindows_catind
-	{
-		void MSWindows_();
-	}
-
-	// Doors
-
-	void MSDoors_();
-
-	// Paints
-
-	INT getpaintCarUsing_index(Vehicle veh, INT partIndex_CustomK);
-	void paintCarUsing_index(Vehicle veh, INT partIndex_CustomK, INT16 colour_index, INT16 pearl_index);
-
-	void MSPaints_();
-	void MSPaints2_();
-
-	namespace MSPaints_catind
-	{
-		void Sub_Shared();
-		void Sub_Chrome();
-		void Sub_Normal();
-		void Sub_Matte();
-		void Sub_Metallic();
-		void Sub_Metal();
-		void Sub_Chameleon();
-		void Sub_Pearl();
-		void Sub_Util();
-		void Sub_Worn();
-	}
-
-	void rgb_mode_set_carcol(Vehicle veh, INT16 R, INT16 G, INT16 B, INT16 A);
-	void MSPaints_RGB();
-
-	// Extras
-
-	void MSExtra_();
-
-	// Neons
-
-	void MSNeons_();
-
-	// Engine sound
-
-	void MSEngineSound_();
-
-	void MSLights_();
-
+void Sub_BennysMain();
 }
 
+// Selected vehicle mod submenu (for selection of mod value)
 
+void MSCatall_();
 
+// Emblem
+
+void MSEmblem_();
+
+// Wheels
+
+void MSWheels_();
+void MSWheels2_();
+void MSWheels3_();
+
+namespace RemovableComponents
+{
+void Menu();
+}
+
+// Windows
+
+namespace MSWindows_catind
+{
+void MSWindows_();
+}
+
+// Doors
+
+void MSDoors_();
+
+// Paints
+
+INT getpaintCarUsing_index(Vehicle veh, INT partIndex_CustomK);
+void paintCarUsing_index(Vehicle veh, INT partIndex_CustomK, INT16 colour_index, INT16 pearl_index);
+
+void MSPaints_();
+void MSPaints2_();
+
+namespace MSPaints_catind
+{
+void Sub_Shared();
+void Sub_Chrome();
+void Sub_Normal();
+void Sub_Matte();
+void Sub_Metallic();
+void Sub_Metal();
+void Sub_Chameleon();
+void Sub_Pearl();
+void Sub_Util();
+void Sub_Worn();
+} // namespace MSPaints_catind
+
+void rgb_mode_set_carcol(Vehicle veh, INT16 R, INT16 G, INT16 B, INT16 A);
+void MSPaints_RGB();
+
+// Extras
+
+void MSExtra_();
+
+// Neons
+
+void MSNeons_();
+
+// Engine sound
+
+void MSEngineSound_();
+
+void MSLights_();
+
+} // namespace sub

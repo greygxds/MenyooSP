@@ -3,5 +3,5 @@
 
 namespace sub
 {
-    void CreditsMenu();
+void CreditsMenu();
 }

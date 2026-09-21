@@ -11,16 +11,13 @@
 
 namespace JumpAroundMode
 {
-	extern bool bEnabled;
+extern bool bEnabled;
 
-	inline void DrawDiscoLights();
+inline void DrawDiscoLights();
 
-	void Tick();
+void Tick();
 
-	void BgMusic(bool enable);
-	void StartJumping(bool enable);
+void BgMusic(bool enable);
+void StartJumping(bool enable);
 
-}
-
-
-
+} // namespace JumpAroundMode

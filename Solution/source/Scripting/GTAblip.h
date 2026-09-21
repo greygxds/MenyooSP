@@ -30,76 +30,76 @@ class Vector3;
 
 class GTAblip final
 {
-public:
-	friend bool operator == (const GTAblip& left, const GTAblip& right);
-	friend bool operator != (const GTAblip& left, const GTAblip& right);
-	GTAblip& operator = (const GTAblip& right);
+  public:
+    friend bool operator==(const GTAblip& left, const GTAblip& right);
+    friend bool operator!=(const GTAblip& left, const GTAblip& right);
+    GTAblip& operator=(const GTAblip& right);
 
-	GTAblip();
-	GTAblip(int handle);
+    GTAblip();
+    GTAblip(int handle);
 
-	int& Handle();
+    int& Handle();
 
-	uint8_t Alpha() const;
-	void SetAlpha(uint8_t value);
+    uint8_t Alpha() const;
+    void SetAlpha(uint8_t value);
 
-	int Colour() const;
-	void SetColour(int value);
+    int Colour() const;
+    void SetColour(int value);
 
-	bool IsFlashing() const;
-	void SetFlashing(bool value);
+    bool IsFlashing() const;
+    void SetFlashing(bool value);
 
-	void SetFriendly(bool value);
+    void SetFriendly(bool value);
 
-	bool IsOnMinimap() const;
+    bool IsOnMinimap() const;
 
-	bool IsShortRange() const;
-	void SetShortRange(bool value);
+    bool IsShortRange() const;
+    void SetShortRange(bool value);
 
-	Vector3 GetPosition() const;
-	void SetPosition(const Vector3& value);
+    Vector3 GetPosition() const;
+    void SetPosition(const Vector3& value);
 
-	void SetRotation(float value);
+    void SetRotation(float value);
 
-	void SetScale(float value);
+    void SetScale(float value);
 
-//New functions
+    //New functions
 
-	void ShowCone (bool toggle, int hudColorIndex = 3, float coneWidth = 1.0f, int coneColour = 3);
+    void ShowCone(bool toggle, int hudColorIndex = 3, float coneWidth = 1.0f, int coneColour = 3);
 
-	void SetSelectableOnMap(bool selectable);
+    void SetSelectableOnMap(bool selectable);
 
-	void SetPriority(int priority);
+    void SetPriority(int priority);
 
-//New functions end here
+    //New functions end here
 
-//New functions
+    //New functions
 
-	int GetPriority() const;
-	void SetDisplayMode(int value);
-	//void SetDisplayMode(int value);
+    int GetPriority() const;
+    void SetDisplayMode(int value);
+    //void SetDisplayMode(int value);
 
-//New functions end here
+    //New functions end here
 
-	void ShowRoute(bool value);
+    void ShowRoute(bool value);
 
-	int Icon() const;
-	void SetIcon(int value);
+    int Icon() const;
+    void SetIcon(int value);
 
-	std::string IconName() const;
+    std::string IconName() const;
 
-	void SetBlipName(const std::string& value);
+    void SetBlipName(const std::string& value);
 
-	int Type() const;
+    int Type() const;
 
-	void HideNumber();
-	void ShowNumber(int number);
+    void HideNumber();
+    void ShowNumber(int number);
 
-	bool Exists() const;
-	void Remove();
+    bool Exists() const;
+    void Remove();
 
-private:
-	int mHandle;
-	int mConeColour = 3;
-	int mPriority = 2;
+  private:
+    int mHandle;
+    int mConeColour = 3;
+    int mPriority = 2;
 };

@@ -14,16 +14,13 @@ typedef char *PCHAR;
 
 namespace sub::TeleportLocations_catind
 {
-	namespace Facilities
-	{
+namespace Facilities
+{
 
-		void Sub_Facilities();
-		void Sub_Facilities_InLoc();
-		void Sub_Facilities_InOption();
+void Sub_Facilities();
+void Sub_Facilities_InLoc();
+void Sub_Facilities_InOption();
 
-	}
+} // namespace Facilities
 
-}
-
-
-
+} // namespace sub::TeleportLocations_catind

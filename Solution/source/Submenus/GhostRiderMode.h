@@ -31,14 +31,14 @@ typedef char *PCHAR;
 
 namespace sub
 {
-	namespace GhostRiderMode
-	{
-		void ToggleOnOff();
-		void Tick();
+namespace GhostRiderMode
+{
+void ToggleOnOff();
+void Tick();
 
-		extern std::string outfitFileName;
-		void ApplyGhostRiderOutfit();
-		void SpawnGhostRiderRide();
-		void Sub_GhostRiderMode();
-	}
-}
+extern std::string outfitFileName;
+void ApplyGhostRiderOutfit();
+void SpawnGhostRiderRide();
+void Sub_GhostRiderMode();
+} // namespace GhostRiderMode
+} // namespace sub

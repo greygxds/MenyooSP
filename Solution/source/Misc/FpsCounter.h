@@ -13,27 +13,22 @@ typedef unsigned long DWORD;
 
 namespace FPSCounter
 {
-	class FpsCounter final
-	{
-	protected:
-		DWORD fpsValue;
-		DWORD frameCounter;
-		DWORD timer;
+class FpsCounter final
+{
+  protected:
+    DWORD fpsValue;
+    DWORD frameCounter;
+    DWORD timer;
 
-	public:
-		FpsCounter();
+  public:
+    FpsCounter();
 
-		DWORD Get();
+    DWORD Get();
 
-		void Tick();
-	};
+    void Tick();
+};
+
 extern FpsCounter g_fpsCounter;
 
-	extern bool bDisplayFps;
-}
-
-
-
-
-
-
+extern bool bDisplayFps;
+} // namespace FPSCounter

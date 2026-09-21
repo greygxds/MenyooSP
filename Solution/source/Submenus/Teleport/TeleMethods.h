@@ -14,7 +14,7 @@ typedef unsigned long DWORD, Hash;
 typedef unsigned int UINT;
 typedef unsigned char UINT8;
 typedef unsigned short UINT16;
-typedef char *PCHAR;
+typedef char* PCHAR;
 
 class Vector3;
 class GTAentity;
@@ -26,19 +26,16 @@ void TeleportToMissionBlip(GTAped ped);
 
 namespace sub::TeleportLocations_catind
 {
-	class TeleLocation;
+class TeleLocation;
 
-	namespace TeleMethods
-	{
-		void ToWaypoint(GTAped ped);
-		void ToWaypoint241();
-		void ToMissionBlip241();
-		void ToForward241();
-		void ToCoordinates241(const Vector3& coord);
-		void ToTeleLocation241(const TeleLocation& loc);
-	}
+namespace TeleMethods
+{
+void ToWaypoint(GTAped ped);
+void ToWaypoint241();
+void ToMissionBlip241();
+void ToForward241();
+void ToCoordinates241(const Vector3& coord);
+void ToTeleLocation241(const TeleLocation& loc);
+} // namespace TeleMethods
 
-}
-
-
-
+} // namespace sub::TeleportLocations_catind

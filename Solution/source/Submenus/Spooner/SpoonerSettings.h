@@ -13,38 +13,35 @@
 
 namespace sub::Spooner
 {
-	namespace Settings
-	{
+namespace Settings
+{
 #define GTA_MAX_ENTITIES 2048
 
-		extern bool bInvertScrollSensitivity;
+extern bool bInvertScrollSensitivity;
 
-		extern bool bShowModelPreviews;
-		extern bool bDisplaySpoonerInfo;
-		extern bool bShowBoxAroundSelectedEntity;
-		extern bool bSpawnDynamicProps;
-		extern bool bSpawnDynamicPeds;
-		extern bool bSpawnDynamicVehicles;
-		extern bool bFreezeEntityWhenMovingIt;
-		extern bool bSpawnInvincibleEntities;
-		extern bool bSpawnStillPeds;
-		extern bool bAddToDbAsMissionEntities;
-		extern bool bKeepPositionWhenAttaching;
+extern bool bShowModelPreviews;
+extern bool bDisplaySpoonerInfo;
+extern bool bShowBoxAroundSelectedEntity;
+extern bool bSpawnDynamicProps;
+extern bool bSpawnDynamicPeds;
+extern bool bSpawnDynamicVehicles;
+extern bool bFreezeEntityWhenMovingIt;
+extern bool bSpawnInvincibleEntities;
+extern bool bSpawnStillPeds;
+extern bool bAddToDbAsMissionEntities;
+extern bool bKeepPositionWhenAttaching;
 
-		extern bool bTeleportToReferenceWhenLoadingFile;
+extern bool bTeleportToReferenceWhenLoadingFile;
 
-		extern bool bGridSnapEnabled;
-		extern float gridSnapSize;
-		extern float rotationSnapDegrees;
-		extern bool bSnapToGround;
-		extern bool bDrawGrid;
+extern bool bGridSnapEnabled;
+extern float gridSnapSize;
+extern float rotationSnapDegrees;
+extern bool bSnapToGround;
+extern bool bDrawGrid;
 
-		extern bool bAutoSaveDb;
-		extern DWORD autoSaveIntervalMs;
-		extern int autoSaveMaxFiles;
-	}
+extern bool bAutoSaveDb;
+extern DWORD autoSaveIntervalMs;
+extern int autoSaveMaxFiles;
+} // namespace Settings
 
-}
-
-
-
+} // namespace sub::Spooner
