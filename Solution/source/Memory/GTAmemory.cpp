@@ -2022,6 +2022,20 @@ void GTAmemory::InitEnhancedPools()
     }
 }
 
+bool GTAmemory::AreEnhancedPoolsReady()
+{
+    if (!g_isEnhanced)
+        return true;
+    return _entityPoolAddress != nullptr && _vehiclePoolAddress != nullptr && _pedPoolAddress != nullptr && _objectPoolAddress != nullptr && _cameraPoolAddress != nullptr &&
+           _pickupObjectPoolAddress != nullptr;
+}
+
+bool GTAmemory::TryInitEnhancedPools()
+{
+    InitEnhancedPools();
+    return AreEnhancedPoolsReady();
+}
+
 Vector3 GTAmemory::ReadVector3(UINT64 address)
 {
     const float* data = (float*)address;

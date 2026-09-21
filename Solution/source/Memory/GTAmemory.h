@@ -544,6 +544,8 @@ class GTAmemory final
     static BlipList* GetBlipList();
 
     static void InitEnhancedPools();
+    static bool AreEnhancedPoolsReady();
+    static bool TryInitEnhancedPools();
 
     // Unknown_Modder
     struct GXT2Entry
