@@ -105,6 +105,8 @@ void Menu::justopened()
 {
     Game::Print::PrintBottomLeft(oss_ << "Menyoo PC (" << MENYOO_VERSION_TEXT << ") by ItsJustCurtis and MAFINS (greygods fork)");
 
+    Menu::RequestMenuTextures();
+
     SET_AUDIO_FLAG("IsDirectorModeActive", true);
 
     SET_THIS_SCRIPT_CAN_BE_PAUSED(0);
