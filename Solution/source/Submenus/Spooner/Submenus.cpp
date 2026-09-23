@@ -12,6 +12,7 @@
 #include "..\..\macros.h"
 
 #include "..\..\Menu\Menu.h"
+#include "..\..\Menu\Keybinds.h"
 #include "..\..\Menu\Routine.h"
 
 #include "..\..\Natives\natives2.h"
@@ -1309,16 +1310,8 @@ void Sub_ManageEntities()
                 EntityManagement::ShowArrowAboveEntity(e.handle);
 
                 bool bShortcutDeletePressed;
-                if (Menu::usingControllerInput)
-                {
-                    Menu::add_IB(INPUT_SCRIPT_RLEFT, bEntityExists ? "Delete Entity" : "Remove Invalid Entity From DB");
-                    bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-                }
-                else
-                {
-                    Menu::add_IB(VirtualKey::B, bEntityExists ? "Delete Entity" : "Remove Invalid Entity From DB");
-                    bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-                }
+                Keybinds::AddBindIB("menu_action", bEntityExists, "Delete Entity", "Remove Invalid Entity From DB");
+                bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
                 if (bShortcutDeletePressed)
                 {
@@ -2948,16 +2941,8 @@ void Sub_ManageMarkers()
             m.m_selectedInSub = true;
 
             bool bShortcutDeletePressed;
-            if (Menu::usingControllerInput)
-            {
-                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Marker");
-                bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-            }
-            else
-            {
-                Menu::add_IB(VirtualKey::B, "Delete Marker");
-                bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-            }
+            Keybinds::AddBindIB("menu_action", "Delete Marker");
+            bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
             if (bShortcutDeletePressed)
             {
@@ -3467,16 +3452,8 @@ void Sub_ManageLights()
             l.m_selectedInSub = true;
 
             bool bShortcutDeletePressed;
-            if (Menu::usingControllerInput)
-            {
-                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Light");
-                bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-            }
-            else
-            {
-                Menu::add_IB(VirtualKey::B, "Delete Light");
-                bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-            }
+            Keybinds::AddBindIB("menu_action", "Delete Light");
+            bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
             if (bShortcutDeletePressed)
             {
@@ -3810,16 +3787,8 @@ void Sub_ManageLights_Presets()
             if (Menu::IsLastDrawnOptionSelected())
             {
                 bool bDeletePressed;
-                if (Menu::usingControllerInput)
-                {
-                    Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Preset");
-                    bDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-                }
-                else
-                {
-                    Menu::add_IB(VirtualKey::B, "Delete Preset");
-                    bDeletePressed = IsKeyJustUp(VirtualKey::B);
-                }
+                Keybinds::AddBindIB("menu_action", "Delete Preset");
+                bDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
                 if (bDeletePressed)
                 {
                     LightManagement::PresetDb.erase(LightManagement::PresetDb.begin() + i);
@@ -3984,16 +3953,8 @@ void Sub_Blip_Management()
             EntityManagement::ShowArrowAboveEntity(ent, RGBA(0, 255, 255, 200));
 
             bool bShortcutDeletePressed;
-            if (Menu::usingControllerInput)
-            {
-                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Entity Blip");
-                bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-            }
-            else
-            {
-                Menu::add_IB(VirtualKey::B, "Delete Entity Blip");
-                bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-            }
+            Keybinds::AddBindIB("menu_action", "Delete Entity Blip");
+            bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
             if (bShortcutDeletePressed)
                 blipIndexInDbToDelete = i;
@@ -4052,16 +4013,8 @@ void Sub_Blip_Management()
             m.m_selectedInSub = true;
 
             bool bShortcutDeletePressed;
-            if (Menu::usingControllerInput)
-            {
-                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Coord Blip");
-                bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-            }
-            else
-            {
-                Menu::add_IB(VirtualKey::B, "Delete Coord Blip");
-                bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-            }
+            Keybinds::AddBindIB("menu_action", "Delete Coord Blip");
+            bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
             if (bShortcutDeletePressed)
                 blipIndexInDbToDelete = i;
@@ -4120,16 +4073,8 @@ void Sub_Blip_Management()
             m.m_selectedInSub = true;
 
             bool bShortcutDeletePressed;
-            if (Menu::usingControllerInput)
-            {
-                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Delete Radial Blip");
-                bShortcutDeletePressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-            }
-            else
-            {
-                Menu::add_IB(VirtualKey::B, "Delete Radial Blip");
-                bShortcutDeletePressed = IsKeyJustUp(VirtualKey::B);
-            }
+            Keybinds::AddBindIB("menu_action", "Delete Radial Blip");
+            bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
             if (bShortcutDeletePressed)
                 blipIndexInDbToDelete = i;
@@ -4979,18 +4924,9 @@ void Sub_Blip_Icons()
         {
             sub::Spooner::SelectedBlip->Icon = icon;
             sub::Spooner::BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-            if (Menu::usingControllerInput)
-            {
-                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Remove from favourites");
-                if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
-                    FavouritesManagement::RemoveBlipIconFromFavourites(icon);
-            }
-            else
-            {
-                Menu::add_IB(VirtualKey::B, "Remove from favourites");
-                if (IsKeyJustUp(VirtualKey::B))
-                    FavouritesManagement::RemoveBlipIconFromFavourites(icon);
-            }
+            Keybinds::AddBindIB("menu_action", "Remove from favourites");
+            if (Keybinds::WasPressedThisFrame("menu_action"))
+                FavouritesManagement::RemoveBlipIconFromFavourites(icon);
         }
     }
 
@@ -5006,18 +4942,9 @@ void Sub_Blip_Icons()
         {
             sub::Spooner::SelectedBlip->Icon = icon;
             sub::Spooner::BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-            if (Menu::usingControllerInput)
-            {
-                Menu::add_IB(INPUT_SCRIPT_RLEFT, "Add to favourites");
-                if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
-                    FavouritesManagement::AddBlipIconToFavourites(icon);
-            }
-            else
-            {
-                Menu::add_IB(VirtualKey::B, "Add to favourites");
-                if (IsKeyJustUp(VirtualKey::B))
-                    FavouritesManagement::AddBlipIconToFavourites(icon);
-            }
+            Keybinds::AddBindIB("menu_action", "Add to favourites");
+            if (Keybinds::WasPressedThisFrame("menu_action"))
+                FavouritesManagement::AddBlipIconToFavourites(icon);
         }
     }
 }
@@ -5322,23 +5249,11 @@ void ObjectSpawnerSearchMenu()
         if (Menu::IsLastDrawnOptionSelected())
         {
             bool bIsAFav = FavouritesManagement::IsPropAFavourite(modelName, currentModel.hash);
-            if (Menu::usingControllerInput)
-            {
-                Menu::add_IB(INPUT_SCRIPT_RLEFT, (!bIsAFav ? "Add to" : "Remove from") + (std::string) " favourites");
+            Keybinds::AddBindIB("menu_action", bIsAFav, "Remove from favourites", "Add to favourites");
 
-                if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
-                {
-                    !bIsAFav ? FavouritesManagement::AddPropToFavourites(modelName, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(modelName, currentModel.hash);
-                }
-            }
-            else
+            if (Keybinds::WasPressedThisFrame("menu_action"))
             {
-                Menu::add_IB(VirtualKey::B, (!bIsAFav ? "Add to" : "Remove from") + (std::string) " favourites");
-
-                if (IsKeyJustUp(VirtualKey::B))
-                {
-                    !bIsAFav ? FavouritesManagement::AddPropToFavourites(modelName, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(modelName, currentModel.hash);
-                }
+                !bIsAFav ? FavouritesManagement::AddPropToFavourites(modelName, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(modelName, currentModel.hash);
             }
         }
     }
@@ -5380,23 +5295,11 @@ void Sub_SpawnProp()
         if (Menu::IsLastDrawnOptionSelected())
         {
             bool bIsAFav = FavouritesManagement::IsPropAFavourite(current, currentModel.hash);
-            if (Menu::usingControllerInput)
-            {
-                Menu::add_IB(INPUT_SCRIPT_RLEFT, (!bIsAFav ? "Add to" : "Remove from") + (std::string) " favourites");
+            Keybinds::AddBindIB("menu_action", bIsAFav, "Remove from favourites", "Add to favourites");
 
-                if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
-                {
-                    !bIsAFav ? FavouritesManagement::AddPropToFavourites(current, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(current, currentModel.hash);
-                }
-            }
-            else
+            if (Keybinds::WasPressedThisFrame("menu_action"))
             {
-                Menu::add_IB(VirtualKey::B, (!bIsAFav ? "Add to" : "Remove from") + (std::string) " favourites");
-
-                if (IsKeyJustUp(VirtualKey::B))
-                {
-                    !bIsAFav ? FavouritesManagement::AddPropToFavourites(current, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(current, currentModel.hash);
-                }
+                !bIsAFav ? FavouritesManagement::AddPropToFavourites(current, currentModel.hash) : FavouritesManagement::RemovePropFromFavourites(current, currentModel.hash);
             }
         }
     }
@@ -5521,41 +5424,20 @@ void Sub_SpawnProp_Favourites()
 
                 if (Menu::IsLastDrawnOptionSelected())
                 {
-                    if (Menu::usingControllerInput)
+                    Keybinds::AddBindIB("menu_action", "Remove");
+                    if (Keybinds::WasPressedThisFrame("menu_action"))
                     {
-                        Menu::add_IB(INPUT_SCRIPT_RLEFT, "Remove");
-                        if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
-                        {
-                            FavouritesManagement::RemovePropFromFavourites(prop.modelName, prop.model.hash);
-                            s_favPropCache.needsRebuild = true;
-                            if (Menu::IsSelectionAtBottom())
-                                Menu::Up();
-                            return;
-                        }
-                        Menu::add_IB(INPUT_SCRIPT_RRIGHT, "Change category");
-                        if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RRIGHT))
-                        {
-                            dict = prop.modelName;
-                            Menu::pendingSubmenu = SUB::SPOONER_SPAWN_PROP_FAVOURITES_CATSELECT;
-                        }
+                        FavouritesManagement::RemovePropFromFavourites(prop.modelName, prop.model.hash);
+                        s_favPropCache.needsRebuild = true;
+                        if (Menu::IsSelectionAtBottom())
+                            Menu::Up();
+                        return;
                     }
-                    else
+                    Keybinds::AddBindIB("favourite_recategorize", "Change category");
+                    if (Keybinds::WasPressedThisFrame("favourite_recategorize"))
                     {
-                        Menu::add_IB(VirtualKey::B, "Remove");
-                        if (IsKeyJustUp(VirtualKey::B))
-                        {
-                            FavouritesManagement::RemovePropFromFavourites(prop.modelName, prop.model.hash);
-                            s_favPropCache.needsRebuild = true;
-                            if (Menu::IsSelectionAtBottom())
-                                Menu::Up();
-                            return;
-                        }
-                        Menu::add_IB(VirtualKey::C, "Change category");
-                        if (IsKeyJustUp(VirtualKey::C))
-                        {
-                            dict = prop.modelName;
-                            Menu::pendingSubmenu = SUB::SPOONER_SPAWN_PROP_FAVOURITES_CATSELECT;
-                        }
+                        dict = prop.modelName;
+                        Menu::pendingSubmenu = SUB::SPOONER_SPAWN_PROP_FAVOURITES_CATSELECT;
                     }
                 }
             }

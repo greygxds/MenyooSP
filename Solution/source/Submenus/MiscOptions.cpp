@@ -9,6 +9,7 @@
 */
 #include "MiscOptions.h"
 #include "..\Menu\MenuConfig.h"
+#include "..\Menu\Keybinds.h"
 #include "..\Misc\FreeCam.h"
 #include "Spooner/SpoonerCamera.h"
 #include "Spooner/Submenus.h"
@@ -569,34 +570,16 @@ void RadioMenu()
             if (Menu::IsLastDrawnOptionSelected())
             {
                 bool bIsCurrentlyFrozen = frozenStation == i;
-                if (Menu::usingControllerInput)
+                Keybinds::AddBindIB("menu_action", !bIsCurrentlyFrozen, "Freeze station", "Unfreeze station");
+                if (Keybinds::WasPressedThisFrame("menu_action"))
                 {
-                    Menu::add_IB(INPUT_SCRIPT_RLEFT, (!bIsCurrentlyFrozen ? "Freeze" : "Unfreeze") + (std::string) " station");
-                    if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT))
+                    if (bIsCurrentlyFrozen)
                     {
-                        if (bIsCurrentlyFrozen)
-                        {
-                            frozenStation = -1;
-                        }
-                        else
-                        {
-                            frozenStation = i;
-                        }
+                        frozenStation = -1;
                     }
-                }
-                else
-                {
-                    Menu::add_IB(VirtualKey::B, (!bIsCurrentlyFrozen ? "Freeze" : "Unfreeze") + (std::string) " station");
-                    if (IsKeyJustUp(VirtualKey::B))
+                    else
                     {
-                        if (bIsCurrentlyFrozen)
-                        {
-                            frozenStation = -1;
-                        }
-                        else
-                        {
-                            frozenStation = i;
-                        }
+                        frozenStation = i;
                     }
                 }
             }
@@ -1058,7 +1041,7 @@ void FreeCamSettingsMenu()
     }
 
     if (freecamOn)
-        Game::Print::ShowNotification("Press ~b~" + VkCodeToStr(BindNoClip) + "~s~ OR ~b~X+LS~s~ OR ~b~Square+L3~s~ to toggle FreeCam.");
+        Game::Print::ShowNotification("Press ~b~" + Keybinds::GetGlyph("no_clip") + "~s~ to toggle FreeCam.");
 
     if (freecamOff)
         FreeCamMode::Stop();

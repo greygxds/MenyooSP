@@ -27,11 +27,14 @@
 class Vector3;
 class Vector2;
 
+// One instructional-buttons slot. button2 is the second member of a two-key/two-button combo
+// (-1 = single button); the combo glyph join happens in Menu::get_key_IB.
 struct Scaleform_IbT
 {
     int button;
     std::string text;
     bool isKey;
+    int button2 = -1;
 };
 
 class Scaleform final

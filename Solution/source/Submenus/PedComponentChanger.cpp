@@ -18,6 +18,7 @@
 #include "..\macros.h"
 
 #include "..\Menu\Menu.h"
+#include "..\Menu\Keybinds.h"
 #include "..\Menu\Routine.h"
 
 #include "..\Memory\GTAmemory.h"
@@ -1094,8 +1095,8 @@ void Sub_Decals_Zones_Search()
         }
     }
 
-    Menu::add_IB(VirtualKey::B, g_tattooPreviewMode ? "Preview: ON " : "Preview: OFF ");
-    bShortcutDecalPreviewPressed = IsKeyJustUp(VirtualKey::B);
+    Keybinds::AddBindIB("menu_action", g_tattooPreviewMode, "Preview: ON ", "Preview: OFF ");
+    bShortcutDecalPreviewPressed = Keybinds::WasPressedThisFrame("menu_action");
     if (bShortcutDecalPreviewPressed)
     {
         g_tattooPreviewMode = !g_tattooPreviewMode;
@@ -1157,8 +1158,8 @@ void Sub_Decals_InZone()
         }
     }
 
-    Menu::add_IB(VirtualKey::B, g_tattooPreviewMode ? "Preview: ON " : "Preview: OFF ");
-    bShortcutDecalPreviewPressed = IsKeyJustUp(VirtualKey::B);
+    Keybinds::AddBindIB("menu_action", g_tattooPreviewMode, "Preview: ON ", "Preview: OFF ");
+    bShortcutDecalPreviewPressed = Keybinds::WasPressedThisFrame("menu_action");
     if (bShortcutDecalPreviewPressed)
     {
         g_tattooPreviewMode = !g_tattooPreviewMode;

@@ -12,6 +12,7 @@
 #include "..\macros.h"
 
 #include "..\Menu\Menu.h"
+#include "..\Menu\Keybinds.h"
 #include "..\Menu\MenuConfig.h"
 #include "..\Menu\Routine.h"
 #include "..\Natives\natives2.h"
@@ -148,7 +149,7 @@ void ApplyEntityOverrides()
 
 bool IsHotkeyPressed()
 {
-    return Menu::usingControllerInput ? IS_CONTROL_PRESSED(2, INPUT_FRONTEND_X) && IS_CONTROL_JUST_PRESSED(2, INPUT_FRONTEND_LS) : IsKeyJustUp(BindNoClip);
+    return Keybinds::WasPressedThisFrame("no_clip", Menu::usingControllerInput ? Keybinds::Context::Gamepad : Keybinds::Context::Keyboard);
 }
 
 void SetConflictingControls(bool enabled)
@@ -189,7 +190,7 @@ Input ReadControllerInput()
     Input input = ReadRotationInput(MenuConfig::FreeCam::rotationSensitivityGamepad);
 
     float movement = MenuConfig::FreeCam::defaultSpeed * controllerSpeedScale;
-    if (IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_RB))
+    if (Keybinds::IsHeld("freecam_hasten", Keybinds::Context::Gamepad))
         movement *= controllerHastenMultiplier;
 
     input.translation.x = GET_DISABLED_CONTROL_NORMAL(0, INPUT_MOVE_LR) * movement;
@@ -202,8 +203,8 @@ Input ReadKeyboardInput()
 {
     Input input = ReadRotationInput(MenuConfig::FreeCam::rotationSensitivityMouse);
 
-    float movement = IS_DISABLED_CONTROL_PRESSED(0, INPUT_DUCK) ? MenuConfig::FreeCam::defaultSlowSpeed : MenuConfig::FreeCam::defaultSpeed;
-    if (IS_DISABLED_CONTROL_PRESSED(0, INPUT_SPRINT))
+    float movement = Keybinds::IsHeld("freecam_slow", Keybinds::Context::Keyboard) ? MenuConfig::FreeCam::defaultSlowSpeed : MenuConfig::FreeCam::defaultSpeed;
+    if (Keybinds::IsHeld("freecam_hasten", Keybinds::Context::Keyboard))
         movement *= keyboardSprintMultiplier;
 
     input.translation.x = GET_DISABLED_CONTROL_NORMAL(0, INPUT_MOVE_LR) * movement;
@@ -308,7 +309,7 @@ void HandleKeyboardAdjustments()
     const int scroll = ReadScroll();
 
     // Space + scroll: FOV
-    if (IsKeyDown(VK_SPACE))
+    if (Keybinds::IsHeld("freecam_fov_mod", Keybinds::Context::Keyboard))
     {
         if (scroll != 0)
             AdjustFov(scroll);
@@ -316,7 +317,7 @@ void HandleKeyboardAdjustments()
     }
 
     // Tab: height lock, scroll: speed
-    if (IsKeyJustUp(VK_TAB))
+    if (Keybinds::WasPressedThisFrame("freecam_height_lock", Keybinds::Context::Keyboard))
         ToggleHeightLock();
     if (scroll != 0)
         AdjustSpeed(scroll);
@@ -328,7 +329,8 @@ void ShowHelp()
     {
         Game::CustomHelpText::ShowTimedText(
             oss_ << "FreeCam:~n~~INPUT_MOVE_UD~ = " << Game::GetGXTEntry("ITEM_MOV_CAM") << "~n~~INPUT_LOOK_LR~ = " << Game::GetGXTEntry("ITEM_MOVE")
-                 << "~n~~INPUT_FRONTEND_RT~/~INPUT_FRONTEND_LT~ = " << "Ascend/Descend" << "~n~~INPUT_FRONTEND_RB~ = " << "Hasten",
+                 << "~n~~INPUT_FRONTEND_RT~/~INPUT_FRONTEND_LT~ = " << "Ascend/Descend"
+                 << "~n~" << Keybinds::GetGlyph("freecam_hasten", Keybinds::Context::Gamepad) << " = " << "Hasten",
             6000
         );
     }
@@ -336,7 +338,10 @@ void ShowHelp()
     {
         Game::CustomHelpText::ShowTimedText(
             oss_ << "FreeCam:~n~~INPUT_MOVE_UD~/~INPUT_MOVE_LR~ = " << Game::GetGXTEntry("ITEM_MOV_CAM") << "~n~~INPUT_LOOK_LR~ = " << Game::GetGXTEntry("ITEM_MOVE")
-                 << "~n~~INPUT_PARACHUTE_BRAKE_RIGHT~/~INPUT_PARACHUTE_BRAKE_LEFT~ = " << "Ascend/Descend" << "~n~~INPUT_SPRINT~ = " << "Hasten" << "~n~~INPUT_DUCK~ = " << "Slow Down",
+                 << "~n~~INPUT_PARACHUTE_BRAKE_RIGHT~/~INPUT_PARACHUTE_BRAKE_LEFT~ = " << "Ascend/Descend"
+                 << "~n~" << Keybinds::GetGlyph("freecam_hasten", Keybinds::Context::Keyboard) << " = " << "Hasten"
+                 << "~n~" << Keybinds::GetGlyph("freecam_slow", Keybinds::Context::Keyboard) << " = " << "Slow Down"
+                 << "~n~" << Keybinds::GetGlyph("freecam_height_lock", Keybinds::Context::Keyboard) << " = " << "Height Lock",
             6000
         );
     }
