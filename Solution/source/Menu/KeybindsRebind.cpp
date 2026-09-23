@@ -218,16 +218,6 @@ bool IsReservedKey(DWORD vk)
     return vk == VirtualKey::Escape || vk == VirtualKey::Numpad0 || vk == VirtualKey::Return || vk == VirtualKey::Numpad5 || vk == VirtualKey::Back;
 }
 
-// AltGr layouts (e.g. Polish Programmers) synthesize a right-Alt press as a Control key
-// with the Alt modifier held; GetAsyncKeyState reports it as right Alt elsewhere, so
-// store it as Right Menu. A real Control+Alt chord also maps here - rare and harmless.
-UINT16 NormalizeCandidate(DWORD vk)
-{
-    if (vk == VirtualKey::Control && (get_key_pressed(VirtualKey::Menu) || get_key_pressed(VirtualKey::LeftMenu) || get_key_pressed(VirtualKey::RightMenu)))
-        return VirtualKey::RightMenu;
-    return (UINT16)vk;
-}
-
 // Sweeps the keyboard for a candidate keypress, ignoring reserved keys and keys already held down. Returns NoBind if none found.
 UINT16 SweepKeyboardCandidate()
 {
@@ -236,7 +226,7 @@ UINT16 SweepKeyboardCandidate()
         if (IsReservedKey(k))
             continue;
         if (IsKeyDown(k) || IsKeyJustUp(k, false))
-            return NormalizeCandidate(k);
+            return (UINT16)k;
     }
     return NoBind;
 }
@@ -307,7 +297,7 @@ bool RebindTickKeyboard()
                 if (IsKeyJustUp(k, false))
                 {
                     ResetKeyState(k);
-                    Commit(g_primary, NormalizeCandidate(k));
+                    Commit(g_primary, (UINT16)k);
                     return true;
                 }
             }
