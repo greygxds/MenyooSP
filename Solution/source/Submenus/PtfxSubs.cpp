@@ -9,6 +9,8 @@
 */
 #include "PtfxSubs.h"
 
+#include "..\Menu\Keybinds.h"
+
 namespace sub
 {
 namespace PtfxSubs
@@ -3426,16 +3428,8 @@ void PTFXSub()
             {
                 favouritesLoaded = false;
             }
-            if (Menu::usingControllerInput)
-            {
-                Menu::add_IB(INPUT_SCRIPT_RLEFT, IsAlreadyFavorite(current) ? "Remove From Favourites" : "Add To Favourites");
-                bShortcutToggleFavesPressed = IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_SCRIPT_RLEFT) != 0;
-            }
-            else
-            {
-                Menu::add_IB(VirtualKey::B, IsAlreadyFavorite(current) ? "Remove From Favourites" : "Add To Favourites");
-                bShortcutToggleFavesPressed = IsKeyJustUp(VirtualKey::B);
-            }
+            Keybinds::AddBindIB("menu_action", IsAlreadyFavorite(current), "Remove From Favourites", "Add To Favourites");
+            bShortcutToggleFavesPressed = Keybinds::WasPressedThisFrame("menu_action");
 
             if (bShortcutToggleFavesPressed)
             {

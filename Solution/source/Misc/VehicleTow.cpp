@@ -18,6 +18,7 @@
 #include "..\Scripting\Model.h"
 #include "..\Scripting\World.h"
 #include "..\Menu\Menu.h"
+#include "..\Menu\Keybinds.h"
 #include "..\Scripting\enums.h"
 #include "..\Util\keyboard.h"
 #include "..\Scripting\CustomHelpText.h"
@@ -216,12 +217,12 @@ void VehicleTow::EndTows()
 // controls
 bool VehicleTow::ExtendPressed()
 {
-    return Menu::usingControllerInput ? IS_CONTROL_JUST_PRESSED(2, INPUT_FRONTEND_LS) != 0 : IsKeyJustUp(VirtualKey::K);
+    return Keybinds::WasPressedThisFrame("tow_rope", Menu::usingControllerInput ? Keybinds::Context::Gamepad : Keybinds::Context::Keyboard);
 }
 
 bool VehicleTow::ShortenPressed()
 {
-    return Menu::usingControllerInput ? IS_CONTROL_JUST_PRESSED(2, INPUT_FRONTEND_LS) != 0 : get_key_pressed(VirtualKey::K);
+    return Menu::usingControllerInput ? Keybinds::WasPressedThisFrame("tow_rope", Keybinds::Context::Gamepad) : Keybinds::IsHeld("tow_rope", Keybinds::Context::Keyboard);
 }
 
 // help text
@@ -229,9 +230,9 @@ void VehicleTow::DisplayHelpText_Extend(GTAvehicle& vehBehind)
 {
     std::string vehBehindName = vehBehind.Model().VehicleDisplayName(true);
 
-    Game::CustomHelpText::ShowTimedText(
-        oss_ << "Press " << (Menu::usingControllerInput ? "~INPUT_FRONTEND_LS~" : "~b~K~s~") << " to tow the ~h~" << vehBehindName << "~h~ behind your current vehicle.", 100
-    );
+    std::string towHelp =
+        Menu::usingControllerInput ? "~r~" + Keybinds::GetGlyph("tow_rope", Keybinds::Context::Gamepad) + "~s~" : "~b~" + Keybinds::GetGlyph("tow_rope", Keybinds::Context::Keyboard) + "~s~";
+    Game::CustomHelpText::ShowTimedText(oss_ << "Press " << towHelp << " to tow the ~h~" << vehBehindName << "~h~ behind your current vehicle.", 100);
 }
 
 VehicleTow g_vehicleTow;
