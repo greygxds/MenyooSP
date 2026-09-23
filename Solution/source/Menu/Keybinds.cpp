@@ -127,7 +127,7 @@ const std::vector<KeybindEntry> g_registry{
 
     {"breathe_ptfx",
      "Breathe Effect",
-     "Hold to breathe the selected particle effect. Enable it in Player Appearance Options.",
+     "Hold to breathe the selected particle effect. Enable it in Player Options > Breathe Stuff.",
      (UINT16)VirtualKey::J,
      NoBind,
      (UINT16)INPUT_FRONTEND_LS,
@@ -137,7 +137,7 @@ const std::vector<KeybindEntry> g_registry{
 
     {"superman_boost",
      "Superman Forward Boost",
-     "Boosts the player forward while skydiving with Superman enabled.",
+     "Boosts the player forward while skydiving with Fly Manual enabled.",
      (UINT16)VirtualKey::Add,
      NoBind,
      (UINT16)INPUT_FRONTEND_RB,
@@ -155,9 +155,9 @@ const std::vector<KeybindEntry> g_registry{
      "Player",
      false},
 
-    {"superman_ascend", "Superman Ascend", "Pushes the flying player upward while Superman is enabled.", (UINT16)VirtualKey::Numpad7, NoBind, (UINT16)INPUT_FRONTEND_RT, NoBind, "Player", false},
+    {"superman_ascend", "Superman Ascend", "Pushes the flying player upward while Fly Manual is enabled.", (UINT16)VirtualKey::Numpad7, NoBind, (UINT16)INPUT_FRONTEND_RT, NoBind, "Player", false},
 
-    {"superman_descend", "Superman Descend", "Pushes the flying player downward while Superman is enabled.", (UINT16)VirtualKey::Numpad1, NoBind, (UINT16)INPUT_FRONTEND_LT, NoBind, "Player", false},
+    {"superman_descend", "Superman Descend", "Pushes the flying player downward while Fly Manual is enabled.", (UINT16)VirtualKey::Numpad1, NoBind, (UINT16)INPUT_FRONTEND_LT, NoBind, "Player", false},
 };
 } // namespace
 

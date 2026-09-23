@@ -189,7 +189,7 @@ void VehicleMenu()
     );
     AddOptionDescription("Jump with Space (A/X on controller). Hold mode keeps jumping while held.");
     AddToggle("Hydraulics", carHydraulics, hydraulicsOn);
-    AddOptionDescription("Hold Left Shift (LS) with WASD (stick) to bounce the suspension.");
+    AddOptionDescription("Hold the hydraulics key with WASD (stick) to bounce the suspension. Rebind it in Settings > Keybinds.");
     AddToggle("Drive On Water", driveOnWater, driveOnWaterOn, driveOnWaterOff);
     AddOptionDescription("Lets the vehicle drive on the water surface.");
     AddToggle("Increased Mass", vehicleHeavyMass, null, heavyMassOff);
@@ -448,12 +448,6 @@ void VehicleMenu()
                 Game::Print::ShowNotification("Engine Revived");
             }
         }
-        return;
-    }
-
-    if (boostOn)
-    {
-        Game::Print::PrintBottomLeft("Hold ~b~" + Keybinds::GetGlyph("vehicle_boost") + "~s~ for a boost.");
         return;
     }
 
@@ -1159,7 +1153,6 @@ void AddvweaponOption(const std::string& text, bool& loopPointer, Hash Hash)
             {
                 REQUEST_WEAPON_ASSET(Hash, 31, 0);
             }
-            Game::Print::PrintBottomLeft("Press ~b~LS/L1/NUM_PLUS~s~ for hax!");
         }
     }
 }
