@@ -332,34 +332,12 @@ void Menu::RequestMenuTextures()
         REQUEST_STREAMED_TEXTURE_DICT("MenyooExtras", 0);
     if (!HAS_STREAMED_TEXTURE_DICT_LOADED("CommonMenu"))
         REQUEST_STREAMED_TEXTURE_DICT("CommonMenu", 0);
-    if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_highendsalon"))
-        REQUEST_STREAMED_TEXTURE_DICT("shopui_title_highendsalon", 0);
-    if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_highendfashion"))
-        REQUEST_STREAMED_TEXTURE_DICT("shopui_title_highendfashion", 0);
-    if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_midfashion"))
-        REQUEST_STREAMED_TEXTURE_DICT("shopui_title_midfashion", 0);
-    if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_tattoos"))
-        REQUEST_STREAMED_TEXTURE_DICT("shopui_title_tattoos", 0);
-    if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_tattoos3"))
-        REQUEST_STREAMED_TEXTURE_DICT("shopui_title_tattoos3", 0);
     if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_conveniencestore"))
         REQUEST_STREAMED_TEXTURE_DICT("shopui_title_conveniencestore", 0);
-    if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_carmod"))
-        REQUEST_STREAMED_TEXTURE_DICT("shopui_title_carmod", 0);
-    if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_gunclub"))
-        REQUEST_STREAMED_TEXTURE_DICT("shopui_title_gunclub", 0);
     if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_movie_masks"))
         REQUEST_STREAMED_TEXTURE_DICT("shopui_title_movie_masks", 0);
     if (!HAS_STREAMED_TEXTURE_DICT_LOADED("director_editor_title"))
         REQUEST_STREAMED_TEXTURE_DICT("director_editor_title", 0);
-    if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_carmod2"))
-        REQUEST_STREAMED_TEXTURE_DICT("shopui_title_carmod2", 0);
-    if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_supermod"))
-        REQUEST_STREAMED_TEXTURE_DICT("shopui_title_supermod", 0);
-    if (!HAS_STREAMED_TEXTURE_DICT_LOADED("shopui_title_tennis"))
-        REQUEST_STREAMED_TEXTURE_DICT("shopui_title_tennis", 0);
-    if (!HAS_STREAMED_TEXTURE_DICT_LOADED("dock_dlc_banner"))
-        REQUEST_STREAMED_TEXTURE_DICT("dock_dlc_banner", 0);
 }
 
 void Menu::base()
@@ -386,130 +364,14 @@ void Menu::base()
 
 void Menu::titlebox_draw()
 {
-    titleBarStripeVisible = true;
+    titleBarStripeVisible = false;
 
-    // Oh why oh why did I do it this way
-    switch (activeSubmenu)
-    {
-    case SUB::COMPONENTS:
-    case SUB::COMPONENTS2:
-    case SUB::COMPONENTS_OUTFITS:
-    case SUB::COMPONENTS_OUTFITS2:
-        DRAW_SPRITE("shopui_title_highendfashion", "shopui_title_highendfashion", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A, false, 0);
-        break;
-    case SUB::COMPONENTSPROPS:
-    case SUB::COMPONENTSPROPS2:
-        DRAW_SPRITE("shopui_title_midfashion", "shopui_title_midfashion", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A, false, 0);
-        break;
-    case SUB::PEDDECALS_TYPES:
-    case SUB::PEDDECALS_ZONES:
-    case SUB::PEDDECALS_INZONE:
-        DRAW_SPRITE("shopui_title_tattoos", "shopui_title_tattoos", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A, false, 0);
-        break;
-    case SUB::PEDDAMAGET_CATEGORYLIST:
-    case SUB::PEDDAMAGET_BONESELECTION:
-    case SUB::PEDDAMAGET_BLOOD:
-    case SUB::PEDDAMAGET_DAMAGEDECALS:
-    case SUB::PEDDAMAGET_DAMAGEPACKS:
-        DRAW_SPRITE("shopui_title_tattoos3", "shopui_title_tattoos3", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A, false, 0);
-        break;
-    case SUB::PED_HEADFEATURES_MAIN:
-    case SUB::PED_HEADFEATURES_HEADOVERLAYS:
-    case SUB::PED_HEADFEATURES_HEADOVERLAYS_INITEM:
-    case SUB::PED_HEADFEATURES_FACEFEATURES:
-    case SUB::PED_HEADFEATURES_SKINTONE:
-        DRAW_SPRITE("shopui_title_highendsalon", "shopui_title_highendsalon", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A, false, 0);
-        break;
-    case SUB::MODSHOP:
-    case SUB::MSDOORS:
-    case SUB::MSCATALL:
-    case SUB::MSEXTRA:
-    case SUB::MSLIGHTS:
-    case SUB::MSNEONS:
-    case SUB::MSWHEELS:
-    case SUB::MSWHEELS2:
-    case SUB::MSWHEELS3:
-    case SUB::MSREMOVABLECOMPONENTS:
-    case SUB::GETALLPAINTIDS:
-    case SUB::MSPAINTS:
-    case SUB::MSPAINTS2:
-    case SUB::MSPAINTS2_CHROME:
-    case SUB::MSPAINTS2_MATTE:
-    case SUB::MSPAINTS2_METAL:
-    case SUB::MSPAINTS2_CHAMELEON:
-    case SUB::MSPAINTS2_METALLIC:
-    case SUB::MSPAINTS2_NORMAL:
-    case SUB::MSPAINTS2_SHARED:
-    case SUB::MSENGINESOUND: //case SUB::MSPAINTS_RGB:
-        if (Menu::submenuHistory[menuHistoryIndex] != SUB::MS_BENNYS)
-        {
-            DRAW_SPRITE("shopui_title_carmod", "shopui_title_carmod", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A, false, 0);
-            break;
-        }
-    case SUB::MS_BENNYS:
-        DRAW_SPRITE("shopui_title_supermod", "shopui_title_supermod", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A, false, 0);
-        break;
-    case SUB::WEAPONOPS:
-    case SUB::KABOOMGUN:
-    case SUB::BULLETGUN:
-    case SUB::OBJECTGUN:
-    case SUB::PEDGUN:
-    case SUB::WEAPONOPS_WEAPONFAVOURITES:
-    case SUB::WEAPONOPS_INDIVS_CATEGORIES:
-    case SUB::WEAPONOPS_INDIVS_CATEGORY:
-    case SUB::WEAPONOPS_INDIVS_ITEM:
-    case SUB::WEAPONOPS_INDIVS_ITEM_MODS:
-    case SUB::WEAPONOPS_PARACHUTE:
-    case SUB::WEAPONOPS_LOADOUTS:
-    case SUB::WEAPONOPS_LOADOUTS_INITEM:
-    case SUB::WEAPONOPS_LASERSIGHT:
-    case SUB::FORGEGUN:
-    case SUB::GRAVITYGUN:
-        DRAW_SPRITE("shopui_title_gunclub", "shopui_title_gunclub", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A, false, 0);
-        break;
-        //case SUB::OBJECTSPAWNER_LIGHTINGOPS: case SUB::OBJECTSPAWNER_LIGHT: case SUB::OBJECTSPAWNER_SPOTLIGHT:
-        //DRAW_SPRITE("shopui_title_movie_masks", "shopui_title_movie_masks", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A); break;
-    case SUB::SPAWNVEHICLE:
-    case SUB::SPAWNVEHICLE_OPTIONS:
-    case SUB::SPAWNVEHICLE_ALLCATS:
-    case SUB::SPAWNVEHICLE_FAVOURITES:
-    case SUB::FUNNYVEHICLES:
-    case SUB::VEHICLE_SAVER:
-    case SUB::VEHICLE_SAVER_INITEM:
-        DRAW_SPRITE("shopui_title_carmod2", "shopui_title_carmod2", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A, false, 0);
-        break;
-    case SUB::ANIMATIONSUB:
-    case SUB::ANIMATIONSUB_DEER:
-    case SUB::ANIMATIONSUB_GESTSIT:
-    case SUB::ANIMATIONSUB_GUARDREAC:
-    case SUB::ANIMATIONSUB_MISSRAPPEL:
-    case SUB::ANIMATIONSUB_RANDARREST:
-    case SUB::ANIMATIONSUB_SHARK:
-    case SUB::ANIMATIONSUB_SWAT:
-    case SUB::ANIMATIONSUB_CUSTOM:
-    case SUB::ANIMATIONSUB_SETTINGS:
-    case SUB::AnimationTaskScenarios:
-    case SUB::AnimationTaskScenarios2:
-    case SUB::MOVEMENTGROUP:
-        DRAW_SPRITE("shopui_title_tennis", "shopui_title_tennis", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A, false, 0);
-        break;
-    case SUB::TELEPORTOPS_YACHTS:
-    case SUB::TELEPORTOPS_YACHTS_INGRP:
-        DRAW_SPRITE("dock_dlc_banner", "yacht_banner_0", 0.16f + menuPos.x, 0.0989f + menuPos.y, 0.20f, 0.083f, 0.0f, 255, 255, 255, titlebox.A, false, 0);
-        break;
-        //case SUB::SPOONER_MAIN:
-        //DxHookIMG::titleui_spooner.Draw(0, Vector2(0.16f + menuPos.x, 0.0989f + menuPos.y), Vector2(0.20f, 0.083f), 0.0f, RGBA(255, 255, 255, titlebox.A)); break;
-
-    default:
-        if (useGradientBackgrounds)
-            DRAW_SPRITE("CommonMenu", "Gradient_Nav" /*"interaction_bgd"*/, 0.16f + menuPos.x, 0.1175f + menuPos.y, 0.20f, 0.083f, 0.0f, titlebox.R, titlebox.G, titlebox.B, titlebox.A, false, 0);
-        else
-            DRAW_RECT(0.16f + menuPos.x, 0.1175f + menuPos.y, 0.20f, 0.083f, titlebox.R, titlebox.G, titlebox.B, titlebox.A, false);
-        RESET_SCRIPT_GFX_ALIGN();
-        titleBarStripeVisible = false;
-        //glare_test();
-        break;
-    }
+    if (useGradientBackgrounds)
+        DRAW_SPRITE("CommonMenu", "Gradient_Nav" /*"interaction_bgd"*/, 0.16f + menuPos.x, 0.1175f + menuPos.y, 0.20f, 0.083f, 0.0f, titlebox.R, titlebox.G, titlebox.B, titlebox.A, false, 0);
+    else
+        DRAW_RECT(0.16f + menuPos.x, 0.1175f + menuPos.y, 0.20f, 0.083f, titlebox.R, titlebox.G, titlebox.B, titlebox.A, false);
+    RESET_SCRIPT_GFX_ALIGN();
+    //glare_test();
 
     if (titleBarStripeVisible) // Draw titlebox lower stripe
     {
