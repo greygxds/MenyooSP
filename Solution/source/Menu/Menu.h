@@ -223,6 +223,9 @@ bool IsOptionPressed();
 bool IsOptionRPressed();
 bool IsOptionLPressed();
 
+std::string GetFileSizeStr(const std::string& filePath);
+std::string GetFileLastWriteDateStr(const std::string& filePath);
+
 extern bool null;
 extern int inull;
 void nullFunc();
