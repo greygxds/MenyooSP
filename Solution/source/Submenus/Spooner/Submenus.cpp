@@ -30,6 +30,7 @@
 #include "..\..\Util\StringManip.h"
 #include "..\..\Menu\FolderPreviewBmps.h"
 #include "..\..\Menu\MenuCategory.h"
+#include "..\..\Menu\StatsPanel.h"
 #include "..\..\Scripting\DxHookIMG.h"
 #include "..\..\Scripting\GTAblip.h"
 #include "..\..\Scripting\TimecycleModification.h"
@@ -71,6 +72,7 @@
 #include <string>
 #include <fstream>
 #include <tuple>
+#include <utility>
 #include <vector>
 #include <set>
 #include <array>
@@ -362,6 +364,176 @@ void Sub_Settings()
     AddOption("Grid Snap Settings", null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
 }
 
+static void DrawEntityStats(sub::Spooner::SpoonerEntity& e, float topY)
+{
+    if (!e.handle.Exists())
+        return;
+
+    int health = e.handle.GetHealth();
+    int maxHealth = e.handle.GetMaxHealth();
+    float healthRatio = 0.0f;
+    if (maxHealth > 0)
+        healthRatio = (float)health / (float)maxHealth;
+
+    std::string attachedLabel = "No";
+    if (e.handle.IsAttached())
+    {
+        attachedLabel = "Yes";
+        GTAentity attachedTo;
+        if (EntityManagement::GetEntityThisEntityIsAttachedTo(e.handle, attachedTo))
+        {
+            int attachedIndex = EntityManagement::GetEntityIndexInDb(attachedTo);
+            if (attachedIndex >= 0 && !Databases::EntityDb[attachedIndex].hashName.empty())
+                attachedLabel = Databases::EntityDb[attachedIndex].hashName;
+            else
+                attachedLabel = "Handle " + std::to_string(attachedTo.GetHandle());
+        }
+    }
+
+    std::vector<StatsPanel::Row> rows;
+    rows.push_back(StatsPanel::StatRow{"Type", e.TypeName()});
+    rows.push_back(StatsPanel::StatRow{"Model", e.hashName.empty() ? "---" : e.hashName});
+    rows.push_back(StatsPanel::BarRow{"Health", std::to_string(health) + " / " + std::to_string(maxHealth), healthRatio});
+    if (e.handle.IsDead())
+        rows.push_back(StatsPanel::StatRow{"Status", "Dead"});
+    else if (e.handle.IsOnFire())
+        rows.push_back(StatsPanel::StatRow{"Status", "On fire"});
+    rows.push_back(StatsPanel::StatRow{"Frozen", e.handle.IsPositionFrozen() ? "Yes" : "No"});
+    rows.push_back(StatsPanel::StatRow{"Visible", e.handle.IsVisible() ? "Yes" : "No"});
+    rows.push_back(StatsPanel::StatRow{"Attached", attachedLabel});
+    rows.push_back(StatsPanel::StatRow{"Dynamic", e.dynamic ? "Yes" : "No"});
+    if (!e.currentScenario.empty())
+        rows.push_back(StatsPanel::StatRow{"Scenario", e.currentScenario});
+
+    StatsPanel::Draw(topY, 0.100f, rows);
+}
+
+static void DrawSaveFileStats(const std::string& filePath, float topY)
+{
+    static std::string lastStatsPath = "";
+    static std::vector<StatsPanel::Row> statsRows;
+    static std::string lastHoveredXml = "";
+    static DxHookIMG::DxTexture hoveredXmlTexture;
+
+    std::string hoverImgPath = filePath.substr(0, filePath.rfind('.')) + ".jpg";
+    if (lastHoveredXml != hoverImgPath)
+    {
+        lastHoveredXml = hoverImgPath;
+        hoveredXmlTexture = DxHookIMG::DxTexture();
+        std::ifstream f(hoverImgPath);
+        if (f.good())
+            hoveredXmlTexture.Load(hoverImgPath);
+    }
+
+    if (lastStatsPath != filePath)
+    {
+        lastStatsPath = filePath;
+        statsRows.clear();
+
+        int entityCount = 0, pedCount = 0, vehCount = 0, propCount = 0, markerCount = 0, blipCount = 0, lightCount = 0, iplCount = 0;
+        std::string saveNote = "";
+        std::string audioFile = "";
+        std::string weatherToSet = "";
+        std::string timecycleMod = "";
+        bool clearDatabase = false;
+        float clearWorldRadius = 0.0f;
+
+        pugi::xml_document doc;
+        if (doc.load_file((const char*)filePath.c_str()).status == pugi::status_ok)
+        {
+            auto nodeRoot = doc.child("SpoonerPlacements");
+            saveNote = nodeRoot.child("Note").text().as_string();
+            audioFile = nodeRoot.child("AudioFile").text().as_string();
+            weatherToSet = nodeRoot.child("WeatherToSet").text().as_string();
+            timecycleMod = nodeRoot.child("TimecycleModifier").text().as_string();
+            clearDatabase = nodeRoot.child("ClearDatabase").text().as_bool();
+            clearWorldRadius = nodeRoot.child("ClearWorld").text().as_float();
+            for (auto node = nodeRoot.first_child(); node; node = node.next_sibling())
+            {
+                std::string name = node.name();
+                if (name == "Placement")
+                {
+                    entityCount++;
+                    switch ((EntityType)node.child("Type").text().as_int())
+                    {
+                    case EntityType::PED:
+                        pedCount++;
+                        break;
+                    case EntityType::VEHICLE:
+                        vehCount++;
+                        break;
+                    case EntityType::PROP:
+                        propCount++;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+                else if (name == "Marker")
+                    markerCount++;
+                else if (name == "Blip")
+                    blipCount++;
+                else if (name == "Light")
+                    lightCount++;
+                else if (name == "IPLsToLoad")
+                    iplCount++;
+            }
+        }
+
+        statsRows.push_back(StatsPanel::StatRow{"Entities", std::to_string(entityCount)});
+        if (pedCount)
+            statsRows.push_back(StatsPanel::StatRow{"Peds", std::to_string(pedCount)});
+        if (vehCount)
+            statsRows.push_back(StatsPanel::StatRow{"Vehicles", std::to_string(vehCount)});
+        if (propCount)
+            statsRows.push_back(StatsPanel::StatRow{"Objects", std::to_string(propCount)});
+        if (markerCount)
+            statsRows.push_back(StatsPanel::StatRow{"Markers", std::to_string(markerCount)});
+        if (blipCount)
+            statsRows.push_back(StatsPanel::StatRow{"Blips", std::to_string(blipCount)});
+        if (lightCount)
+            statsRows.push_back(StatsPanel::StatRow{"Lights", std::to_string(lightCount)});
+        if (iplCount)
+            statsRows.push_back(StatsPanel::StatRow{"IPLs", std::to_string(iplCount)});
+        if (!audioFile.empty())
+            statsRows.push_back(StatsPanel::StatRow{"Audio", audioFile});
+        if (!weatherToSet.empty())
+            statsRows.push_back(StatsPanel::StatRow{"Weather", weatherToSet});
+        if (!timecycleMod.empty())
+            statsRows.push_back(StatsPanel::StatRow{"Timecycle", timecycleMod});
+        if (clearDatabase)
+            statsRows.push_back(StatsPanel::StatRow{"Clear DB", "Yes"});
+        if (clearWorldRadius > 0.0f)
+            statsRows.push_back(StatsPanel::StatRow{"Clear Area", std::to_string((int)clearWorldRadius) + "m"});
+        statsRows.push_back(StatsPanel::SeparatorRow{});
+        statsRows.push_back(StatsPanel::StatRow{"Size", GetFileSizeStr(filePath)});
+        statsRows.push_back(StatsPanel::StatRow{"Modified", GetFileLastWriteDateStr(filePath)});
+        for (auto& noteLine : StatsPanel::WrapText(saveNote, 24))
+            statsRows.push_back(StatsPanel::TextRow{noteLine});
+    }
+
+    if (hoveredXmlTexture.Exists())
+    {
+        std::vector<StatsPanel::Row> rowsWithImage;
+        rowsWithImage.push_back(
+            StatsPanel::ImageRow{
+                [&](float centerX, float centerY)
+                {
+                    DRAW_RECT(centerX, centerY, 0.1f + 0.003f, 0.0889f + 0.003f, 0, 0, 0, 212, false);
+                    hoveredXmlTexture.Draw(0, Vector2(centerX, centerY), Vector2(0.1f, 0.0889f / 2 + 0.005f), 0.0f, RGBA::AllWhite());
+                },
+                0.1f,
+                0.0889f
+            }
+        );
+        rowsWithImage.insert(rowsWithImage.end(), statsRows.begin(), statsRows.end());
+        StatsPanel::Draw(topY, 0.100f, rowsWithImage);
+        return;
+    }
+
+    StatsPanel::Draw(topY, 0.100f, statsRows);
+}
+
 void Sub_SaveFiles()
 {
     std::string& _name = dict;
@@ -611,31 +783,9 @@ void Sub_SaveFiles()
                         Menu::pendingSubmenu = SUB::SPOONER_SAVEFILES_LOAD_LEGACYSP00N;
                     }
                 }
-
                 if (isXml && Menu::IsLastDrawnOptionSelected() && !bFilePressed)
                 {
-                    static std::string lastHoveredXml = "";
-                    static DxHookIMG::DxTexture hoveredXmlTexture;
-                    std::string baseName = filname.substr(0, filname.rfind('.'));
-                    std::string hoverImgPath = _dir + "\\" + baseName + ".jpg";
-                    if (lastHoveredXml != hoverImgPath)
-                    {
-                        lastHoveredXml = hoverImgPath;
-                        hoveredXmlTexture = DxHookIMG::DxTexture();
-                        std::ifstream f(hoverImgPath);
-                        if (f.good())
-                            hoveredXmlTexture.Load(hoverImgPath);
-                    }
-                    if (hoveredXmlTexture.Exists())
-                    {
-                        Vector2 res = {0.1f, 0.0889f};
-                        FLOAT x_coord = 0.324f + menuPos.x;
-                        FLOAT y_coord = currentOptionY + 0.044f + menuPos.y;
-                        if (menuPos.x > 0.45f)
-                            x_coord = menuPos.x - 0.003f;
-                        DRAW_RECT(x_coord, y_coord, res.x + 0.003f, res.y + 0.003f, 0, 0, 0, 212, false);
-                        hoveredXmlTexture.Draw(0, Vector2(x_coord, y_coord), Vector2(res.x, res.y / 2 + 0.005f), 0.0f, RGBA::AllWhite());
-                    }
+                    DrawSaveFileStats(_dir + "\\" + filname, StatsPanel::MenuTopY());
                 }
             }
         }
@@ -1320,6 +1470,8 @@ void Sub_ManageEntities()
                 Keybinds::AddBindIB("menu_action", bEntityExists, "Delete Entity", "Remove Invalid Entity From DB");
                 bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
+                DrawEntityStats(e, StatsPanel::MenuTopY());
+
                 if (bShortcutDeletePressed)
                 {
                     p_entityToDelete = &e;
@@ -1426,6 +1578,8 @@ void Sub_SelectedEntityOps()
     Model selectedEntityModel = selectedEntity.handle.Model();
 
     AddTitle(selectedEntity.hashName);
+
+    DrawEntityStats(selectedEntity, StatsPanel::MenuTopY());
 
     switch (selectedEntity.type)
     {
