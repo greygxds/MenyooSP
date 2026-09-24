@@ -20,6 +20,7 @@
 #include "..\Menu\Menu.h"
 #include "..\Menu\Keybinds.h"
 #include "..\Menu\Routine.h"
+#include "..\Menu\StatsPanel.h"
 
 #include "..\Memory\GTAmemory.h"
 
@@ -27,6 +28,7 @@
 #include "..\Scripting\GTAped.h"
 #include "..\Scripting\GTAentity.h"
 #include "..\Scripting\Model.h"
+#include "..\Scripting\ModelNames.h"
 #include "..\Scripting\Camera.h"
 #include "..\Scripting\GameplayCamera.h"
 #include "..\Scripting\World.h"
@@ -2237,6 +2239,116 @@ bool Apply(GTAped ep, const std::string& filePath, bool applyModelAndHead, bool 
 
 } // namespace ComponentChangerOutfit
 
+static void DrawOutfitFileStats(const std::string& filePath, float topY)
+{
+    static std::string lastStatsPath = "";
+    static std::vector<StatsPanel::Row> statsRows;
+    static const char* compSlotNames[] = {"Head", "Beard", "Hair", "Torso", "Legs", "Hands", "Feet", "Teeth", "Accs", "Task", "Decals", "Jbib"};
+    static const char* propSlotNames[] = {"Hat", "Glasses", "Ears", "", "", "", "LWrist", "RWrist", "", "", "", "", ""};
+    static const int compSlotNameCount = sizeof(compSlotNames) / sizeof(compSlotNames[0]);
+    static const int propSlotNameCount = sizeof(propSlotNames) / sizeof(propSlotNames[0]);
+
+    if (lastStatsPath != filePath)
+    {
+        lastStatsPath = filePath;
+        statsRows.clear();
+
+        int attachmentCount = 0;
+        std::string modelLabel = "---";
+        int opacityLevel = 255;
+        bool isVisible = true;
+        std::string facialMood = "";
+        int decalCount = 0;
+        std::vector<std::pair<std::string, std::string>> compValues;
+        std::vector<std::string> propValues(propSlotNameCount, "");
+        bool havePropNodes = false;
+
+        pugi::xml_document doc;
+        if (doc.load_file((const char*)filePath.c_str()).status == pugi::status_ok)
+        {
+            auto nodeEntity = doc.child("OutfitPedData");
+            if (nodeEntity)
+            {
+                Model eModel = nodeEntity.child("ModelHash").text().as_uint();
+                modelLabel = GetPedModelLabel(eModel, true);
+                if (modelLabel.length() == 0)
+                    modelLabel = IntToHexString(eModel.hash, true);
+                opacityLevel = nodeEntity.child("OpacityLevel").text().as_int(255);
+                auto nodeVisible = nodeEntity.child("IsVisible");
+                if (nodeVisible)
+                    isVisible = nodeVisible.text().as_bool();
+
+                auto nodePedStuff = nodeEntity.child("PedProperties");
+                facialMood = nodePedStuff.child("FacialMood").text().as_string();
+                for (auto node = nodePedStuff.child("TattooLogoDecals").first_child(); node; node = node.next_sibling())
+                    decalCount++;
+                int compSlotIndex = 0;
+                for (auto node = nodePedStuff.child("PedComps").first_child(); node; node = node.next_sibling())
+                {
+                    std::string slotLabel = "Comp " + std::to_string(compSlotIndex);
+                    if (compSlotIndex < compSlotNameCount)
+                        slotLabel = compSlotNames[compSlotIndex];
+                    compValues.push_back({slotLabel, node.text().as_string()});
+                    compSlotIndex++;
+                }
+                int propSlotIndex = 0;
+                for (auto node = nodePedStuff.child("PedProps").first_child(); node; node = node.next_sibling())
+                {
+                    havePropNodes = true;
+                    if (propSlotIndex >= 0 && propSlotIndex < propSlotNameCount)
+                        propValues[propSlotIndex] = node.text().as_string();
+                    propSlotIndex++;
+                }
+                auto nodeAttachments = nodeEntity.child("SpoonerAttachments");
+                for (auto node = nodeAttachments.child("Attachment"); node; node = node.next_sibling("Attachment"))
+                    attachmentCount++;
+            }
+        }
+
+        statsRows.push_back(StatsPanel::StatRow{"Model", modelLabel});
+        if (opacityLevel < 255)
+            statsRows.push_back(StatsPanel::StatRow{"Opacity", std::to_string(opacityLevel)});
+        if (!isVisible)
+            statsRows.push_back(StatsPanel::StatRow{"Visible", "No"});
+        if (!facialMood.empty())
+            statsRows.push_back(StatsPanel::StatRow{"Mood", facialMood});
+        if (decalCount > 0)
+            statsRows.push_back(StatsPanel::StatRow{"Decals", std::to_string(decalCount)});
+        size_t slotRowCount = compValues.size();
+        if (havePropNodes && propValues.size() > slotRowCount)
+            slotRowCount = propValues.size();
+        if (slotRowCount > 0)
+        {
+            statsRows.push_back(StatsPanel::SeparatorRow{});
+            statsRows.push_back(StatsPanel::DoubleStatRow{"Components", "", "Props", ""});
+            for (size_t i = 0; i < slotRowCount; i++)
+            {
+                std::string leftLabel = "";
+                std::string leftValue = "";
+                std::string rightLabel = "";
+                std::string rightValue = "";
+                if (i < compValues.size())
+                {
+                    leftLabel = compValues[i].first;
+                    leftValue = compValues[i].second;
+                }
+                if (havePropNodes && i < propValues.size() && propSlotNames[i][0] != '\0')
+                {
+                    rightLabel = propSlotNames[i];
+                    rightValue = propValues[i];
+                }
+                statsRows.push_back(StatsPanel::DoubleStatRow{leftLabel, leftValue, rightLabel, rightValue});
+            }
+            statsRows.push_back(StatsPanel::SeparatorRow{});
+        }
+        statsRows.push_back(StatsPanel::StatRow{"Attachments", std::to_string(attachmentCount)});
+        statsRows.push_back(StatsPanel::StatRow{"Size", GetFileSizeStr(filePath)});
+        statsRows.push_back(StatsPanel::StatRow{"Modified", GetFileLastWriteDateStr(filePath)});
+    }
+
+    StatsPanel::Draw(topY, 0.100f, statsRows);
+}
+
 void ComponentChanger_Outfits()
 {
     using ComponentChangerOutfit::persistentAttachmentsTexterIndex;
@@ -2351,6 +2463,11 @@ void ComponentChanger_Outfits()
                     name = fileName.substr(0, fileName.rfind('.'));
                     Menu::pendingSubmenu = SUB::COMPONENTS_OUTFITS2;
                     return;
+                }
+
+                if (Menu::IsLastDrawnOptionSelected() && !bFilePressed)
+                {
+                    DrawOutfitFileStats(dir + "\\" + fileName, StatsPanel::MenuTopY());
                 }
             }
         }

@@ -30,6 +30,8 @@
 
 #include <Windows.h>
 #include <utility>
+#include <string>
+#include <cstdio>
 
 #define TRUE 1
 #define FALSE 0
@@ -2224,6 +2226,37 @@ void AddPresetColourOptionsPreview(const RgbS& rgb)
 void AddPresetColourOptionsPreviews(const RGBA& rgb)
 {
     AddPresetColourOptionsPreviews(rgb.R, rgb.G, rgb.B);
+}
+
+std::string GetFileSizeStr(const std::string& filePath)
+{
+    HANDLE hFile = CreateFileA(filePath.c_str(), FILE_READ_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (hFile == INVALID_HANDLE_VALUE)
+        return "";
+    LARGE_INTEGER size;
+    size.QuadPart = 0;
+    GetFileSizeEx(hFile, &size);
+    CloseHandle(hFile);
+
+    double sizeKb = (double)size.QuadPart / 1024.0;
+    if (sizeKb >= 1024.0)
+        return std::to_string((int)(sizeKb / 1024.0)) + " MB";
+    return std::to_string((int)sizeKb) + " KB";
+}
+
+std::string GetFileLastWriteDateStr(const std::string& filePath)
+{
+    WIN32_FILE_ATTRIBUTE_DATA fileData;
+    if (GetFileAttributesExA(filePath.c_str(), GetFileExInfoStandard, &fileData) == 0)
+        return "";
+
+    SYSTEMTIME utcTime, localTime;
+    FileTimeToSystemTime(&fileData.ftLastWriteTime, &utcTime);
+    SystemTimeToTzSpecificLocalTime(nullptr, &utcTime, &localTime);
+
+    char buffer[16];
+    snprintf(buffer, sizeof(buffer), "%04d-%02d-%02d", localTime.wYear, localTime.wMonth, localTime.wDay);
+    return buffer;
 }
 
 bool AddPresetColourOptions(INT& r, INT& g, INT& b)
