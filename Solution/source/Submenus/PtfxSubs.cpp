@@ -10,6 +10,9 @@
 #include "PtfxSubs.h"
 
 #include "..\Menu\Keybinds.h"
+#include "..\Menu\MenuCategory.h"
+
+#include "..\Util\StringManip.h"
 
 namespace sub
 {
@@ -3115,6 +3118,21 @@ const std::vector<PtfxS> PTFX{
 
 std::vector<PtfxlopS> fxLoops;
 
+bool showOnlyFaves = false;
+
+namespace
+{
+struct PtfxCache
+{
+    std::map<std::string, std::vector<PtfxS>> byAsset;
+    std::vector<std::string> sortedAssets;
+    bool needsRebuild = true;
+};
+
+PtfxCache ptfxCache;
+std::string ptfxSearchStr;
+} // namespace
+
 void AddEntityToPtfxLops(const PtfxS& effect, const GTAentity& entity)
 {
     for (auto it = fxLoops.begin(); it != fxLoops.end();)
@@ -3226,8 +3244,9 @@ void SaveFavoritesToFile(const std::string& filepath)
 
 static FILETIME g_lastWriteTime = {0};
 
-void LoadFavoritesFromFile(const std::string& filepath)
+void LoadFavoritesFromFile(const std::string& filepath, bool& reloaded)
 {
+    reloaded = false;
     WIN32_FILE_ATTRIBUTE_DATA fileInfo;
     if (!GetFileAttributesExA(filepath.c_str(), GetFileExInfoStandard, &fileInfo))
     {
@@ -3254,6 +3273,7 @@ void LoadFavoritesFromFile(const std::string& filepath)
 
     // Save the last write time
     g_lastWriteTime = fileInfo.ftLastWriteTime;
+    reloaded = true;
 }
 
 bool IsAlreadyFavorite(const PtfxS& fx)
@@ -3306,24 +3326,29 @@ void ToggleFavorite(const PtfxS& current)
 int lastSubmenuSource = -1; // -1 = invalid or unset
 bool favouritesLoaded = false;
 
+void AddEffectOption(const PtfxS& effect, int source)
+{
+    switch (source)
+    {
+    case SUB::PLAYEROPS:
+    case SUB::SPOONER_SELECTEDENTITYOPS:
+        AddOptionEntity(effect, g_activePedHandle);
+        break;
+    case SUB::PTFXSUB:
+        AddOptionLoopOnEntity(effect, g_activePedHandle);
+        break;
+    case SUB::TRIGGERFXGUN:
+        TriggerFxGun::AddOptionGunFX(effect);
+        break;
+    }
+}
+
 void PTFXFavourites()
 {
     AddTitle("Favorite FX's");
     for (size_t i = 0; i < favourites.size(); ++i)
     {
-        switch (lastSubmenuSource)
-        {
-        case SUB::PLAYEROPS:
-        case SUB::SPOONER_SELECTEDENTITYOPS:
-            AddOptionEntity(favourites[i], g_activePedHandle);
-            break;
-        case SUB::PTFXSUB:
-            AddOptionLoopOnEntity(favourites[i], g_activePedHandle);
-            break; // Subception
-        case SUB::TRIGGERFXGUN:
-            TriggerFxGun::AddOptionGunFX(favourites[i]);
-            break;
-        }
+        AddEffectOption(favourites[i], lastSubmenuSource);
     }
     if (favourites.empty())
     {
@@ -3331,11 +3356,42 @@ void PTFXFavourites()
     }
 }
 
-bool showOnlyFaves = 0;
-int ITEMS_PER_PAGE = 20; // Adjust for your UI size
-const int ITEMS_PER_PAGE_MIN = 10;
-const int ITEMS_PER_PAGE_MAX = 100;
-static int ptfxPage = 0;
+void RebuildPtfxCache()
+{
+    ptfxCache.byAsset.clear();
+    ptfxCache.sortedAssets.clear();
+
+    const std::string searchLower = boost::to_lower_copy(ptfxSearchStr);
+
+    for (const auto& fx : PTFX)
+    {
+        if (showOnlyFaves && !IsAlreadyFavorite(fx))
+            continue;
+        if (!searchLower.empty())
+        {
+            if (boost::to_lower_copy(fx.name).find(searchLower) == std::string::npos && boost::to_lower_copy(fx.asset).find(searchLower) == std::string::npos)
+                continue;
+        }
+        ptfxCache.byAsset[fx.asset].push_back(fx);
+    }
+
+    for (auto& kv : ptfxCache.byAsset)
+        ptfxCache.sortedAssets.push_back(kv.first);
+    std::sort(
+        ptfxCache.sortedAssets.begin(),
+        ptfxCache.sortedAssets.end(),
+        [](const std::string& a, const std::string& b)
+        {
+            if (a.empty())
+                return false;
+            if (b.empty())
+                return true;
+            return a < b;
+        }
+    );
+
+    ptfxCache.needsRebuild = false;
+}
 
 void PTFXSub()
 {
@@ -3343,126 +3399,119 @@ void PTFXSub()
     {
         std::wstring wpath = GetPathffW(Pathff::Main, true) + L"fx_favorites.json";
         std::string spath = wstringToString(wpath);
-        LoadFavoritesFromFile(spath);
+        bool reloaded = false;
+        LoadFavoritesFromFile(spath, reloaded);
+        if (reloaded)
+            ptfxCache.needsRebuild = true;
         favouritesLoaded = true;
     }
-    std::vector<PtfxS> displayedFx;
-    if (showOnlyFaves)
+
+    const bool searchActive = !ptfxSearchStr.empty();
+    const int submenuSource = Menu::submenuHistory[Menu::menuHistoryIndex];
+
+    AddTitle("FX");
+
+    bool searchPressed = false;
+    std::string searchLabel = searchActive ? "~b~" + boost::to_upper_copy(ptfxSearchStr) + "~s~" : "~b~SEARCH~s~";
+    AddOption(searchLabel, searchPressed, nullFunc, -1, true);
+    if (searchPressed)
     {
-        for (const auto& fx : PTFX)
+        std::string newSearch = Game::InputBox(ptfxSearchStr, 126U, "SEARCH", ptfxSearchStr);
+        boost::to_lower(newSearch);
+        if (newSearch != ptfxSearchStr)
         {
-            if (IsAlreadyFavorite(fx))
-            {
-                displayedFx.push_back(fx);
-            }
+            ptfxSearchStr = newSearch;
+            ptfxCache.needsRebuild = true;
         }
     }
-    else
-    {
-        displayedFx = PTFX;
-    }
-    // Pagination logic
-    int totalItems = static_cast<int>(displayedFx.size());
-    int totalPages = (totalItems + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
-    int startIndex = ptfxPage * ITEMS_PER_PAGE;
-    int endIndex = min(startIndex + ITEMS_PER_PAGE, totalItems);
 
-    bool itemCountMinus = false;
-    bool itemCountPlus = false;
-    bool detectKeypress = false;
-    bool bShortcutToggleFavesPressed = false;
-    std::string pageLabel = "Page " + std::to_string(ptfxPage + 1) + " / " + std::to_string(totalPages);
-    AddTitle("FX - " + pageLabel);
-    AddNumber("Items Per Page", ITEMS_PER_PAGE, 0, null, itemCountPlus, itemCountMinus);
-    AddOptionDescription("How many effects are listed per page.");
-    AddOption("Favourites", detectKeypress, nullFunc, SUB::PTFX_FAVORITES);
-    if (detectKeypress)
+    bool favesPressed = false;
+    AddOption("Favourites", favesPressed, nullFunc, SUB::PTFX_FAVORITES);
+    if (favesPressed)
     {
-        lastSubmenuSource = Menu::submenuHistory[Menu::menuHistoryIndex];
+        lastSubmenuSource = submenuSource;
     }
+
+    const bool showFavesBefore = showOnlyFaves;
     AddToggle("Only Show Favorites", showOnlyFaves);
-    switch (Menu::submenuHistory[Menu::menuHistoryIndex])
+    if (showOnlyFaves != showFavesBefore)
     {
-    case SUB::PLAYEROPS:
-    case SUB::SPOONER_SELECTEDENTITYOPS:
+        ptfxCache.needsRebuild = true;
+    }
+
+    if (submenuSource == SUB::PLAYEROPS || submenuSource == SUB::SPOONER_SELECTEDENTITYOPS)
+    {
         AddOption("Loop On Entity", null, nullFunc, SUB::PTFXSUB);
         AddOptionDescription("Effects that play continuously on the entity.");
-        break;
-    case SUB::PTFXSUB:
+    }
+    else if (submenuSource == SUB::PTFXSUB)
     {
-        bool bPressedClear = false;
-        AddOption("Clear On All Entities", bPressedClear);
+        bool clearPressed = false;
+        AddOption("Clear On All Entities", clearPressed);
         AddOptionDescription("Stops all looping effects.");
-        if (bPressedClear)
+        if (clearPressed)
         {
             fxLoops.clear();
         }
         PtfxS nonefx = {"None", "", ""};
         AddOptionLoopOnEntity(nonefx, g_activePedHandle);
-        break;
-    }
     }
 
-    for (int i = startIndex; i < endIndex; ++i)
+    if (searchActive)
     {
-        const auto& current = displayedFx[i];
-
-        switch (Menu::submenuHistory[Menu::menuHistoryIndex])
+        bool clearSearchPressed = false;
+        AddOption("~r~Clear Search~s~", clearSearchPressed);
+        if (clearSearchPressed)
         {
-        case SUB::PLAYEROPS:
-        case SUB::SPOONER_SELECTEDENTITYOPS:
-            AddOptionEntity(current, g_activePedHandle);
-            break;
-        case SUB::PTFXSUB:
-            AddOptionLoopOnEntity(current, g_activePedHandle);
-            break;
-        case SUB::TRIGGERFXGUN:
-            TriggerFxGun::AddOptionGunFX(current);
-            break;
+            ptfxSearchStr.clear();
+            ptfxCache.needsRebuild = true;
         }
+        MenuCategory::ExpandAll();
+    }
+    else
+    {
+        MenuCategory::RestoreExpandedState();
+    }
 
-        // Handle favorite toggling
-        if (Menu::IsLastDrawnOptionSelected())
+    if (ptfxCache.needsRebuild)
+        RebuildPtfxCache();
+
+    if (ptfxCache.sortedAssets.empty())
+    {
+        AddOption(searchActive ? "~r~No results~s~" : "No favourites saved yet..");
+        return;
+    }
+
+    for (auto& cat : ptfxCache.sortedAssets)
+    {
+        auto it = ptfxCache.byAsset.find(cat);
+        if (it == ptfxCache.byAsset.end())
+            continue;
+
+        auto& effects = it->second;
+        std::string catName = cat.empty() ? "UNORDERED" : cat;
+        std::string catLabel = "— ~b~" + catName + "~s~ ~c~(" + std::to_string(effects.size()) + " fx)~s~";
+
+        if (MenuCategory::AddCategory(catLabel, false))
         {
-            if (favouritesLoaded)
+            for (auto& current : effects)
             {
-                favouritesLoaded = false;
-            }
-            Keybinds::AddBindIB("menu_action", IsAlreadyFavorite(current), "Remove From Favourites", "Add To Favourites");
-            bShortcutToggleFavesPressed = Keybinds::WasPressedThisFrame("menu_action");
+                AddEffectOption(current, submenuSource);
 
-            if (bShortcutToggleFavesPressed)
-            {
-                ToggleFavorite(current);
+                if (Menu::IsLastDrawnOptionSelected())
+                {
+                    if (favouritesLoaded)
+                    {
+                        favouritesLoaded = false;
+                    }
+                    Keybinds::AddBindIB("menu_action", IsAlreadyFavorite(current), "Remove From Favourites", "Add To Favourites");
+                    if (Keybinds::WasPressedThisFrame("menu_action"))
+                    {
+                        ToggleFavorite(current);
+                        ptfxCache.needsRebuild = true;
+                    }
+                }
             }
-        }
-    }
-    // Respond to left/right input for modifying items per page
-    if (itemCountPlus)
-    {
-        if (ITEMS_PER_PAGE < ITEMS_PER_PAGE_MAX)
-        {
-            ITEMS_PER_PAGE += 1;
-        }
-    }
-
-    if (itemCountMinus)
-    {
-        if (ITEMS_PER_PAGE > ITEMS_PER_PAGE_MIN)
-        {
-            ITEMS_PER_PAGE -= 1;
-        }
-    }
-    // Block navigation input if on first page
-    if (ptfxPage + 1 != 0 && totalPages != 0 && *Menu::activeOptionIndex != 1)
-    {
-        if (IsOptionLPressed())
-        {
-            ptfxPage = (ptfxPage - 1 + totalPages) % totalPages;
-        }
-        if (IsOptionRPressed())
-        {
-            ptfxPage = (ptfxPage + 1) % totalPages;
         }
     }
 }

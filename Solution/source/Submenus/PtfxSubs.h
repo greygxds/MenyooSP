@@ -39,8 +39,6 @@ namespace sub
 {
 namespace PtfxSubs
 {
-extern int ITEMS_PER_PAGE;
-
 struct PtfxS
 {
     std::string name;
