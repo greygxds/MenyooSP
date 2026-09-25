@@ -21,6 +21,7 @@
 #include "..\Menu\Keybinds.h"
 #include "..\Menu\Routine.h"
 #include "..\Menu\StatsPanel.h"
+#include "..\Menu\Language.h"
 
 #include "..\Memory\GTAmemory.h"
 
@@ -48,6 +49,7 @@
 
 #include <Shlwapi.h>
 #pragma comment(lib, "Shlwapi.lib")
+#include <cstdio>
 #include <string>
 #include <vector>
 #include <map>
@@ -1497,6 +1499,17 @@ void UpdatePedHeadBlendData(GTAped& ped, const PedHeadBlendData& blendData, bool
     ped.SetHeadBlendData(blendData);
 }
 
+static void DrawFaceStats(float topY);
+static std::string FormatMixValue(float mixValue);
+static void DrawOverlayStats(float topY, int focusSlot = -1);
+static RGBA GetHairTintColor(int tintId);
+static RGBA GetMakeupTintColor(int tintId);
+
+static std::string TranslateOverlayText(const std::string& rawText)
+{
+    return Game::GetGXTEntry(Language::TranslateToSelected(rawText), rawText);
+}
+
 void Sub_Main()
 {
     GTAped ped = g_activePedHandle;
@@ -1547,6 +1560,8 @@ void Sub_Main()
 
     AddTitle("Head Features");
 
+    DrawFaceStats(StatsPanel::MenuTopY());
+
     AddOption("Overlays", null, nullFunc, SUB::PED_HEADFEATURES_HEADOVERLAYS);
     AddOption("Facial Features", null, nullFunc, SUB::PED_HEADFEATURES_FACEFEATURES);
     AddOption("Shape & Skin Tone", null, nullFunc, SUB::PED_HEADFEATURES_SKINTONE);
@@ -1579,10 +1594,62 @@ void Sub_Main()
     }
 }
 
+static void DrawOverlayStats(float topY, int focusSlot)
+{
+    GTAped ped = g_activePedHandle;
+
+    bool firstShownSection = true;
+    std::vector<StatsPanel::Row> rows;
+    for (size_t i = 0; i < vCaptions_headOverlays.size(); i++)
+    {
+        if (focusSlot >= 0 && (int)i != focusSlot)
+            continue;
+        int overlayIndex = (int)i;
+        int overlayValue = GET_PED_HEAD_OVERLAY(ped.Handle(), overlayIndex);
+        if (overlayValue == 255 && (int)i != focusSlot)
+            continue;
+        auto& overlayData = pedHead->overlayData[overlayIndex];
+
+        if (!firstShownSection)
+            rows.push_back(StatsPanel::SeparatorRow{});
+        firstShownSection = false;
+        rows.push_back(StatsPanel::TitleRow{TranslateOverlayText(vCaptions_headOverlays[i].first)});
+        if (overlayValue == 255)
+        {
+            rows.push_back(StatsPanel::StatRow{"Variation", TranslateOverlayText("None")});
+        }
+        else
+        {
+            std::string variationText = "Style " + std::to_string(overlayValue);
+            auto& variationNames = vCaptions_headOverlays[i].second;
+            if (overlayValue >= 0 && (size_t)overlayValue < variationNames.size() && !variationNames[overlayValue].empty())
+                variationText = TranslateOverlayText(variationNames[overlayValue]) + " (" + std::to_string(overlayValue) + ")";
+            rows.push_back(StatsPanel::StatRow{"Variation", variationText});
+            rows.push_back(StatsPanel::StatRow{"Opacity", FormatMixValue(overlayData.opacity)});
+            int colourType = GetPedHeadOverlayColourType((PedHeadOverlay)overlayIndex);
+            if (colourType != 0)
+            {
+                std::string colourText = overlayData.colour >= 0 ? std::to_string(overlayData.colour) : "---";
+                std::string secondaryText = overlayData.colourSecondary >= 0 ? std::to_string(overlayData.colourSecondary) : "---";
+                if (colourType == 1)
+                    rows.push_back(StatsPanel::DoubleColorRow{"Colour", GetHairTintColor(overlayData.colour), colourText, "Secondary", GetHairTintColor(overlayData.colourSecondary), secondaryText});
+                else
+                    rows.push_back(
+                        StatsPanel::DoubleColorRow{"Colour", GetMakeupTintColor(overlayData.colour), colourText, "Secondary", GetMakeupTintColor(overlayData.colourSecondary), secondaryText}
+                    );
+            }
+        }
+    }
+
+    StatsPanel::Draw(topY, 0.150f, rows);
+}
+
 void Sub_HeadOverlays()
 {
     auto& overlayIndex = s_selectedOverlayIndex;
     AddTitle("Overlays");
+
+    DrawOverlayStats(StatsPanel::MenuTopY());
 
     for (UINT i = 0; i < vCaptions_headOverlays.size(); i++)
     {
@@ -1625,6 +1692,8 @@ void Sub_HeadOverlays_InItem()
     bool opacityPlus = false, opacityMinus = false;
 
     AddTitle(vCaptions_headOverlays[overlayIndex].first);
+
+    DrawOverlayStats(StatsPanel::MenuTopY(), overlayIndex);
 
     // VARIATION
     AddTexter("Variation", overlayValue, vCaptions_headOverlays[overlayIndex].second, null, overlayPlus, overlayMinus);
@@ -1741,11 +1810,98 @@ void Sub_HeadOverlays_InItem()
     }
 }
 
+// Hair tint palette (tint index -> RGB), source: https://github.com/DurtyFree/gta-v-data-dumps/blob/master/pedHairColors.json
+static const RGBA hairTintPalette[] = {RGBA(28, 31, 33, 255),    RGBA(39, 42, 44, 255),   RGBA(49, 46, 44, 255),    RGBA(53, 38, 28, 255),    RGBA(75, 50, 31, 255),    RGBA(92, 59, 36, 255),
+                                       RGBA(109, 76, 53, 255),   RGBA(107, 80, 59, 255),  RGBA(118, 92, 69, 255),   RGBA(127, 104, 78, 255),  RGBA(153, 129, 93, 255),  RGBA(167, 147, 105, 255),
+                                       RGBA(175, 156, 112, 255), RGBA(187, 160, 99, 255), RGBA(214, 185, 123, 255), RGBA(218, 195, 142, 255), RGBA(159, 127, 89, 255),  RGBA(132, 80, 57, 255),
+                                       RGBA(104, 43, 31, 255),   RGBA(97, 18, 12, 255),   RGBA(100, 15, 10, 255),   RGBA(124, 20, 15, 255),   RGBA(160, 46, 25, 255),   RGBA(182, 75, 40, 255),
+                                       RGBA(162, 80, 47, 255),   RGBA(170, 78, 43, 255),  RGBA(98, 98, 98, 255),    RGBA(128, 128, 128, 255), RGBA(170, 170, 170, 255), RGBA(197, 197, 197, 255),
+                                       RGBA(70, 57, 85, 255),    RGBA(90, 63, 107, 255),  RGBA(118, 60, 118, 255),  RGBA(237, 116, 227, 255), RGBA(235, 75, 147, 255),  RGBA(242, 153, 188, 255),
+                                       RGBA(4, 149, 158, 255),   RGBA(2, 95, 134, 255),   RGBA(2, 57, 116, 255),    RGBA(63, 161, 106, 255),  RGBA(33, 124, 97, 255),   RGBA(24, 92, 85, 255),
+                                       RGBA(182, 192, 52, 255),  RGBA(112, 169, 11, 255), RGBA(67, 157, 19, 255),   RGBA(220, 184, 87, 255),  RGBA(229, 177, 3, 255),   RGBA(230, 145, 2, 255),
+                                       RGBA(242, 136, 49, 255),  RGBA(251, 128, 87, 255), RGBA(226, 139, 88, 255),  RGBA(209, 89, 60, 255),   RGBA(206, 49, 32, 255),   RGBA(173, 9, 3, 255),
+                                       RGBA(136, 3, 2, 255),     RGBA(31, 24, 20, 255),   RGBA(41, 31, 25, 255),    RGBA(46, 34, 27, 255),    RGBA(55, 41, 30, 255),    RGBA(46, 34, 24, 255),
+                                       RGBA(35, 27, 21, 255),    RGBA(2, 2, 2, 255),      RGBA(112, 108, 102, 255), RGBA(157, 122, 80, 255)};
+static const int hairTintPaletteCount = sizeof(hairTintPalette) / sizeof(hairTintPalette[0]);
+
+static RGBA GetHairTintColor(int tintId)
+{
+    if (tintId >= 0 && tintId < hairTintPaletteCount)
+        return hairTintPalette[tintId];
+    return RGBA(128, 128, 128, 255);
+}
+
+// Makeup tint palette (tint index -> RGB), source: https://wiki.rage.mp/wiki/Makeup_Colors
+static const RGBA makeupTintPalette[] = {RGBA(153, 37, 50, 255),   RGBA(200, 57, 93, 255),  RGBA(189, 81, 108, 255),  RGBA(184, 99, 122, 255),  RGBA(166, 82, 107, 255),  RGBA(177, 67, 76, 255),
+                                         RGBA(127, 49, 51, 255),   RGBA(164, 100, 93, 255), RGBA(193, 135, 121, 255), RGBA(203, 160, 150, 255), RGBA(198, 145, 143, 255), RGBA(171, 111, 99, 255),
+                                         RGBA(176, 96, 80, 255),   RGBA(168, 76, 51, 255),  RGBA(180, 113, 120, 255), RGBA(202, 127, 146, 255), RGBA(237, 156, 190, 255), RGBA(231, 117, 164, 255),
+                                         RGBA(222, 62, 129, 255),  RGBA(179, 76, 110, 255), RGBA(113, 39, 57, 255),   RGBA(79, 31, 42, 255),    RGBA(170, 34, 47, 255),   RGBA(222, 32, 52, 255),
+                                         RGBA(207, 8, 19, 255),    RGBA(229, 84, 112, 255), RGBA(220, 63, 181, 255),  RGBA(194, 39, 178, 255),  RGBA(160, 28, 169, 255),  RGBA(110, 24, 117, 255),
+                                         RGBA(115, 20, 101, 255),  RGBA(86, 22, 92, 255),   RGBA(109, 26, 157, 255),  RGBA(27, 55, 113, 255),   RGBA(29, 78, 167, 255),   RGBA(30, 116, 187, 255),
+                                         RGBA(33, 163, 206, 255),  RGBA(37, 194, 210, 255), RGBA(35, 204, 165, 255),  RGBA(39, 192, 125, 255),  RGBA(27, 156, 50, 255),   RGBA(20, 134, 4, 255),
+                                         RGBA(112, 208, 65, 255),  RGBA(197, 234, 52, 255), RGBA(225, 227, 47, 255),  RGBA(255, 221, 38, 255),  RGBA(250, 192, 38, 255),  RGBA(247, 138, 39, 255),
+                                         RGBA(254, 89, 16, 255),   RGBA(190, 110, 25, 255), RGBA(247, 201, 127, 255), RGBA(251, 229, 192, 255), RGBA(245, 245, 245, 255), RGBA(179, 180, 179, 255),
+                                         RGBA(145, 145, 145, 255), RGBA(86, 78, 78, 255),   RGBA(24, 14, 14, 255),    RGBA(88, 150, 158, 255),  RGBA(77, 111, 140, 255),  RGBA(26, 43, 85, 255),
+                                         RGBA(160, 126, 107, 255), RGBA(130, 99, 85, 255),  RGBA(109, 83, 70, 255),   RGBA(62, 45, 39, 255)};
+static const int makeupTintPaletteCount = sizeof(makeupTintPalette) / sizeof(makeupTintPalette[0]);
+
+static RGBA GetMakeupTintColor(int tintId)
+{
+    if (tintId >= 0 && tintId < makeupTintPaletteCount)
+        return makeupTintPalette[tintId];
+    return RGBA(128, 128, 128, 255);
+}
+
+static std::string FormatMixValue(float mixValue)
+{
+    char buffer[16];
+    snprintf(buffer, sizeof(buffer), "%.2f", mixValue);
+    return buffer;
+}
+
+static void DrawFaceStats(float topY)
+{
+    GTAped ped = g_activePedHandle;
+
+    PedHeadBlendData blendData;
+    GET_PED_HEAD_BLEND_DATA(ped.Handle(), (Any*)&blendData);
+
+    std::vector<StatsPanel::Row> rows;
+    rows.push_back(StatsPanel::DoubleStatRow{"Shape Father", std::to_string(blendData.shapeFirstID), "Tone Father", std::to_string(blendData.skinFirstID)});
+    rows.push_back(StatsPanel::DoubleStatRow{"Shape Mother", std::to_string(blendData.shapeSecondID), "Tone Mother", std::to_string(blendData.skinSecondID)});
+    rows.push_back(StatsPanel::DoubleStatRow{"Shape Mix", FormatMixValue(blendData.shapeMix), "Tone Mix", FormatMixValue(blendData.skinMix)});
+    rows.push_back(StatsPanel::DoubleStatRow{"Shape Ancestor", std::to_string(blendData.shapeThirdID), "Tone Ancestor", std::to_string(blendData.skinThirdID)});
+    rows.push_back(StatsPanel::DoubleStatRow{"Ancestor Mix", FormatMixValue(blendData.thirdMix), "", ""});
+    rows.push_back(StatsPanel::SeparatorRow{});
+    for (size_t i = 0; i < vCaptions_facialFeatures.size(); i += 2)
+    {
+        std::string rightLabel = "";
+        std::string rightValue = "";
+        if (i + 1 < vCaptions_facialFeatures.size())
+        {
+            rightLabel = vCaptions_facialFeatures[i + 1];
+            rightValue = FormatMixValue(pedHead->facialFeatureData[i + 1]);
+        }
+        rows.push_back(StatsPanel::DoubleStatRow{vCaptions_facialFeatures[i], FormatMixValue(pedHead->facialFeatureData[i]), rightLabel, rightValue});
+    }
+    rows.push_back(StatsPanel::SeparatorRow{});
+    rows.push_back(
+        StatsPanel::DoubleColorRow{
+            "Hair", GetHairTintColor(pedHead->hairColour), std::to_string(pedHead->hairColour), "Hair Streaks", GetHairTintColor(pedHead->hairColourStreaks), std::to_string(pedHead->hairColourStreaks)
+        }
+    );
+    rows.push_back(StatsPanel::DoubleStatRow{"Eyes", std::to_string(pedHead->eyeColour), "", ""});
+
+    StatsPanel::Draw(topY, 0.200f, rows);
+}
+
 void Sub_FaceFeatures()
 {
     GTAped ped = g_activePedHandle;
 
     AddTitle("Facial Features");
+
+    DrawFaceStats(StatsPanel::MenuTopY());
 
     for (int i = 0; i < vCaptions_facialFeatures.size(); i++)
     {
@@ -1785,6 +1941,8 @@ void Sub_SkinTone() // HEAD_BLEND
     float mixStep = 0.01f;
 
     AddTitle("Shape & Skin Tone");
+
+    DrawFaceStats(StatsPanel::MenuTopY());
     AddToggle("Unlock ID Limits", g_unlockMaxIDs);
     AddOptionDescription("Allows parent IDs up to 255 (modded heads) instead of the standard 0-45.");
 
@@ -2239,14 +2397,16 @@ bool Apply(GTAped ep, const std::string& filePath, bool applyModelAndHead, bool 
 
 } // namespace ComponentChangerOutfit
 
-static void DrawOutfitFileStats(const std::string& filePath, float topY)
+static void DrawOutfitFileStats(const std::string& filePath, float optionTextY)
 {
     static std::string lastStatsPath = "";
     static std::vector<StatsPanel::Row> statsRows;
-    static const char* compSlotNames[] = {"Head", "Beard", "Hair", "Torso", "Legs", "Hands", "Feet", "Teeth", "Accs", "Task", "Decals", "Jbib"};
-    static const char* propSlotNames[] = {"Hat", "Glasses", "Ears", "", "", "", "LWrist", "RWrist", "", "", "", "", ""};
+    static const char* compSlotNames[] = {"head", "berd", "hair", "uppr", "lowr", "hand", "feet", "teef", "accs", "task", "decl", "jbib"};
+    static const char* propSlotNames[] = {"p_head", "p_eyes", "p_ears", "p_mouth", "p_lhand", "p_rhand", "p_lwrist", "p_rwrist", "p_hip", "p_lfoot", "p_rfoot", "p_unk1", "p_unk2"};
+    static const int usedPropSlots[] = {0, 1, 2, 6, 7};
     static const int compSlotNameCount = sizeof(compSlotNames) / sizeof(compSlotNames[0]);
     static const int propSlotNameCount = sizeof(propSlotNames) / sizeof(propSlotNames[0]);
+    static const int usedPropSlotCount = sizeof(usedPropSlots) / sizeof(usedPropSlots[0]);
 
     if (lastStatsPath != filePath)
     {
@@ -2260,8 +2420,7 @@ static void DrawOutfitFileStats(const std::string& filePath, float topY)
         std::string facialMood = "";
         int decalCount = 0;
         std::vector<std::pair<std::string, std::string>> compValues;
-        std::vector<std::string> propValues(propSlotNameCount, "");
-        bool havePropNodes = false;
+        std::vector<std::pair<std::string, std::string>> propValues;
 
         pugi::xml_document doc;
         if (doc.load_file((const char*)filePath.c_str()).status == pugi::status_ok)
@@ -2285,18 +2444,39 @@ static void DrawOutfitFileStats(const std::string& filePath, float topY)
                 int compSlotIndex = 0;
                 for (auto node = nodePedStuff.child("PedComps").first_child(); node; node = node.next_sibling())
                 {
-                    std::string slotLabel = "Comp " + std::to_string(compSlotIndex);
-                    if (compSlotIndex < compSlotNameCount)
-                        slotLabel = compSlotNames[compSlotIndex];
+                    std::string slotLabel = node.name();
+                    if (slotLabel.empty() || slotLabel[0] == '_')
+                    {
+                        slotLabel = "Comp " + std::to_string(compSlotIndex);
+                        if (compSlotIndex < compSlotNameCount)
+                            slotLabel = compSlotNames[compSlotIndex];
+                    }
                     compValues.push_back({slotLabel, node.text().as_string()});
                     compSlotIndex++;
                 }
                 int propSlotIndex = 0;
                 for (auto node = nodePedStuff.child("PedProps").first_child(); node; node = node.next_sibling())
                 {
-                    havePropNodes = true;
-                    if (propSlotIndex >= 0 && propSlotIndex < propSlotNameCount)
-                        propValues[propSlotIndex] = node.text().as_string();
+                    bool propSlotUsed = false;
+                    for (int u = 0; u < usedPropSlotCount; u++)
+                    {
+                        if (usedPropSlots[u] == propSlotIndex)
+                        {
+                            propSlotUsed = true;
+                            break;
+                        }
+                    }
+                    if (propSlotUsed)
+                    {
+                        std::string slotLabel = node.name();
+                        if (slotLabel.empty() || slotLabel[0] == '_')
+                        {
+                            slotLabel = "Prop " + std::to_string(propSlotIndex);
+                            if (propSlotIndex < propSlotNameCount)
+                                slotLabel = propSlotNames[propSlotIndex];
+                        }
+                        propValues.push_back({slotLabel, node.text().as_string()});
+                    }
                     propSlotIndex++;
                 }
                 auto nodeAttachments = nodeEntity.child("SpoonerAttachments");
@@ -2314,9 +2494,7 @@ static void DrawOutfitFileStats(const std::string& filePath, float topY)
             statsRows.push_back(StatsPanel::StatRow{"Mood", facialMood});
         if (decalCount > 0)
             statsRows.push_back(StatsPanel::StatRow{"Decals", std::to_string(decalCount)});
-        size_t slotRowCount = compValues.size();
-        if (havePropNodes && propValues.size() > slotRowCount)
-            slotRowCount = propValues.size();
+        size_t slotRowCount = compValues.size() > propValues.size() ? compValues.size() : propValues.size();
         if (slotRowCount > 0)
         {
             statsRows.push_back(StatsPanel::SeparatorRow{});
@@ -2332,10 +2510,10 @@ static void DrawOutfitFileStats(const std::string& filePath, float topY)
                     leftLabel = compValues[i].first;
                     leftValue = compValues[i].second;
                 }
-                if (havePropNodes && i < propValues.size() && propSlotNames[i][0] != '\0')
+                if (i < propValues.size())
                 {
-                    rightLabel = propSlotNames[i];
-                    rightValue = propValues[i];
+                    rightLabel = propValues[i].first;
+                    rightValue = propValues[i].second;
                 }
                 statsRows.push_back(StatsPanel::DoubleStatRow{leftLabel, leftValue, rightLabel, rightValue});
             }
@@ -2346,7 +2524,7 @@ static void DrawOutfitFileStats(const std::string& filePath, float topY)
         statsRows.push_back(StatsPanel::StatRow{"Modified", GetFileLastWriteDateStr(filePath)});
     }
 
-    StatsPanel::Draw(topY, 0.100f, statsRows);
+    StatsPanel::DrawAtOption(optionTextY, 0.100f, statsRows);
 }
 
 void ComponentChanger_Outfits()
@@ -2452,6 +2630,7 @@ void ComponentChanger_Outfits()
                     {
                         FolderPreviewBmps_catind::DrawBmp(dir + "\\" + fileName);
                     }
+                    StatsPanel::DrawFolderContents(dir + "\\" + fileName, currentOptionY + menuPos.y);
                 }
             }
 
@@ -2467,7 +2646,7 @@ void ComponentChanger_Outfits()
 
                 if (Menu::IsLastDrawnOptionSelected() && !bFilePressed)
                 {
-                    DrawOutfitFileStats(dir + "\\" + fileName, StatsPanel::MenuTopY());
+                    DrawOutfitFileStats(dir + "\\" + fileName, currentOptionY + menuPos.y);
                 }
             }
         }
