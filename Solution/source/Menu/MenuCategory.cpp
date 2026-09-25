@@ -45,8 +45,9 @@ static std::vector<std::string> categoryHeaderLabels;
 // Persistent navigation target, set by CategoryNavigate SUB
 static int pendingCategoryIndex = -1;
 
-// Frame tracking for auto-clearing per-frame state
-static DWORD s_lastFrameTick = 0;
+// Frame tracking
+static unsigned int s_currentFrame = 0;
+static unsigned int s_headersFrame = 0;
 static bool categoryNavigationHintAdded = false;
 // Category count from the previous frame, so the first header of a frame knows whether navigation is available
 static size_t s_lastCategoryCount = 0;
@@ -68,6 +69,8 @@ void ResetCategoryState()
         s_lastCategoryCount = categoryHeaderPositions.size();
     categoryHeaderPositions.clear();
     categoryHeaderLabels.clear();
+    categoryNavigationHintAdded = false;
+    s_headersFrame = s_currentFrame;
 
     if (pendingCategoryIndex != -1)
     {
@@ -76,17 +79,21 @@ void ResetCategoryState()
     }
 }
 
+void BeginFrame()
+{
+    ++s_currentFrame;
+}
+
 bool AddCategory(const std::string& label, bool defaultExpanded)
 {
-    DWORD now = GetTickCount();
-    if (now != s_lastFrameTick)
+    if (s_headersFrame != s_currentFrame)
     {
         if (!categoryHeaderPositions.empty())
             s_lastCategoryCount = categoryHeaderPositions.size();
         categoryHeaderPositions.clear();
         categoryHeaderLabels.clear();
         categoryNavigationHintAdded = false;
-        s_lastFrameTick = now;
+        s_headersFrame = s_currentFrame;
 
         if (pendingCategoryIndex != -1)
         {

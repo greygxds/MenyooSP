@@ -26,6 +26,7 @@
 #include "..\Util\FileLogger.h"
 #include "..\Menu\Menu.h"
 #include "..\Menu\Keybinds.h"
+#include "..\Menu\MenuCategory.h"
 #include "..\Submenus\PedAnimation.h"
 
 #include <Windows.h>
@@ -843,29 +844,43 @@ void Menu::set_opened_IB()
     numberInputActive = false;
 }
 
+namespace
+{
+// de-duplicate IB entries to avoid duplicate instructional buttons
+void push_IB(Scaleform_IbT entry)
+{
+    for (const auto& existing : Menu::vIB)
+    {
+        if (existing.button == entry.button && existing.button2 == entry.button2 && existing.isKey == entry.isKey && existing.text == entry.text)
+            return;
+    }
+    Menu::vIB.push_back(entry);
+}
+} // namespace
+
 void Menu::add_IB(ControllerInput button_id, std::string string_val)
 {
-    vIB.push_back({button_id, (string_val), false});
+    push_IB({button_id, (string_val), false});
 }
 
 void Menu::add_IB(VirtualKey::VirtualKey button_id, std::string string_val)
 {
-    vIB.push_back({button_id, (string_val), true});
+    push_IB({button_id, (string_val), true});
 }
 
 void Menu::add_IB(ScaleformButton button_id, std::string string_val)
 {
-    vIB.push_back({int(button_id) + 1000, (string_val), false});
+    push_IB({int(button_id) + 1000, (string_val), false});
 }
 
 void Menu::add_IB(ControllerInput button_id, ControllerInput button2_id, std::string string_val)
 {
-    vIB.push_back({button_id, (string_val), false, button2_id});
+    push_IB({button_id, (string_val), false, button2_id});
 }
 
 void Menu::add_IB(VirtualKey::VirtualKey button_id, VirtualKey::VirtualKey button2_id, std::string string_val)
 {
-    vIB.push_back({button_id, (string_val), true, button2_id});
+    push_IB({button_id, (string_val), true, button2_id});
 }
 
 std::string Menu::get_key_IB(const Scaleform_IbT& ib)
@@ -956,6 +971,7 @@ void Menu::draw_IB()
 
 void Menu::sub_handler()
 {
+    MenuCategory::BeginFrame();
     static bool firstRun = true, isClosed = true;
     if (firstRun)
     {
