@@ -75,6 +75,23 @@ struct BarRow
     float ratio = 0.0f;
 };
 
+struct ColorRow
+{
+    std::string label;
+    RGBA color = RGBA(128, 128, 128, 255);
+    std::string valueText;
+};
+
+struct DoubleColorRow
+{
+    std::string leftLabel;
+    RGBA leftColor = RGBA(128, 128, 128, 255);
+    std::string leftValue;
+    std::string rightLabel;
+    RGBA rightColor = RGBA(128, 128, 128, 255);
+    std::string rightValue;
+};
+
 struct ImageRow
 {
     std::function<void(float centerX, float centerY)> draw;
@@ -82,12 +99,17 @@ struct ImageRow
     float height = 0.0889f;
 };
 
-using Row = std::variant<StatRow, DoubleStatRow, StackedStatRow, TitleRow, TextRow, SeparatorRow, SpacerRow, BarRow, ImageRow>;
+using Row = std::variant<StatRow, DoubleStatRow, StackedStatRow, TitleRow, TextRow, SeparatorRow, SpacerRow, BarRow, ColorRow, DoubleColorRow, ImageRow>;
 
 // Top edge all side panels align to: the menu title banner's top edge. Keeps panels static while hovering/scrolling.
 float MenuTopY();
-// topY is the panel's top edge: hover callers pass MenuTopY() for menu-top alignment.
+// topY is the panel's top edge: global callers pass MenuTopY() for menu-top alignment.
 void Draw(float topY, float width, const std::vector<Row>& rows);
+// Hover panels: centers on the hovered option's row, clamped to the menu span (never above
+// menu top, never below menu bottom; taller-than-menu pins to MenuTopY like global panels).
+// optionTextY is the hovered row's text Y (currentOptionY + menuPos.y).
+void DrawAtOption(float optionTextY, float width, const std::vector<Row>& rows);
 std::vector<std::string> WrapText(const std::string& text, size_t maxChars);
+void DrawFolderContents(const std::string& dirPath, float optionTextY, float width = 0.100f);
 
 } // namespace StatsPanel
