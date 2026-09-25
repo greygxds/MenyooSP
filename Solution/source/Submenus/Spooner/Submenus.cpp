@@ -69,6 +69,7 @@
 
 #include <Shlwapi.h>
 #pragma comment(lib, "Shlwapi.lib")
+#include <cmath>
 #include <string>
 #include <fstream>
 #include <tuple>
@@ -364,51 +365,7 @@ void Sub_Settings()
     AddOption("Grid Snap Settings", null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
 }
 
-static void DrawEntityStats(sub::Spooner::SpoonerEntity& e, float topY)
-{
-    if (!e.handle.Exists())
-        return;
-
-    int health = e.handle.GetHealth();
-    int maxHealth = e.handle.GetMaxHealth();
-    float healthRatio = 0.0f;
-    if (maxHealth > 0)
-        healthRatio = (float)health / (float)maxHealth;
-
-    std::string attachedLabel = "No";
-    if (e.handle.IsAttached())
-    {
-        attachedLabel = "Yes";
-        GTAentity attachedTo;
-        if (EntityManagement::GetEntityThisEntityIsAttachedTo(e.handle, attachedTo))
-        {
-            int attachedIndex = EntityManagement::GetEntityIndexInDb(attachedTo);
-            if (attachedIndex >= 0 && !Databases::EntityDb[attachedIndex].hashName.empty())
-                attachedLabel = Databases::EntityDb[attachedIndex].hashName;
-            else
-                attachedLabel = "Handle " + std::to_string(attachedTo.GetHandle());
-        }
-    }
-
-    std::vector<StatsPanel::Row> rows;
-    rows.push_back(StatsPanel::StatRow{"Type", e.TypeName()});
-    rows.push_back(StatsPanel::StatRow{"Model", e.hashName.empty() ? "---" : e.hashName});
-    rows.push_back(StatsPanel::BarRow{"Health", std::to_string(health) + " / " + std::to_string(maxHealth), healthRatio});
-    if (e.handle.IsDead())
-        rows.push_back(StatsPanel::StatRow{"Status", "Dead"});
-    else if (e.handle.IsOnFire())
-        rows.push_back(StatsPanel::StatRow{"Status", "On fire"});
-    rows.push_back(StatsPanel::StatRow{"Frozen", e.handle.IsPositionFrozen() ? "Yes" : "No"});
-    rows.push_back(StatsPanel::StatRow{"Visible", e.handle.IsVisible() ? "Yes" : "No"});
-    rows.push_back(StatsPanel::StatRow{"Attached", attachedLabel});
-    rows.push_back(StatsPanel::StatRow{"Dynamic", e.dynamic ? "Yes" : "No"});
-    if (!e.currentScenario.empty())
-        rows.push_back(StatsPanel::StatRow{"Scenario", e.currentScenario});
-
-    StatsPanel::Draw(topY, 0.100f, rows);
-}
-
-static void DrawSaveFileStats(const std::string& filePath, float topY)
+static void DrawSaveFileStats(const std::string& filePath, float optionTextY)
 {
     static std::string lastStatsPath = "";
     static std::vector<StatsPanel::Row> statsRows;
@@ -436,7 +393,13 @@ static void DrawSaveFileStats(const std::string& filePath, float topY)
         std::string weatherToSet = "";
         std::string timecycleMod = "";
         bool clearDatabase = false;
+        bool clearMarkers = false;
+        bool startTaskSeqs = true;
         float clearWorldRadius = 0.0f;
+        float centroidX = 0.0f, centroidY = 0.0f, centroidZ = 0.0f;
+        int placementCount = 0;
+        float refX = 0.0f, refY = 0.0f, refZ = 0.0f;
+        bool haveRefCoords = false;
 
         pugi::xml_document doc;
         if (doc.load_file((const char*)filePath.c_str()).status == pugi::status_ok)
@@ -447,13 +410,33 @@ static void DrawSaveFileStats(const std::string& filePath, float topY)
             weatherToSet = nodeRoot.child("WeatherToSet").text().as_string();
             timecycleMod = nodeRoot.child("TimecycleModifier").text().as_string();
             clearDatabase = nodeRoot.child("ClearDatabase").text().as_bool();
+            clearMarkers = nodeRoot.child("ClearMarkers").text().as_bool();
+            auto nodeStartTaskSeqs = nodeRoot.child("StartTaskSequencesOnLoad");
+            if (nodeStartTaskSeqs)
+                startTaskSeqs = nodeStartTaskSeqs.text().as_bool(true);
             clearWorldRadius = nodeRoot.child("ClearWorld").text().as_float();
+            auto nodeReferenceCoords = nodeRoot.child("ReferenceCoords");
+            if (nodeReferenceCoords)
+            {
+                refX = nodeReferenceCoords.child("X").text().as_float();
+                refY = nodeReferenceCoords.child("Y").text().as_float();
+                refZ = nodeReferenceCoords.child("Z").text().as_float();
+                haveRefCoords = true;
+            }
             for (auto node = nodeRoot.first_child(); node; node = node.next_sibling())
             {
                 std::string name = node.name();
                 if (name == "Placement")
                 {
                     entityCount++;
+                    auto nodePosRot = node.child("PositionRotation");
+                    if (nodePosRot)
+                    {
+                        centroidX += nodePosRot.child("X").text().as_float();
+                        centroidY += nodePosRot.child("Y").text().as_float();
+                        centroidZ += nodePosRot.child("Z").text().as_float();
+                        placementCount++;
+                    }
                     switch ((EntityType)node.child("Type").text().as_int())
                     {
                     case EntityType::PED:
@@ -480,6 +463,31 @@ static void DrawSaveFileStats(const std::string& filePath, float topY)
             }
         }
 
+        Vector3 locationPos(0.0f, 0.0f, 0.0f);
+        bool haveLocation = false;
+        if (haveRefCoords)
+        {
+            locationPos = Vector3(refX, refY, refZ);
+            haveLocation = true;
+        }
+        else if (placementCount > 0)
+        {
+            locationPos = Vector3(centroidX / placementCount, centroidY / placementCount, centroidZ / placementCount);
+            haveLocation = true;
+        }
+        if (haveLocation)
+        {
+            std::string zoneName = World::GetZoneName(locationPos, true);
+            if (!zoneName.empty())
+                statsRows.push_back(StatsPanel::StatRow{"Location", zoneName});
+            else
+                statsRows.push_back(
+                    StatsPanel::StatRow{
+                        "Location", std::to_string((int)std::round(locationPos.x)) + ", " + std::to_string((int)std::round(locationPos.y)) + ", " + std::to_string((int)std::round(locationPos.z))
+                    }
+                );
+        }
+
         statsRows.push_back(StatsPanel::StatRow{"Entities", std::to_string(entityCount)});
         if (pedCount)
             statsRows.push_back(StatsPanel::StatRow{"Peds", std::to_string(pedCount)});
@@ -503,8 +511,12 @@ static void DrawSaveFileStats(const std::string& filePath, float topY)
             statsRows.push_back(StatsPanel::StatRow{"Timecycle", timecycleMod});
         if (clearDatabase)
             statsRows.push_back(StatsPanel::StatRow{"Clear DB", "Yes"});
+        if (clearMarkers)
+            statsRows.push_back(StatsPanel::StatRow{"Clear Markers", "Yes"});
         if (clearWorldRadius > 0.0f)
             statsRows.push_back(StatsPanel::StatRow{"Clear Area", std::to_string((int)clearWorldRadius) + "m"});
+        if (!startTaskSeqs)
+            statsRows.push_back(StatsPanel::StatRow{"Task Seqs", "Off"});
         statsRows.push_back(StatsPanel::SeparatorRow{});
         statsRows.push_back(StatsPanel::StatRow{"Size", GetFileSizeStr(filePath)});
         statsRows.push_back(StatsPanel::StatRow{"Modified", GetFileLastWriteDateStr(filePath)});
@@ -527,11 +539,11 @@ static void DrawSaveFileStats(const std::string& filePath, float topY)
             }
         );
         rowsWithImage.insert(rowsWithImage.end(), statsRows.begin(), statsRows.end());
-        StatsPanel::Draw(topY, 0.100f, rowsWithImage);
+        StatsPanel::DrawAtOption(optionTextY, 0.100f, rowsWithImage);
         return;
     }
 
-    StatsPanel::Draw(topY, 0.100f, statsRows);
+    StatsPanel::DrawAtOption(optionTextY, 0.100f, statsRows);
 }
 
 void Sub_SaveFiles()
@@ -765,6 +777,7 @@ void Sub_SaveFiles()
                 {
                     if (FolderPreviewBmps_catind::bFolderBmpsEnabled)
                         FolderPreviewBmps_catind::DrawBmp(_dir + "\\" + filname);
+                    StatsPanel::DrawFolderContents(_dir + "\\" + filname, currentOptionY + menuPos.y);
                 }
             }
             else if (isXml || isSp00n)
@@ -785,7 +798,7 @@ void Sub_SaveFiles()
                 }
                 if (isXml && Menu::IsLastDrawnOptionSelected() && !bFilePressed)
                 {
-                    DrawSaveFileStats(_dir + "\\" + filname, StatsPanel::MenuTopY());
+                    DrawSaveFileStats(_dir + "\\" + filname, currentOptionY + menuPos.y);
                 }
             }
         }
@@ -1470,8 +1483,6 @@ void Sub_ManageEntities()
                 Keybinds::AddBindIB("menu_action", bEntityExists, "Delete Entity", "Remove Invalid Entity From DB");
                 bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
-                DrawEntityStats(e, StatsPanel::MenuTopY());
-
                 if (bShortcutDeletePressed)
                 {
                     p_entityToDelete = &e;
@@ -1578,8 +1589,6 @@ void Sub_SelectedEntityOps()
     Model selectedEntityModel = selectedEntity.handle.Model();
 
     AddTitle(selectedEntity.hashName);
-
-    DrawEntityStats(selectedEntity, StatsPanel::MenuTopY());
 
     switch (selectedEntity.type)
     {
