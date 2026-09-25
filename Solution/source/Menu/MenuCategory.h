@@ -5,6 +5,7 @@
 namespace MenuCategory
 {
 void ResetCategoryState();
+void BeginFrame();
 bool AddCategory(const std::string& label, bool defaultExpanded = true);
 void ExpandAll();
 void RestoreExpandedState();
