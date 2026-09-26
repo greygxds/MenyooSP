@@ -15,6 +15,7 @@ http://dev-c.com
 #include "Util\keyboard.h"
 #include "Memory\GTAmemory.h"
 #include "Util\FileLogger.h"
+#include "Util\CrashHandler.h"
 #include "Menu\Routine.h"
 #include "Menu\Menu.h"
 #include "Menu\MenuConfig.h"
@@ -35,6 +36,7 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
         //g_MainModule = hInstance;
         g_MainModule = GetModuleHandle(NULL);
         MenuConfig::ConfigInit();
+        ige::InitCrashHandler();
 
         g_isEnhanced = []
         {
@@ -77,6 +79,7 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
         sub::Spooner::ImGuiSpooner::Shutdown();
         scriptUnregister(hInstance);
         keyboardHandlerUnregister(OnKeyboardMessage);
+        ige::ShutdownCrashHandler();
         removeHooks();
         break;
     }
