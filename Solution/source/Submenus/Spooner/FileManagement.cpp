@@ -47,10 +47,12 @@
 #include "..\Teleport\TeleMethods.h"
 #include "BlipCustoms.h"
 #include "SpoonerBlips.h"
+#include "..\..\Memory\GTAmemory.h"
 
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <algorithm>
 #include <pugixml/src/pugixml.hpp>
 #include <simpleini\SimpleIni.h>
 
@@ -87,6 +89,19 @@ const std::vector<std::string> overlaySlotNames = {"SkinRash", "Beard", "Eyebrow
 			}
 			return false;
 		}*/
+
+// adds collection (internal GTA name for clothing/prop collections) and localId attributes to the given XML node, skips enhanced
+void AddCollectionAttributes(int pedHandle, int slotIndex, bool isPropSlot, pugi::xml_node& nodeSlot)
+{
+    if (g_isEnhanced)
+        return;
+    const std::string collectionString = isPropSlot ? GTAmemory::GetPedPropCollectionString(pedHandle, slotIndex) : GTAmemory::GetPedDrawableCollectionString(pedHandle, slotIndex);
+    const size_t separatorPos = collectionString.find(':');
+    if (separatorPos == std::string::npos)
+        return;
+    nodeSlot.append_attribute("collection") = collectionString.substr(0, separatorPos).c_str();
+    nodeSlot.append_attribute("localId") = collectionString.substr(separatorPos + 1).c_str();
+}
 
 void AddEntityToXmlNode(SpoonerEntity& e, pugi::xml_node& nodeEntity, bool legacyXMLFormat)
 {
@@ -151,12 +166,18 @@ void AddEntityToXmlNode(SpoonerEntity& e, pugi::xml_node& nodeEntity, bool legac
         for (UINT8 i = 0; i <= drawablePropSlotNames.size() - 1; i++)
         {
             const std::string slotName = legacyXMLFormat ? ("_" + std::to_string(i)) : drawablePropSlotNames[i];
-            nodePedProps.append_child(slotName.c_str()).text() = (std::to_string(GET_PED_PROP_INDEX(ep.Handle(), i, 0)) + "," + std::to_string(GET_PED_PROP_TEXTURE_INDEX(ep.Handle(), i))).c_str();
+            auto nodeProp = nodePedProps.append_child(slotName.c_str());
+            nodeProp.text() = (std::to_string(GET_PED_PROP_INDEX(ep.Handle(), i, 0)) + "," + std::to_string(GET_PED_PROP_TEXTURE_INDEX(ep.Handle(), i))).c_str();
+            if (!legacyXMLFormat)
+                AddCollectionAttributes(ep.Handle(), i, true, nodeProp);
         }
         for (UINT8 i = 0; i <= drawableComponentSlotNames.size() - 1; i++)
         {
             const std::string slotName = legacyXMLFormat ? ("_" + std::to_string(i)) : drawableComponentSlotNames[i];
-            nodePedComps.append_child(slotName.c_str()).text() = (std::to_string(GET_PED_DRAWABLE_VARIATION(ep.Handle(), i)) + "," + std::to_string(GET_PED_TEXTURE_VARIATION(ep.Handle(), i))).c_str();
+            auto nodeComp = nodePedComps.append_child(slotName.c_str());
+            nodeComp.text() = (std::to_string(GET_PED_DRAWABLE_VARIATION(ep.Handle(), i)) + "," + std::to_string(GET_PED_TEXTURE_VARIATION(ep.Handle(), i))).c_str();
+            if (!legacyXMLFormat)
+                AddCollectionAttributes(ep.Handle(), i, false, nodeComp);
         }
 
         if (sub::PedHeadFeatures_catind::DoesPedModelSupportHeadFeatures(eModel))
@@ -491,41 +512,135 @@ void AddEntityToXmlNode(SpoonerEntity& e, pugi::xml_node& nodeEntity, bool legac
     }
 }
 
+enum class SlotResolveStatus
+{
+    Current,
+    Remapped,
+    Missing
+};
+
+struct SlotResolveResult
+{
+    int globalId;
+    SlotResolveStatus status;
+    std::string detail;
+};
+
+SlotResolveResult ResolveSavedGlobalId(int pedHandle, int slotIndex, bool isPropSlot, const pugi::xml_node& nodeSlot)
+{
+    const std::string slotText = nodeSlot.text().as_string();
+
+    int savedGlobalId = stoi(slotText.substr(0, slotText.find(",")));
+    // negative IDs are invalid
+    if (isPropSlot ? savedGlobalId < -1 : savedGlobalId < 0)
+        savedGlobalId = 0;
+
+    const auto collectionAttr = nodeSlot.attribute("collection");
+    const auto localIdAttr = nodeSlot.attribute("localId");
+    if (!collectionAttr || !localIdAttr || g_isEnhanced || savedGlobalId < 0)
+        return {savedGlobalId, SlotResolveStatus::Current, ""};
+
+    const std::string collectionName = collectionAttr.as_string();
+    const int localId = localIdAttr.as_int(-1);
+    const std::string slotName = nodeSlot.name();
+    const std::string collectionRef = collectionName + ":" + std::to_string(localId);
+
+    const GTAmemory::DrawableCollectionData collectionData = isPropSlot ? GTAmemory::BuildPropCollectionData(pedHandle, slotIndex) : GTAmemory::BuildDrawableCollectionData(pedHandle, slotIndex);
+    const int resolvedGlobalId = GTAmemory::ResolveGlobalFromCollectionData(collectionData, collectionName, localId);
+    if (resolvedGlobalId < 0)
+    {
+        const bool collectionExists =
+            std::any_of(collectionData.collections.begin(), collectionData.collections.end(), [&](const GTAmemory::CollectionEntry& collection) { return collection.name == collectionName; });
+        std::string reason;
+        if (collectionExists)
+            reason = "localId " + std::to_string(localId) + " not in '" + collectionName + "'";
+        else
+            reason = "collection '" + collectionName + "' missing";
+        return {savedGlobalId, SlotResolveStatus::Missing, slotName + ": " + reason + ", kept saved " + std::to_string(savedGlobalId)};
+    }
+    if (resolvedGlobalId != savedGlobalId)
+    {
+        const std::string moveDetail = std::to_string(savedGlobalId) + " -> " + std::to_string(resolvedGlobalId);
+        return {resolvedGlobalId, SlotResolveStatus::Remapped, slotName + ": " + collectionRef + " moved " + moveDetail};
+    }
+    return {savedGlobalId, SlotResolveStatus::Current, ""};
+}
+
 void LoadPedCompsFromXml(GTAped ep, const pugi::xml_node& nodePedComps)
 {
+    std::vector<std::string> collectionWarnings;
+    std::vector<std::string> collectionErrors;
     int slot = 0;
     for (auto node = nodePedComps.first_child(); node; node = node.next_sibling(), slot++)
     {
-        std::string v = node.text().as_string();
-        int drawable = stoi(v.substr(0, v.find(",")));
-        int texture = stoi(v.substr(v.find(",") + 1));
-        if (drawable < 0)
-            drawable = 0; // 0 is an empty slot for components
+        const std::string slotText = node.text().as_string();
+        int texture = stoi(slotText.substr(slotText.find(",") + 1));
         if (texture < 0)
             texture = 0;
+        const SlotResolveResult resolved = ResolveSavedGlobalId(ep.Handle(), slot, false, node);
+        if (resolved.status == SlotResolveStatus::Remapped)
+        {
+            collectionWarnings.push_back(resolved.detail);
+            addlog(ige::LogType::LOG_INFO, resolved.detail);
+        }
+        else if (resolved.status == SlotResolveStatus::Missing)
+        {
+            collectionErrors.push_back(resolved.detail);
+            addlog(ige::LogType::LOG_WARNING, resolved.detail);
+        }
+        const int drawable = resolved.globalId;
         if (GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS(ep.Handle(), slot) > drawable && GET_NUMBER_OF_PED_TEXTURE_VARIATIONS(ep.Handle(), slot, drawable) > texture)
         {
             SET_PED_COMPONENT_VARIATION(ep.Handle(), slot, drawable, texture, 0);
         }
     }
+    std::string warningLines, errorLines;
+    for (auto& line : collectionWarnings)
+        warningLines += line + "\n";
+    for (auto& line : collectionErrors)
+        errorLines += line + "\n";
+    if (!collectionWarnings.empty())
+        Game::Print::ShowNotification("~y~Warning:", "Outfit items moved since saving:\n" + warningLines);
+    if (!collectionErrors.empty())
+        Game::Print::ShowNotification("~r~Error:", "Outfit items not found, kept saved look:\n" + errorLines);
 }
 
 void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNetworkIsGameInProgress)
 {
+    std::vector<std::string> collectionWarnings;
+    std::vector<std::string> collectionErrors;
     int slot = 0;
     for (auto node = nodePedProps.first_child(); node; node = node.next_sibling(), slot++)
     {
         if (slot > 9)
             break;
-        std::string v = node.text().as_string();
-        int drawable = stoi(v.substr(0, v.find(",")));
-        int texture = stoi(v.substr(v.find(",") + 1));
-        if (drawable < -1)
-            drawable = 0; // -1 is an empty slot for props
+        const std::string slotText = node.text().as_string();
+        int texture = stoi(slotText.substr(slotText.find(",") + 1));
         if (texture < 0)
             texture = 0;
+        const SlotResolveResult resolved = ResolveSavedGlobalId(ep.Handle(), slot, true, node);
+        if (resolved.status == SlotResolveStatus::Remapped)
+        {
+            collectionWarnings.push_back(resolved.detail);
+            addlog(ige::LogType::LOG_INFO, resolved.detail);
+        }
+        else if (resolved.status == SlotResolveStatus::Missing)
+        {
+            collectionErrors.push_back(resolved.detail);
+            addlog(ige::LogType::LOG_WARNING, resolved.detail);
+        }
+        const int drawable = resolved.globalId;
         SET_PED_PROP_INDEX(ep.Handle(), slot, drawable, texture, bNetworkIsGameInProgress, 0);
     }
+    std::string warningLines, errorLines;
+    for (auto& line : collectionWarnings)
+        warningLines += line + "\n";
+    for (auto& line : collectionErrors)
+        errorLines += line + "\n";
+    if (!collectionWarnings.empty())
+        Game::Print::ShowNotification("~y~Warning:", "Outfit items moved since saving:\n" + warningLines);
+    if (!collectionErrors.empty())
+        Game::Print::ShowNotification("~r~Error:", "Outfit items not found, kept saved look:\n" + errorLines);
 }
 
 void LoadPedHeadFeaturesFromXml(GTAped ep, const pugi::xml_node& nodePedHeadFeatures, const GTAmodel::Model& eModel)

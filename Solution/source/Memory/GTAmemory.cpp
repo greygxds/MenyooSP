@@ -3502,6 +3502,20 @@ GTAmemory::DrawableCollectionData GTAmemory::BuildPropCollectionData(int pedHand
     return result;
 }
 
+int GTAmemory::ResolveGlobalFromCollectionData(const DrawableCollectionData& collectionData, const std::string& collectionName, int localId)
+{
+    for (auto& collection : collectionData.collections)
+    {
+        if (collection.name != collectionName)
+            continue;
+        // localToGlobal is local-sorted, so localId works as the index when contiguous.
+        if (localId < 0 || localId > collection.maxLocalId || localId >= (int)collection.localToGlobal.size())
+            return -1;
+        return collection.localToGlobal[localId];
+    }
+    return -1;
+}
+
 std::string GTAmemory::GetPedDrawableCollectionString(int pedHandle, int componentId)
 {
     if (!GTAmemory::_entityAddressFunc || !g_GetVariationInfoFromDrawableIdx || !g_GetDlcDrawableIdx || !g_GetCollectionName)
