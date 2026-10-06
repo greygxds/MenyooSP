@@ -32,6 +32,7 @@
 #include "..\Submenus\Spooner\Databases.h"
 #include "..\Submenus\Spooner\EntityManagement.h"
 #include "..\Submenus\Spooner\SpoonerEntity.h"
+#include "..\Submenus\Spooner\Submenus.h"
 
 #include <vector>
 #include <string>
@@ -125,6 +126,22 @@ EntityAnimContext GetAnimContext(GTAentity entity)
     return ctx;
 }
 
+bool HasMultiSelectSelection()
+{
+    return !Spooner::Submenus::MultiSelect::g_selectedEntities.empty();
+}
+
+void RequestAnimDictBlocking(const std::string& animDict)
+{
+    REQUEST_ANIM_DICT(animDict.c_str());
+    for (DWORD timeOut = GetTickCount() + 1750; GetTickCount() < timeOut;)
+    {
+        if (HAS_ANIM_DICT_LOADED(animDict.c_str()))
+            break;
+        WAIT(0);
+    }
+}
+
 void StopAnimation(GTAentity entity, bool clearScenario = false)
 {
     auto ctx = GetAnimContext(entity);
@@ -184,13 +201,7 @@ void PlayAnimation(GTAentity entity, const std::string& animDict, const std::str
 
     entity.RequestControl();
 
-    REQUEST_ANIM_DICT(animDict.c_str());
-    for (DWORD timeOut = GetTickCount() + 1750; GetTickCount() < timeOut;)
-    {
-        if (HAS_ANIM_DICT_LOADED(animDict.c_str()))
-            break;
-        WAIT(0);
-    }
+    RequestAnimDictBlocking(animDict);
 
     if (entity.IsPed())
     {
@@ -540,6 +551,21 @@ void SetAnimationCategory(const std::string& animDict, const std::string& animNa
     s_favCache.needsRebuild = true;
 }
 
+void PlayAnimationOnMultiSelected(const std::string& animDict, const std::string& animName)
+{
+    RequestAnimDictBlocking(animDict);
+
+    bool isOnTheLine = NETWORK_IS_IN_SESSION() != 0;
+    for (auto& selected : Spooner::Submenus::MultiSelect::g_selectedEntities)
+    {
+        if (!selected.handle.Exists())
+            continue;
+        if (isOnTheLine)
+            selected.handle.RequestControl();
+        PlayAnimation(selected.handle, animDict, animName);
+    }
+}
+
 void AddAnimOption(const std::string& text, const std::string& animDict, std::string animName, bool& extraOptionCode, const std::string& category)
 {
     if (animName.length() == 0)
@@ -556,6 +582,15 @@ void AddAnimOption(const std::string& text, const std::string& animDict, std::st
 
     if (Menu::IsLastDrawnOptionSelected())
     {
+        if (HasMultiSelectSelection())
+        {
+            std::string selectedCount = std::to_string(Spooner::Submenus::MultiSelect::g_selectedEntities.size());
+            Keybinds::AddBindIB("anim_apply_multi", "Apply to all selected (" + selectedCount + ")");
+            if (Keybinds::WasPressedThisFrame("anim_apply_multi"))
+            {
+                PlayAnimationOnMultiSelected(animDict, animName);
+            }
+        }
         bool isAFavourite = IsAnimationAFavourite(animDict, animName);
         Keybinds::AddBindIB("menu_action", isAFavourite, "Remove from favourites", "Add to favourites");
         if (Keybinds::WasPressedThisFrame("menu_action"))
@@ -579,6 +614,16 @@ void AddAnimOption(const std::string& text, const std::string& animDict, std::st
 
 void AnimationStopAnimationCallback()
 {
+    if (HasMultiSelectSelection())
+    {
+        for (auto& selected : Spooner::Submenus::MultiSelect::g_selectedEntities)
+        {
+            if (!selected.handle.Exists())
+                continue;
+            StopAnimation(selected.handle);
+        }
+        return;
+    }
     StopAnimation(g_activePedHandle);
 }
 
