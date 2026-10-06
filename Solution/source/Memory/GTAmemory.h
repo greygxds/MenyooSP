@@ -767,6 +767,9 @@ class GTAmemory final
     static DrawableCollectionData BuildDrawableCollectionData(int pedHandle, int componentId);
     static DrawableCollectionData BuildPropCollectionData(int pedHandle, int anchorPoint);
 
+    // returns -1 when the collection is missing or lacks the localId.
+    static int ResolveGlobalFromCollectionData(const DrawableCollectionData& collectionData, const std::string& collectionName, int localId);
+
   private:
     static UINT64 modelHashTable, modelNum2, modelNum3, modelNum4;
     static int modelNum1;

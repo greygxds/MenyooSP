@@ -7,6 +7,7 @@
 #pragma once
 
 #include "..\main.h"
+#include "..\Util\CrashHandler.h"
 #include <utility>
 
 template <typename T> static inline void nativePush(T val)
@@ -23,6 +24,8 @@ template <typename R, typename... Args> static inline R invoke(UINT64 hash, Args
     //static_assert(sizeof...(args) <= 33, "error, over 33 arguments passed to native");
 
     nativeInit(hash);
+    // Record the native call for crash handler
+    ige::RecordNative(hash);
     (nativePush(std::forward<Args>(args)), ...);
 
     // No void ever defined for R. Return always present

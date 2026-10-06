@@ -113,6 +113,15 @@ const std::vector<KeybindEntry> g_registry{
      NoBind,
      "Menus"},
 
+    {"anim_apply_multi",
+     "Apply Animation To All Selected",
+     "Plays the hovered animation on all Multi-Select entities at once.",
+     (UINT16)VirtualKey::X,
+     NoBind,
+     (UINT16)INPUT_SCRIPT_RDOWN,
+     NoBind,
+     "Spooner"},
+
     {"vehicle_weapons_fire",
      "Fire Vehicle Weapons",
      "Hold to fire the enabled vehicle weapons. Enable them in Vehicle Options.",

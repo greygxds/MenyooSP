@@ -2353,6 +2353,12 @@ void Sub_ManualEditing()
         Menu::SetPreviousMenu();
         return;
     }
+    if (selectedEntity.handle.IsAttached())
+    {
+        Game::Print::ShowNotification("~r~Error", "You cannot edit an attached entity. Detach it using Attachment Options or Edit Multiple Entities menus.");
+        Menu::SetPreviousMenu();
+        return;
+    }
     selectedEntity.handle.RequestControlOnce();
 
     AddTitle("Manual Editing");
