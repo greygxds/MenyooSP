@@ -189,6 +189,7 @@ void MenuConfig::ConfigRead()
 
     sub::Spooner::Settings::bInvertScrollSensitivity = ini.GetBoolValue(section_spooner.c_str(), "InvertScrollSensitivity", sub::Spooner::Settings::bInvertScrollSensitivity);
     sub::Spooner::Settings::bShowModelPreviews = ini.GetBoolValue(section_spooner.c_str(), "ShowModelPreviews", sub::Spooner::Settings::bShowModelPreviews);
+    sub::Spooner::Settings::previewRotateStepDegrees = (float)ini.GetDoubleValue(section_spooner.c_str(), "PreviewRotateStepDegrees", sub::Spooner::Settings::previewRotateStepDegrees);
     sub::Spooner::Settings::bShowBoxAroundSelectedEntity = ini.GetBoolValue(section_spooner.c_str(), "ShowBoxAroundSelectedEntity", sub::Spooner::Settings::bShowBoxAroundSelectedEntity);
     sub::Spooner::Settings::bSpawnDynamicProps = ini.GetBoolValue(section_spooner.c_str(), "SpawnDynamicProps", sub::Spooner::Settings::bSpawnDynamicProps);
     sub::Spooner::Settings::bSpawnDynamicPeds = ini.GetBoolValue(section_spooner.c_str(), "SpawnDynamicPeds", sub::Spooner::Settings::bSpawnDynamicPeds);
@@ -446,6 +447,7 @@ void MenuConfig::SaveConfig()
 
     ini.SetBoolValue(section_spooner.c_str(), "InvertScrollSensitivity", sub::Spooner::Settings::bInvertScrollSensitivity);
     ini.SetBoolValue(section_spooner.c_str(), "ShowModelPreviews", sub::Spooner::Settings::bShowModelPreviews);
+    ini.SetDoubleValue(section_spooner.c_str(), "PreviewRotateStepDegrees", sub::Spooner::Settings::previewRotateStepDegrees);
     ini.SetBoolValue(section_spooner.c_str(), "ShowBoxAroundSelectedEntity", sub::Spooner::Settings::bShowBoxAroundSelectedEntity);
     ini.SetBoolValue(section_spooner.c_str(), "DisplaySpoonerInfo", sub::Spooner::Settings::bDisplaySpoonerInfo);
     ini.SetBoolValue(section_spooner.c_str(), "SpawnDynamicProps", sub::Spooner::Settings::bSpawnDynamicProps);

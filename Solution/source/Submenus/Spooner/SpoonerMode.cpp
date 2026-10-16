@@ -165,30 +165,6 @@ void DrawSnappingGrid()
 ModelPreviewInfoStructure modelPreviewInfo = {EntityType::ALL, 0, 0, 0, {}};
 float previewYawOffset = 0.0f;
 
-void UpdatePreviewRotation()
-{
-    if (modelPreviewInfo.entity.Exists() && Menu::activeSubmenu != SUB::CLOSED)
-    {
-        Menu::add_IB(INPUT_FRONTEND_RB, "");
-        Menu::add_IB(INPUT_FRONTEND_LB, "Rotate Preview");
-
-        bool lbPressed = IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_LB);
-        bool rbPressed = IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_RB);
-        bool dpadPressed = IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_LEFT) || IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_RIGHT) || IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_UP) ||
-                           IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_DOWN);
-
-        if (!dpadPressed)
-        {
-            if (lbPressed && !rbPressed)
-                previewYawOffset -= 2.0f;
-            if (rbPressed && !lbPressed)
-                previewYawOffset += 2.0f;
-            if (previewYawOffset > 360.0f || previewYawOffset < -360.0f)
-                previewYawOffset = fmod(previewYawOffset, 360.0f);
-        }
-    }
-}
-
 void SpawnModelPreview()
 {
     bool bOnTheLine = NETWORK_IS_IN_SESSION() != 0;
@@ -441,7 +417,6 @@ void Tick()
 {
     HandleTickHotkeys();
     ImGuiSpooner::Tick();
-    UpdatePreviewRotation();
     SpoonerCamera::Tick();
     TickModelPreview();
     SpoonerCursor::Tick();
