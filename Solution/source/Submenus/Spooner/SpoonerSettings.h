@@ -36,6 +36,7 @@ extern bool bTeleportToReferenceWhenLoadingFile;
 extern bool bGridSnapEnabled;
 extern float gridSnapSize;
 extern float rotationSnapDegrees;
+extern float previewRotateStepDegrees;
 extern bool bSnapToGround;
 extern bool bDrawGrid;
 

@@ -25,7 +25,6 @@
 namespace sub::Spooner::SpoonerCamera
 {
 Camera camera;
-constexpr float previewRotateStepDegrees = 5.0f;
 
 struct Input
 {
@@ -154,9 +153,9 @@ static void UpdatePreviewRotationGamepad()
         return;
 
     if (lbPressed && !rbPressed)
-        AddPreviewYaw(-previewRotateStepDegrees);
+        AddPreviewYaw(-Settings::previewRotateStepDegrees);
     if (rbPressed && !lbPressed)
-        AddPreviewYaw(previewRotateStepDegrees);
+        AddPreviewYaw(Settings::previewRotateStepDegrees);
 }
 
 static void AdjustSpeed(int scroll)
@@ -193,7 +192,7 @@ static void HandleScrollAdjustments()
     {
         Menu::add_IB(INPUT_CURSOR_SCROLL_UP, "Rotate Preview");
         if (scroll != 0)
-            AddPreviewYaw(scroll * previewRotateStepDegrees);
+            AddPreviewYaw(scroll * Settings::previewRotateStepDegrees);
         return;
     }
 

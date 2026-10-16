@@ -41,6 +41,7 @@ bool bTeleportToReferenceWhenLoadingFile = true;
 bool bGridSnapEnabled = false; // use SnapPos / SnapRot to get the snapped position / rotation Vector3
 float gridSnapSize = 1.0f;
 float rotationSnapDegrees = 0.0f;
+float previewRotateStepDegrees = 5.0f;
 bool bSnapToGround = false; // use SnapPos to get the snapped position Vector3
 bool bDrawGrid = false;
 

@@ -337,6 +337,8 @@ void Sub_Settings()
     AddTitle("Settings");
     AddToggle("Display Model Previews (Spooner Mode)", Settings::bShowModelPreviews);
     AddOptionDescription("Shows a preview of the model you're about to spawn.");
+    AddNumberStepper("Preview Rotation Step (deg)", Settings::previewRotateStepDegrees, 1, 0.5, 0.5, 45.0);
+    AddOptionDescription("How far the model preview rotates per button press / scroll notch.");
     AddToggle("Display Spooner Info", Settings::bDisplaySpoonerInfo);
     AddOptionDescription("Shows entity counts on screen while Spooner Mode is on.");
     AddToggle("Display Entity Surrounding Box", Settings::bShowBoxAroundSelectedEntity);
