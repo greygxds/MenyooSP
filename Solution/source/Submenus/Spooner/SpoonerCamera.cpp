@@ -20,10 +20,12 @@
 #include "..\..\macros.h"
 
 #include <algorithm>
+#include <math.h>
 
 namespace sub::Spooner::SpoonerCamera
 {
 Camera camera;
+constexpr float previewRotateStepDegrees = 5.0f;
 
 struct Input
 {
@@ -123,6 +125,40 @@ static int ReadScroll()
     return 0;
 }
 
+static bool IsModelPreviewVisible()
+{
+    return SpoonerMode::modelPreviewInfo.entity.Exists() && Menu::activeSubmenu != SUB::CLOSED;
+}
+
+static void AddPreviewYaw(float delta)
+{
+    SpoonerMode::previewYawOffset += delta;
+    if (SpoonerMode::previewYawOffset > 360.0f || SpoonerMode::previewYawOffset < -360.0f)
+        SpoonerMode::previewYawOffset = fmod(SpoonerMode::previewYawOffset, 360.0f);
+}
+
+static void UpdatePreviewRotationGamepad()
+{
+    if (!Menu::usingControllerInput || !IsModelPreviewVisible())
+        return;
+
+    Menu::add_IB(INPUT_FRONTEND_RB, "");
+    Menu::add_IB(INPUT_FRONTEND_LB, "Rotate Preview");
+
+    bool lbPressed = IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_LB);
+    bool rbPressed = IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_RB);
+    bool dpadPressed = IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_LEFT) || IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_RIGHT) || IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_UP) ||
+                       IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_DOWN);
+
+    if (dpadPressed)
+        return;
+
+    if (lbPressed && !rbPressed)
+        AddPreviewYaw(-previewRotateStepDegrees);
+    if (rbPressed && !lbPressed)
+        AddPreviewYaw(previewRotateStepDegrees);
+}
+
 static void AdjustSpeed(int scroll)
 {
     const float currentSpeed = MenuConfig::FreeCam::defaultSpeed;
@@ -151,6 +187,16 @@ static void AdjustFov(int scroll)
 static void HandleScrollAdjustments()
 {
     const int scroll = ReadScroll();
+
+    // keyboard: rotate the previewed model instead of the camera
+    if (!Menu::usingControllerInput && IsModelPreviewVisible())
+    {
+        Menu::add_IB(INPUT_CURSOR_SCROLL_UP, "Rotate Preview");
+        if (scroll != 0)
+            AddPreviewYaw(scroll * previewRotateStepDegrees);
+        return;
+    }
+
     if (scroll == 0)
         return;
 
@@ -240,6 +286,7 @@ void Tick()
 
     const Input input = Menu::usingControllerInput ? ReadControllerInput() : ReadKeyboardInput();
 
+    UpdatePreviewRotationGamepad();
     HandleScrollAdjustments();
     ApplyInput(input);
     HandleShortcuts();
