@@ -69,7 +69,7 @@ extern const std::vector<std::pair<std::string, std::string>> sWeatherNames;
 void SetGravityLevel(int value);
 
 Camera GetRenderingCamera();
-void SetRenderingCamera(Camera newCamera, bool ease = false);
+void SetRenderingCamera(Camera newCamera, bool ease = false, int transitionDurationMs = 3000);
 
 void SetWeather(WeatherType weather);
 void SetWeather(const std::string& weatherName);
@@ -116,7 +116,7 @@ void GetActiveBlips(std::vector<GTAblip>& result);
 GTAblip CreateBlip(Vector3 position);
 GTAblip CreateBlip(Vector3 position, float radius);
 
-Camera CreateCamera();
+Camera CreateCamera(bool scriptHostCamera = true);
 Camera CreateCamera(const Vector3& position, const Vector3& rotation, float fov);
 void DestroyAllCameras();
 

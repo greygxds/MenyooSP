@@ -18,6 +18,9 @@
 #include "SpoonerMode.h"
 #include "SpoonerSettings.h"
 #include "..\..\Scripting\GTAentity.h"
+#include "..\..\Scripting\Camera.h"
+#include "..\..\Scripting\GameplayCamera.h"
+#include "..\..\Scripting\World.h"
 #include "..\..\Util\GTAmath.h"
 #include "..\..\Natives\natives.h"
 #include "Submenus.h"
@@ -550,18 +553,18 @@ static void ApplyPending_ScriptThread(PendingWrites pending)
 
 static void RefreshSnapshot_ScriptThread(SharedState& s)
 {
-    int renderingCam = CAM::GET_RENDERING_CAM();
-    if (renderingCam != 0 && CAM::DOES_CAM_EXIST(renderingCam))
+    Camera renderingCamera = World::GetRenderingCamera();
+    if (renderingCamera.Exists())
     {
-        s.render.camCoord = CAM::GET_CAM_COORD(renderingCam);
-        s.render.camRot = CAM::GET_CAM_ROT(renderingCam, 2);
-        s.render.camFov = CAM::GET_CAM_FOV(renderingCam);
+        s.render.camCoord = renderingCamera.GetPosition();
+        s.render.camRot = renderingCamera.GetRotation();
+        s.render.camFov = renderingCamera.GetFieldOfView();
     }
     else
     {
-        s.render.camCoord = CAM::GET_GAMEPLAY_CAM_COORD();
-        s.render.camRot = CAM::GET_GAMEPLAY_CAM_ROT(2);
-        s.render.camFov = CAM::GET_GAMEPLAY_CAM_FOV();
+        s.render.camCoord = GameplayCamera::GetPosition();
+        s.render.camRot = GameplayCamera::GetRotation();
+        s.render.camFov = GameplayCamera::GetFieldOfView();
     }
 
     s.render.editingState = SpoonerMode::editingState;

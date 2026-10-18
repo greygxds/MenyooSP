@@ -77,21 +77,21 @@ void SetGravityLevel(int value)
 
 Camera GetRenderingCamera()
 {
-    if (IS_GAMEPLAY_CAM_RENDERING())
+    if (GameplayCamera::IsRendering())
         return 0;
     return GET_RENDERING_CAM();
 }
 
-void SetRenderingCamera(Camera newCamera, bool ease)
+void SetRenderingCamera(Camera newCamera, bool ease, int transitionDurationMs)
 {
     if (newCamera.Handle() == 0)
     {
-        RENDER_SCRIPT_CAMS(false, ease, 3000, 1, 0, 0);
+        Camera::RenderScriptCams(false, ease, transitionDurationMs);
     }
     else
     {
         newCamera.SetActive(true);
-        RENDER_SCRIPT_CAMS(true, ease, 3000, 1, 0, 0);
+        Camera::RenderScriptCams(true, ease, transitionDurationMs);
     }
 }
 
@@ -411,14 +411,14 @@ GTAblip CreateBlip(Vector3 position, float radius)
     return ADD_BLIP_FOR_RADIUS(position.x, position.y, position.z, radius);
 }
 
-Camera CreateCamera()
+Camera CreateCamera(bool scriptHostCamera)
 {
-    return CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", 1);
+    return CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", scriptHostCamera);
 }
 
 Camera CreateCamera(const Vector3& position, const Vector3& rotation, float fov)
 {
-    Camera cam = CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", 1);
+    Camera cam = CreateCamera();
     cam.SetPosition(position);
     cam.SetRotation(rotation);
     cam.SetFieldOfView(fov);

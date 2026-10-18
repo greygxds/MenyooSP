@@ -252,7 +252,7 @@ void BeginExit()
     exitTarget = GetViewOwner();
     exitToScriptCamera = exitTarget.Exists();
     if (!exitToScriptCamera)
-        RENDER_SCRIPT_CAMS(false, true, exitTransitionMs, 1, 0, 0);
+        Camera::RenderScriptCams(false, true, exitTransitionMs);
 }
 } // namespace
 
@@ -277,7 +277,7 @@ void Enable(const GTAped& ped)
     FinishExit();
     Camera previous = World::GetRenderingCamera();
 
-    camera = CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", false);
+    camera = World::CreateCamera(false);
     camera.SetFieldOfView(40.0f);
     framedPed = ped;
     framing = Framing::Body;
@@ -289,7 +289,7 @@ void Enable(const GTAped& ped)
     else
     {
         camera.SetActive(true);
-        RENDER_SCRIPT_CAMS(true, true, transitionMs, 1, 0, 0);
+        Camera::RenderScriptCams(true, true, transitionMs);
     }
 }
 

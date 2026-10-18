@@ -24,7 +24,7 @@ float GameplayCamera::GetFieldOfView()
     return GET_GAMEPLAY_CAM_FOV();
 }
 
-void GameplayCamera::SetFieldOfView(float value)
+void GameplayCamera::SetMotionBlurScalingThisUpdate(float value)
 {
     SET_GAMEPLAY_CAM_MOTION_BLUR_SCALING_THIS_UPDATE(value);
 }
@@ -234,13 +234,13 @@ bool GameplayCamera::WorldToScreenRel(const Vector3& worldCoords, Vector2& scree
 
 Vector3 GetCoordsFromCam(float distance)
 {
-    Vector3 Rot = DegreeToRadian(GET_GAMEPLAY_CAM_ROT(2));
-    Vector3 Coord = GET_GAMEPLAY_CAM_COORD();
+    Vector3 rotation = DegreeToRadian(GameplayCamera::GetRotation());
+    Vector3 position = GameplayCamera::GetPosition();
 
-    Rot.y = distance * cos(Rot.x);
-    Coord.x = Coord.x + Rot.y * sin(Rot.z * -1.0f);
-    Coord.y = Coord.y + Rot.y * cos(Rot.z * -1.0f);
-    Coord.z = Coord.z + distance * sin(Rot.x);
+    rotation.y = distance * cos(rotation.x);
+    position.x = position.x + rotation.y * sin(rotation.z * -1.0f);
+    position.y = position.y + rotation.y * cos(rotation.z * -1.0f);
+    position.z = position.z + distance * sin(rotation.x);
 
-    return Coord;
+    return position;
 }

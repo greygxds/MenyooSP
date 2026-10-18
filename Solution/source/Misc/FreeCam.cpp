@@ -238,7 +238,7 @@ void ApplyRotation(const Input& input)
 
     const GTAplayer player = PLAYER_ID();
     if (!player.IsFreeAiming() && !player.IsTargetingAnything())
-        SET_GAMEPLAY_CAM_RELATIVE_HEADING(0.0f);
+        GameplayCamera::SetRelativeHeading(0.0f);
 }
 
 void ApplyMovement(const Input& input)

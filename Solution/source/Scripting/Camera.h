@@ -128,7 +128,7 @@ class Camera
 
     void Destroy();
     static void DestroyAllCameras();
-    static void RenderScriptCams(bool render);
+    static void RenderScriptCams(bool render, bool ease = false, int transitionDurationMs = 3000);
 
 
     Vector3 ScreenToWorld(const Vector2& screenCoord) const;

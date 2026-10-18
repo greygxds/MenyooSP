@@ -1461,7 +1461,7 @@ void SetObjectGun()
         }
 
         const Vector3& launchPos = GetCoordsFromCam(GameplayCamera::GetPosition().DistanceTo(GET_ENTITY_COORDS(tempPed, 1)) + objectGunHash.Dim2().y + 1.355f);
-        const Vector3& Rot = GET_GAMEPLAY_CAM_ROT(2);
+        const Vector3& Rot = GameplayCamera::GetRotation();
 
         if (objectGunHash.IsVehicle())
         {
@@ -1704,7 +1704,7 @@ void SetForgeGun()
             PLAY_SOUND_FROM_ENTITY(-1, "Foot_Swish", targetSlotEntity, "docks_heist_finale_2a_sounds", 0, 0);
             PLAY_SOUND_FROM_ENTITY(-1, "SUSPENSION_SCRIPT_FORCE", targetSlotEntity, 0, 0, 0);
             PLAY_SOUND_FROM_ENTITY(-1, "Chopper_Destroyed", PLAYER_PED_ID(), "FBI_HEIST_FIGHT_CHOPPER_SOUNDS", 0, 0);
-            dim2 = GET_GAMEPLAY_CAM_ROT(2);
+            dim2 = GameplayCamera::GetRotation();
             SET_ENTITY_ROTATION(targetSlotEntity, dim2.x, dim2.y, dim2.z, 2, 1);
             APPLY_FORCE_TO_ENTITY(targetSlotEntity, 1, 0.0f, g_forgeGunShootForce, 0.0f, 0.0f, 0.0f, 0.0f, 0, 1, 1, 1, 0, 1);
             PTFX::TriggerPTFX("scr_carsteal4", "scr_carsteal4_wheel_burnout", 0, Coord, Vector3(), 0.66f);
