@@ -192,8 +192,6 @@ class Menu final
     static bool isBinds();
     static void while_closed();
     static void while_opened();
-    static bool isStopAnimBinds();
-    static void while_stopanim();
     static void Up(bool playSound = true);
     static void Down(bool playSound = true);
     static void Bottom(bool playSound = true);

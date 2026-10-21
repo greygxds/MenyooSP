@@ -27,7 +27,6 @@
 #include "..\Menu\Menu.h"
 #include "..\Menu\Keybinds.h"
 #include "..\Menu\MenuCategory.h"
-#include "..\Submenus\PedAnimation.h"
 
 #include <Windows.h>
 #include <utility>
@@ -676,19 +675,6 @@ void Menu::while_opened()
     }
 }
 
-bool Menu::isStopAnimBinds()
-{
-    return Keybinds::WasPressedThisFrame("stop_animation");
-}
-
-void Menu::while_stopanim()
-{
-    if (isStopAnimBinds())
-    {
-        sub::AnimationStopAnimationCallback();
-    }
-}
-
 void Menu::Up(bool playSound)
 {
     (*activeOptionIndex)--;
@@ -1022,8 +1008,6 @@ void Menu::sub_handler()
 
         while_opened();
     }
-
-    while_stopanim();
 
     if (GET_GAME_TIMER() >= nextDeferredActionTime)
     {

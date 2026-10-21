@@ -61,6 +61,7 @@ extern std::pair<const std::string, std::vector<std::string>>* selectedAnimDictP
 void PopulateAllPedAnimsList();
 void AllPedAnimsMenu();
 void Sub_AllPedAnims_InDict();
+void HandleHotkeys();
 } // namespace AnimationMenu
 
 void GetFavouriteAnimations(std::vector<FavouriteAnimation>& result);
@@ -68,7 +69,7 @@ bool IsAnimationAFavourite(const std::string animDict, const std::string& animNa
 void AddAnimationToFavourites(const std::string animDict, const std::string& animName, const std::string& category = "");
 void RemoveAnimationFromFavourites(const std::string animDict, const std::string& animName);
 void SetAnimationCategory(const std::string& animDict, const std::string& animName, const std::string& category);
-void AnimationStopAnimationCallback();
+void StopTargetAnimations();
 void PedAnimationMenu();
 void AnimationSub_Settings();
 void AnimationFavouritesMenu();

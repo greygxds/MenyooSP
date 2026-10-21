@@ -257,6 +257,14 @@ void AddAnimOption(const std::string& text, const std::string& animDict, std::st
 
 namespace AnimationMenu
 {
+void HandleHotkeys()
+{
+    if (Keybinds::WasPressedThisFrame("stop_animation"))
+    {
+        StopTargetAnimations();
+    }
+}
+
 std::string searchStr = std::string();
 
 void ClearSearchStr()
@@ -385,7 +393,7 @@ void AllPedAnimsMenu()
         boost::to_lower(searchStr);
     }
 
-    AddTickol("Stop Animation", true, AnimationStopAnimationCallback, AnimationStopAnimationCallback, TICKOL::CROSS);
+    AddTickol("Stop Animation", true, StopTargetAnimations, StopTargetAnimations, TICKOL::CROSS);
 
     for (auto& current : allPedAnims)
     {
@@ -612,7 +620,7 @@ void AddAnimOption(const std::string& text, const std::string& animDict, std::st
     }
 }
 
-void AnimationStopAnimationCallback()
+void StopTargetAnimations()
 {
     if (HasMultiSelectSelection())
     {
@@ -651,7 +659,7 @@ void PedAnimationMenu()
     }
 
     AddTitle("Animations");
-    AddTickol("Stop Animation", true, AnimationStopAnimationCallback, AnimationStopAnimationCallback, TICKOL::CROSS);
+    AddTickol("Stop Animation", true, StopTargetAnimations, StopTargetAnimations, TICKOL::CROSS);
     AddAnimOption("Pole Dance", "mini@strip_club@pole_dance@pole_dance3", "pd_dance_03");
     AddAnimOption("Hood Dance", "missfbi3_sniping", "dance_m_default");
     AddAnimOption("Burning", "ragdoll@human", "on_fire");

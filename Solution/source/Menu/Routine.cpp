@@ -222,6 +222,7 @@ inline void MenyooMain()
         if (firstTick)
             addlog(ige::LogType::LOG_TRACE, "First Tick - Tick");
         Menu::Tick();
+        sub::AnimationMenu::HandleHotkeys();
         if (firstTick)
             addlog(ige::LogType::LOG_TRACE, "First Tick - Load MenyooConfig");
         TickMenyooConfig();
