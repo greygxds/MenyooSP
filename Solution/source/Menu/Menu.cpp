@@ -524,9 +524,8 @@ void Menu::draw_description()
     Game::Print::drawstring(text, textX, boxTop + padding);
 }
 
-bool Menu::isBinds()
+bool Menu::IsMenuTogglePressed()
 {
-    // Open menu - combination of two buttons, or a single button when no combo is bound.
     const Keybinds::KeybindEntry* entry = Keybinds::FindEntry("menu_open");
     if (entry == nullptr)
         return false;
@@ -575,27 +574,23 @@ void Menu::TickDeferredMenuInit()
     addlog(ige::LogType::LOG_INIT, "Deferred menu init done");
 }
 
-void Menu::while_closed()
+void Menu::HandleClosedMenu()
 {
-    if (isBinds())
+    if (!Menu::IsMenuTogglePressed())
+        return;
+
+    Game::Sound::PlayFrontend("FocusIn", "HintCamSounds");
+    activeSubmenu = lastOpenedSubmenu;
+    suppressMenuToggleUntilRelease = true;
+    addlog(ige::LogType::LOG_TRACE, "Opening Menyoo, restored submenu: " + std::to_string(activeSubmenu));
+    if (activeSubmenu == SUB::MAINMENU)
     {
-        addlog(ige::LogType::LOG_TRACE, "Binds Pressed, opening Menyoo");
-
-        Game::Sound::PlayFrontend("FocusIn", "HintCamSounds");
-
-        activeSubmenu = lastOpenedSubmenu;
-        suppressMenuToggleUntilRelease = true;
-        addlog(ige::LogType::LOG_TRACE, "Setting current submenu to lastOpenedSubmenu: " + std::to_string(lastOpenedSubmenu));
-        if (activeSubmenu == SUB::MAINMENU)
-        {
-            addlog(ige::LogType::LOG_TRACE, "Current is MainMenu");
-            selectedOptionIndex = 1;
-            *activeOptionIndex = 1;
-        }
+        selectedOptionIndex = 1;
+        *activeOptionIndex = 1;
     }
 }
 
-void Menu::while_opened()
+void Menu::HandleOpenMenu()
 {
     totalOptionCount = currentOptionCount;
     currentOptionCount = 0;
@@ -668,8 +663,7 @@ void Menu::while_opened()
             SetPreviousMenu();
     }
 
-    // Binds press
-    if (isBinds()) //&& activeSubmenu != SUB::MAINMENU)
+    if (Menu::IsMenuTogglePressed())
     {
         SetSub_closed();
     }
@@ -955,50 +949,47 @@ void Menu::draw_IB()
     vIB.clear();
 }
 
-void Menu::sub_handler()
+void Menu::CorrectSelectionBounds()
+{
+    if (selectedOptionIndex > currentOptionCount)
+    {
+        selectedOptionIndex = currentOptionCount + 1;
+        Menu::Up(false);
+    }
+    else if (selectedOptionIndex < 1)
+    {
+        selectedOptionIndex = 0;
+        Menu::Down(false);
+    }
+}
+
+void Menu::HandleSubmenu()
 {
     MenuCategory::BeginFrame();
-    static bool firstRun = true, isClosed = true;
+    static bool firstRun = true;
+    static bool wasClosed = true;
     if (firstRun)
     {
-        addlog(ige::LogType::LOG_TRACE, "First Run sub_handler");
-        ;
+        addlog(ige::LogType::LOG_TRACE, "First Run HandleSubmenu");
+        firstRun = false;
     }
-    if (activeSubmenu == SUB::CLOSED)
+
+    const bool isClosed = activeSubmenu == SUB::CLOSED;
+    if (wasClosed != isClosed)
     {
-        if (!isClosed)
-        {
-            addlog(ige::LogType::LOG_TRACE, "Sub Closed");
-            ;
-            isClosed = true;
-        }
-        while_closed();
+        addlog(ige::LogType::LOG_TRACE, isClosed ? "Sub Closed" : "Sub Opened");
+        wasClosed = isClosed;
+    }
+
+    if (isClosed)
+    {
+        Menu::HandleClosedMenu();
     }
     else
     {
-        if (isClosed)
-        {
-            addlog(ige::LogType::LOG_TRACE, "Sub Opened");
-            ;
-            isClosed = false;
-        }
         submenu_switch();
         draw_description();
-
-        if (Menu::selectedOptionIndex > Menu::currentOptionCount)
-        {
-            Menu::selectedOptionIndex = Menu::currentOptionCount + 1;
-            Menu::Up(false);
-        }
-        else if (Menu::selectedOptionIndex < 1)
-        {
-            Menu::selectedOptionIndex = 0;
-            Menu::Down(false);
-        }
-
-        //// These czechs is kill
-        //if (selectedOptionIndex < 1) selectedOptionIndex = 1;
-        //else if (selectedOptionIndex > totalOptionCount) selectedOptionIndex = totalOptionCount;
+        Menu::CorrectSelectionBounds();
 
         if (pendingSubmenu != -1)
         {
@@ -1006,16 +997,8 @@ void Menu::sub_handler()
             pendingSubmenu = -1;
         }
 
-        while_opened();
+        Menu::HandleOpenMenu();
     }
-
-    if (GET_GAME_TIMER() >= nextDeferredActionTime)
-    {
-        nextDeferredActionTime = GET_GAME_TIMER() + 810; // Delay for rainbow related loops
-        if (nextDeferredActionTime > INT_MAX - 1000)
-            nextDeferredActionTime = 0;
-    }
-    firstRun = false;
 }
 
 //--------------------------------MouseSupport---------------------------------------------------

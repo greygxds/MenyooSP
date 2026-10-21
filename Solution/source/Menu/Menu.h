@@ -171,11 +171,12 @@ class Menu final
         MouseSupport::Tick();
         Menu::base();
         Menu::loops();
-        Menu::sub_handler();
+        Menu::HandleSubmenu();
     }
 
     static void loops();
-    static void sub_handler();
+    static void HandleSubmenu();
+    static void CorrectSelectionBounds();
     static void submenu_switch();
     static void justopened();
     static bool IsGameReadyForDeferredInit();
@@ -189,9 +190,9 @@ class Menu final
     static void background();
     static void optionhi();
     static void draw_description();
-    static bool isBinds();
-    static void while_closed();
-    static void while_opened();
+    static bool IsMenuTogglePressed();
+    static void HandleClosedMenu();
+    static void HandleOpenMenu();
     static void Up(bool playSound = true);
     static void Down(bool playSound = true);
     static void Bottom(bool playSound = true);

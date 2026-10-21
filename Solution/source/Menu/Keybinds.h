@@ -96,10 +96,10 @@ class KeybindEntry
     }
 
     // Was the bind used this frame?
-    // Combo = member 1 held + member 2 tapped (see Menu::isBinds).
+    // Combo = member 1 held + member 2 tapped (see Menu::IsMenuTogglePressed).
     bool WasPressedThisFrame(Context context) const;
     // Was the bind let go this frame? Hold-style actions unfreeze/unmute on this edge.
-    // Combo = member 1 held + member 2 released (see Menu::isBinds).
+    // Combo = member 1 held + member 2 released (see Menu::IsMenuTogglePressed).
     bool WasReleasedThisFrame(Context context) const;
     // Is it being held? Single = primary held; combo = both members held.
     bool IsHeld(Context context) const;

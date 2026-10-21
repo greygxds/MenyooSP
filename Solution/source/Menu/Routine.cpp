@@ -82,6 +82,7 @@
 #include "..\Submenus\CutscenePlayer.h"
 
 #include <Windows.h>
+#include <climits>
 #include <thread>
 #include <string>
 #include <vector>
@@ -161,6 +162,23 @@ void Menu::justopened()
     menuHasNotOpened = false;
 }
 
+static void UpdateDeferredActionTime()
+{
+    constexpr int deferredActionIntervalMilliseconds = 810;
+    constexpr int timerRolloverMarginMilliseconds = 1000;
+    const int currentTimeMilliseconds = GET_GAME_TIMER();
+    if (currentTimeMilliseconds < Menu::nextDeferredActionTime)
+        return;
+
+    if (currentTimeMilliseconds > INT_MAX - deferredActionIntervalMilliseconds - timerRolloverMarginMilliseconds)
+    {
+        Menu::nextDeferredActionTime = 0;
+        return;
+    }
+
+    Menu::nextDeferredActionTime = currentTimeMilliseconds + deferredActionIntervalMilliseconds;
+}
+
 inline void MenyooMain()
 {
     bool firstTick = true;
@@ -222,6 +240,7 @@ inline void MenyooMain()
         if (firstTick)
             addlog(ige::LogType::LOG_TRACE, "First Tick - Tick");
         Menu::Tick();
+        UpdateDeferredActionTime();
         sub::AnimationMenu::HandleHotkeys();
         if (firstTick)
             addlog(ige::LogType::LOG_TRACE, "First Tick - Load MenyooConfig");
