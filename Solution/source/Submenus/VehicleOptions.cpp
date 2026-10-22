@@ -55,7 +55,6 @@ void VehicleMenu()
     bool fixCar = false;
     bool toggleCargobobMagnet = false;
     bool toggleBoatAnchor = false;
-    bool goToSlamItMenu = false;
     bool funnyVehicleFreezeOff = false;
     bool disableSirenOff = false;
     bool vehicleMenuModShop = false;
@@ -72,16 +71,7 @@ void VehicleMenu()
     bool interiorLight = false;
     bool multiplyLights = false;
     bool boostOn = false;
-    bool setOnFire = false;
-    bool superCarModeOn = false;
-    bool superCarModeOff = false;
-    bool carJumpPlus = false;
-    bool carJumpMinus = false;
     bool hydraulicsOn = false;
-    bool driveOnWaterOn = false;
-    bool driveOnWaterOff = false;
-    bool childLocksOn = false;
-    bool childLocksOff = false;
     bool doorLocksOn = false;
     bool doorLocksOff = false;
     bool noGravityOn = false;
@@ -92,8 +82,6 @@ void VehicleMenu()
     bool freezeCarOn = false;
     bool freezeCarOff = false;
     bool deleteCar = false;
-    bool slamOn = false;
-    bool heavyMassOff = false;
 
     g_activePedHandle = PLAYER_PED_ID();
     g_activePlayerId = PLAYER_ID();
@@ -136,7 +124,6 @@ void VehicleMenu()
         AddLocal("Anchor Boat", myVehicle.IsBoatAnchored(), toggleBoatAnchor, toggleBoatAnchor);
     }
     AddOption("Teleport Into Closest Vehicle", teleportClosestCar);
-    AddOption("Vehicle Weapons", null, nullFunc, SUB::VEHICLEWEAPONS);
     AddOption("Vehicle Multipliers", null, nullFunc, SUB::VEHICLEMULTIPLIERS);
     AddOption("Speedometers", null, nullFunc, SUB::VEHICLESPEEDOS);
     AddOption("Multi-Platform Neons", null, nullFunc, SUB::MULTIPLATNEONS);
@@ -145,8 +132,6 @@ void VehicleMenu()
     AddOptionDescription("Remember a vehicle as your personal vehicle and teleport to or into it later.");
     AddOption("Auto Drive", null, nullFunc, SUB::AUTODRIVESUB);
     AddOptionDescription("Your vehicle drives itself to the waypoint or to random destinations.");
-    AddOption((std::string) "Slam It (" + Game::GetGXTEntry("CMOD_MOD_22_D") + ")", goToSlamItMenu, nullFunc, SUB::VEHICLESLAM);
-    AddOptionDescription("Pushes the vehicle down for a lower stance.");
     AddOption("Opacity (Local)", vehicleMenuAlphaLevel, nullFunc, -1, true);
     AddOptionDescription("Vehicle transparency. Only visible to you.");
     AddNumber("Damage & Defense", vehicleDamageAndDefense, 2, damageAndDefenseCustom, damageAndDefensePlus, damageAndDefenseMinus);
@@ -161,45 +146,19 @@ void VehicleMenu()
     AddOptionDescription("Stops the engine and lights turning off.");
     AddTickol("Kill Engine", (GET_VEHICLE_ENGINE_HEALTH(g_myVeh) < 0.0f), vehicleMenuEngine, vehicleMenuEngine, TICKOL::PERCENTAGESTICKER, TICKOL::NONE);
     AddOptionDescription("Destroys the engine so the vehicle won't drive.");
-    AddToggle("Rainbow Mode", carColorChange);
-    AddOptionDescription("Cycles the paint through colours.");
     AddLocal("Slidy Tyres", bitVehicleSlippyTires, slippyTires, slippyTires);
     AddOptionDescription("Greatly reduces tyre grip.");
     AddLocal("Cruise Control", VehicleCruise::g_vehicleCruise.Enabled(), VehicleCruise::ToggleOnOff, VehicleCruise::ToggleOnOff);
     AddOptionDescription("Holds the current speed.");
-    AddLocal("Tow Mode (ALPHA)", VehicleTow::g_vehicleTow.Enabled(), VehicleTow::ToggleOnOff, VehicleTow::ToggleOnOff);
-    AddOptionDescription("Park in front of a vehicle to tow it with a rope. Instructions appear on screen.");
     AddToggle("Vehicle Boost", raceBoost, boostOn);
     AddOptionDescription("Hold the boost key for a speed boost. Rebind it in Settings > Keybinds.");
     AddToggle("Infinite Native Boost (for e.g. Oppressor)", unlimitedVehicleBoost);
     AddOptionDescription("Keeps rocket boost full on vehicles that have one (e.g. Oppressor, Voltic). Hold horn.");
-    AddToggle("SuprKar Mode", superCarMode, superCarModeOn, superCarModeOff);
-    AddOptionDescription("Much faster acceleration and instant braking while on the ground.");
-    AddLocal("Fly Mode", VehicleFly::g_vehicleFly.Enabled(), VehicleFly::ToggleOnOff, VehicleFly::ToggleOnOff);
-    AddOptionDescription("Keyboard: Handbrake up, Sprint down, Accelerate/Brake forward/back, A/D turn. Controller: Accelerate up, Brake down, left stick to move.");
-    AddToggle("Glue to Ground", superGrip);
-    AddOptionDescription("Keeps the vehicle snapped to the ground, preventing flips.");
-    AddTexter(
-        "Vehicle Jump",
-        carJump,
-        Menu::usingControllerInput ? std::vector<std::string>{"Off", "Tap/Press A/X", "Hold A/X"} : std::vector<std::string>{"Off", "Tap/Press Space", "Hold Space"},
-        null,
-        carJumpPlus,
-        carJumpMinus
-    );
-    AddOptionDescription("Jump with Space (A/X on controller). Hold mode keeps jumping while held.");
     AddToggle("Hydraulics", carHydraulics, hydraulicsOn);
     AddOptionDescription("Hold the hydraulics key with WASD (stick) to bounce the suspension. Rebind it in Settings > Keybinds.");
-    AddToggle("Drive On Water", driveOnWater, driveOnWaterOn, driveOnWaterOff);
-    AddOptionDescription("Lets the vehicle drive on the water surface.");
-    AddToggle("Increased Mass", vehicleHeavyMass, null, heavyMassOff);
-    AddOptionDescription("Pushes other vehicles away at speed; your vehicle stays invincible and repaired.");
-    AddTickol("Child Locks", (GET_VEHICLE_DOOR_LOCK_STATUS(g_myVeh) == 4), childLocksOn, childLocksOff, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Passengers can't get out.");
     AddTickol("Door Locks", (GET_VEHICLE_DOOR_LOCK_STATUS(g_myVeh) == 2), doorLocksOn, doorLocksOff, TICKOL::BOXTICK, TICKOL::BOXBLANK);
     AddLocal("No Gravity", bitVehicleGravity, noGravityOn, noGravityOff);
     AddLocal("Freeze Vehicle", bitFreezeVehicle, freezeCarOn, freezeCarOff);
-    AddLocal("Set on Fire", myVehicle.IsOnFire(), setOnFire, setOnFire);
     AddLocal("Collision", myVehicle.GetIsCollisionEnabled(), collisionsOn, collisionsOff);
     AddOptionDescription("Off: the vehicle passes through objects.");
     AddOption("Delete Vehicle", deleteCar);
@@ -231,12 +190,6 @@ void VehicleMenu()
         SET_VEHICLE_HAS_MUTED_SIRENS(g_myVeh, FALSE);
     }
 
-    if (slamOn)
-    {
-        Game::Print::ShowNotification("~b~Note:", "If you try hard enough, you can drive on walls too!");
-        return;
-    }
-
     if (collisionsOn || collisionsOff)
     {
         myVehicle.SetIsCollisionEnabled(!myVehicle.GetIsCollisionEnabled());
@@ -246,11 +199,6 @@ void VehicleMenu()
     {
         sub::SetVehicleModShopTarget(g_myVeh);
     }
-    if (goToSlamItMenu)
-    {
-        sub::VehicleSlam::InitSub(g_myVeh, &vehicleSlam);
-    }
-
     if (vehicleMenuModShop)
     {
         if (DOES_ENTITY_EXIST(g_myVeh))
@@ -451,59 +399,12 @@ void VehicleMenu()
         return;
     }
 
-    if (superCarModeOn)
-    {
-        Game::Print::PrintBottomLeft("Use driving controls and handbrake.");
-        return;
-    }
-    if (superCarModeOff)
-    {
-        SET_VEHICLE_BOOST_ACTIVE(g_myVeh, 0);
-        return;
-    }
-
-    if (carJumpPlus)
-    {
-        if (carJump < 2)
-            carJump++;
-        return;
-    }
-    if (carJumpMinus)
-    {
-        if (carJump > 0)
-            carJump--;
-        return;
-    }
-
     if (hydraulicsOn)
     {
         Game::Print::PrintBottomLeft(oss_ "Use ~b~" << (Menu::usingControllerInput ? "LS/L1 + stick movement" : "LeftShift + WASD") << "~s~ for hydraulics.");
         return;
     }
 
-    if (driveOnWaterOn)
-    {
-        Game::Print::PrintBottomLeft("You can drive and walk on water now!");
-        return;
-    }
-    if (driveOnWaterOff)
-    {
-        GTAprop(g_driveWaterObject).Delete(true);
-        return;
-    }
-
-    if (childLocksOn)
-    {
-        myVehicle.RequestControlOnce();
-        SET_VEHICLE_DOORS_LOCKED(g_myVeh, 4);
-        return;
-    }
-    if (childLocksOff)
-    {
-        myVehicle.RequestControlOnce();
-        SET_VEHICLE_DOORS_LOCKED(g_myVeh, 0);
-        return;
-    }
     if (doorLocksOn)
     {
         myVehicle.RequestControlOnce();
@@ -574,34 +475,6 @@ void VehicleMenu()
         return;
     }
 
-    if (setOnFire)
-    {
-        if (!IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
-        {
-            Game::Print::ShowNotification("~r~Error:", "You are not in a vehicle.");
-        }
-        else
-        {
-            if (!myVehicle.IsOnFire())
-            {
-                myVehicle.RequestControl(200);
-                myVehicle.SetProofs(true, false, true, false, false, false, false, true);
-                myVehicle.SetFireProof(false);
-                WAIT(40);
-                myVehicle.SetOnFire(true);
-            }
-            else
-            {
-                myVehicle.RequestControl(200);
-                myVehicle.SetProofs(true, true, true, false, false, false, false, true);
-                myVehicle.SetFireProof(true);
-                WAIT(40);
-                myVehicle.SetOnFire(false);
-            }
-        }
-        return;
-    }
-
     if (deleteCar)
     {
         if (!IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
@@ -611,17 +484,6 @@ void VehicleMenu()
             myVehicle.Delete(false);
             Game::Print::ShowNotification("Poof!");
             *Menu::activeOptionIndex = 1;
-        }
-        return;
-    }
-
-
-    if (heavyMassOff)
-    {
-        if (myVehicle.Exists())
-        {
-            SetVehicleInvincibleOff(myVehicle.GetHandle());
-            myVehicle.SetFrictionOverride(1.0f);
         }
         return;
     }
@@ -1089,119 +951,6 @@ void AutoDriveMenu()
 }
 } // namespace VehicleAutoDrive
 
-namespace VehicleSlam
-{
-float* slamValue;
-
-void InitSub(GTAvehicle veh, float* val)
-{
-    slamValue = val;
-}
-
-struct NamedSlamValueS
-{
-    std::string name;
-    float value;
-};
-
-std::vector<NamedSlamValueS> vValues_VehicleSlam{
-    {"Off", 0.0f},
-
-    {"I'm A Skyscraper", 0.35f},
-    {"Such High", 0.30f},
-    {"I'm Tall, Aren't I", 0.25f},
-    {"I'm Growing", 0.20f},
-    {"Tip Toeing", 0.10f},
-
-    {"I Got The Crabs", -0.10f},
-    {"Get Get Get, Get Low", -0.20f},
-    {"Short Is Cute", -0.25f},
-    {"I'm A Ninja Turtle", -0.30f},
-    {"Apple Bottom Jeans", -0.38f}
-};
-
-void VehicleSlamMenu()
-{
-    AddTitle("Slam It");
-
-    bool pressed = 0;
-    for (auto& sl : vValues_VehicleSlam)
-    {
-        pressed = 0;
-        AddTickol(sl.name, *slamValue == sl.value, pressed, pressed, TICKOL::CARTHING);
-        if (pressed)
-        {
-            *slamValue = sl.value;
-            if (sl.value <= -0.35f)
-            {
-                Game::Print::ShowNotification("~b~Note:", "You can even drive on walls with this value.");
-            }
-        }
-    }
-}
-} // namespace VehicleSlam
-
-void AddvweaponOption(const std::string& text, bool& loopPointer, Hash Hash)
-{
-    bool pressed = false;
-    AddToggle(text, loopPointer, pressed);
-    if (pressed)
-    {
-        if (Hash)
-        {
-            if (!HAS_WEAPON_ASSET_LOADED(Hash))
-            {
-                REQUEST_WEAPON_ASSET(Hash, 31, 0);
-            }
-        }
-    }
-}
-
-void VehicleWeaponsMenu()
-{
-    bool vehicleWeaponsAllOff = false;
-
-    AddTitle("Vehicle Weapons");
-    AddToggle("Display Projectile Path", vehicleWeaponLines);
-    AddOption("Turn All Off", vehicleWeaponsAllOff);
-    AddvweaponOption("RPG", vehicleRPG, 3204302209);
-    AddvweaponOption("Fireworks", vehicleFireworks, 2138347493);
-    AddvweaponOption("Guns", vehicleGuns, 3220176749);
-    AddvweaponOption("Snowballs", vehicleSnowballs, 126349499);
-    AddvweaponOption("Balls", vehicleBalls, 600439132);
-    AddvweaponOption("Water Hydrants", vehicleWaterHydrant, 0);
-    AddvweaponOption("Flame Leaks", vehicleFlameLeak, 0);
-    AddvweaponOption("Green Laser", vehicleLaserGreen, 4026335563);
-    AddvweaponOption("Red Laser", vehicleLaserRed, 1566990507);
-    AddvweaponOption("Valkyrie Turrets", vehicleTurretsValkyrie, 1097917585);
-    AddvweaponOption("Flares", vehicleFlaregun, WEAPON_FLARE);
-    AddvweaponOption("Heavy Snipers", vehicleHeavySniper, 205991906);
-    AddvweaponOption("Tazers", vehicleTazerWeapon, 911657153);
-    AddvweaponOption("Molotovs", vehicleMolotovWeapon, 615608432);
-    AddvweaponOption("Combat PDWs", vehicleCombatPDW, 171789620);
-
-
-    if (vehicleWeaponsAllOff)
-    {
-        vehicleRPG = false;
-        vehicleFireworks = false;
-        vehicleGuns = false;
-        vehicleSnowballs = false;
-        vehicleBalls = false;
-        vehicleWaterHydrant = false;
-        vehicleFlameLeak = false;
-        vehicleLaserGreen = false;
-        vehicleLaserRed = false;
-        vehicleTurretsValkyrie = false;
-        vehicleFlaregun = false;
-        vehicleHeavySniper = false;
-        vehicleTazerWeapon = false;
-        vehicleMolotovWeapon = false;
-        vehicleCombatPDW = false;
-        return;
-    }
-}
-
 void VehicleMultipliersMenu()
 {
     bool accelerationMultiplierPlus = false;
@@ -1281,7 +1030,6 @@ void VehicleMultiPlatNeonsMenu()
     AddOptionDescription("Draws neon light under any vehicle, including bikes and boats.");
     AddNumber("Intensity", g_multiPlatNeonsIntensity, 2, intensityCustom, intensityPlus, intensityMinus);
     AddOptionDescription("Brightness of the neon light.");
-    AddToggle("Rainbow Mode", multiPlatNeonsRainbow);
 
     AddOption("Set Colour", setRGBIndexTo3, nullFunc, SUB::MSPAINTS_RGB);
     if (Menu::IsLastDrawnOptionSelected())
@@ -1537,11 +1285,9 @@ void SpeedoThemesDark()
 #include "..\Menu\submenu_enum.h"
 REGISTER_SUBMENU(VEHICLEOPS, sub::VehicleMenu)
 REGISTER_SUBMENU(PVOPS, sub::PVMenu)
-REGISTER_SUBMENU(VEHICLEWEAPONS, sub::VehicleWeaponsMenu)
 REGISTER_SUBMENU(VEHICLEMULTIPLIERS, sub::VehicleMultipliersMenu)
 REGISTER_SUBMENU(VEHICLESPEEDOS, sub::Speedo::SpeedoMainMenu)
 REGISTER_SUBMENU(VEHICLESPEEDOS_LIGHT, sub::Speedo::SpeedoThemesLight)
 REGISTER_SUBMENU(VEHICLESPEEDOS_DARK, sub::Speedo::SpeedoThemesDark)
 REGISTER_SUBMENU(MULTIPLATNEONS, sub::VehicleMultiPlatNeonsMenu)
-REGISTER_SUBMENU(VEHICLESLAM, sub::VehicleSlam::VehicleSlamMenu)
 REGISTER_SUBMENU(AUTODRIVESUB, sub::VehicleAutoDrive::AutoDriveMenu)

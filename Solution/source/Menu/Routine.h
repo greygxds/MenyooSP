@@ -91,7 +91,6 @@ extern FLOAT playerNoiseMult;
 extern FLOAT selfSweatMult;
 extern FLOAT g_playerVerticalElongationMultiplier;
 extern FLOAT vehicleDamageAndDefense;
-extern FLOAT vehicleSlam;
 extern FLOAT currentTimecycleStrength;
 
 extern INT accelMult;
@@ -134,20 +133,17 @@ extern bool g_spawnVehicleDrawBMPs;
 extern FLOAT g_clearAreaRadius;
 extern FLOAT g_rainFXIntensity;
 
-extern Entity g_driveWaterObject;
 
 extern INT8 spectatePlayer;
 extern UINT8 explostionWP;
 
 extern bool multiPlatNeons;
-extern bool multiPlatNeonsRainbow;
 
 extern RgbS g_multiPlatNeonsColor;
 extern std::vector<GTAvehicle> g_multiPlatNeonsList;
 
 extern bool checkSelfDeathModel;
 
-extern UINT8 carJump;
 extern UINT8 autoKillEnemies;
 extern float weaponDamageIncrease;
 
@@ -180,32 +176,11 @@ extern bool neverWanted;
 extern bool vehiclePopulation;
 extern bool pedPopulation;
 extern bool clearWeaponPickups;
-extern bool driveOnWater;
 extern bool massacreMode;
 extern bool vehicleInvincibility;
-extern bool vehicleHeavyMass;
 extern bool raceBoost;
 extern bool carHydraulics;
-extern bool superGrip;
-extern bool superCarMode;
 extern bool unlimitedVehicleBoost;
-extern bool vehicleWeaponLines;
-extern bool vehicleRPG;
-extern bool vehicleFireworks;
-extern bool vehicleGuns;
-extern bool vehicleSnowballs;
-extern bool vehicleBalls;
-extern bool vehicleWaterHydrant;
-extern bool vehicleLaserGreen;
-extern bool vehicleFlameLeak;
-extern bool vehicleLaserRed;
-extern bool vehicleTurretsValkyrie;
-extern bool vehicleFlaregun;
-extern bool vehicleHeavySniper;
-extern bool vehicleTazerWeapon;
-extern bool vehicleMolotovWeapon;
-extern bool vehicleCombatPDW;
-extern bool carColorChange;
 extern bool vehicleInvisibility;
 extern bool selfEngineOn;
 extern bool hideHUD;
@@ -289,20 +264,15 @@ void SetSelfRefillHealthWhenInCover();
 void xyzhDrawFloat(float text, float x_coord, float y_coord);
 void XYZH();
 void SetVehicleNosPTFXThisFrame(GTAvehicle vehicle);
-void SetSuperCarModeSelf();
-void SetLocalCarJump();
 void SetLocalCarHydraulics();
 
 extern float g_multiPlatNeonsIntensity;
 void DrawVehicleAmbientLightNeons(const GTAvehicle& vehicle, const RgbS& colour);
 void SetMultiPlatNeons();
-void DriveOnWater(GTAped ped, Entity& waterobject);
 void SetVehicleInvincibleOn(Vehicle vehicle);
 void SetVehicleInvincibleOff(Vehicle vehicle);
 void SetVehicleFlip(GTAvehicle vehicle);
-void SetVehicleRainbowMode(GTAvehicle vehicle, bool useFader);
 void set_vehicle_neon_anim(GTAvehicle vehicle);
-void SetVehicleHeavyMass(GTAvehicle vehicle);
 void SetSelfVehicleBoost();
 
 extern GTAvehicle pvSubVehicleID;

@@ -30,8 +30,6 @@
 #include "..\Util\ExePath.h"
 
 #include "..\Misc\VehicleCruise.h"
-#include "..\Misc\VehicleTow.h"
-#include "..\Misc\VehicleFly.h"
 
 #include <math.h>
 #include <string>
@@ -59,15 +57,6 @@ void Tick();
 
 void AutoDriveMenu();
 } // namespace VehicleAutoDrive
-
-namespace VehicleSlam
-{
-void InitSub(GTAvehicle veh, float *val);
-
-void VehicleSlamMenu();
-} // namespace VehicleSlam
-
-void VehicleWeaponsMenu();
 
 void VehicleMultipliersMenu();
 

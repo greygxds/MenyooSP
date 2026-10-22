@@ -52,8 +52,6 @@
 #include "..\Misc\MeteorShower.h"
 #include "..\Misc\RopeGun.h"
 #include "..\Misc\VehicleCruise.h"
-#include "..\Misc\VehicleFly.h"
-#include "..\Misc\VehicleTow.h"
 
 #include "..\Submenus\PedAnimation.h"
 #include "..\Submenus\WeaponOptions.h"
@@ -245,7 +243,7 @@ inline void MenyooMain()
         TickSpoonerAutoSave();
         if (firstTick)
             addlog(ige::LogType::LOG_TRACE, "First Tick - Neonanims");
-        if (loop_neon_rgb || carColorChange)
+        if (loop_neon_rgb)
             TickRainbowFader();
         if (loop_neon_fade == 1)
             TickNeonFadeAnim();
@@ -639,7 +637,6 @@ FLOAT playerNoiseMult = 1.0f;
 FLOAT selfSweatMult = 0.0f;
 FLOAT g_playerVerticalElongationMultiplier = 1.0f;
 FLOAT vehicleDamageAndDefense = 1.0f;
-FLOAT vehicleSlam = 0.0f;
 FLOAT currentTimecycleStrength = 1.0f;
 
 INT accelMult = 0;
@@ -683,18 +680,15 @@ bool g_spawnVehicleDrawBMPs = true;
 FLOAT g_clearAreaRadius = 36.0f;
 FLOAT g_rainFXIntensity = 0.0f;
 
-Entity g_driveWaterObject;
 INT8 spectatePlayer = -1;
 UINT8 explostionWP = 0;
 
 bool multiPlatNeons = false;
-bool multiPlatNeonsRainbow = false;
 RgbS g_multiPlatNeonsColor(0, 255, 0);
 std::vector<GTAvehicle> g_multiPlatNeonsList;
 
 bool checkSelfDeathModel = false;
 
-UINT8 carJump = 0;
 UINT8 autoKillEnemies = 0;
 float weaponDamageIncrease = 1.0f;
 
@@ -727,33 +721,12 @@ bool neverWanted = false;
 bool vehiclePopulation = false;
 bool pedPopulation = false;
 bool clearWeaponPickups = false;
-bool driveOnWater = false;
 bool massacreMode = false;
 bool vehicleInvincibility = false;
-bool vehicleHeavyMass = false;
 bool raceBoost = false;
 bool carHydraulics = false;
-bool superGrip = false;
-bool superCarMode = false;
 bool unlimitedVehicleBoost = true;
 
-bool vehicleWeaponLines = false;
-bool vehicleRPG = false;
-bool vehicleFireworks = false;
-bool vehicleGuns = false;
-bool vehicleSnowballs = false;
-bool vehicleBalls = false;
-bool vehicleWaterHydrant = false;
-bool vehicleLaserGreen = false;
-bool vehicleFlameLeak = false;
-bool vehicleLaserRed = false;
-bool vehicleTurretsValkyrie = false;
-bool vehicleFlaregun = false;
-bool vehicleHeavySniper = false;
-bool vehicleTazerWeapon = false;
-bool vehicleMolotovWeapon = false;
-bool vehicleCombatPDW = false;
-bool carColorChange = false;
 bool vehicleInvisibility = false;
 bool selfEngineOn = false;
 bool hideHUD = false;
@@ -1987,77 +1960,6 @@ void SetVehicleNosPTFXThisFrame(GTAvehicle vehicle)
     }
 }
 
-void SetSuperCarModeSelf()
-{
-    if (IS_VEHICLE_ON_ALL_WHEELS(g_myVeh))
-    {
-        if (IS_CONTROL_PRESSED(2, INPUT_VEH_ACCELERATE))
-        {
-            SET_VEHICLE_BOOST_ACTIVE(g_myVeh, 1);
-            SET_VEHICLE_BOOST_ACTIVE(g_myVeh, 0);
-            SET_VEHICLE_FORWARD_SPEED(g_myVeh, GET_ENTITY_SPEED_VECTOR(g_myVeh, true).y + 0.46f);
-            SetVehicleNosPTFXThisFrame(GTAvehicle(g_myVeh));
-        }
-        if (IS_CONTROL_JUST_PRESSED(2, INPUT_VEH_BRAKE))
-        {
-            SET_VEHICLE_FORWARD_SPEED(g_myVeh, 0.0f);
-        }
-        else if (IS_CONTROL_PRESSED(2, INPUT_VEH_BRAKE))
-        {
-            APPLY_FORCE_TO_ENTITY(g_myVeh, 1, 0.0, -0.4, 0.0, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1);
-        }
-    }
-}
-
-void SetLocalCarJump()
-{
-    if (!IS_MP_TEXT_CHAT_TYPING())
-    {
-        Model& model = g_myVehModel;
-
-        if (model.IsPlane() || model.IsHeli())
-        {
-            return;
-        }
-
-        GTAvehicle vehicle = g_myVeh;
-        bool bPressed;
-
-        switch (carJump)
-        {
-        case 1: // Tap
-            if (vehicle.Model().IsBicycle())
-            {
-                bPressed = IS_CONTROL_JUST_PRESSED(2, INPUT_VEH_JUMP);
-            }
-            else
-            {
-                bPressed = Menu::usingControllerInput ? IS_CONTROL_JUST_PRESSED(2, INPUT_FRONTEND_RDOWN) : IS_CONTROL_JUST_PRESSED(2, INPUT_VEH_HANDBRAKE);
-            }
-            if (bPressed)
-            {
-                vehicle.ApplyForceCustom(Vector3(0, 0, 3.6f), Vector3(0, 1.2f, 0), ForceType::MaxForceRot, true, false, true, true, true, true);
-                vehicle.ApplyForceCustom(Vector3(0, 0, 3.6f), Vector3(0, -1.0f, 0), ForceType::MaxForceRot, true, false, true, true, true, true);
-            }
-            break;
-        case 2: // Hold
-            if (vehicle.Model().IsBicycle())
-            {
-                bPressed = IS_CONTROL_PRESSED(2, INPUT_VEH_JUMP);
-            }
-            else
-            {
-                bPressed = Menu::usingControllerInput ? IS_CONTROL_PRESSED(2, INPUT_FRONTEND_RDOWN) : IS_CONTROL_PRESSED(2, INPUT_VEH_HANDBRAKE);
-            }
-            if (bPressed)
-            {
-                vehicle.ApplyForceCustom(Vector3(0, 0, 0.6f), Vector3(0, 0.06f, 0), ForceType::MaxForceRot, true, false, true, true, true, true);
-            }
-            break;
-        }
-    }
-}
-
 void SetLocalCarHydraulics()
 {
     GTAvehicle vehicle = g_myVeh;
@@ -2155,13 +2057,6 @@ void SetMultiPlatNeons()
 {
     bool already = false;
     auto& theList = g_multiPlatNeonsList;
-    auto& colour = g_multiPlatNeonsColor;
-
-    if (multiPlatNeonsRainbow) // rainbow loop
-    {
-        colour = g_fadedRGB;
-    }
-
     if (IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
     {
         for (auto& veh : theList)
@@ -2188,56 +2083,6 @@ void SetMultiPlatNeons()
         DrawVehicleAmbientLightNeons(*it, g_multiPlatNeonsColor);
         ++it;
     }
-}
-
-void DriveOnWater(GTAped ped, Entity& waterobject)
-{
-    if (ped.IsInVehicle())
-    {
-        ped = ped.CurrentVehicle();
-    }
-
-    if (!DOES_ENTITY_EXIST(waterobject))
-    {
-        Model objModel = 0xC42C019A; // prop_ld_ferris_wheel
-        objModel.LoadAndWait();
-        const Vector3& Pos = ped.GetOffsetInWorldCoords(0, 4.0f, 0);
-        float whh = 0.0f;
-        if (GET_WATER_HEIGHT_NO_WAVES(Pos.x, Pos.y, Pos.z, &whh))
-        {
-            ped.RequestControl();
-            SET_ENTITY_COORDS(ped.Handle(), Pos.x, Pos.y, whh, 0, 0, 0, 1);
-        }
-        waterobject = CREATE_OBJECT(objModel.hash, Pos.x, Pos.y, whh - 4.0f, 1, 1, 1);
-        SET_NETWORK_ID_CAN_MIGRATE(OBJ_TO_NET(waterobject), ped != PLAYER_PED_ID());
-        SET_ENTITY_COORDS_NO_OFFSET(waterobject, Pos.x, Pos.y, whh, 0, 0, 0);
-        SET_ENTITY_ROTATION(waterobject, 0, 90, 0, 2, 1);
-        FREEZE_ENTITY_POSITION(waterobject, true);
-        Game::Print::ShowNotification("~b~Note:", "Enable again if water level is incorrect/changes.");
-        WAIT(65);
-        return;
-    }
-
-    const Vector3& myPos = ped.GetPosition();
-    const Vector3& Pos = GET_ENTITY_COORDS(waterobject, 1);
-
-    if (ped.IsInWater())
-    {
-        float whh = 0.0f;
-        if (GET_WATER_HEIGHT_NO_WAVES(Pos.x, Pos.y, Pos.z, &whh))
-        {
-            SET_ENTITY_COORDS_NO_OFFSET(waterobject, Pos.x, Pos.y, whh, 0, 0, 0);
-        }
-    }
-
-    if (!NETWORK_HAS_CONTROL_OF_ENTITY(waterobject))
-    {
-        NETWORK_REQUEST_CONTROL_OF_ENTITY(waterobject);
-    }
-    SET_ENTITY_COORDS_NO_OFFSET(waterobject, myPos.x, myPos.y, Pos.z, 1, 1, 1);
-    SET_ENTITY_ROTATION(waterobject, 180.0f, 90.0f, 180.0f, 2, 1);
-    SET_ENTITY_VISIBLE(waterobject, false, false);
-    FREEZE_ENTITY_POSITION(waterobject, true);
 }
 
 inline void SetHandlingMultiplier()
@@ -2298,29 +2143,6 @@ void SetVehicleFlip(GTAvehicle vehicle)
             vehicle.RequestControlOnce();
             vehicle.SetRotation(Vector3(0, 0, vehicle.GetRotation().z));
         }
-    }
-}
-
-void SetVehicleRainbowMode(GTAvehicle vehicle, bool useFader)
-{
-    vehicle.RequestControlOnce();
-    if (useFader)
-    {
-        vehicle.SetCustomPrimaryColour(g_fadedRGB);
-        vehicle.SetCustomSecondaryColour(g_fadedRGB);
-    }
-    else
-    {
-        if (vehicle.IsPrimaryColorCustom())
-        {
-            vehicle.ClearCustomPrimaryColour();
-        }
-        if (vehicle.IsSecondaryColorCustom())
-        {
-            vehicle.ClearCustomSecondaryColour();
-        }
-        vehicle.SetPrimaryColour(rand() % 160);
-        vehicle.SetSecondaryColour(rand() % 160);
     }
 }
 
@@ -2422,217 +2244,6 @@ void set_vehicle_neon_anim(GTAvehicle vehicle)
         s_neonDirty = true;
         break;
     }
-    }
-}
-
-void SetVehicleHeavyMass(GTAvehicle vehicle)
-{
-    if (!vehicle.Exists())
-    {
-        return;
-    }
-
-    float speed = vehicle.GetSpeed();
-    if (speed < 0.5f)
-    {
-        return;
-    }
-
-    vehicle.RequestControlOnce();
-
-    SetVehicleInvincibleOn(vehicle.Handle());
-    vehicle.Repair(true); // Only if it needs a repair obv
-    vehicle.SetFrictionOverride(100.0f);
-    if (!vehicle.IsSeatFree(VehicleSeat::SEAT_DRIVER))
-    {
-        SetPedSeatbeltOn(vehicle.GetPedOnSeat(VehicleSeat::SEAT_DRIVER).Handle());
-    }
-
-    float pushForce = speed * 3.5f; // More speed === More bleed
-    auto& vehicleArray = vehicle == g_myVeh ? nearbyVehicles : worldVehicles;
-
-    for (auto& veh : vehicleArray)
-    {
-        if (vehicle != veh && vehicle.IsTouching(veh))
-        {
-            GTAvehicle(veh).ApplyForce(vehicle.CollisionNormal() * pushForce);
-            vehicle.SetForwardSpeed(speed);
-        }
-    }
-}
-
-Vector3 vehicleWeaponsOriginR;
-Vector3 vehicleWeaponsTargetR;
-Vector3 vehicleWeaponsOriginL;
-Vector3 vehicleWeaponsTargetL;
-
-void StoreVehicleWeaponPos(const GTAentity& vehicle)
-{
-    Vector3_t dim1, dim2;
-    vehicle.Model().Dimensions(dim1, dim2);
-
-    if (IS_DISABLED_CONTROL_PRESSED(0, INPUT_LOOK_BEHIND))
-    {
-        vehicleWeaponsOriginR = vehicle.GetOffsetInWorldCoords(dim1.x - 0.22f, 0.5f - dim2.y, 0.5f);
-        vehicleWeaponsTargetR = vehicle.GetOffsetInWorldCoords(dim1.x - 0.22f, -(dim1.y + 350.0f), 0.5f);
-
-        vehicleWeaponsOriginL = vehicle.GetOffsetInWorldCoords(0.22f - dim2.x, 0.5f - dim2.y, 0.5f);
-        vehicleWeaponsTargetL = vehicle.GetOffsetInWorldCoords(0.22f - dim2.x, -(dim2.y + 350.0f), 0.5f);
-    }
-    else
-    {
-        vehicleWeaponsOriginR = vehicle.GetOffsetInWorldCoords(dim1.x - 0.22f, dim1.y - 0.5f, 0.5f);
-        vehicleWeaponsTargetR = vehicle.GetOffsetInWorldCoords(dim1.x - 0.22f, dim1.y + 350.0f, 0.5f);
-
-        vehicleWeaponsOriginL = vehicle.GetOffsetInWorldCoords(0.22f - dim2.x, dim1.y - 0.5f, 0.5f);
-        vehicleWeaponsTargetL = vehicle.GetOffsetInWorldCoords(0.22f - dim2.x, dim1.y + 350.0f, 0.5f);
-    }
-}
-
-void SetVehicleWeaponFire(Hash whash, float speed = 2000.0f)
-{
-    const auto& owner = Game::PlayerPed();
-    World::ShootBullet(vehicleWeaponsOriginR, vehicleWeaponsTargetR, owner, whash, 200, speed, true, true);
-    World::ShootBullet(vehicleWeaponsOriginL, vehicleWeaponsTargetL, owner, whash, 200, speed, true, true);
-}
-
-void SetVehicleWeaponExplosion(const EXPLOSION::EXPLOSION& type)
-{
-    Vector3 targPosR;
-    Vector3 targPosL;
-    GTAvehicle vehicle(g_myVeh);
-
-    if (IS_DISABLED_CONTROL_PRESSED(0, INPUT_LOOK_BEHIND))
-    {
-        targPosR = vehicle.GetOffsetInWorldCoords(1.24f, -40.0f, 0.0f);
-        targPosL = vehicle.GetOffsetInWorldCoords(-1.24f, -40.0f, 0.0f);
-    }
-    else
-    {
-        targPosR = vehicle.GetOffsetInWorldCoords(1.24f, 40.0f, 0.0f);
-        targPosL = vehicle.GetOffsetInWorldCoords(-1.24f, 40.0f, 0.0f);
-    }
-
-    World::AddExplosion(targPosR, type, 5.0f, 0.3f, true, true);
-    World::AddExplosion(targPosL, type, 5.0f, 0.3f, true, true);
-}
-
-void SetVehicleWeaponLines()
-{
-    World::DrawLine(vehicleWeaponsOriginR, vehicleWeaponsTargetR, RGBA(titlebox.R, titlebox.G, titlebox.B, 255));
-    World::DrawLine(vehicleWeaponsOriginL, vehicleWeaponsTargetL, RGBA(titlebox.R, titlebox.G, titlebox.B, 255));
-}
-
-void SetVehicleWeapons()
-{
-    const bool anyVehicleWeapon = vehicleRPG || vehicleFireworks || vehicleGuns || vehicleSnowballs || vehicleBalls || vehicleWaterHydrant || vehicleFlameLeak || vehicleLaserGreen ||
-                                  vehicleLaserRed || vehicleTurretsValkyrie || vehicleFlaregun || vehicleHeavySniper || vehicleTazerWeapon || vehicleMolotovWeapon || vehicleCombatPDW;
-
-    if (anyVehicleWeapon)
-    {
-        Keybinds::AddBindIB("vehicle_weapons_fire", "Fire");
-    }
-
-    StoreVehicleWeaponPos(g_myVeh);
-    if (vehicleWeaponLines)
-    {
-        SetVehicleWeaponLines();
-    }
-
-    if (Keybinds::IsHeld("vehicle_weapons_fire"))
-    {
-        if (anyVehicleWeapon)
-            CLEAR_AREA_OF_PROJECTILES(vehicleWeaponsOriginR.x, vehicleWeaponsOriginR.y, vehicleWeaponsOriginR.z, 8.0f, 0);
-
-        // RPG
-        if (vehicleRPG)
-        {
-            SetVehicleWeaponFire(WEAPON_VEHICLE_ROCKET);
-        }
-
-        // Fireworks
-        if (vehicleFireworks)
-        {
-            SetVehicleWeaponFire(WEAPON_FIREWORK);
-        }
-
-        // Guns
-        if (vehicleGuns)
-        {
-            SetVehicleWeaponFire(WEAPON_ASSAULTRIFLE);
-        }
-
-        // Snowballs
-        if (vehicleSnowballs)
-        {
-            SetVehicleWeaponFire(WEAPON_SNOWBALL, 2970.0f);
-        }
-
-        // Balls
-        if (vehicleBalls)
-        {
-            SetVehicleWeaponFire(WEAPON_BALL, 2970.0f);
-        }
-
-        // Water hydrant explosions
-        if (vehicleWaterHydrant)
-        {
-            SetVehicleWeaponExplosion(EXPLOSION::DIR_WATER_HYDRANT);
-        }
-
-        // Flame Explosions
-        if (vehicleFlameLeak)
-        {
-            SetVehicleWeaponExplosion(EXPLOSION::DIR_FLAME_EXPLODE);
-        }
-
-        // Green laser
-        if (vehicleLaserGreen)
-        {
-            SetVehicleWeaponFire(VEHICLE_WEAPON_PLAYER_LASER);
-        }
-
-        // Red laser
-        if (vehicleLaserRed)
-        {
-            SetVehicleWeaponFire(VEHICLE_WEAPON_ENEMY_LASER);
-        }
-
-        // Valkyrie turrets
-        if (vehicleTurretsValkyrie)
-        {
-            SetVehicleWeaponFire(VEHICLE_WEAPON_NOSE_TURRET_VALKYRIE);
-        }
-
-        // Flare gun/flare
-        if (vehicleFlaregun)
-        {
-            SetVehicleWeaponFire(WEAPON_FLARE, 2970.0f);
-        }
-
-        // Heavy sniper
-        if (vehicleHeavySniper)
-        {
-            SetVehicleWeaponFire(WEAPON_HEAVYSNIPER);
-        }
-
-        // Tazer
-        if (vehicleTazerWeapon)
-        {
-            SetVehicleWeaponFire(WEAPON_STUNGUN, 2970.0f);
-        }
-
-        // Molotov
-        if (vehicleMolotovWeapon)
-        {
-            SetVehicleWeaponFire(WEAPON_MOLOTOV, 2970.0f);
-        }
-
-        // Combat pdw
-        if (vehicleCombatPDW)
-        {
-            SetVehicleWeaponFire(WEAPON_COMBATPDW);
-        }
     }
 }
 
@@ -2952,9 +2563,7 @@ static void TickSubsystems()
     sub::GravityGun_catind::Tick();
     MagnetGun::g_magnetGun.Tick();
     g_spSnow.Tick();
-    VehicleTow::g_vehicleTow.Tick();
     VehicleCruise::g_vehicleCruise.Tick();
-    VehicleFly::g_vehicleFly.Tick();
     sub::WaterHack::Tick();
     sub::LaserSight_catind::Tick();
     MeteorShower::g_meteorShower.Tick();
@@ -3226,11 +2835,6 @@ static void TickPlayerAbilities()
         SetSelfRefillHealthWhenInCover();
     }
 
-    if (driveOnWater)
-    {
-        DriveOnWater(myPed, g_driveWaterObject);
-    }
-
     if (selfSweatMult > 0.0f)
     {
         SET_PED_SWEAT(myPed, selfSweatMult);
@@ -3450,11 +3054,6 @@ static void TickVehicleEffects(bool gameIsPaused)
         vehicleInvisibility = false;
     }
 
-    if (carColorChange)
-    {
-        SetVehicleRainbowMode(g_myVeh, true);
-    }
-
     if (s_neonDirty)
     {
         set_vehicle_neon_anim(g_myVeh);
@@ -3469,19 +3068,6 @@ static void TickVehicleEffects(bool gameIsPaused)
         }
     }
 
-    if (vehicleSlam)
-    {
-        if (vehicleSlam <= -0.35f || IS_VEHICLE_ON_ALL_WHEELS(g_myVeh))
-        {
-            APPLY_FORCE_TO_ENTITY(g_myVeh, 1, 0.0, 0.0, vehicleSlam, 0.0, 0.0, 0.0, 1, 1, 1, 1, 0, 1);
-        }
-    }
-
-    if (vehicleHeavyMass)
-    {
-        SetVehicleHeavyMass(g_myVeh);
-    }
-
     // Vehicle controls (only when game is not paused)
     if (!gameIsPaused)
     {
@@ -3494,27 +3080,10 @@ static void TickVehicleEffects(bool gameIsPaused)
             }
         }
 
-        if (carJump != 0)
-        {
-            SetLocalCarJump();
-        }
-
         if (carHydraulics)
         {
             SetLocalCarHydraulics();
         }
-
-        if (superGrip)
-        {
-            SET_VEHICLE_ON_GROUND_PROPERLY(g_myVeh, 0.0f);
-        }
-
-        if (superCarMode)
-        {
-            SetSuperCarModeSelf();
-        }
-
-        SetVehicleWeapons();
 
         if (sub::Speedo::loopSpeedo != sub::Speedo::SPEEDOMODE_OFF)
         {

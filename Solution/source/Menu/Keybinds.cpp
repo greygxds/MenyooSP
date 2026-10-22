@@ -122,16 +122,6 @@ const std::vector<KeybindEntry> g_registry{
      NoBind,
      "Spooner"},
 
-    {"vehicle_weapons_fire",
-     "Fire Vehicle Weapons",
-     "Hold to fire the enabled vehicle weapons. Enable them in Vehicle Options.",
-     (UINT16)VirtualKey::Add,
-     NoBind,
-     (UINT16)INPUT_FRONTEND_LS,
-     NoBind,
-     "Vehicles",
-     false},
-
     {"vehicle_hydraulics", "Car Hydraulics", "Hold and steer to bounce the car on its hydraulics.", (UINT16)VirtualKey::LeftShift, NoBind, (UINT16)INPUT_FRONTEND_LS, NoBind, "Vehicles", true},
 
 };

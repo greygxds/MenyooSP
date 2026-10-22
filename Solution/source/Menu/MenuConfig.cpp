@@ -34,8 +34,6 @@
 #include "..\Submenus\WeaponOptions.h"
 #include "..\Misc\MagnetGun.h"
 #include "..\Misc\RopeGun.h"
-#include "..\Misc\VehicleTow.h"
-#include "..\Misc\VehicleFly.h"
 #include "..\Submenus\TimeOptions.h"
 #include "..\Submenus\VehicleOptions.h"
 
@@ -280,21 +278,13 @@ void MenuConfig::ConfigRead()
     neverWanted = ini.GetBoolValue(section_haxValues.c_str(), "player_never_wanted", neverWanted);
 
     vehicleInvincibility = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_invincibility", vehicleInvincibility);
-    vehicleHeavyMass = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_increased_mass", vehicleHeavyMass);
     raceBoost = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_horn_boost", raceBoost);
     unlimitedVehicleBoost = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_unlim_native_boost", unlimitedVehicleBoost);
-    carJump = ini.GetLongValue(section_haxValues.c_str(), "vehicle_jump", carJump);
     carHydraulics = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_hydraulics", carHydraulics);
-    superGrip = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_glue_to_ground", superGrip);
-    superCarMode = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_SuprKar_mode", superCarMode);
-    carColorChange = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_rainbow_mode", carColorChange);
     vehicleFixLoop = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_auto_fix", vehicleFixLoop);
     vehicleFlipLoop = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_auto_flip", vehicleFlipLoop);
     selfEngineOn = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_keep_engine_running", selfEngineOn);
-    VehicleTow::g_vehicleTow.Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_tow_mode", VehicleTow::g_vehicleTow.Enabled());
-    VehicleFly::g_vehicleFly.Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_fly_mode", VehicleFly::g_vehicleFly.Enabled());
     multiPlatNeons = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_multiplat_neons", multiPlatNeons);
-    multiPlatNeonsRainbow = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_multiplat_neons_rainbow", multiPlatNeonsRainbow);
     g_multiPlatNeonsColor.R = ini.GetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_R", g_multiPlatNeonsColor.R);
     g_multiPlatNeonsColor.G = ini.GetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_G", g_multiPlatNeonsColor.G);
     g_multiPlatNeonsColor.B = ini.GetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_B", g_multiPlatNeonsColor.B);
@@ -530,21 +520,13 @@ void MenuConfig::SaveConfig()
     ini.SetBoolValue(section_haxValues.c_str(), "player_never_wanted", neverWanted);
 
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_invincibility", vehicleInvincibility);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_increased_mass", vehicleHeavyMass);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_horn_boost", raceBoost);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_unlim_native_boost", unlimitedVehicleBoost);
-    ini.SetLongValue(section_haxValues.c_str(), "vehicle_jump", carJump);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_hydraulics", carHydraulics);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_glue_to_ground", superGrip);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_SuprKar_mode", superCarMode);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_rainbow_mode", carColorChange);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_auto_fix", vehicleFixLoop);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_auto_flip", vehicleFlipLoop);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_keep_engine_running", selfEngineOn);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_tow_mode", VehicleTow::g_vehicleTow.Enabled());
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_fly_mode", VehicleFly::g_vehicleFly.Enabled());
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_multiplat_neons", multiPlatNeons);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_multiplat_neons_rainbow", multiPlatNeonsRainbow);
     ini.SetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_R", g_multiPlatNeonsColor.R);
     ini.SetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_G", g_multiPlatNeonsColor.G);
     ini.SetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_B", g_multiPlatNeonsColor.B);
