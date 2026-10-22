@@ -8,10 +8,12 @@
 * (at your option) any later version.
 */
 #include "Menu.h"
+#include "MenuConfig.h"
 
 #include "..\macros.h"
 
 #include "..\Util\GTAmath.h"
+#include "..\Util\SaveFileSorting.h"
 #include "..\Util\keyboard.h"
 #include "..\Natives\natives2.h"
 #include "..\Natives\types.h" // RGBA/RgbS
@@ -2014,6 +2016,19 @@ int AddTexterCycler(const std::string& label, int currentIdx, const std::vector<
 {
     bool discarded = false;
     return AddTexterCycler(label, currentIdx, opts, discarded);
+}
+
+void AddSaveFileSortOption()
+{
+    const int previousSortMode = MenuConfig::saveFileSortMode;
+    MenuConfig::saveFileSortMode = AddTexterCycler("Sort By", previousSortMode, {"Name (A-Z)", "Created (newest first)", "Modified (newest first)"});
+    if (MenuConfig::saveFileSortMode != previousSortMode)
+        MenuConfig::RequestSave();
+}
+
+void SortSaveFileEntries(std::vector<std::string>& fileNames, const std::string& directoryPath)
+{
+    SaveFileSorting::SortDirectoryEntries(fileNames, directoryPath, static_cast<SaveFileSorting::SortMode>(MenuConfig::saveFileSortMode));
 }
 
 void AddTexter(const std::string& text, int selectedindex, const std::vector<std::string>& textarray, bool& A_PRESS, bool& RIGHT_PRESS, bool& LEFT_PRESS, bool gxt)

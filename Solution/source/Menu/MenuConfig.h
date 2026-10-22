@@ -16,6 +16,7 @@ namespace MenuConfig
 extern CSimpleIniA iniFile;
 extern bool bSaveAtIntervals;
 extern bool bShowNotificationBackground;
+extern int saveFileSortMode;
 
 // Camera configuration parameters
 namespace FreeCam

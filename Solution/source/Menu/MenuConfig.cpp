@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "MenuConfig.h"
+#include "..\Util\SaveFileSorting.h"
 
 #include "..\macros.h"
 
@@ -45,6 +46,7 @@
 CSimpleIniA MenuConfig::iniFile;
 bool MenuConfig::bSaveAtIntervals = true;
 bool MenuConfig::bShowNotificationBackground = true;
+int MenuConfig::saveFileSortMode = static_cast<int>(SaveFileSorting::SortMode::Name);
 
 // Initialize the default camera parameters
 namespace MenuConfig
@@ -102,6 +104,11 @@ void MenuConfig::ConfigRead()
 
     MenuConfig::bSaveAtIntervals = ini.GetBoolValue(section_settings.c_str(), "sync_with_config_at_intervals", MenuConfig::bSaveAtIntervals);
     MenuConfig::bShowNotificationBackground = ini.GetBoolValue(section_settings.c_str(), "show_notification_background", MenuConfig::bShowNotificationBackground);
+    MenuConfig::saveFileSortMode = static_cast<int>(ini.GetLongValue(section_settings.c_str(), "save_file_sort_mode", MenuConfig::saveFileSortMode));
+    if (MenuConfig::saveFileSortMode < static_cast<int>(SaveFileSorting::SortMode::Name) || MenuConfig::saveFileSortMode > static_cast<int>(SaveFileSorting::SortMode::Modified))
+    {
+        MenuConfig::saveFileSortMode = static_cast<int>(SaveFileSorting::SortMode::Name);
+    }
     checkSelfDeathModel = ini.GetBoolValue(section_settings.c_str(), "DeathModelReset", checkSelfDeathModel);
     menuPos.x = ini.GetDoubleValue(section_settings.c_str(), "menuPosX", (menuPos.x + 0.0598f) * 100);
     menuPos.x = menuPos.x / 100 - 0.0598f;
@@ -364,6 +371,7 @@ void MenuConfig::SaveConfig()
 
     ini.SetBoolValue(section_settings.c_str(), "sync_with_config_at_intervals", MenuConfig::bSaveAtIntervals);
     ini.SetBoolValue(section_settings.c_str(), "show_notification_background", MenuConfig::bShowNotificationBackground);
+    ini.SetLongValue(section_settings.c_str(), "save_file_sort_mode", MenuConfig::saveFileSortMode);
     ini.SetBoolValue(section_settings.c_str(), "DeathModelReset", checkSelfDeathModel);
     ini.SetDoubleValue(section_settings.c_str(), "menuPosX", (menuPos.x + 0.0598f) * 100);
     ini.SetDoubleValue(section_settings.c_str(), "menuPosY", (menuPos.y + 0.074f) * 100);

@@ -1664,6 +1664,7 @@ void Sub_Loadouts()
     std::vector<std::string> vfilnames;
 
     AddTitle("Loadouts");
+    AddSaveFileSortOption();
 
     AddOption("Save Current Loadout", save2);
     AddOptionDescription("Saves all weapons, attachments and tints you're carrying to a file.");
@@ -1681,6 +1682,7 @@ void Sub_Loadouts()
         entry = readdir(dir_point);
     }
     closedir(dir_point);
+    SortSaveFileEntries(vfilnames, _dir);
 
     AddBreak("---Found Files---");
 
@@ -1689,7 +1691,7 @@ void Sub_Loadouts()
     if (bFolderBackPressed)
     {
         _dir = _dir.substr(0, _dir.rfind("\\"));
-        Menu::selectedOptionIndex = 4;
+        Menu::selectedOptionIndex = 5;
     }
 
     if (!vfilnames.empty())
@@ -1729,7 +1731,7 @@ void Sub_Loadouts()
                 if (bFilePressed)
                 {
                     _dir = _dir + "\\" + filname;
-                    Menu::selectedOptionIndex = 4;
+                    Menu::selectedOptionIndex = 5;
                 }
 
                 if (Menu::IsLastDrawnOptionSelected() && !bFilePressed)
@@ -1784,7 +1786,7 @@ void Sub_Loadouts()
             else if (CreateDirectoryA((_dir + "\\" + inputStr).c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
             {
                 _dir = _dir + "\\" + inputStr;
-                Menu::selectedOptionIndex = 4;
+                Menu::selectedOptionIndex = 5;
                 Game::Print::PrintBottomLeft("Folder ~b~created~s~.");
             }
             else

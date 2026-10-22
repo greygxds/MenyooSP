@@ -4116,6 +4116,7 @@ void VehicleSaverMenu()
     std::vector<std::string> vfilnames;
 
     AddTitle("Saved Vehicles");
+    AddSaveFileSortOption();
 
     bool persistentAttachments_plus = 0, persistentAttachments_minus = 0;
     AddTexter(
@@ -4190,6 +4191,7 @@ void VehicleSaverMenu()
         entry = readdir(dir_point);
     }
     closedir(dir_point);
+    SortSaveFileEntries(vfilnames, _dir);
 
     AddBreak("---Found Files---");
 
@@ -4198,7 +4200,7 @@ void VehicleSaverMenu()
     if (bFolderBackPressed)
     {
         _dir = _dir.substr(0, _dir.rfind("\\"));
-        Menu::selectedOptionIndex = 6;
+        Menu::selectedOptionIndex = 7;
     }
 
     if (!vfilnames.empty())
@@ -4244,7 +4246,7 @@ void VehicleSaverMenu()
                 if (bFilePressed)
                 {
                     _dir = _dir + "\\" + filname;
-                    Menu::selectedOptionIndex = 6;
+                    Menu::selectedOptionIndex = 7;
                 }
 
                 if (Menu::IsLastDrawnOptionSelected() && !bFilePressed)
@@ -4317,7 +4319,7 @@ void VehicleSaverMenu()
             else if (CreateDirectoryA((_dir + "\\" + inputStr).c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
             {
                 _dir = _dir + "\\" + inputStr;
-                Menu::selectedOptionIndex = 6;
+                Menu::selectedOptionIndex = 7;
                 Game::Print::PrintBottomLeft("Folder ~b~created~s~.");
             }
             else

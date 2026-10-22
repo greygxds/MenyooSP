@@ -2538,6 +2538,7 @@ void ComponentChanger_Outfits()
     std::vector<std::string> fileNames;
 
     AddTitle("Outfits");
+    AddSaveFileSortOption();
 
     bool attachmentsPlus = false, attachmentsMinus = false;
     AddTexter("AddAttachmentsToSpoonerDB", persistentAttachmentsTexterIndex, std::vector<std::string>{"FileDecides", "ForceOff", "ForceOn"}, null, attachmentsPlus, attachmentsMinus);
@@ -2576,6 +2577,7 @@ void ComponentChanger_Outfits()
     }
 
     closedir(dirPoint);
+    SortSaveFileEntries(fileNames, dir);
     AddBreak("---Found Files---");
 
     bool bFolderBackPressed = false;
@@ -2583,7 +2585,7 @@ void ComponentChanger_Outfits()
     if (bFolderBackPressed)
     {
         dir = dir.substr(0, dir.rfind("\\"));
-        Menu::selectedOptionIndex = 5;
+        Menu::selectedOptionIndex = 6;
     }
 
     if (!fileNames.empty())
@@ -2621,7 +2623,7 @@ void ComponentChanger_Outfits()
                 if (bFilePressed)
                 {
                     dir = dir + "\\" + fileName;
-                    Menu::selectedOptionIndex = 5;
+                    Menu::selectedOptionIndex = 6;
                 }
 
                 if (Menu::IsLastDrawnOptionSelected() && !bFilePressed)
@@ -2684,7 +2686,7 @@ void ComponentChanger_Outfits()
             else if (CreateDirectoryA((dir + "\\" + inputStr).c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
             {
                 dir = dir + "\\" + inputStr;
-                Menu::selectedOptionIndex = 5;
+                Menu::selectedOptionIndex = 6;
                 Game::Print::PrintBottomLeft("Folder ~b~created~s~.");
             }
             else

@@ -558,6 +558,7 @@ void Sub_SaveFiles()
     auto& fSaveRangeRadius = _fSaveRangeRadius;
 
     AddTitle("Manage Saved Files");
+    AddSaveFileSortOption();
 
     bool bSaveDb = false;
     AddOption("Save Database To File (" + std::to_string(Databases::EntityDb.size() + Databases::MarkerDb.size() + Databases::LightDb.size()) + ")", bSaveDb);
@@ -686,6 +687,7 @@ void Sub_SaveFiles()
         entry = readdir(dir_point);
     }
     closedir(dir_point);
+    SortSaveFileEntries(vfilnames, _dir);
 
     bool bCreateFolderPressed = false;
     AddOption("Create New Folder", bCreateFolderPressed);
@@ -701,7 +703,7 @@ void Sub_SaveFiles()
             else if (CreateDirectoryA((_dir + "\\" + inputStr).c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
             {
                 _dir = _dir + "\\" + inputStr;
-                Menu::selectedOptionIndex = 6;
+                Menu::selectedOptionIndex = 7;
                 Game::Print::PrintBottomLeft("Folder ~b~created~s~.");
             }
             else
@@ -726,7 +728,7 @@ void Sub_SaveFiles()
         if (_dir.length() > baseDir.length() && _dir.find(baseDir) == 0)
         {
             _dir = _dir.substr(0, _dir.rfind("\\"));
-            Menu::selectedOptionIndex = 6;
+            Menu::selectedOptionIndex = 7;
         }
         else
         {
@@ -772,7 +774,7 @@ void Sub_SaveFiles()
                 if (bFilePressed)
                 {
                     _dir = _dir + "\\" + filname;
-                    Menu::selectedOptionIndex = 6;
+                    Menu::selectedOptionIndex = 7;
                 }
 
                 if (Menu::IsLastDrawnOptionSelected() && !bFilePressed)

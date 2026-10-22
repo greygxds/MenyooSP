@@ -294,6 +294,8 @@ void AddTexter(const std::string& text, int selectedindex, const std::vector<std
 
 int AddTexterCycler(const std::string& label, int currentIdx, const std::vector<std::string>& opts);
 int AddTexterCycler(const std::string& label, int currentIdx, const std::vector<std::string>& opts, bool& pressed);
+void AddSaveFileSortOption();
+void SortSaveFileEntries(std::vector<std::string>& fileNames, const std::string& directoryPath);
 
 // Displays a right-aligned bind key/button and captures a replacement when pressed.
 void AddKeybindOption(const std::string& label, const std::string& bindText, const std::string& description, bool& A_PRESS, bool capturingThis);
