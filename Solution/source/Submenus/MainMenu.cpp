@@ -28,7 +28,6 @@ void MainMenu()
     AddOption("Weapon Options", null, nullFunc, SUB::WEAPONOPS);
     AddOption("Weather Options", null, nullFunc, SUB::WEATHEROPS);
     AddOption("Time Options", null, nullFunc, SUB::TIMEOPS);
-    AddOption("Bodyguard Options", null, nullFunc, SUB::BODYGUARDMAINMENU);
     AddOption("Object Spooner", null, nullFunc, SUB::SPOONER_MAIN);
     AddOption("Misc Options", null, nullFunc, SUB::MISCOPS);
     AddOption("Settings", null, nullFunc, SUB::SETTINGS);

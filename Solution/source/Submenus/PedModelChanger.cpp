@@ -34,7 +34,6 @@
 #include "..\Submenus\Spooner\Databases.h"
 #include "..\Submenus\Spooner\EntityManagement.h"
 #include "..\Submenus\Spooner\MenuOptions.h"
-#include "..\Submenus\Bodyguards\BodyguardSpawn.h"
 
 #include <string>
 #include <vector>
@@ -317,32 +316,23 @@ void AddModelOption(const std::string& text, const GTAmodel::Model& model, bool*
 {
     if (model.IsInCdImage())
     {
-        int context = 0;
+        bool isSpoonerSpawn = false;
         for (int ci = Menu::menuHistoryIndex; ci >= 0; ci--)
         {
             if (Menu::submenuHistory[ci] == SUB::SPOONER_SPAWN_PED)
             {
-                context = 1;
-                break;
-            }
-            if (Menu::submenuHistory[ci] == SUB::BODYGUARD_SPAWN)
-            {
-                context = 2;
+                isSpoonerSpawn = true;
                 break;
             }
         }
 
-        switch (context)
+        if (isSpoonerSpawn)
         {
-        case 1:
             sub::Spooner::MenuOptions::AddOptionAddPed(text, model);
-            break;
-        case 2:
-            sub::BodyguardMenu::BodyguardManagement::AddOptionBodyGuardPed(text, model);
-            break;
-        default:
+        }
+        else
+        {
             AddModelChangerOption(text, model.hash, tickTrue);
-            break;
         }
 
         if (Menu::IsLastDrawnOptionSelected())

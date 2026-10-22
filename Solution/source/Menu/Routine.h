@@ -244,34 +244,4 @@ extern std::string GetPedFacialMood(GTAentity ped);
 void SetPedFacialMood(GTAentity ped, const std::string& animName);
 void clear_ped_facial_mood(GTAentity ped);
 
-enum class WeaponTargetType
-{
-    TargetPlayer,
-    TargetPed
-};
-
-inline WeaponTargetType g_WeaponTargetType = WeaponTargetType::TargetPlayer;
-inline Ped g_WeaponTargetPed = 0;
-
-struct ScopedWeaponTargetOverride
-{
-    WeaponTargetType oldType;
-    Ped oldPed;
-
-    ScopedWeaponTargetOverride(Ped ped)
-    {
-        oldType = g_WeaponTargetType;
-        oldPed = g_WeaponTargetPed;
-
-        g_WeaponTargetType = WeaponTargetType::TargetPed;
-        g_WeaponTargetPed = ped;
-    }
-
-    ~ScopedWeaponTargetOverride()
-    {
-        g_WeaponTargetType = oldType;
-        g_WeaponTargetPed = oldPed;
-    }
-};
-
 extern int GetRandomSpriteId();

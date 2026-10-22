@@ -588,9 +588,6 @@ void Sub_InItem()
     auto& ped = g_activePedHandle;
     NETWORK_REQUEST_CONTROL_OF_ENTITY(ped);
 
-    const bool isBodyguardContext = (g_WeaponTargetType == WeaponTargetType::TargetPed) && (g_WeaponTargetPed == ped);
-
-
     Hash pedCurrentWeapon;
     GET_CURRENT_PED_WEAPON(ped, &pedCurrentWeapon, 1);
 
