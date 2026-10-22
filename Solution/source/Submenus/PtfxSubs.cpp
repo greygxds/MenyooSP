@@ -3337,9 +3337,6 @@ void AddEffectOption(const PtfxS& effect, int source)
     case SUB::PTFXSUB:
         AddOptionLoopOnEntity(effect, g_activePedHandle);
         break;
-    case SUB::TRIGGERFXGUN:
-        TriggerFxGun::AddOptionGunFX(effect);
-        break;
     }
 }
 

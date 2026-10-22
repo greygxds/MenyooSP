@@ -39,11 +39,6 @@ class GTAentity;
 class GTAvehicle;
 class GTAped;
 
-namespace PTFX
-{
-class sFxData;
-}
-
 void ThreadMenyooMain();
 void ThreadMenuLoops2();
 void TickMenyooConfig();
@@ -66,11 +61,6 @@ extern UINT8 pauseClockM;
 extern Vehicle g_myVeh;
 extern GTAmodel::Model g_myVehModel;
 extern Hash g_myWeap;
-extern PTFX::sFxData triggerFXGunData;
-extern Hash kaboomGunHash;
-extern Hash bullet_gun_hash;
-extern GTAmodel::Model pedGunHash;
-extern GTAmodel::Model objectGunHash;
 extern FLOAT currentTimescale;
 
 extern INT g_activePedHandle;
@@ -79,11 +69,6 @@ extern INT g_playerGroupId;
 
 extern const char* g_playerName;
 extern INT bitMSPaintsRGBMode;
-extern bool kaboomGunInvis;
-extern bool kaboomGunRandBit;
-extern bool pedGunRandBit;
-extern bool objectGunRandBitO;
-extern bool objectGunRandBitV;
 extern bool bitNightVision;
 
 extern FLOAT swimSpeedMult;
@@ -151,23 +136,10 @@ extern UINT8 selfFreezeWantedLevel;
 extern Entity bitInfiniteAmmoEnth;
 
 extern bool rainbowBoxes;
-extern bool forgeGun;
 extern bool playerNoRagdoll;
 extern bool playerSeatbelt;
 extern bool playerUnlimitedAbility;
 extern bool playerAutoClean;
-extern bool explosiveRounds;
-extern bool flamingRounds;
-extern bool teleportGun;
-extern bool kaboomGun;
-extern bool triggerFXGun;
-extern bool bulletGun;
-extern bool pedGun;
-extern bool objectGun;
-extern bool lightGun;
-extern bool bulletTime;
-extern bool selfTriggerbot;
-extern bool explosiveMelee;
 extern bool selfRefillHealthInCover;
 extern bool playerInvincibility;
 extern bool bDisplayXyzhCoords;
@@ -187,10 +159,6 @@ extern bool hideHUD;
 extern bool showFullHUD;
 extern bool pauseClock;
 extern bool syncClock;
-extern bool tripleBullets;
-extern bool rapidFire;
-extern bool selfResurrectionGun;
-extern bool soulSwitchGun;
 extern bool selfDeleteGun;
 extern bool vehicleFixLoop;
 extern bool vehicleFlipLoop;
@@ -208,15 +176,6 @@ extern int loop_neon_fade, loop_neon_flash, loop_neon_delay;
 extern bool loop_neon_rgb, neonstate[4];
 
 extern RgbS g_setNeonColour;
-extern Entity targetSlotEntity;
-extern bool targetEntityLocked;
-
-extern bool bitGravityGunDisabled;
-
-extern float forgeDist;
-extern float g_forgeGunPrecision;
-extern float g_forgeGunShootForce;
-extern bool objectSpawnForgeAssistance;
 
 extern bool g_unlockMaxIDs;
 extern UINT8 max_shapeAndSkinIDs;
@@ -234,24 +193,9 @@ void SetSelfNearbyPedsCalm();
 void NetworkSetEveryoneIgnorePlayer(Player player);
 void SetExplosionAtCoords(GTAentity entity, Vector3 pos, UINT8 type, float radius, float camshake, bool sound, bool invis, GTAentity owner);
 void StartFireworksAtCoords(const Vector3& pos, const Vector3& rot, float scale);
-void SetTargetIntoSlot();
-void SetPlayerTriggerbot(GTAplayer player);
-void SetRapidFire();
-void SetSoulSwitchGun();
+void TickAimedWeaponFeatures();
 void SetSelfDeleteGun();
-void SetSelfResurrectionGun();
 void SetHVSnipers(bool set);
-void SetTeleportGun();
-void SetBulletGun();
-void SetPedGun();
-void SetObjectGun();
-void SetLightGun();
-void SetTripleBullets();
-void SetForgeGunDist(float& distance);
-inline void SetForgeGunRotationHotKeys();
-void SetForgeGun();
-void SetExplosionAtBulletHit(Ped ped, Hash type, bool invisible);
-void SetTriggerFXAtBulletHit(Ped ped, const std::string& fxAsset, const std::string& fxName, const Vector3& Rot, float scale);
 void SetBecomePed(GTAped ped);
 void SetPedInvincibleOn(Ped ped);
 void SetPedInvincibleOff(Ped ped);

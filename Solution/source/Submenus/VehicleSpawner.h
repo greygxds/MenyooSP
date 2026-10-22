@@ -31,7 +31,6 @@
 #include "..\Util\FileLogger.h"
 
 #include "VehicleModShop.h"
-#include "WeaponOptions.h"
 #include "Spooner\MenuOptions.h"
 #include "Spooner\Databases.h"
 #include "Spooner\EntityManagement.h"

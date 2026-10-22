@@ -30,7 +30,6 @@
 #include "..\Scripting\WeaponIndivs.h"
 
 #include "..\Submenus\PedComponentChanger.h"
-#include "..\Submenus\WeaponOptions.h"
 #include "..\Submenus\Spooner\SpoonerEntity.h"
 #include "..\Submenus\Spooner\Databases.h"
 #include "..\Submenus\Spooner\EntityManagement.h"
@@ -331,11 +330,6 @@ void AddModelOption(const std::string& text, const GTAmodel::Model& model, bool*
                 context = 2;
                 break;
             }
-            if (Menu::submenuHistory[ci] == SUB::PEDGUN_ALLPEDS)
-            {
-                context = 3;
-                break;
-            }
         }
 
         switch (context)
@@ -345,9 +339,6 @@ void AddModelOption(const std::string& text, const GTAmodel::Model& model, bool*
             break;
         case 2:
             sub::BodyguardMenu::BodyguardManagement::AddOptionBodyGuardPed(text, model);
-            break;
-        case 3:
-            AddPedGunOption(text, model.hash, extraOptionCode);
             break;
         default:
             AddModelChangerOption(text, model.hash, tickTrue);
