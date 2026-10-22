@@ -51,7 +51,6 @@
 #include "..\Misc\ManualRespawn.h"
 #include "..\Misc\MeteorShower.h"
 #include "..\Misc\RopeGun.h"
-#include "..\Misc\SmashAbility.h"
 #include "..\Misc\VehicleCruise.h"
 #include "..\Misc\VehicleFly.h"
 #include "..\Misc\VehicleTow.h"
@@ -63,12 +62,10 @@
 #include "..\Submenus\VehicleSpawner.h"
 #include "..\Menu\FolderPreviewBmps.h"
 #include "..\Submenus\PedSpeech.h"
-#include "..\Submenus\GhostRiderMode.h"
 #include "..\Submenus\Spooner\SpoonerMode.h"
 #include "..\Submenus\VehicleOptions.h"
 #include "..\Submenus\VehicleModShop.h"
 #include "..\Submenus\TimeOptions.h"
-#include "..\Submenus\BreatheStuff.h"
 #include "..\Submenus\MiscOptions.h"
 #include "..\Submenus\Teleport\Yachts.h"
 #include "..\Submenus\Teleport\CayoPerico.h"
@@ -701,7 +698,6 @@ UINT8 carJump = 0;
 UINT8 autoKillEnemies = 0;
 float weaponDamageIncrease = 1.0f;
 
-UINT8 forceField = 0;
 UINT8 selfFreezeWantedLevel = 0;
 Entity bitInfiniteAmmoEnth = 0;
 
@@ -711,7 +707,6 @@ bool playerNoRagdoll = false;
 bool playerSeatbelt = false;
 bool playerUnlimitedAbility = false;
 bool playerAutoClean = false;
-bool playerWalkUnderwater = false;
 bool explosiveRounds = false;
 bool flamingRounds = false;
 bool teleportGun = false;
@@ -724,21 +719,16 @@ bool lightGun = false;
 bool bulletTime = false;
 bool selfTriggerbot = false;
 bool explosiveMelee = false;
-bool superJump = false;
 bool selfRefillHealthInCover = false;
 bool playerInvincibility = false;
-bool superRun = false;
 bool bDisplayXyzhCoords = false;
 bool ignoredByEveryone = false;
 bool neverWanted = false;
-bool superman = false;
-bool supermanAuto = false;
 bool vehiclePopulation = false;
 bool pedPopulation = false;
 bool clearWeaponPickups = false;
 bool driveOnWater = false;
 bool massacreMode = false;
-bool playerBurn = false;
 bool vehicleInvincibility = false;
 bool vehicleHeavyMass = false;
 bool raceBoost = false;
@@ -1892,26 +1882,6 @@ void SetPedSeatbeltOff(Ped ped)
     SET_PED_CONFIG_FLAG(ped, ePedConfigFlags::WillFlyThruWindscreen, true);
 }
 
-void SetLocalButtonSuperRun()
-{
-    auto ped = PLAYER_PED_ID();
-    bool isInAir = IS_ENTITY_IN_AIR(ped) != 0;
-
-    if (!isInAir)
-    {
-        if (IS_CONTROL_PRESSED(0, INPUT_SPRINT))
-        {
-            APPLY_FORCE_TO_ENTITY(ped, 1, 0.0, 3.4, 0.0, 0.0, 0.0, 0.0, 1, 1, 1, 1, 0, 1);
-        }
-
-        else if (IS_CONTROL_JUST_RELEASED(0, INPUT_SPRINT))
-        {
-            FREEZE_ENTITY_POSITION(ped, 1);
-            FREEZE_ENTITY_POSITION(ped, 0);
-        }
-    }
-}
-
 void SetSelfRefillHealthWhenInCover()
 {
     if (GET_GAME_TIMER() >= Menu::nextDeferredActionTime - 100)
@@ -1980,87 +1950,6 @@ void DrawGameInfo()
         drawText("Peds Spawned: " + std::to_string(stats.totalNumPeds));
         drawText("Vehicles Spawned: " + std::to_string(stats.totalNumVehicles));
         hudY += HUD_LINE_HEIGHT / 2; // for visual separation between hud elements
-    }
-}
-
-void SetLocalSupermanManual()
-{
-    if (IS_PAUSE_MENU_ACTIVE() || IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
-    {
-        return;
-    }
-
-    DISABLE_CONTROL_ACTION(2, INPUT_PARACHUTE_DEPLOY, TRUE);
-
-    Ped playerPed = PLAYER_PED_ID();
-    bool isInParaFreeFall = IS_PED_IN_PARACHUTE_FREE_FALL(playerPed) != 0;
-
-    if (isInParaFreeFall)
-    {
-        Keybinds::AddBindIB("superman_ascend", "Up");
-        Keybinds::AddBindIB("superman_descend", "Down");
-        Keybinds::AddBindIB("superman_boost", "Boost");
-        Keybinds::AddBindIB("superman_freeze", "Brake");
-
-        if (Keybinds::IsHeld("superman_boost"))
-        {
-            APPLY_FORCE_TO_ENTITY(playerPed, 1, 0.0, 45.0, 0.0, 0.0, 0.0, 0.0, 1, 1, 1, 1, 0, 1);
-        }
-
-        DISABLE_CONTROL_ACTION(2, INPUT_PARACHUTE_DEPLOY, TRUE);
-        if (Keybinds::IsHeld("superman_freeze"))
-        {
-            FREEZE_ENTITY_POSITION(playerPed, true);
-        }
-        else if (Keybinds::WasReleasedThisFrame("superman_freeze"))
-        {
-            FREEZE_ENTITY_POSITION(playerPed, false);
-        }
-    }
-
-    if (Keybinds::IsHeld("superman_ascend"))
-    {
-        if (!isInParaFreeFall)
-        {
-            TASK_PARACHUTE(playerPed, true, false);
-        }
-        APPLY_FORCE_TO_ENTITY(playerPed, 1, 0.0, 0.0, 13.0, 0.0, 0.0, 0.0, 1, 1, 1, 1, 0, 1);
-    }
-
-    if (Keybinds::IsHeld("superman_descend"))
-    {
-        if (!isInParaFreeFall)
-        {
-            TASK_PARACHUTE(playerPed, true, false);
-        }
-        APPLY_FORCE_TO_ENTITY(playerPed, 1, 0.0, 0.0, -13.0, 0.0, 0.0, 0.0, 1, 1, 1, 1, 0, 1);
-    }
-}
-
-void SetPedSupermanAuto(Ped ped)
-{
-    if (IS_PED_IN_PARACHUTE_FREE_FALL(ped))
-    {
-        if (!NETWORK_HAS_CONTROL_OF_ENTITY(ped))
-        {
-            NETWORK_REQUEST_CONTROL_OF_ENTITY(ped);
-        }
-
-        APPLY_FORCE_TO_ENTITY(ped, 1, 0.0, 70.0f, 70.0f, 0.0, 0.0, 0.0, 0, 1, 0, 0, 0, 1);
-
-        if (ped == PLAYER_PED_ID())
-        {
-            DISABLE_CONTROL_ACTION(2, INPUT_PARACHUTE_DEPLOY, TRUE);
-            Keybinds::AddBindIB("superman_freeze", "Temporary Brake");
-            if (Keybinds::IsHeld("superman_freeze"))
-            {
-                FREEZE_ENTITY_POSITION(ped, true);
-            }
-            else if (Keybinds::WasReleasedThisFrame("superman_freeze"))
-            {
-                FREEZE_ENTITY_POSITION(ped, false);
-            }
-        }
     }
 }
 
@@ -2215,32 +2104,6 @@ void SetLocalCarHydraulics()
     }
 }
 
-void SetLocalForcefield()
-{
-    GTAentity myPed = PLAYER_PED_ID();
-    const Vector3& myPos = myPed.GetPosition();
-    switch (forceField)
-    {
-    case 1: //push out
-        for (GTAentity ent : worldEntities)
-        {
-            if (ent.Handle() != myPed.Handle() && ent.Handle() != g_myVeh)
-            {
-                const Vector3& entPos = ent.GetPosition();
-                if (myPos.DistanceTo(entPos) < 10.0f)
-                {
-                    ent.ApplyForce(entPos - myPos, ForceType::MaxForceRot2);
-                }
-            }
-        }
-        break;
-    case 2: //explode
-        myPed.SetExplosionProof(true);
-        World::AddExplosion(myPos, EXPLOSION::BLIMP, 5.0f, 0.0f, false, false);
-        break;
-    }
-}
-
 void SetExplosionWP(UINT8 mode)
 {
     if (!IS_WAYPOINT_ACTIVE())
@@ -2375,20 +2238,6 @@ void DriveOnWater(GTAped ped, Entity& waterobject)
     SET_ENTITY_ROTATION(waterobject, 180.0f, 90.0f, 180.0f, 2, 1);
     SET_ENTITY_VISIBLE(waterobject, false, false);
     FREEZE_ENTITY_POSITION(waterobject, true);
-}
-
-void SetPedBurnMode(GTAped ped, bool enable)
-{
-    auto isOnFire = ped.IsOnFire();
-
-    if (enable && !isOnFire && !ped.IsInWater())
-    {
-        ped.SetOnFire(enable);
-    }
-    else if (!enable && isOnFire)
-    {
-        ped.SetOnFire(enable);
-    }
 }
 
 inline void SetHandlingMultiplier()
@@ -3030,40 +2879,6 @@ void clear_ped_facial_mood(GTAentity ped)
     CLEAR_FACIAL_IDLE_ANIM_OVERRIDE(ped.Handle());
 }
 
-void SetWalkUnderwater(Entity PlayerPed)
-{
-    if (IS_ENTITY_IN_WATER(PlayerPed))
-    {
-        SET_PED_CONFIG_FLAG(PlayerPed, ePedConfigFlags::IsSwimming, false);
-        SET_PED_CONFIG_FLAG(PlayerPed, ePedConfigFlags::WasSwimming, false);
-        SET_PED_CONFIG_FLAG(PlayerPed, ePedConfigFlags::_0xD8072639, false);
-
-        Vector3 PlayerPos = GET_ENTITY_COORDS(PlayerPed, 0);
-        DRAW_LIGHT_WITH_RANGEEX(PlayerPos.x, PlayerPos.y, (PlayerPos.z + 1.5f), 255, 255, 251, 100.0f, 1.5f, 0.0f);
-        DRAW_LIGHT_WITH_RANGEEX(PlayerPos.x, PlayerPos.y, (PlayerPos.z + 50.0f), 255, 255, 251, 200.0f, 1.0f, 0.0f);
-
-        if (IS_PED_JUMPING(PlayerPed)) // small pushup so jump feel more natural ( like when not underwater )
-        {
-            APPLY_FORCE_TO_ENTITY(PlayerPed, true, 0, 0, 0.7f, 0, 0, 0, true, true, true, true, false, true);
-        }
-
-        if (GET_ENTITY_HEIGHT_ABOVE_GROUND(PlayerPed) > 1) //Do falling down
-        {
-            SET_PED_CONFIG_FLAG(PlayerPed, ePedConfigFlags::IsStanding, false);
-            SET_PED_CONFIG_FLAG(PlayerPed, ePedConfigFlags::WasStanding, false);
-            SET_PED_CONFIG_FLAG(PlayerPed, ePedConfigFlags::OpenDoorArmIK, false);
-            SET_PED_CONFIG_FLAG(PlayerPed, ePedConfigFlags::EdgeDetected, false);
-            SET_PED_CONFIG_FLAG(PlayerPed, ePedConfigFlags::IsInTheAir, true);
-            APPLY_FORCE_TO_ENTITY(PlayerPed, true, 0, 0, -0.7f, 0, 0, 0, true, true, true, true, false, true);
-        }
-
-        if (GET_IS_TASK_ACTIVE(PlayerPed, 281) || IS_PED_SWIMMING(PlayerPed) || IS_PED_SWIMMING_UNDER_WATER(PlayerPed)) // Stop Swimming
-        {
-            CLEAR_PED_TASKS_IMMEDIATELY(PlayerPed);
-        }
-    }
-}
-
 std::array<int, 3> GetHSVFromRGB(int r, int g, int b)
 {
     std::array<int, 3> hsv;
@@ -3133,7 +2948,6 @@ static void TickSubsystems()
     sub::WardrobeCamera::Tick();
     sub::Spooner::SpoonerMode::Tick();
     FreeCamMode::Tick();
-    sub::GhostRiderMode::Tick();
     sub::VehicleAutoDrive::Tick();
     sub::GravityGun_catind::Tick();
     MagnetGun::g_magnetGun.Tick();
@@ -3144,7 +2958,6 @@ static void TickSubsystems()
     sub::WaterHack::Tick();
     sub::LaserSight_catind::Tick();
     MeteorShower::g_meteorShower.Tick();
-    SmashAbility::g_smashAbility.Tick();
     RopeGun::g_ropeGun.Tick();
     sub::AnimalRiding::Tick();
     GTA2Cam::g_gta2Cam.Tick();
@@ -3389,11 +3202,6 @@ static void TickPlayerAbilities()
     Ped myPed = PLAYER_PED_ID();
     Player myPlayer = PLAYER_ID();
 
-    if (playerWalkUnderwater)
-    {
-        SetWalkUnderwater(myPed);
-    }
-
     if (playerInvincibility)
     {
         if (!GET_PLAYER_INVINCIBLE(myPlayer))
@@ -3413,44 +3221,14 @@ static void TickPlayerAbilities()
         SetPedSeatbeltOn(myPed);
     }
 
-    if (superJump)
-    {
-        SET_SUPER_JUMP_THIS_FRAME(myPlayer);
-    }
-
-    if (superRun)
-    {
-        SetLocalButtonSuperRun();
-    }
-
     if (selfRefillHealthInCover)
     {
         SetSelfRefillHealthWhenInCover();
     }
 
-    if (superman)
-    {
-        SetLocalSupermanManual();
-    }
-
-    if (supermanAuto)
-    {
-        SetPedSupermanAuto(myPed);
-    }
-
-    if (forceField)
-    {
-        SetLocalForcefield();
-    }
-
     if (driveOnWater)
     {
         DriveOnWater(myPed, g_driveWaterObject);
-    }
-
-    if (playerBurn)
-    {
-        SetPedBurnMode(myPed, true);
     }
 
     if (selfSweatMult > 0.0f)
@@ -3490,11 +3268,6 @@ static void TickWeaponEffects()
     if (forgeGun)
     {
         SetForgeGun();
-    }
-
-    if (sub::BreatheStuff::playerBreatheStuff != sub::BreatheStuff::BreathePtfxType::None)
-    {
-        sub::BreatheStuff::SetSelfBreathePTFX(sub::BreatheStuff::playerBreatheStuff);
     }
 
     if (explosiveRounds)

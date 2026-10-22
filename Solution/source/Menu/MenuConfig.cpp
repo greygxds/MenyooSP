@@ -34,7 +34,6 @@
 #include "..\Submenus\WeaponOptions.h"
 #include "..\Misc\MagnetGun.h"
 #include "..\Misc\RopeGun.h"
-#include "..\Misc\SmashAbility.h"
 #include "..\Misc\VehicleTow.h"
 #include "..\Misc\VehicleFly.h"
 #include "..\Submenus\TimeOptions.h"
@@ -277,15 +276,8 @@ void MenuConfig::ConfigRead()
     playerUnlimitedAbility = ini.GetBoolValue(section_haxValues.c_str(), "player_unlimited_special_ab", playerUnlimitedAbility);
     playerAutoClean = ini.GetBoolValue(section_haxValues.c_str(), "player_auto_clean", playerAutoClean);
 
-    superJump = ini.GetBoolValue(section_haxValues.c_str(), "player_super_jump", superJump);
-    superRun = ini.GetBoolValue(section_haxValues.c_str(), "player_super_run", superRun);
-    superman = ini.GetBoolValue(section_haxValues.c_str(), "player_superman_manual", superman);
-    supermanAuto = ini.GetBoolValue(section_haxValues.c_str(), "player_superman_auto", supermanAuto);
-    forceField = ini.GetLongValue(section_haxValues.c_str(), "player_forcefield", forceField);
-    SmashAbility::g_smashAbility.Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "player_smash_ability", SmashAbility::g_smashAbility.Enabled());
     ignoredByEveryone = ini.GetBoolValue(section_haxValues.c_str(), "player_ignored_by_everyone", ignoredByEveryone);
     neverWanted = ini.GetBoolValue(section_haxValues.c_str(), "player_never_wanted", neverWanted);
-    playerBurn = ini.GetBoolValue(section_haxValues.c_str(), "player_burn_mode", playerBurn);
 
     vehicleInvincibility = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_invincibility", vehicleInvincibility);
     vehicleHeavyMass = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_increased_mass", vehicleHeavyMass);
@@ -534,15 +526,8 @@ void MenuConfig::SaveConfig()
     ini.SetBoolValue(section_haxValues.c_str(), "player_seatbelt", playerSeatbelt);
     ini.SetBoolValue(section_haxValues.c_str(), "player_unlimited_special_ab", playerUnlimitedAbility);
     ini.SetBoolValue(section_haxValues.c_str(), "player_auto_clean", playerAutoClean);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_super_jump", superJump);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_super_run", superRun);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_superman_manual", superman);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_superman_auto", supermanAuto);
-    ini.SetLongValue(section_haxValues.c_str(), "player_forcefield", forceField);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_smash_ability", SmashAbility::g_smashAbility.Enabled());
     ini.SetBoolValue(section_haxValues.c_str(), "player_ignored_by_everyone", ignoredByEveryone);
     ini.SetBoolValue(section_haxValues.c_str(), "player_never_wanted", neverWanted);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_burn_mode", playerBurn);
 
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_invincibility", vehicleInvincibility);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_increased_mass", vehicleHeavyMass);
