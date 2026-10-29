@@ -643,9 +643,7 @@ class MethodsClass final : public GenericLoopedMode
     float speed = 20;
     int drivingStyle = 5;
     UINT8 drivingStyleIndex = 0;
-    bool bPushEmAway = true;
     bool bRandDestinationMode = false;
-    float pushRadius = 4.0f;
     bool initialSet = false;
 
     void TurnOn() override
@@ -730,11 +728,6 @@ class MethodsClass final : public GenericLoopedMode
                 BoatTick();
             else
                 NormalTick();
-
-            if (bPushEmAway)
-            {
-                PushEmAway();
-            }
         }
         else
         {
@@ -825,36 +818,6 @@ class MethodsClass final : public GenericLoopedMode
             initialSet = true;
         }
     }
-
-    inline void PushEmAway()
-    {
-        const auto& md = vehicleModel.Dimensions();
-        const auto& pos = vehicle.GetPosition();
-        const auto& rot = vehicle.GetRotation();
-        const auto& dir = Vector3::RotationToDirection(rot);
-
-        auto ray = RaycastResult::RaycastCapsule(pos, dir, 3.2f + md.Dim1.y, 2.3f, IntersectOptions::Everything, vehicle);
-
-        if (ray.DidHitEntity())
-        {
-            GTAentity thingInFront = ray.HitEntity();
-            thingInFront.ApplyForce(dir * 10.0f);
-        }
-
-        const Vector3& myFrontBumper = pos + (dir * md.Dim1.y);
-
-        for (GTAvehicle v : nearbyVehicles)
-        {
-            if (v.Handle() == vehicle.Handle())
-            {
-                continue;
-            }
-            if (v.IsInRangeOf(myFrontBumper, pushRadius))
-            {
-                v.ApplyForce(dir * 10.0f);
-            }
-        }
-    }
 };
 
 MethodsClass Methods;
@@ -877,8 +840,6 @@ void AutoDriveMenu()
     auto& bRandDestinationMode = Methods.bRandDestinationMode;
     auto& drivingStyle = Methods.drivingStyle;
     auto& drivingStyleIndex = Methods.drivingStyleIndex;
-    auto& bPushEmAway = Methods.bPushEmAway;
-    auto& pushRadius = Methods.pushRadius;
 
     std::vector<std::string> drivingStyleNames;
     for (auto& dsns : DrivingStyle::nameArray)
@@ -890,8 +851,6 @@ void AutoDriveMenu()
     bool speedMinus = false;
     bool drivingStylePlus = false;
     bool drivingStyleMinus = false;
-    bool radiusPlus = false;
-    bool radiusMinus = false;
 
     AddTitle(Language::Translate("vehicle.autoDrive.title"));
 
@@ -900,10 +859,6 @@ void AutoDriveMenu()
     AddLocal(Language::Translate("vehicle.autoDrive.goToWaypoint.label"), Methods.Enabled() && !bRandDestinationMode, ToggleOnOff, ToggleOnOff);
     AddNumber(Language::Translate("vehicle.autoDrive.speed.label"), speed * 3.6f, 1, null, speedPlus, speedMinus);
     AddTexter(Language::Translate("vehicle.autoDrive.drivingStyle.label"), drivingStyleIndex, drivingStyleNames, null, drivingStylePlus, drivingStyleMinus);
-    AddToggle(Language::Translate("vehicle.autoDrive.pushOtherVehiclesAway.label"), bPushEmAway);
-    AddOptionDescription(Language::Translate("vehicle.autoDrive.pushOtherVehiclesAway.description"));
-    AddNumber(Language::Translate("vehicle.autoDrive.forcefieldRadius.label"), pushRadius, 1, null, radiusPlus, radiusMinus);
-    AddOptionDescription(Language::Translate("vehicle.autoDrive.forcefieldRadius.description"));
 
     if (speedPlus)
     {
@@ -940,18 +895,6 @@ void AutoDriveMenu()
             drivingStyleIndex--;
         }
         myPed.SetDrivingStyle(DrivingStyle::nameArray[drivingStyleIndex].style);
-        return;
-    }
-
-    if (radiusPlus)
-    {
-        pushRadius += 0.5f;
-        return;
-    }
-    if (radiusMinus)
-    {
-        if (pushRadius > 1.0f)
-            pushRadius -= 0.5f;
         return;
     }
 }

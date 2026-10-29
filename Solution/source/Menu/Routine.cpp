@@ -44,16 +44,12 @@
 
 #include "..\Misc\FpsCounter.h"
 #include "..\Misc\FreeCam.h"
-#include "..\Misc\Gta2Cam.h"
-#include "..\Misc\JumpAroundMode.h"
 #include "..\Misc\ManualRespawn.h"
-#include "..\Misc\MeteorShower.h"
 #include "..\Misc\VehicleCruise.h"
 
 #include "..\Submenus\PedAnimation.h"
 #include "..\Submenus\WeaponOptions.h"
 #include "..\Submenus\PedComponentChanger.h"
-#include "..\Submenus\AnimalRiding.h"
 #include "..\Submenus\VehicleSpawner.h"
 #include "..\Menu\FolderPreviewBmps.h"
 #include "..\Submenus\PedSpeech.h"
@@ -183,7 +179,6 @@ inline void MenyooMain()
     addlog(ige::LogType::LOG_TRACE, "Populate Decals");
     sub::PedDecals::PopulateDecalsDict();
     addlog(ige::LogType::LOG_TRACE, "Populate Animals");
-    sub::AnimalRiding::PopulateAnimals();
     addlog(ige::LogType::LOG_TRACE, "Populate Vehicle Previews");
     sub::VehicleSpawner::PopulateVehicleBmps();
     addlog(ige::LogType::LOG_TRACE, "Populate Folder Previews");
@@ -670,7 +665,6 @@ FLOAT g_clearAreaRadius = 36.0f;
 FLOAT g_rainFXIntensity = 0.0f;
 
 INT8 spectatePlayer = -1;
-UINT8 explostionWP = 0;
 
 bool multiPlatNeons = false;
 RgbS g_multiPlatNeonsColor(0, 255, 0);
@@ -678,7 +672,6 @@ std::vector<GTAvehicle> g_multiPlatNeonsList;
 
 bool checkSelfDeathModel = false;
 
-UINT8 autoKillEnemies = 0;
 float weaponDamageIncrease = 1.0f;
 
 UINT8 selfFreezeWantedLevel = 0;
@@ -697,7 +690,6 @@ bool neverWanted = false;
 bool vehiclePopulation = false;
 bool pedPopulation = false;
 bool clearWeaponPickups = false;
-bool massacreMode = false;
 bool vehicleInvincibility = false;
 bool raceBoost = false;
 bool carHydraulics = false;
@@ -712,12 +704,10 @@ bool syncClock = false;
 bool selfDeleteGun = false;
 bool vehicleFixLoop = false;
 bool vehicleFlipLoop = false;
-bool blackoutMode = false;
 bool simpleBlackoutMode = false;
 bool restrictedAreasAccess = false;
 bool hvSnipers = false;
 bool vehicleDisableSiren = false;
-bool fireworksDisplay = false;
 bool bitInfiniteAmmo = false;
 bool selfInfiniteParachutes = false;
 
@@ -873,54 +863,6 @@ void SetSyncClockTime()
     SET_CLOCK_TIME(t.tm_hour, t.tm_min, t.tm_sec);
 }
 
-// Misc - massacre mode
-void SetMassacreModeTick()
-{
-    float tempCoords1[3];
-    Ped tempPed = PLAYER_PED_ID();
-
-    for (GTAentity veh : nearbyVehicles)
-    {
-        if (veh.Equals(g_myVeh))
-        {
-            continue;
-        }
-        veh.RequestControlOnce();
-        APPLY_FORCE_TO_ENTITY(
-            veh.Handle(), 1, GET_RANDOM_FLOAT_IN_RANGE(1.0f, 9.0f), GET_RANDOM_FLOAT_IN_RANGE(1.0f, 9.0f), GET_RANDOM_FLOAT_IN_RANGE(1.0f, 6.0f), 5.0f, 13.0f, 6.5f, 1, 1, 1, 1, 0, 1
-        );
-    }
-
-    for (GTAped ped : nearbyPeds)
-    {
-        ped.RequestControlOnce();
-        ped.GiveNM(NMString::nm0286_handCuffsBehindBack);
-        SET_PED_RAGDOLL_FORCE_FALL(ped.Handle());
-        APPLY_FORCE_TO_ENTITY(
-            ped.Handle(), 1, GET_RANDOM_FLOAT_IN_RANGE(1.0f, 9.0f), GET_RANDOM_FLOAT_IN_RANGE(1.0f, 9.0f), GET_RANDOM_FLOAT_IN_RANGE(1.0f, 6.0f), 5.0f, 13.0f, 6.5f, 1, 1, 1, 1, 0, 1
-        );
-    }
-
-    if (rand() % 2)
-    {
-        Vector3(GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(tempPed, GET_RANDOM_FLOAT_IN_RANGE(25.0f, 50.0f), GET_RANDOM_FLOAT_IN_RANGE(25.0f, 50.0f), GET_RANDOM_FLOAT_IN_RANGE(0.4f, 20.0f)))
-            .ToArray(tempCoords1);
-        ADD_EXPLOSION(tempCoords1[0], tempCoords1[1], tempCoords1[2], EXPLOSION::TRAIN, 0.2f, 0, 0, 0.05f, false);
-        Vector3(GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(tempPed, GET_RANDOM_FLOAT_IN_RANGE(25.0f, 50.0f), GET_RANDOM_FLOAT_IN_RANGE(-25.0f, -50.0f), GET_RANDOM_FLOAT_IN_RANGE(0.4f, 20.0f)))
-            .ToArray(tempCoords1);
-        ADD_EXPLOSION(tempCoords1[0], tempCoords1[1], tempCoords1[2], EXPLOSION::TRAIN, 0.2f, 0, 0, 0.05f, false);
-    }
-    else
-    {
-        Vector3(GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(tempPed, GET_RANDOM_FLOAT_IN_RANGE(-25.0f, -50.0f), GET_RANDOM_FLOAT_IN_RANGE(25.0f, 50.0f), GET_RANDOM_FLOAT_IN_RANGE(0.4f, 20.0f)))
-            .ToArray(tempCoords1);
-        ADD_EXPLOSION(tempCoords1[0], tempCoords1[1], tempCoords1[2], EXPLOSION::TRAIN, 4.0f, 0, 0, 0.15f, false);
-        Vector3(GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(tempPed, GET_RANDOM_FLOAT_IN_RANGE(-25.0f, -50.0f), GET_RANDOM_FLOAT_IN_RANGE(-25.0f, -50.0f), GET_RANDOM_FLOAT_IN_RANGE(0.4f, 20.0f)))
-            .ToArray(tempCoords1);
-        ADD_EXPLOSION(tempCoords1[0], tempCoords1[1], tempCoords1[2], EXPLOSION::TRAIN, 4.0f, 0, 0, 0.15f, false);
-    }
-}
-
 #include <random>
 
 int GetRandomSpriteId()
@@ -945,54 +887,6 @@ int GetRandomSpriteId()
 }
 
 // Misc
-void SetBlackoutEMPMode()
-{
-    SET_ARTIFICIAL_LIGHTS_STATE(TRUE);
-
-    for (auto& vehicle : nearbyVehicles)
-    {
-        if (vehicle == g_myVeh)
-            continue;
-
-        NETWORK_REQUEST_CONTROL_OF_ENTITY(vehicle);
-        SET_VEHICLE_ENGINE_ON(vehicle, 0, 1, 0);
-    }
-
-    ScrHandle tempSeq;
-    OPEN_SEQUENCE_TASK(&tempSeq);
-    TASK_LEAVE_ANY_VEHICLE(0, 0, 0);
-    TASK_CLEAR_LOOK_AT(0);
-    TASK_SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(0, 0);
-    TASK_STAND_STILL(0, 300);
-    TASK_START_SCENARIO_IN_PLACE(0, "WORLD_HUMAN_STAND_IMPATIENT", 800, 1);
-    TASK_USE_MOBILE_PHONE_TIMED(0, 6000);
-    TASK_WANDER_STANDARD(0, 0x471c4000, 0);
-    CLOSE_SEQUENCE_TASK(tempSeq);
-
-    for (auto& ped : nearbyPeds)
-    {
-        if (GET_SEQUENCE_PROGRESS(ped) < 0)
-        {
-            if (!IS_PED_IN_ANY_VEHICLE(ped, 0))
-            {
-                continue;
-            }
-            if (GET_ENTITY_SPEED(GET_VEHICLE_PED_IS_IN(ped, 0)) > 0.6f)
-            {
-                continue;
-            }
-
-            NETWORK_REQUEST_CONTROL_OF_ENTITY(ped);
-            TASK_PERFORM_SEQUENCE(ped, tempSeq);
-            SET_PED_KEEP_TASK(ped, 1);
-            SET_PED_FLEE_ATTRIBUTES(ped, 0, 1);
-            SET_PED_FLEE_ATTRIBUTES(ped, 1024, 1);
-            SET_PED_FLEE_ATTRIBUTES(ped, 131072, 1);
-        }
-    }
-    CLEAR_SEQUENCE_TASK(&tempSeq);
-}
-
 void SetBlackoutMode()
 {
     SET_ARTIFICIAL_LIGHTS_STATE(TRUE);
@@ -1020,35 +914,7 @@ void NetworkSetEveryoneIgnorePlayer(Player player)
 }
 
 // World
-void SetExplosionAtCoords(GTAentity entity, Vector3 pos, UINT8 type, float radius, float camshake, bool sound, bool invis, GTAentity owner)
-{
-    const Vector3& Pos = (entity.Handle() == 0) ? pos : entity.GetOffsetInWorldCoords(pos);
-
-    if (owner.Handle() != 0 && owner.IsPed())
-    {
-        ADD_OWNED_EXPLOSION(owner.Handle(), Pos.x, Pos.y, Pos.z, type, radius, sound, invis, camshake);
-    }
-    else
-    {
-        ADD_EXPLOSION(Pos.x, Pos.y, Pos.z, type, radius, sound, invis, camshake, false);
-    }
-}
-
 // World-Misc
-void StartFireworksAtCoords(const Vector3& pos, const Vector3& rot, float scale)
-{
-    if (!HAS_NAMED_PTFX_ASSET_LOADED("scr_indep_fireworks"))
-    {
-        REQUEST_NAMED_PTFX_ASSET("scr_indep_fireworks");
-    }
-    {
-        std::vector<std::string> fw{"scr_indep_firework_starburst", "scr_indep_firework_fountain", "scr_indep_firework_shotburst", "scr_indep_firework_trailburst"};
-        USE_PARTICLE_FX_ASSET("scr_indep_fireworks");
-        SET_PARTICLE_FX_NON_LOOPED_COLOUR(GET_RANDOM_FLOAT_IN_RANGE(0.0f, 1.0f), GET_RANDOM_FLOAT_IN_RANGE(0.0f, 1.0f), GET_RANDOM_FLOAT_IN_RANGE(0.0f, 1.0f));
-        START_NETWORKED_PARTICLE_FX_NON_LOOPED_AT_COORD(fw[rand() % 4].c_str(), pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, scale, 0, 0, 0, false);
-    }
-}
-
 // Aimed weapon effects
 void TickAimedWeaponFeatures()
 {
@@ -1326,40 +1192,6 @@ void SetLocalCarHydraulics()
             vehicle.ApplyForceCustom(Vector3(0, 0, abs(normal.y) * 0.164f), Vector3(0, (normal.y > 0 ? 1 : -1) * 3.05f, 0), ForceType::MaxForceRot, true, true, true, true, false, true);
         }
     }
-}
-
-void SetExplosionWP(UINT8 mode)
-{
-    if (!IS_WAYPOINT_ACTIVE())
-    {
-        return;
-    }
-
-    float camshake = 0.0f;
-    bool visible = true;
-
-    switch (mode)
-    {
-    case 0: // off
-        return;
-        break;
-    case 1:
-    default: // visible + shaky
-        camshake = 3.0f;
-        break;
-    case 2: // visible
-        visible = true;
-        break;
-    case 3: // invisible
-        visible = false;
-        break;
-    }
-
-    Vector3 pos = GET_BLIP_INFO_ID_COORD(GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint));
-    ADD_EXPLOSION(pos.x, pos.y, pos.z, 16, 36.0f, 1, !visible, camshake, false);
-    GET_GROUND_Z_FOR_3D_COORD(pos.x, pos.y, 600.0f, &pos.z, 0, 0);
-    ADD_EXPLOSION(pos.x, pos.y, pos.z + 5.0f, 29, 36.0f, 1, !visible, camshake, false);
-    ADD_EXPLOSION(pos.x, pos.y, pos.z + 20.0f, 29, 36.0f, 1, !visible, camshake, false);
 }
 
 float g_multiPlatNeonsIntensity = 3.5f;
@@ -1885,9 +1717,6 @@ static void TickSubsystems()
     g_spSnow.Tick();
     VehicleCruise::g_vehicleCruise.Tick();
     sub::WaterHack::Tick();
-    MeteorShower::g_meteorShower.Tick();
-    sub::AnimalRiding::Tick();
-    GTA2Cam::g_gta2Cam.Tick();
     SetPTFXLopTick();
 }
 
@@ -1927,22 +1756,9 @@ static void TickWorldState()
         {
             DisplayFullHUDThisFrame(true);
         }
-
-        if (massacreMode)
-        {
-            SetMassacreModeTick();
-        }
-        if (blackoutMode)
-        {
-            SetBlackoutEMPMode();
-        }
         if (simpleBlackoutMode)
         {
             SetBlackoutMode();
-        }
-        if (JumpAroundMode::bEnabled)
-        {
-            JumpAroundMode::Tick();
         }
     }
 
@@ -1983,11 +1799,6 @@ static void TickWorldState()
     {
         SetMultiPlatNeons();
     }
-
-    if (explostionWP != 0)
-    {
-        SetExplosionWP(explostionWP);
-    }
 }
 
 static void TickPlayerState(int player, int iped, GTAplayer& player2)
@@ -2018,43 +1829,6 @@ static void TickPlayerState(int player, int iped, GTAplayer& player2)
     {
         sub::PedDamageTextures::ClearAllBloodDamage(iped);
         sub::PedDamageTextures::ClearAllVisibleDamage(iped);
-    }
-
-    if (fireworksDisplay)
-    {
-        StartFireworksAtCoords(
-            GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(
-                player2.GetPed().Handle(), GET_RANDOM_FLOAT_IN_RANGE(-10.0f, 10.0f), GET_RANDOM_FLOAT_IN_RANGE(-6.0f, 27.0f), GET_RANDOM_FLOAT_IN_RANGE(-9.0f, 3.5f)
-            ),
-            Vector3(0, 0, GET_RANDOM_FLOAT_IN_RANGE(-90.0f, 90.0f)),
-            GET_RANDOM_FLOAT_IN_RANGE(0.4f, 2.45f)
-        );
-        if (rand() % (INT)2)
-        {
-            SetExplosionAtCoords(
-                iped,
-                Vector3(GET_RANDOM_FLOAT_IN_RANGE(9.0f, 25.0f), GET_RANDOM_FLOAT_IN_RANGE(5.0f, 25.0f), GET_RANDOM_FLOAT_IN_RANGE(0.4f, 20.0f)),
-                EXPLOSION::DIR_WATER_HYDRANT,
-                8.0f,
-                0.0f,
-                true,
-                false,
-                0
-            );
-        }
-        else
-        {
-            SetExplosionAtCoords(
-                iped,
-                Vector3(GET_RANDOM_FLOAT_IN_RANGE(-9.0f, -25.0f), GET_RANDOM_FLOAT_IN_RANGE(5.0f, 25.0f), GET_RANDOM_FLOAT_IN_RANGE(0.4f, 20.0f)),
-                EXPLOSION::DIR_WATER_HYDRANT,
-                8.0f,
-                0.0f,
-                true,
-                false,
-                0
-            );
-        }
     }
 
     if (clearWeaponPickups)
@@ -2465,18 +2239,6 @@ void ThreadMenuLoops2()
         }
 
         TickSpectatePlayer();
-
-        switch (autoKillEnemies)
-        {
-        case 1:
-            World::KillNearbyPeds(PLAYER_PED_ID(), FLT_MAX, PedRelationship::Hate);
-            World::KillNearbyPeds(PLAYER_PED_ID(), FLT_MAX, PedRelationship::Dislike);
-            break;
-        case 2:
-            World::KillMyEnemies();
-            break;
-        }
-
         sub::TeleportLocations_catind::Yachts::Tick();
         sub::TeleportLocations_catind::CayoPerico::Tick();
         ManualRespawn::g_manualRespawn.Tick();

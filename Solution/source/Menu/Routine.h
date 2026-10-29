@@ -120,7 +120,6 @@ extern FLOAT g_rainFXIntensity;
 
 
 extern INT8 spectatePlayer;
-extern UINT8 explostionWP;
 
 extern bool multiPlatNeons;
 
@@ -129,7 +128,6 @@ extern std::vector<GTAvehicle> g_multiPlatNeonsList;
 
 extern bool checkSelfDeathModel;
 
-extern UINT8 autoKillEnemies;
 extern float weaponDamageIncrease;
 
 extern UINT8 selfFreezeWantedLevel;
@@ -148,7 +146,6 @@ extern bool neverWanted;
 extern bool vehiclePopulation;
 extern bool pedPopulation;
 extern bool clearWeaponPickups;
-extern bool massacreMode;
 extern bool vehicleInvincibility;
 extern bool raceBoost;
 extern bool carHydraulics;
@@ -162,12 +159,10 @@ extern bool syncClock;
 extern bool selfDeleteGun;
 extern bool vehicleFixLoop;
 extern bool vehicleFlipLoop;
-extern bool blackoutMode;
 extern bool simpleBlackoutMode;
 extern bool restrictedAreasAccess;
 extern bool hvSnipers;
 extern bool vehicleDisableSiren;
-extern bool fireworksDisplay;
 extern bool bitInfiniteAmmo;
 extern bool selfInfiniteParachutes;
 extern bool s_neonDirty;
@@ -186,13 +181,9 @@ void SetPauseMenuTeleToWpCommand();
 
 void SetPTFXLopTick();
 void SetSyncClockTime();
-void SetMassacreModeTick();
-void SetBlackoutEMPMode();
 void SetBlackoutMode();
 void SetSelfNearbyPedsCalm();
 void NetworkSetEveryoneIgnorePlayer(Player player);
-void SetExplosionAtCoords(GTAentity entity, Vector3 pos, UINT8 type, float radius, float camshake, bool sound, bool invis, GTAentity owner);
-void StartFireworksAtCoords(const Vector3& pos, const Vector3& rot, float scale);
 void TickAimedWeaponFeatures();
 void SetSelfDeleteGun();
 void SetHVSnipers(bool set);

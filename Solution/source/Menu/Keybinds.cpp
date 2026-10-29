@@ -58,8 +58,6 @@ const std::vector<KeybindEntry> g_registry{
 
     {"teleport_waypoint", "Teleport to Waypoint", "Teleports the player to the active map waypoint.", (UINT16)VirtualKey::T, NoBind, (UINT16)INPUT_FRONTEND_RLEFT, NoBind, "Teleport"},
 
-    {"tow_rope", "Tow Rope", "Extends or shortens the physics rope to the vehicle behind.", (UINT16)VirtualKey::K, NoBind, (UINT16)INPUT_FRONTEND_LS, NoBind, "Vehicles", false},
-
     {"vehicle_boost", "Vehicle Boost", "Hold for a speed boost while driving. Enable it in Vehicle Options.", (UINT16)VirtualKey::E, NoBind, (UINT16)INPUT_VEH_HORN, NoBind, "Vehicles", false},
 
     {"menu_action",

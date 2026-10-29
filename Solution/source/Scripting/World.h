@@ -29,7 +29,6 @@ typedef int Entity;
 
 enum class EntityType : UINT8;
 enum class WeatherType : int;
-enum class RopeType : int;
 enum class CheckpointIcon : int;
 enum VehicleSeat : int;
 
@@ -53,7 +52,6 @@ class GTAentity;
 class GTAped;
 class GTAvehicle;
 class GTAprop;
-class Rope;
 
 namespace PedRelationship
 {
@@ -137,8 +135,6 @@ void AddOwnedExplosion(GTAentity owner, const Vector3& position, EXPLOSION::EXPL
 
 Checkpoint CreateCheckpoint(const CheckpointIcon& icon, const Vector3& position, const Vector3& pointTo, float radius, const RGBA& colour, BYTE reserved = 0);
 
-inline Rope AddRope(RopeType type, const Vector3& position, Vector3 rotation, float length, float minLength, bool breakable);
-
 void SetBlackout(bool enable);
 
 Hash AddRelationshipGroup(const std::string& groupName);
@@ -178,10 +174,6 @@ void DrawLightWithRange(const Vector3& position, const RgbS& colour, float range
 void DrawSpotLight(const Vector3& pos, const Vector3& dir, const RgbS& colour, float distance, float brightness, float roundness, float radius, float fadeout);
 void DrawSpotLightWithShadow(const Vector3& pos, const Vector3& dir, const RgbS& colour, float distance, float brightness, float roundness, float radius, float fadeout, float shadowUnk);
 
-
-// World - Relationships - nearby
-void KillNearbyPeds(GTAped originPed, float range, PedRelationship::PedRelationship relationshipWithOriginPed);
-void KillMyEnemies();
 
 } // namespace World
 

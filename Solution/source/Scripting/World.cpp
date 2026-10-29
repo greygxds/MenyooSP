@@ -37,7 +37,6 @@
 #include "GTAprop.h"
 #include "GTAplayer.h"
 #include "Raycast.h"
-#include "Rope.h"
 
 #include "..\Menu\Routine.h"
 
@@ -566,11 +565,6 @@ Checkpoint CreateCheckpoint(const CheckpointIcon& icon, const Vector3& position,
     return CREATE_CHECKPOINT(static_cast<int>(icon), position.x, position.y, position.z, pointTo.x, pointTo.y, pointTo.z, radius, colour.R, colour.G, colour.B, colour.A, reserved);
 }
 
-Rope AddRope(RopeType type, const Vector3& position, Vector3 rotation, float length, float minLength, bool breakable)
-{
-    return Rope::AddRope(type, position, rotation, length, minLength, breakable);
-}
-
 void SetBlackout(bool enable)
 {
     SET_ARTIFICIAL_LIGHTS_STATE(enable);
@@ -743,63 +737,7 @@ void DrawSpotLightWithShadow(const Vector3& pos, const Vector3& dir, const RgbS&
     DRAW_SHADOWED_SPOT_LIGHT(pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, colour.R, colour.G, colour.B, distance, brightness, roundness, radius, fadeout, shadowUnk);
 }
 
-// World - Relationships - nearby
-void KillNearbyPeds(GTAped originPed, float range, PedRelationship::PedRelationship relationshipWithOriginPed)
-{
-    if (!originPed.Exists())
-        return;
 
-    INT i, j;
-    GTAped ped;
-
-    const Vector3& originCoord = originPed.GetPosition();
-
-    std::vector<Ped> peds(140 * 2 + 2); // Five minutes into doubled stack size and chill and it gives you that ped handle
-    peds[0] = 140;
-    INT found = GET_PED_NEARBY_PEDS(originPed.Handle(), (Any*)peds.data(), -1);
-    for (i = 0; i < found; i++)
-    {
-        j = i * 2 + 2;
-
-        ped.Handle() = peds[j];
-        if (!ped.Exists())
-            continue;
-
-        if (!ped.IsInRangeOf(originCoord, range))
-            continue;
-
-        if (relationshipWithOriginPed != PedRelationship::MinusOneWat)
-        {
-            if (GET_RELATIONSHIP_BETWEEN_PEDS(ped.Handle(), originPed.Handle()) != relationshipWithOriginPed)
-                continue;
-        }
-
-        ped.RequestControl();
-        ped.Kill();
-        EXPLODE_PED_HEAD(ped.Handle(), WEAPON_HEAVYSNIPER);
-    }
-}
-
-void KillMyEnemies()
-{
-    std::vector<GTAblip> vBlips;
-    World::GetActiveBlips(vBlips);
-    GTAentity myPed = PLAYER_PED_ID();
-
-    for (auto& blip : vBlips)
-    {
-        auto colour = blip.Colour();
-        if (colour != BlipColour::Blue) // Don't hit friendlies
-        {
-            auto icon = blip.Icon();
-            if (icon == BlipIcon::PoliceOfficer || icon == BlipIcon::Enemy || (icon == BlipIcon::Standard && colour == BlipColour::Red) || icon == BlipIcon::EnemyHelicopter ||
-                icon == BlipIcon::PoliceHelicopter || icon == BlipIcon::PoliceHelicopterAnimated)
-            {
-                World::AddExplosion(blip.GetPosition(), EXPLOSION::BARREL, 5.0f, 0.0f, false, false);
-            }
-        }
-    }
-}
 } // namespace World
 
 // World - clear area

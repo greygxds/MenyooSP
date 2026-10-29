@@ -1460,8 +1460,6 @@ void SpawnVehicleMenu()
     AddOption(Language::Translate("vehicleSpawner.favourites"), null, nullFunc, SUB::SPAWNVEHICLE_FAVOURITES);
     AddOption(Language::Translate("vehicleSpawner.savedVehicles"), null, nullFunc, SUB::VEHICLE_SAVER);
     AddOption(Language::Translate("vehicleSpawner.spawnSettings"), null, nullFunc, SUB::SPAWNVEHICLE_OPTIONS);
-    AddOption(Language::Translate("vehicleSpawner.funnyVehicles"), null, nullFunc, SUB::FUNNYVEHICLES);
-    AddOptionDescription(Language::Translate("vehicleSpawner.funnyVehicles.description"));
 
     AddBreak(Language::Translate("vehicleSpawner.carsBreak"));
     AddVehicleCategoryOption(Language::Translate("vehicleSpawner.openWheel"), OPENWHEEL);

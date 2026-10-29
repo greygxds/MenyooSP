@@ -22,56 +22,18 @@ void MiscOps()
 {
     g_activePedHandle = PLAYER_PED_ID();
 
-    const std::vector<std::string> explosions_wp_names{
-        Language::Translate("misc.explosionsWaypoint.off"),
-        Language::Translate("misc.explosionsWaypoint.visibleShaky"),
-        Language::Translate("misc.explosionsWaypoint.visible"),
-        Language::Translate("misc.explosionsWaypoint.invisible")
-    };
-
-    bool autoKillPlus = false;
-    bool autoKillMinus = false;
-    bool miscMassacreModeOn = false;
-    bool miscMassacreModeOff = false;
-    bool jumpAroundOn = false;
-    bool jumpAroundOff = false;
     bool blackoutOff = false;
-    bool explosionsWPPlus = false;
-    bool explosionsWPMinus = false;
     bool miscPedPopulationOff = false;
     bool miscVehiclePopulationOff = false;
 
     AddTitle(Language::Translate("misc.title"));
     AddOption(Language::Translate("misc.freeCamSettings"), null, nullFunc, SUB::FREECAMSETTINGS);
-    AddLocal(Language::Translate("misc.topDownView"), GTA2Cam::g_gta2Cam.Enabled(), GTA2Cam::ToggleOnOff, GTA2Cam::ToggleOnOff);
-    AddOptionDescription(Language::Translate("misc.topDownView.description"));
     AddLocal(Language::Translate("misc.manualRespawn"), ManualRespawn::g_manualRespawn.Enabled(), ManualRespawn::ToggleOnOff, ManualRespawn::ToggleOnOff);
     AddOptionDescription(Language::Translate("misc.manualRespawn.description"));
-    AddTexter(
-        Language::Translate("misc.autoKillEnemies"),
-        autoKillEnemies,
-        std::vector<std::string>{Language::Translate("misc.autoKillEnemies.off"), Language::Translate("misc.autoKillEnemies.weak"), Language::Translate("misc.autoKillEnemies.radical")},
-        null,
-        autoKillPlus,
-        autoKillMinus
-    );
-    AddOptionDescription(Language::Translate("misc.autoKillEnemies.description"));
-    AddLocal(Language::Translate("misc.meteorShower"), MeteorShower::g_meteorShower.Enabled(), MeteorShower::ToggleOnOff, MeteorShower::ToggleOnOff);
-    AddOptionDescription(Language::Translate("misc.meteorShower.description"));
-    AddToggle(Language::Translate("misc.empMode"), blackoutMode, null, blackoutOff);
-    AddOptionDescription(Language::Translate("misc.empMode.description"));
     AddToggle(Language::Translate("misc.simpleBlackout"), simpleBlackoutMode, null, blackoutOff);
     AddOptionDescription(Language::Translate("misc.simpleBlackout.description"));
-    AddToggle(Language::Translate("misc.jumpAround"), JumpAroundMode::bEnabled, jumpAroundOn, jumpAroundOff);
-    AddOptionDescription(Language::Translate("misc.jumpAround.description"));
-    AddToggle(Language::Translate("misc.fireworks"), fireworksDisplay);
-    AddOptionDescription(Language::Translate("misc.fireworks.description"));
-    AddToggle(Language::Translate("misc.massacre"), massacreMode, miscMassacreModeOn, miscMassacreModeOff);
-    AddOptionDescription(Language::Translate("misc.massacre.description"));
     AddToggle(Language::Translate("misc.restrictedAreaAccess"), restrictedAreasAccess);
     AddOptionDescription(Language::Translate("misc.restrictedAreaAccess.description"));
-    AddTexter(Language::Translate("misc.explosionsWaypoint"), explostionWP, explosions_wp_names, null, explosionsWPPlus, explosionsWPMinus);
-    AddOptionDescription(Language::Translate("misc.explosionsWaypoint.description"));
     AddToggle(Language::Translate("misc.decreasedPedPopulation"), pedPopulation, null, miscPedPopulationOff);
     AddOptionDescription(Language::Translate("misc.decreasedPedPopulation.description"));
     AddToggle(Language::Translate("misc.decreasedVehiclePopulation"), vehiclePopulation, null, miscVehiclePopulationOff);
@@ -81,7 +43,6 @@ void MiscOps()
     AddOption(Language::Translate("misc.cutscenePlayer"), null, nullFunc, SUB::CUTSCENEPLAYER);
     AddOption(Language::Translate("misc.tvPlayer"), null, nullFunc, SUB::TVCHANNELSTUFF_TV);
     AddOption(Language::Translate("misc.radio"), null, nullFunc, SUB::RADIOSUB);
-    AddOption(Language::Translate("misc.animalRiding"), null, nullFunc, SUB::ANIMALRIDING);
     AddOption(Language::Translate("misc.clearArea"), null, nullFunc, SUB::CLEARAREA);
     AddOptionDescription(Language::Translate("misc.clearArea.description"));
     AddOption(Language::Translate("misc.visionHax"), null, nullFunc, SUB::TIMECYCLES);
@@ -249,63 +210,10 @@ void MiscOps()
         }
     }
 
-    if (autoKillPlus)
-    {
-        if (autoKillEnemies < 2)
-        {
-            autoKillEnemies++;
-            return;
-        }
-    }
-
-    if (autoKillMinus)
-    {
-        if (autoKillEnemies > 0)
-        {
-            autoKillEnemies--;
-            return;
-        }
-    }
-
-    if (miscMassacreModeOn)
-    {
-        World::ClearWeatherOverride();
-        World::SetWeatherOverTime(WeatherType::Thunder, 4000);
-        return;
-    }
-    if (miscMassacreModeOff)
-    {
-        World::ClearWeatherOverride();
-        World::SetWeatherOverTime(WeatherType::ExtraSunny, 4000);
-        return;
-    }
-
-    if (jumpAroundOn || jumpAroundOff)
-    {
-        JumpAroundMode::StartJumping(jumpAroundOn);
-    }
-
     if (blackoutOff)
     {
         SET_ARTIFICIAL_LIGHTS_STATE(FALSE);
         SET_ARTIFICIAL_VEHICLE_LIGHTS_STATE(TRUE);
-    }
-
-    if (explosionsWPPlus)
-    {
-        if (explostionWP < explosions_wp_names.size() - 1)
-        {
-            explostionWP++;
-            return;
-        }
-    }
-    if (explosionsWPMinus)
-    {
-        if (explostionWP > 0)
-        {
-            explostionWP--;
-            return;
-        }
     }
 
     if (miscPedPopulationOff)

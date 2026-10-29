@@ -28,10 +28,7 @@
 #include "..\Scripting\GTAvehicle.h"
 #include "..\Scripting\GameplayCamera.h"
 
-#include "..\Misc\Gta2Cam.h"
 #include "..\Misc\ManualRespawn.h"
-#include "..\Misc\MeteorShower.h"
-#include "..\Misc\JumpAroundMode.h"
 #include "..\Misc\FpsCounter.h"
 
 #include "..\Submenus\Spooner\EntityManagement.h"

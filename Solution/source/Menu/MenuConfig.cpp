@@ -28,9 +28,7 @@
 #include "..\Misc\FpsCounter.h"
 #include "..\Misc\FreeCam.h"
 #include "..\Submenus\MiscOptions.h"
-#include "..\Misc\JumpAroundMode.h"
 #include "..\Memory\GTAmemory.h"
-#include "..\Submenus\AnimalRiding.h"
 #include "..\Submenus\WeaponOptions.h"
 #include "..\Submenus\TimeOptions.h"
 #include "..\Submenus\VehicleOptions.h"
@@ -227,20 +225,14 @@ void MenuConfig::ConfigRead()
     clearWeaponPickups = ini.GetBoolValue(section_haxValues.c_str(), "decreased_weapon_pickups", clearWeaponPickups);
     g_clearAreaRadius = ini.GetDoubleValue(section_haxValues.c_str(), "clear_area_radius", g_clearAreaRadius);
     restrictedAreasAccess = ini.GetBoolValue(section_haxValues.c_str(), "restricted_area_access", restrictedAreasAccess);
-    fireworksDisplay = ini.GetBoolValue(section_haxValues.c_str(), "fireworks_ahoy", fireworksDisplay);
-    blackoutMode = ini.GetBoolValue(section_haxValues.c_str(), "emp_mode", blackoutMode);
     simpleBlackoutMode = ini.GetBoolValue(section_haxValues.c_str(), "simple_blackout_mode", simpleBlackoutMode);
-    massacreMode = ini.GetBoolValue(section_haxValues.c_str(), "massacre_mode", massacreMode);
-    JumpAroundMode::bEnabled = ini.GetBoolValue(section_haxValues.c_str(), "jump_around_mode", JumpAroundMode::bEnabled);
     g_frozenRadioStation = (INT16)ini.GetLongValue(section_haxValues.c_str(), "frozen_radio_station", g_frozenRadioStation);
     g_spSnow.ToggleSnow(ini.GetBoolValue(section_haxValues.c_str(), "snow_on_terrain", g_spSnow.IsSnow()));
-    sub::AnimalRiding::Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "animal_riding_mode", sub::AnimalRiding::Enabled());
 
     selfDeleteGun = ini.GetBoolValue(section_haxValues.c_str(), "self_delete_gun", selfDeleteGun);
     weaponDamageIncrease = ini.GetDoubleValue(section_haxValues.c_str(), "weapon_damage_multiplier", weaponDamageIncrease);
     bitInfiniteAmmo = ini.GetBoolValue(section_haxValues.c_str(), "self_infinite_ammo_clip", bitInfiniteAmmo);
     selfInfiniteParachutes = ini.GetBoolValue(section_haxValues.c_str(), "infinite_parachutes", selfInfiniteParachutes);
-    autoKillEnemies = ini.GetLongValue(section_haxValues.c_str(), "auto_kill_enemies", autoKillEnemies);
 
 
     selfRefillHealthInCover = ini.GetBoolValue(section_haxValues.c_str(), "player_refill_health_when_in_cover", selfRefillHealthInCover);
@@ -448,20 +440,14 @@ void MenuConfig::SaveConfig()
     ini.SetBoolValue(section_haxValues.c_str(), "decreased_weapon_pickups", clearWeaponPickups);
     ini.SetDoubleValue(section_haxValues.c_str(), "clear_area_radius", g_clearAreaRadius);
     ini.SetBoolValue(section_haxValues.c_str(), "restricted_area_access", restrictedAreasAccess);
-    ini.SetBoolValue(section_haxValues.c_str(), "fireworks_ahoy", fireworksDisplay);
-    ini.SetBoolValue(section_haxValues.c_str(), "emp_mode", blackoutMode);
     ini.SetBoolValue(section_haxValues.c_str(), "simple_blackout_mode", simpleBlackoutMode);
-    ini.SetBoolValue(section_haxValues.c_str(), "massacre_mode", massacreMode);
-    ini.SetBoolValue(section_haxValues.c_str(), "jump_around_mode", JumpAroundMode::bEnabled);
     ini.SetLongValue(section_haxValues.c_str(), "frozen_radio_station", g_frozenRadioStation);
     ini.SetBoolValue(section_haxValues.c_str(), "snow_on_terrain", g_spSnow.IsSnow());
-    ini.SetBoolValue(section_haxValues.c_str(), "animal_riding_mode", sub::AnimalRiding::Enabled());
 
     ini.SetBoolValue(section_haxValues.c_str(), "self_delete_gun", selfDeleteGun);
     ini.SetDoubleValue(section_haxValues.c_str(), "weapon_damage_multiplier", weaponDamageIncrease);
     ini.SetBoolValue(section_haxValues.c_str(), "self_infinite_ammo_clip", bitInfiniteAmmo);
     ini.SetBoolValue(section_haxValues.c_str(), "infinite_parachutes", selfInfiniteParachutes);
-    ini.SetLongValue(section_haxValues.c_str(), "auto_kill_enemies", autoKillEnemies);
 
 
     ini.SetBoolValue(section_haxValues.c_str(), "player_refill_health_when_in_cover", selfRefillHealthInCover);
@@ -545,8 +531,6 @@ void MenuConfig::SaveConfig()
         {"settings", "category_nav_key"},
         {"settings", "category_nav_pad"},
         {"general", "FreeCamButton"},
-        {"general", "tow_key"},
-        {"general", "tow_pad"},
         {"general", "MenuActionHotkey"},
         {"general", "FreeCamPad_1"},
         {"general", "FreeCamPad_2"},
