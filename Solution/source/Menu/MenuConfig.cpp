@@ -32,11 +32,6 @@
 #include "..\Memory\GTAmemory.h"
 #include "..\Submenus\AnimalRiding.h"
 #include "..\Submenus\WeaponOptions.h"
-#include "..\Misc\MagnetGun.h"
-#include "..\Misc\RopeGun.h"
-#include "..\Misc\SmashAbility.h"
-#include "..\Misc\VehicleTow.h"
-#include "..\Misc\VehicleFly.h"
 #include "..\Submenus\TimeOptions.h"
 #include "..\Submenus\VehicleOptions.h"
 
@@ -241,34 +236,12 @@ void MenuConfig::ConfigRead()
     g_spSnow.ToggleSnow(ini.GetBoolValue(section_haxValues.c_str(), "snow_on_terrain", g_spSnow.IsSnow()));
     sub::AnimalRiding::Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "animal_riding_mode", sub::AnimalRiding::Enabled());
 
-    forgeGun = ini.GetBoolValue(section_haxValues.c_str(), "forge_gun", forgeGun);
-    g_forgeGunShootForce = ini.GetDoubleValue(section_haxValues.c_str(), "forge_gun_shoot_force", g_forgeGunShootForce);
-    sub::GravityGun_catind::Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "gravity_gun", sub::GravityGun_catind::Enabled());
-    sub::GravityGun_catind::ShootForce() = ini.GetDoubleValue(section_haxValues.c_str(), "gravity_gun_shoot_force", sub::GravityGun_catind::ShootForce());
-    MagnetGun::g_magnetGun.Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "magnet_gun", MagnetGun::g_magnetGun.Enabled());
-    teleportGun = ini.GetBoolValue(section_haxValues.c_str(), "teleport_gun", teleportGun);
-    lightGun = ini.GetBoolValue(section_haxValues.c_str(), "light_gun", lightGun);
-    RopeGun::g_ropeGun.Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "rope_gun", RopeGun::g_ropeGun.Enabled());
-    bulletTime = ini.GetBoolValue(section_haxValues.c_str(), "bullet_time", bulletTime);
-    weaponDamageIncrease = ini.GetDoubleValue(section_haxValues.c_str(), "weapon_damage_multiplier", weaponDamageIncrease);
-    explosiveRounds = ini.GetBoolValue(section_haxValues.c_str(), "explosive_bullets", explosiveRounds);
-    flamingRounds = ini.GetBoolValue(section_haxValues.c_str(), "flaming_bullets", flamingRounds);
-    explosiveMelee = ini.GetBoolValue(section_haxValues.c_str(), "explosive_melee", explosiveMelee);
-    tripleBullets = ini.GetBoolValue(section_haxValues.c_str(), "triple_bullets", tripleBullets);
-    selfTriggerbot = ini.GetBoolValue(section_haxValues.c_str(), "self_triggerbot", selfTriggerbot);
-    rapidFire = ini.GetBoolValue(section_haxValues.c_str(), "rapid_fire", rapidFire);
-    soulSwitchGun = ini.GetBoolValue(section_haxValues.c_str(), "soul_switch_gun", soulSwitchGun);
-    selfResurrectionGun = ini.GetBoolValue(section_haxValues.c_str(), "self_revival_gun", selfResurrectionGun);
     selfDeleteGun = ini.GetBoolValue(section_haxValues.c_str(), "self_delete_gun", selfDeleteGun);
+    weaponDamageIncrease = ini.GetDoubleValue(section_haxValues.c_str(), "weapon_damage_multiplier", weaponDamageIncrease);
     bitInfiniteAmmo = ini.GetBoolValue(section_haxValues.c_str(), "self_infinite_ammo_clip", bitInfiniteAmmo);
     selfInfiniteParachutes = ini.GetBoolValue(section_haxValues.c_str(), "infinite_parachutes", selfInfiniteParachutes);
     autoKillEnemies = ini.GetLongValue(section_haxValues.c_str(), "auto_kill_enemies", autoKillEnemies);
 
-    sub::LaserSight_catind::bEnabled = ini.GetBoolValue(section_haxValues.c_str(), "laser_sight_toggle", sub::LaserSight_catind::bEnabled);
-    sub::LaserSight_catind::_colour.R = ini.GetLongValue(section_haxValues.c_str(), "laser_sight_R", sub::LaserSight_catind::_colour.R);
-    sub::LaserSight_catind::_colour.G = ini.GetLongValue(section_haxValues.c_str(), "laser_sight_G", sub::LaserSight_catind::_colour.G);
-    sub::LaserSight_catind::_colour.B = ini.GetLongValue(section_haxValues.c_str(), "laser_sight_B", sub::LaserSight_catind::_colour.B);
-    sub::LaserSight_catind::_colour.A = ini.GetLongValue(section_haxValues.c_str(), "laser_sight_A", sub::LaserSight_catind::_colour.A);
 
     selfRefillHealthInCover = ini.GetBoolValue(section_haxValues.c_str(), "player_refill_health_when_in_cover", selfRefillHealthInCover);
     playerInvincibility = ini.GetBoolValue(section_haxValues.c_str(), "player_invincibility", playerInvincibility);
@@ -277,32 +250,17 @@ void MenuConfig::ConfigRead()
     playerUnlimitedAbility = ini.GetBoolValue(section_haxValues.c_str(), "player_unlimited_special_ab", playerUnlimitedAbility);
     playerAutoClean = ini.GetBoolValue(section_haxValues.c_str(), "player_auto_clean", playerAutoClean);
 
-    superJump = ini.GetBoolValue(section_haxValues.c_str(), "player_super_jump", superJump);
-    superRun = ini.GetBoolValue(section_haxValues.c_str(), "player_super_run", superRun);
-    superman = ini.GetBoolValue(section_haxValues.c_str(), "player_superman_manual", superman);
-    supermanAuto = ini.GetBoolValue(section_haxValues.c_str(), "player_superman_auto", supermanAuto);
-    forceField = ini.GetLongValue(section_haxValues.c_str(), "player_forcefield", forceField);
-    SmashAbility::g_smashAbility.Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "player_smash_ability", SmashAbility::g_smashAbility.Enabled());
     ignoredByEveryone = ini.GetBoolValue(section_haxValues.c_str(), "player_ignored_by_everyone", ignoredByEveryone);
     neverWanted = ini.GetBoolValue(section_haxValues.c_str(), "player_never_wanted", neverWanted);
-    playerBurn = ini.GetBoolValue(section_haxValues.c_str(), "player_burn_mode", playerBurn);
 
     vehicleInvincibility = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_invincibility", vehicleInvincibility);
-    vehicleHeavyMass = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_increased_mass", vehicleHeavyMass);
     raceBoost = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_horn_boost", raceBoost);
     unlimitedVehicleBoost = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_unlim_native_boost", unlimitedVehicleBoost);
-    carJump = ini.GetLongValue(section_haxValues.c_str(), "vehicle_jump", carJump);
     carHydraulics = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_hydraulics", carHydraulics);
-    superGrip = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_glue_to_ground", superGrip);
-    superCarMode = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_SuprKar_mode", superCarMode);
-    carColorChange = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_rainbow_mode", carColorChange);
     vehicleFixLoop = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_auto_fix", vehicleFixLoop);
     vehicleFlipLoop = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_auto_flip", vehicleFlipLoop);
     selfEngineOn = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_keep_engine_running", selfEngineOn);
-    VehicleTow::g_vehicleTow.Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_tow_mode", VehicleTow::g_vehicleTow.Enabled());
-    VehicleFly::g_vehicleFly.Enabled() = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_fly_mode", VehicleFly::g_vehicleFly.Enabled());
     multiPlatNeons = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_multiplat_neons", multiPlatNeons);
-    multiPlatNeonsRainbow = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_multiplat_neons_rainbow", multiPlatNeonsRainbow);
     g_multiPlatNeonsColor.R = ini.GetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_R", g_multiPlatNeonsColor.R);
     g_multiPlatNeonsColor.G = ini.GetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_G", g_multiPlatNeonsColor.G);
     g_multiPlatNeonsColor.B = ini.GetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_B", g_multiPlatNeonsColor.B);
@@ -499,34 +457,12 @@ void MenuConfig::SaveConfig()
     ini.SetBoolValue(section_haxValues.c_str(), "snow_on_terrain", g_spSnow.IsSnow());
     ini.SetBoolValue(section_haxValues.c_str(), "animal_riding_mode", sub::AnimalRiding::Enabled());
 
-    ini.SetBoolValue(section_haxValues.c_str(), "forge_gun", forgeGun);
-    ini.SetDoubleValue(section_haxValues.c_str(), "forge_gun_shoot_force", g_forgeGunShootForce);
-    ini.SetBoolValue(section_haxValues.c_str(), "gravity_gun", sub::GravityGun_catind::Enabled());
-    ini.SetDoubleValue(section_haxValues.c_str(), "gravity_gun_shoot_force", sub::GravityGun_catind::ShootForce());
-    ini.SetBoolValue(section_haxValues.c_str(), "magnet_gun", MagnetGun::g_magnetGun.Enabled());
-    ini.SetBoolValue(section_haxValues.c_str(), "teleport_gun", teleportGun);
-    ini.SetBoolValue(section_haxValues.c_str(), "light_gun", lightGun);
-    ini.SetBoolValue(section_haxValues.c_str(), "rope_gun", RopeGun::g_ropeGun.Enabled());
-    ini.SetBoolValue(section_haxValues.c_str(), "bullet_time", bulletTime);
-    ini.SetDoubleValue(section_haxValues.c_str(), "weapon_damage_multiplier", weaponDamageIncrease);
-    ini.SetBoolValue(section_haxValues.c_str(), "explosive_bullets", explosiveRounds);
-    ini.SetBoolValue(section_haxValues.c_str(), "flaming_bullets", flamingRounds);
-    ini.SetBoolValue(section_haxValues.c_str(), "explosive_melee", explosiveMelee);
-    ini.SetBoolValue(section_haxValues.c_str(), "triple_bullets", tripleBullets);
-    ini.SetBoolValue(section_haxValues.c_str(), "self_triggerbot", selfTriggerbot);
-    ini.SetBoolValue(section_haxValues.c_str(), "rapid_fire", rapidFire);
-    ini.SetBoolValue(section_haxValues.c_str(), "soul_switch_gun", soulSwitchGun);
-    ini.SetBoolValue(section_haxValues.c_str(), "self_revival_gun", selfResurrectionGun);
     ini.SetBoolValue(section_haxValues.c_str(), "self_delete_gun", selfDeleteGun);
+    ini.SetDoubleValue(section_haxValues.c_str(), "weapon_damage_multiplier", weaponDamageIncrease);
     ini.SetBoolValue(section_haxValues.c_str(), "self_infinite_ammo_clip", bitInfiniteAmmo);
     ini.SetBoolValue(section_haxValues.c_str(), "infinite_parachutes", selfInfiniteParachutes);
     ini.SetLongValue(section_haxValues.c_str(), "auto_kill_enemies", autoKillEnemies);
 
-    ini.SetBoolValue(section_haxValues.c_str(), "laser_sight_toggle", sub::LaserSight_catind::bEnabled);
-    ini.SetLongValue(section_haxValues.c_str(), "laser_sight_R", sub::LaserSight_catind::_colour.R);
-    ini.SetLongValue(section_haxValues.c_str(), "laser_sight_G", sub::LaserSight_catind::_colour.G);
-    ini.SetLongValue(section_haxValues.c_str(), "laser_sight_B", sub::LaserSight_catind::_colour.B);
-    ini.SetLongValue(section_haxValues.c_str(), "laser_sight_A", sub::LaserSight_catind::_colour.A);
 
     ini.SetBoolValue(section_haxValues.c_str(), "player_refill_health_when_in_cover", selfRefillHealthInCover);
     ini.SetBoolValue(section_haxValues.c_str(), "player_invincibility", playerInvincibility);
@@ -534,32 +470,17 @@ void MenuConfig::SaveConfig()
     ini.SetBoolValue(section_haxValues.c_str(), "player_seatbelt", playerSeatbelt);
     ini.SetBoolValue(section_haxValues.c_str(), "player_unlimited_special_ab", playerUnlimitedAbility);
     ini.SetBoolValue(section_haxValues.c_str(), "player_auto_clean", playerAutoClean);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_super_jump", superJump);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_super_run", superRun);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_superman_manual", superman);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_superman_auto", supermanAuto);
-    ini.SetLongValue(section_haxValues.c_str(), "player_forcefield", forceField);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_smash_ability", SmashAbility::g_smashAbility.Enabled());
     ini.SetBoolValue(section_haxValues.c_str(), "player_ignored_by_everyone", ignoredByEveryone);
     ini.SetBoolValue(section_haxValues.c_str(), "player_never_wanted", neverWanted);
-    ini.SetBoolValue(section_haxValues.c_str(), "player_burn_mode", playerBurn);
 
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_invincibility", vehicleInvincibility);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_increased_mass", vehicleHeavyMass);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_horn_boost", raceBoost);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_unlim_native_boost", unlimitedVehicleBoost);
-    ini.SetLongValue(section_haxValues.c_str(), "vehicle_jump", carJump);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_hydraulics", carHydraulics);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_glue_to_ground", superGrip);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_SuprKar_mode", superCarMode);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_rainbow_mode", carColorChange);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_auto_fix", vehicleFixLoop);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_auto_flip", vehicleFlipLoop);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_keep_engine_running", selfEngineOn);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_tow_mode", VehicleTow::g_vehicleTow.Enabled());
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_fly_mode", VehicleFly::g_vehicleFly.Enabled());
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_multiplat_neons", multiPlatNeons);
-    ini.SetBoolValue(section_haxValues.c_str(), "vehicle_multiplat_neons_rainbow", multiPlatNeonsRainbow);
     ini.SetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_R", g_multiPlatNeonsColor.R);
     ini.SetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_G", g_multiPlatNeonsColor.G);
     ini.SetLongValue(section_haxValues.c_str(), "vehicle_multiplat_neons_B", g_multiPlatNeonsColor.B);
@@ -687,10 +608,6 @@ void MenuConfig::ConfigResetHaxValues()
 
     ini.SetLongValue(section_haxValues.c_str(), "frozen_radio_station", -1);
 
-    ini.SetLongValue(section_haxValues.c_str(), "laser_sight_R", sub::LaserSight_catind::_colour.R);
-    ini.SetLongValue(section_haxValues.c_str(), "laser_sight_G", sub::LaserSight_catind::_colour.G);
-    ini.SetLongValue(section_haxValues.c_str(), "laser_sight_B", sub::LaserSight_catind::_colour.B);
-    ini.SetLongValue(section_haxValues.c_str(), "laser_sight_A", sub::LaserSight_catind::_colour.A);
 
     ini.SetValue(section_haxValues.c_str(), "speedo_bg_name", sub::Speedo::currentSpeedoBG.fileName.c_str());
     ini.SetBoolValue(section_haxValues.c_str(), "unlock_max_head_ids", false);

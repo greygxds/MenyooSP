@@ -122,51 +122,8 @@ const std::vector<KeybindEntry> g_registry{
      NoBind,
      "Spooner"},
 
-    {"vehicle_weapons_fire",
-     "Fire Vehicle Weapons",
-     "Hold to fire the enabled vehicle weapons. Enable them in Vehicle Options.",
-     (UINT16)VirtualKey::Add,
-     NoBind,
-     (UINT16)INPUT_FRONTEND_LS,
-     NoBind,
-     "Vehicles",
-     false},
-
     {"vehicle_hydraulics", "Car Hydraulics", "Hold and steer to bounce the car on its hydraulics.", (UINT16)VirtualKey::LeftShift, NoBind, (UINT16)INPUT_FRONTEND_LS, NoBind, "Vehicles", true},
 
-    {"breathe_ptfx",
-     "Breathe Effect",
-     "Hold to breathe the selected particle effect. Enable it in Player Options > Breathe Stuff.",
-     (UINT16)VirtualKey::J,
-     NoBind,
-     (UINT16)INPUT_FRONTEND_LS,
-     NoBind,
-     "Player",
-     false},
-
-    {"superman_boost",
-     "Superman Forward Boost",
-     "Boosts the player forward while skydiving with Fly Manual enabled.",
-     (UINT16)VirtualKey::Add,
-     NoBind,
-     (UINT16)INPUT_FRONTEND_RB,
-     NoBind,
-     "Player",
-     false},
-
-    {"superman_freeze",
-     "Superman Hover / Brake",
-     "Freezes the player in place while held, resumes on release.",
-     (UINT16)VirtualKey::Subtract,
-     NoBind,
-     (UINT16)INPUT_FRONTEND_RDOWN,
-     NoBind,
-     "Player",
-     false},
-
-    {"superman_ascend", "Superman Ascend", "Pushes the flying player upward while Fly Manual is enabled.", (UINT16)VirtualKey::Numpad7, NoBind, (UINT16)INPUT_FRONTEND_RT, NoBind, "Player", false},
-
-    {"superman_descend", "Superman Descend", "Pushes the flying player downward while Fly Manual is enabled.", (UINT16)VirtualKey::Numpad1, NoBind, (UINT16)INPUT_FRONTEND_LT, NoBind, "Player", false},
 };
 } // namespace
 

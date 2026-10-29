@@ -21,7 +21,6 @@
 
 #include "..\Natives\natives2.h"
 
-#include "..\Submenus\WeaponOptions.h"
 #include "..\Util\keyboard.h"
 
 #include "..\Scripting\Game.h"

@@ -18,13 +18,7 @@ typedef unsigned long DWORD, Hash;
 typedef float FLOAT;
 typedef char* PCHAR;
 
-class RGBA;
 class GTAped;
-
-namespace GTAmodel
-{
-class Model;
-}
 
 extern Ped g_WeaponOpsPedOverride;
 extern Player g_WeaponOpsPlayerOverride;
@@ -32,49 +26,8 @@ extern Ped g_WeaponMenuPedOverride;
 
 namespace sub
 {
-namespace PtfxSubs
-{
-struct PtfxS;
-}
-} // namespace sub
-
-namespace sub
-{
 void Weaponops();
 
-
-void ForgeGun_();
-
-namespace GravityGun_catind
-{
-
-void Tick();
-bool& Enabled();
-float& ShootForce();
-
-void Sub_GravityGun();
-
-} // namespace GravityGun_catind
-
-namespace TriggerFxGun
-{
-void AddOptionGunFX(const sub::PtfxSubs::PtfxS& fx);
-
-void Sub_GunMain();
-} // namespace TriggerFxGun
-
-void AddKaboomGunOption(const std::string& text, Hash newHash, bool* extra_option_code = nullptr, bool gxt = false);
-void KaboomGun_();
-
-void AddbgunOption_(const std::string& text, Hash hash, bool* extra_option_code = nullptr);
-void BulletGun_();
-
-void AddPedGunOption(const std::string& text, GTAmodel::Model newModel, bool* extra_option_code = nullptr);
-void PedGun_();
-void PedGun_AllPeds();
-
-void AddObjectGunOption(const std::string& text, GTAmodel::Model newModel, bool* extra_option_code = nullptr, bool gxt = false);
-void ObjectGun_();
 
 void List_VehicleCats_Sub();
 
@@ -113,18 +66,5 @@ bool Apply(GTAped ped, const std::string& filePath);
 void Sub_Loadouts();
 void Sub_Loadouts_InItem();
 } // namespace WeaponsLoadouts_catind
-
-namespace LaserSight_catind
-{
-extern bool bEnabled;
-extern RGBA _colour;
-
-inline void DoSight();
-void Tick();
-
-void Sub_LaserSight();
-} // namespace LaserSight_catind
-
-void ObjectSpawner_objs();
 
 } // namespace sub

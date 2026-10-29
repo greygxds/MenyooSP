@@ -2208,12 +2208,6 @@ void SpawnVehicleAllCategoriesMenu()
         /// one submenu back >>>
         switch (Menu::submenuHistory[Menu::menuHistoryIndex - 1]) /// -1
         {
-        case SUB::OBJECTGUN:
-            AddObjectGunOption(vehModel.VehicleDisplayName(true), vehModel, nullptr, false);
-            break;
-        case SUB::KABOOMGUN:
-            AddKaboomGunOption(vehModel.VehicleDisplayName(true), vehModel.hash, nullptr, false);
-            break;
         case SUB::MSENGINESOUND:
             Vehicle engineSoundVehicleTarget = GetVehicleModShopTarget();
             AddTickol(vehModel.VehicleDisplayName(true), GetVehicleEngineSoundName(engineSoundVehicleTarget) == vehModel.VehicleDisplayName(false), setEngineSoundPressed, setEngineSoundPressed);
@@ -2420,12 +2414,6 @@ void SpawnVehicleFavouritesMenu()
                 /// one submenu back >>>
                 switch (Menu::submenuHistory[Menu::menuHistoryIndex - 1]) /// -1
                 {
-                case SUB::OBJECTGUN:
-                    AddObjectGunOption(vehDisplayName, vehModel, &null, false);
-                    break;
-                case SUB::KABOOMGUN:
-                    AddKaboomGunOption(vehDisplayName, vehModel.hash, &null, false);
-                    break;
                 case SUB::MSENGINESOUND:
                     Vehicle engineSoundVehicleTarget = GetVehicleModShopTarget();
                     AddTickol(vehDisplayName, GetVehicleEngineSoundName(engineSoundVehicleTarget) == vehModel.VehicleDisplayName(false), setEngineSoundPressed, setEngineSoundPressed);

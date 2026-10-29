@@ -23,8 +23,6 @@ void PlayerOptionsMenu()
     bool invisibilityOff = false;
     bool noRagdollOff = false;
     bool seatbeltOff = false;
-    bool supermanOn = false;
-    bool supermanAutoOn = false;
     bool ignoredByEveryoneOff = false;
     bool neverWantedOn = false;
     bool neverWantedOff = false;
@@ -32,8 +30,6 @@ void PlayerOptionsMenu()
     bool wantedMinus = false;
     bool wantedFreezeOn = false;
     bool wantedFreezeOff = false;
-    bool burnModeOn = false;
-    bool burnModeOff = false;
     bool movementSpeedModifierPlus = false;
     bool movementSpeedModifierMinus = false;
     bool sweatPlus = false;
@@ -42,17 +38,12 @@ void PlayerOptionsMenu()
     bool noiseValueMinus = false;
     bool collisionOn = false;
     bool collisionOff = false;
-    bool forceFieldPlus = false;
-    bool forceFieldMinus = false;
     bool heightPlus = false;
     bool heightMinus = false;
     bool movementSpeedPlus = false;
     bool movementSpeedMinus = false;
     bool swimSpeedPlus = false;
     bool swimSpeedMinus = false;
-
-    std::vector<std::string> forceFieldNames{"Off", "Push Out", "Destroy"};
-
 
     float& height = g_playerVerticalElongationMultiplier;
     float movementSpeed = 0.0f, swimSpeed = 0.0f;
@@ -82,10 +73,6 @@ void PlayerOptionsMenu()
     AddOption("Ped Flags", null, nullFunc, SUB::PEDFLAGMANAGER_NAMEDLIST);
     AddOptionDescription("Turn individual game ped config flags on or off.");
     AddOption("TriggerFX", null, nullFunc, SUB::PTFXSUB);
-    AddOption("Breathe Stuff", null, nullFunc, SUB::BREATHESTUFF);
-    AddOptionDescription("Breathe particle effects out of your mouth while holding the bound key, once enabled.");
-    AddOption("Ghost Rider Mode", null, nullFunc, SUB::GHOSTRIDERMODE);
-
     AddOption("Opacity (Local)", goToAlphaLevel, nullFunc, SUB::ENTITYALPHALEVEL);
     AddOptionDescription("Your transparency. Only visible to you.");
     if (goToAlphaLevel)
@@ -110,19 +97,6 @@ void PlayerOptionsMenu()
     AddToggle("Unlimited Special Ability (SP)", playerUnlimitedAbility);
     AddToggle("Auto-Clean", playerAutoClean);
     AddOptionDescription("Continuously removes blood and visible damage.");
-    AddToggle("Super Run", superRun);
-    AddOptionDescription("Hold sprint to run much faster.");
-    AddToggle("Super Jump", superJump);
-    AddToggle("Walk underwater", playerWalkUnderwater);
-    AddOptionDescription("Walk along the bottom instead of swimming.");
-    AddTexter("Forcefield", forceField, forceFieldNames, null, forceFieldPlus, forceFieldMinus);
-    AddOptionDescription("Push Out shoves nearby entities away; Destroy damages them.");
-    AddLocal("Smash Ability", SmashAbility::g_smashAbility.Enabled(), SmashAbility::ToggleOnOff, SmashAbility::ToggleOnOff);
-    AddOptionDescription("Hold Jump to use a ground-smash ability.");
-    AddToggle("Fly Manual", superman, supermanOn);
-    AddOptionDescription("While skydiving: ascend, descend, boost forward and hover with the shown keys. Rebind them in Settings > Keybinds.");
-    AddToggle("Fly Auto", supermanAuto, supermanAutoOn);
-    AddOptionDescription("While skydiving, you're pushed forward and upward automatically.");
     AddToggle("Ignored By Everyone", ignoredByEveryone, null, ignoredByEveryoneOff);
     AddOptionDescription("Peds and police ignore you and stay calm.");
     AddNumber("Wanted Level", wantedLevel, 0, null, wantedPlus, wantedMinus);
@@ -135,8 +109,6 @@ void PlayerOptionsMenu()
     {
         AddToggle("Never Wanted", neverWanted, neverWantedOn, neverWantedOff);
     }
-    AddToggle("Burn Mode", playerBurn, burnModeOn, burnModeOff);
-    AddOptionDescription("Keeps you on fire (use with Invincibility).");
     AddNumber("Height (Elongation) - Experimental", height, 2, null, heightPlus, heightMinus);
     AddOptionDescription("Stretches your ped vertically. 1.0 is normal.");
     AddNumber("Movement Speed (Alt)", swimSpeedMult, 2, null, movementSpeedModifierPlus, movementSpeedModifierMinus);
@@ -237,34 +209,6 @@ void PlayerOptionsMenu()
         return;
     }
 
-    if (forceFieldPlus)
-    {
-        addlog(ige::LogType::LOG_TRACE, "Increase Force Field");
-        if (forceField < forceFieldNames.size() - 1)
-        {
-            forceField++;
-            return;
-        }
-    }
-    if (forceFieldMinus)
-    {
-        addlog(ige::LogType::LOG_TRACE, "Decrease Force Field");
-        if (forceField > 0)
-        {
-            forceField--;
-            return;
-        }
-    }
-
-    if (supermanAutoOn)
-    {
-        Vector3 Pos = GET_ENTITY_COORDS(g_activePedHandle, 1);
-        CREATE_AMBIENT_PICKUP(PICKUP_PARACHUTE, Pos.x, Pos.y, Pos.z, 0, 300, 1, 0, 1);
-        TASK_PARACHUTE(g_activePedHandle, true, false);
-        APPLY_FORCE_TO_ENTITY(PLAYER_PED_ID(), 1, 0.0f, 0.0f, 10.0f, 0.0, 0.0, 0.0, 1, 1, 1, 1, 0, 1);
-        return;
-    }
-
     if (ignoredByEveryoneOff)
     {
         addlog(ige::LogType::LOG_TRACE, "Ignore By Everyone Off");
@@ -342,32 +286,6 @@ void PlayerOptionsMenu()
     {
         addlog(ige::LogType::LOG_TRACE, "Freeze Wanted Level Off");
         selfFreezeWantedLevel = 0;
-        return;
-    }
-
-    if (burnModeOn)
-    {
-        addlog(ige::LogType::LOG_TRACE, "Burn Mode On");
-        if (GET_PLAYER_INVINCIBLE(g_activePlayerId))
-        {
-            SET_PLAYER_INVINCIBLE(g_activePlayerId, 0);
-        }
-        SetPedInvincibleOff(g_activePedHandle);
-        WAIT(130);
-        if (!IS_ENTITY_ON_FIRE(g_activePedHandle))
-        {
-            START_ENTITY_FIRE(g_activePedHandle);
-        }
-        Game::Print::ShowNotification("~b~Note:", "If you're not on fire yet, kill yourself.");
-        return;
-    }
-    if (burnModeOff)
-    {
-        addlog(ige::LogType::LOG_TRACE, "Burn Mode Off");
-        if (IS_ENTITY_ON_FIRE(g_activePedHandle))
-        {
-            STOP_ENTITY_FIRE(g_activePedHandle);
-        }
         return;
     }
 
