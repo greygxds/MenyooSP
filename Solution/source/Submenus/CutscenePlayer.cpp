@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "CutscenePlayer.h"
+#include "..\Menu\Language.h"
 
 namespace sub
 {
@@ -84,8 +85,8 @@ void PlayCutscene(const std::string& label)
 
 void CutsceneListMenu()
 {
-    AddTitle("Cutscene Player");
-    AddOption("STOP CUTSCENE(S)", null, EndCutscene);
+    AddTitle(Language::Translate("cutscene.title"));
+    AddOption(Language::Translate("cutscene.stop"), null, EndCutscene);
 
     for (auto& label : cutsceneLabels)
     {

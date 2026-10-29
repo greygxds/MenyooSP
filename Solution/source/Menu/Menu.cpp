@@ -1624,7 +1624,7 @@ void AddNumber(const std::string& text, double value, __int8 decimal_places, boo
     {
         numberInputActive = true;
         if (&A_PRESS != &null)
-            Menu::add_IB(INPUT_CELLPHONE_SELECT, "Input");
+            Menu::add_IB(INPUT_CELLPHONE_SELECT, Language::Translate("common.input.label"));
 
         if (null)
             A_PRESS = true;
@@ -1990,7 +1990,7 @@ template <typename TA> inline void AddTexter(const std::string& text, int select
     {
         numberInputActive = true;
         if (&A_PRESS != &null)
-            Menu::add_IB(INPUT_CELLPHONE_SELECT, "Input");
+            Menu::add_IB(INPUT_CELLPHONE_SELECT, Language::Translate("common.input.label"));
 
         if (null)
             A_PRESS = true;
@@ -2021,7 +2021,11 @@ int AddTexterCycler(const std::string& label, int currentIdx, const std::vector<
 void AddSaveFileSortOption()
 {
     const int previousSortMode = MenuConfig::saveFileSortMode;
-    MenuConfig::saveFileSortMode = AddTexterCycler("Sort By", previousSortMode, {"Name (A-Z)", "Created (newest first)", "Modified (newest first)"});
+    MenuConfig::saveFileSortMode = AddTexterCycler(
+        Language::Translate("menu.files.sortBy"),
+        previousSortMode,
+        {Language::Translate("menu.files.sortBy.name"), Language::Translate("menu.files.sortBy.created"), Language::Translate("menu.files.sortBy.modified")}
+    );
     if (MenuConfig::saveFileSortMode != previousSortMode)
         MenuConfig::RequestSave();
 }
@@ -2059,7 +2063,7 @@ void AddKeybindOption(const std::string& label, const std::string& bindText, con
     if (Menu::IsLastDrawnOptionSelected())
     {
         if (&A_PRESS != &null)
-            Menu::add_IB(INPUT_CELLPHONE_SELECT, "Input");
+            Menu::add_IB(INPUT_CELLPHONE_SELECT, Language::Translate("common.input.label"));
         if (null)
             A_PRESS = true;
     }

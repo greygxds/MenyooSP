@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "Nightclubs.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 
@@ -1189,7 +1190,7 @@ const std::vector<TeleLocation> vOtherNightclubRelatedTeleports{
 
 void Sub_Nightclubs()
 {
-    AddTitle("Nightclubs");
+    AddTitle(Language::Translate("teleport.nightclubs.title"));
 
     for (auto& otherTele : vOtherNightclubRelatedTeleports)
     {

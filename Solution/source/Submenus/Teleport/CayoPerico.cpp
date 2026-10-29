@@ -1,4 +1,5 @@
 #include "CayoPerico.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\Menu\Menu.h"
 #include "..\..\Menu\Routine.h"
@@ -397,10 +398,10 @@ static void _TeleportToLocation(const CayoPericoLocation& loc)
 
 void Sub_CayoPerico()
 {
-    AddTitle("Cayo Perico");
-    AddToggle("Cayo Perico Enabled", bCayoPericoEnabled, _EnableIsland, _DisableIsland);
-    AddOptionDescription("Loads the island into the map.");
-    AddBreak("---Locations---");
+    AddTitle(Language::Translate("teleport.cayo.title"));
+    AddToggle(Language::Translate("teleport.cayo.enabled"), bCayoPericoEnabled, _EnableIsland, _DisableIsland);
+    AddOptionDescription(Language::Translate("teleport.cayo.enabled.description"));
+    AddBreak(Language::Translate("teleport.locations.section"));
     for (auto& loc : vCayoPericoLocations)
     {
         bool bPressed = false;
@@ -408,7 +409,7 @@ void Sub_CayoPerico()
         if (bPressed)
             _TeleportToLocation(loc);
     }
-    AddBreak("---Interiors---");
+    AddBreak(Language::Translate("teleport.cayo.interiors"));
     for (auto& loc : vCayoPericoInteriors)
     {
         bool bPressed = false;

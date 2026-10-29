@@ -9,6 +9,8 @@
 */
 #include "SpoonerLight.h"
 
+#include "..\..\Menu\Language.h"
+
 #include "..\..\macros.h"
 
 #include "..\..\Util\ExePath.h"
@@ -110,7 +112,7 @@ void RemoveOrphanedLightTasks(UINT lightId, const std::string& lightName)
 
             if (taskLightId == lightId)
             {
-                Game::Print::PrintBottomLeft("Light '~y~" + lightName + "~s~' deleted — removed '~b~" + taskName + "~s~' task");
+                Game::Print::PrintBottomLeft(Language::Format("spooner.light.deletedTask", {{"light", lightName}, {"task", taskName}}));
                 entity.taskSequence.RemoveTask(static_cast<UINT16>(i));
             }
         }

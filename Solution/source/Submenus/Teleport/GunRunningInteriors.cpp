@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "GunRunningInteriors.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 
@@ -158,7 +159,7 @@ void TeleportPedToBunker(GTAentity ped, BunkerInfoStructure& info)
 
 void Sub_Bunkers()
 {
-    AddTitle("Bunkers");
+    AddTitle(Language::Translate("teleport.gunRunning.bunkers"));
 
     for (auto& loc : vLocations)
     {
@@ -202,8 +203,8 @@ void Sub_Bunkers_InLoc()
     }
 
     bool bCreateBunkerPressed = false;
-    AddOption("Build Bunker", bCreateBunkerPressed);
-    AddOptionDescription("Loads the bunker with the options above and teleports you inside.");
+    AddOption(Language::Translate("teleport.gunRunning.buildBunker"), bCreateBunkerPressed);
+    AddOptionDescription(Language::Translate("teleport.gunRunning.buildBunker.description"));
     if (bCreateBunkerPressed)
     {
         DO_SCREEN_FADE_OUT(50);
@@ -303,7 +304,7 @@ void TeleportPedToMoc(GTAentity ped, MocInfoStructure& info)
 
 void Sub_Moc()
 {
-    AddTitle("MOCs");
+    AddTitle(Language::Translate("teleport.gunRunning.mocs"));
 
     for (auto& loc : vLocations)
     {
@@ -347,8 +348,8 @@ void Sub_Moc_InLoc()
     }
 
     bool bCreateBunkerPressed = false;
-    AddOption("Build MOC", bCreateBunkerPressed);
-    AddOptionDescription("Loads the Mobile Operations Center with the options above and teleports you inside.");
+    AddOption(Language::Translate("teleport.gunRunning.buildMoc"), bCreateBunkerPressed);
+    AddOptionDescription(Language::Translate("teleport.gunRunning.buildMoc.description"));
     if (bCreateBunkerPressed)
     {
         DO_SCREEN_FADE_OUT(50);

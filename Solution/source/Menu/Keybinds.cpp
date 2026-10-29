@@ -3,6 +3,7 @@
 #include "..\macros.h"
 
 #include "Menu.h"
+#include "Language.h"
 #include "submenu_enum.h"
 
 #include "..\Natives\natives2.h"
@@ -199,14 +200,18 @@ const std::string& KeybindEntry::Id() const
     return m_id;
 }
 
-const std::string& KeybindEntry::Label() const
+std::string KeybindEntry::Label() const
 {
-    return m_label;
+    const std::string key = "keybinds." + m_id + ".label";
+    const std::string translated = Language::TranslateToSelected(key);
+    return translated == key ? m_label : translated;
 }
 
-const std::string& KeybindEntry::Description() const
+std::string KeybindEntry::Description() const
 {
-    return m_description;
+    const std::string key = "keybinds." + m_id + ".description";
+    const std::string translated = Language::TranslateToSelected(key);
+    return translated == key ? m_description : translated;
 }
 
 const std::string& KeybindEntry::Category() const

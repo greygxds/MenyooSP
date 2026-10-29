@@ -9,6 +9,7 @@
 #include "..\PedComponentChanger.h"
 #include "..\..\Menu\Menu.h"
 #include "..\..\Menu\Keybinds.h"
+#include "..\..\Menu\Language.h"
 #include "..\..\Natives\natives2.h"
 #include "..\..\Natives\types.h"
 #include "..\..\Scripting\Game.h"
@@ -208,13 +209,13 @@ void AddTargetToDb(GTAentity target)
 
 void AddInstructionalButtons(bool isInDb)
 {
-    Menu::add_IB(INPUT_CURSOR_CANCEL, "Open property menu");
+    Menu::add_IB(INPUT_CURSOR_CANCEL, Language::Translate("spooner.cursor.openPropertyMenu"));
     if (!state.dragging)
-        Menu::add_IB(INPUT_CURSOR_ACCEPT, "Move entity around (hold)");
-    Keybinds::AddBindIB("spooner_edit_copy", "Copy (and add to DB)");
-    Keybinds::AddBindIB("spooner_cursor_remove", "Delete");
+        Menu::add_IB(INPUT_CURSOR_ACCEPT, Language::Translate("spooner.cursor.moveEntity"));
+    Keybinds::AddBindIB("spooner_edit_copy", Language::Translate("spooner.cursor.copyToDb"));
+    Keybinds::AddBindIB("spooner_cursor_remove", Language::Translate("menu.delete"));
     if (!isInDb)
-        Keybinds::AddBindIB("spooner_cursor_add_to_db", "Add to Database");
+        Keybinds::AddBindIB("spooner_cursor_add_to_db", Language::Translate("spooner.cursor.addToDb"));
 }
 
 void HandleShortcuts(GTAentity target)

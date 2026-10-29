@@ -9,12 +9,13 @@
 */
 #include "MainMenu.h"
 #include "Players.h"
+#include "..\Menu\Language.h"
 
 namespace sub
 {
 void PlayersMenu()
 {
-    AddTitle("Players");
+    AddTitle(Language::Translate("players.title"));
 
     for (int i = 0; i < GAME_PLAYERCOUNT; i++)
     {
@@ -50,13 +51,13 @@ void PlayersAMenu()
     }
     else
     {
-        spectatePlayerStr = "Spectate Player";
+        spectatePlayerStr = Language::Translate("players.spectate");
     }
 
     AddTitle(g_playerName); // Title = player name
-    AddOption("Set Waypoint To Player", setWaypoint);
+    AddOption(Language::Translate("players.setWaypoint"), setWaypoint);
     AddLocal(spectatePlayerStr, spectatePlayer == g_activePlayerId, spectateOn, spectateOff); // Spectate Player
-    AddOptionDescription("Watch this player through their camera.");
+    AddOptionDescription(Language::Translate("players.spectate.description"));
 
     if (spectateOn)
     {

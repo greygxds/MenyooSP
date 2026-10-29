@@ -13,6 +13,7 @@
 /////////////////////////////
 
 #include "PedComponentChanger.h"
+#include "..\Menu\Language.h"
 #include "..\Misc\FreeCam.h"
 
 #include "..\macros.h"
@@ -411,16 +412,16 @@ void ComponentChanger()
 
     WardrobeCamera::SetFraming(thisPed, WardrobeCamera::Framing::Body);
 
-    AddTitle("Wardrobe");
-    AddLocal("Front View", WardrobeCamera::IsActive(), frontView, frontView);
-    AddOptionDescription("Moves the camera in front of the ped while you change clothes.");
-    AddOption("Outfits", null, nullFunc, SUB::COMPONENTS_OUTFITS);
-    AddOption("Default Outfits (Beta)", null, nullFunc, SUB::COMPONENTS_OUTFITS_DEFAULT);
-    AddOptionDescription("The game's built-in shop outfits. Only works for supported ped models.");
-    AddOption("Decal Overlays", null, PedDecals::OpenSubDecals, -1, true);
-    AddOption("Damage Overlays", null, nullFunc, SUB::PEDDAMAGET_CATEGORYLIST);
-    AddOption("Head Features", null, nullFunc, SUB::PED_HEADFEATURES_MAIN);
-    AddOption("Accessories", null, nullFunc, SUB::COMPONENTSPROPS);
+    AddTitle(Language::Translate("components.wardrobe.title"));
+    AddLocal(Language::Translate("components.wardrobe.frontView"), WardrobeCamera::IsActive(), frontView, frontView);
+    AddOptionDescription(Language::Translate("components.wardrobe.frontView.description"));
+    AddOption(Language::Translate("components.wardrobe.outfits"), null, nullFunc, SUB::COMPONENTS_OUTFITS);
+    AddOption(Language::Translate("components.wardrobe.defaultOutfits"), null, nullFunc, SUB::COMPONENTS_OUTFITS_DEFAULT);
+    AddOptionDescription(Language::Translate("components.wardrobe.defaultOutfits.description"));
+    AddOption(Language::Translate("components.wardrobe.decals"), null, PedDecals::OpenSubDecals, -1, true);
+    AddOption(Language::Translate("components.wardrobe.damage"), null, nullFunc, SUB::PEDDAMAGET_CATEGORYLIST);
+    AddOption(Language::Translate("components.wardrobe.headFeatures"), null, nullFunc, SUB::PED_HEADFEATURES_MAIN);
+    AddOption(Language::Translate("components.wardrobe.accessories"), null, nullFunc, SUB::COMPONENTSPROPS);
 
     const std::vector<std::string> components{
         "Head ~c~[head]",
@@ -437,7 +438,7 @@ void ComponentChanger()
         "Tops2 (Outer) ~c~[jbib]"
     };
 
-    AddBreak("---Components---");
+    AddBreak(Language::Translate("components.sections.components"));
 
     for (int i = 0; i < PV_COMP_MAX; i++)
     {
@@ -445,13 +446,13 @@ void ComponentChanger()
             AddPedComponentOption(components[i], i);
     }
 
-    AddBreak("---Utilities---");
-    AddOption("Random Components", bRandomComponents);
-    AddOptionDescription("Randomizes every clothing component. Press twice to confirm.");
-    AddOption("Default Components", bDefaultComponents);
-    AddOptionDescription("Resets clothing to the model's default. Press twice to confirm.");
-    AddOption("Default Components and Accessories", bClearAll);
-    AddOptionDescription("Resets clothing and removes all accessories. Press twice to confirm.");
+    AddBreak(Language::Translate("components.sections.utilities"));
+    AddOption(Language::Translate("components.random"), bRandomComponents);
+    AddOptionDescription(Language::Translate("components.random.description"));
+    AddOption(Language::Translate("components.default"), bDefaultComponents);
+    AddOptionDescription(Language::Translate("components.default.description"));
+    AddOption(Language::Translate("components.defaultAll"), bClearAll);
+    AddOptionDescription(Language::Translate("components.defaultAll.description"));
 
     static int confirmRandom = 0, confirmDefault = 0;
     static UINT16 lastSub = 0;
@@ -509,10 +510,10 @@ void ComponentChanger2()
     int maxGlobalDrawableId = GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS(g_activePedHandle, s_selectedComponentIndex) - 1;
     int maxTextureId = GET_NUMBER_OF_PED_TEXTURE_VARIATIONS(g_activePedHandle, s_selectedComponentIndex, globalDrawableId);
 
-    AddTitle("Set Variation");
+    AddTitle(Language::Translate("components.variation.title"));
 
     if (maxGlobalDrawableId >= 0)
-        AddNumberStepper("Type", globalDrawableId, 0, 1.0, 0, maxGlobalDrawableId, false, true);
+        AddNumberStepper(Language::Translate("components.variation.type"), globalDrawableId, 0, 1.0, 0, maxGlobalDrawableId, false, true);
 
     if (globalDrawableId != prevGlobalDrawableId)
     {
@@ -521,7 +522,7 @@ void ComponentChanger2()
     }
 
     if (maxTextureId > 0)
-        AddNumberStepper("Texture", textureId, 0, 1.0, 0, maxTextureId - 1, false, true);
+        AddNumberStepper(Language::Translate("components.variation.texture"), textureId, 0, 1.0, 0, maxTextureId - 1, false, true);
 
     // Collection data section (legacy only)
     bool collectionModified = false;
@@ -541,7 +542,7 @@ void ComponentChanger2()
 
         if (!data.collections.empty())
         {
-            AddBreak("---Collection Data---");
+            AddBreak(Language::Translate("components.variation.collectionData"));
 
             if (data.currentCollectionIdx < 0)
                 data.currentCollectionIdx = 0;
@@ -553,8 +554,8 @@ void ComponentChanger2()
                 names.push_back(c.name);
 
             int prevCollectionIdx = data.currentCollectionIdx;
-            data.currentCollectionIdx = AddTexterCycler("Collection", data.currentCollectionIdx, names);
-            AddOptionDescription("The clothing set this item was added in (base game, a game update or a mod). Base game items are listed as \"basegame\".");
+            data.currentCollectionIdx = AddTexterCycler(Language::Translate("components.variation.collection"), data.currentCollectionIdx, names);
+            AddOptionDescription(Language::Translate("components.variation.collection.description"));
             bool collectionChanged = (data.currentCollectionIdx != prevCollectionIdx);
 
             if (collectionChanged)
@@ -566,8 +567,8 @@ void ComponentChanger2()
 
             int prevLocalDrawableId = data.currentLocalIdx;
 
-            AddNumberStepper("Local ID", data.currentLocalIdx, 0, 1.0, 0, col.maxLocalId, false, true);
-            AddOptionDescription("The item's number within its collection. Unlike Type, it stays the same after game updates.");
+            AddNumberStepper(Language::Translate("components.variation.localId"), data.currentLocalIdx, 0, 1.0, 0, col.maxLocalId, false, true);
+            AddOptionDescription(Language::Translate("components.variation.index.description"));
             bool localDrawableIdChanged = collectionChanged || (data.currentLocalIdx != prevLocalDrawableId);
 
             if (localDrawableIdChanged)
@@ -639,7 +640,7 @@ void ComponentChangerProps_()
         "Hats ~c~[p_head]", "Glasses ~c~[p_eyes]", "Ear Pieces ~c~[p_ears]", "Unknown 3", "Unknown 4", "Unknown 5", "Watches ~c~[p_lwrist]", "Bangles ~c~[p_rwrist]", "Unknown 8", "Unknown 9"
     };
 
-    AddTitle("Accessories");
+    AddTitle(Language::Translate("components.accessories.title"));
 
     for (int i = 0; i < static_cast<int>(propNames.size()); ++i)
     {
@@ -647,9 +648,9 @@ void ComponentChangerProps_()
             AddPedPropOption(propNames[i], i);
     }
 
-    AddBreak("---Utilities---");
-    AddOption("Random Accessories", bRandomProps);
-    AddTickol("Default Accessories", true, bDefaultProps, bDefaultProps, TICKOL::CROSS);
+    AddBreak(Language::Translate("components.sections.utilities"));
+    AddOption(Language::Translate("components.accessories.random"), bRandomProps);
+    AddTickol(Language::Translate("components.accessories.default"), true, bDefaultProps, bDefaultProps, TICKOL::CROSS);
 
     static int confirmRandomProps = 0, confirmDefaultProps = 0;
     static UINT16 lastPropsSub = 0;
@@ -688,11 +689,11 @@ void ComponentChangerProps2()
     int maxGlobalPropId = GET_NUMBER_OF_PED_PROP_DRAWABLE_VARIATIONS(g_activePedHandle, s_selectedPropIndex) - 1;
     int maxTextureId = propTypeCurrent >= 0 ? GET_NUMBER_OF_PED_PROP_TEXTURE_VARIATIONS(g_activePedHandle, s_selectedPropIndex, propTypeCurrent) : 0;
 
-    AddTitle("Set Variation");
+    AddTitle(Language::Translate("components.variation.title"));
 
     if (maxGlobalPropId >= 0)
     {
-        AddNumberStepper("Type", propTypeCurrent, 0, 1.0, -1, maxGlobalPropId, false, true);
+        AddNumberStepper(Language::Translate("components.variation.type"), propTypeCurrent, 0, 1.0, -1, maxGlobalPropId, false, true);
     }
 
     if (propTypeCurrent != propTypeOld)
@@ -702,7 +703,7 @@ void ComponentChangerProps2()
     }
     if (maxTextureId > 0)
     {
-        AddNumberStepper("Texture", propTextureCurrent, 0, 1.0, 0, maxTextureId - 1, false, true);
+        AddNumberStepper(Language::Translate("components.variation.texture"), propTextureCurrent, 0, 1.0, 0, maxTextureId - 1, false, true);
     }
 
     // Collection data section (legacy only)
@@ -723,7 +724,7 @@ void ComponentChangerProps2()
 
         if (!data.collections.empty())
         {
-            AddBreak("---Collection Data---");
+            AddBreak(Language::Translate("components.variation.collectionData"));
 
             if (data.currentCollectionIdx < 0)
                 data.currentCollectionIdx = 0;
@@ -735,8 +736,8 @@ void ComponentChangerProps2()
                 names.push_back(c.name);
 
             int prevCollectionIdx = data.currentCollectionIdx;
-            data.currentCollectionIdx = AddTexterCycler("Collection", data.currentCollectionIdx, names);
-            AddOptionDescription("The clothing set this item was added in (base game, a game update or a mod). Base game items are listed as \"basegame\".");
+            data.currentCollectionIdx = AddTexterCycler(Language::Translate("components.variation.collection"), data.currentCollectionIdx, names);
+            AddOptionDescription(Language::Translate("components.variation.collection.description"));
             bool collectionChanged = (data.currentCollectionIdx != prevCollectionIdx);
 
             if (collectionChanged)
@@ -747,8 +748,8 @@ void ComponentChangerProps2()
                 data.currentLocalIdx = 0;
 
             int prevLocalPropId = data.currentLocalIdx;
-            AddNumberStepper("Local ID", data.currentLocalIdx, 0, 1.0, 0, col.maxLocalId, false, true);
-            AddOptionDescription("The item's number within its collection. Unlike Type, it stays the same after game updates.");
+            AddNumberStepper(Language::Translate("components.variation.localId"), data.currentLocalIdx, 0, 1.0, 0, col.maxLocalId, false, true);
+            AddOptionDescription(Language::Translate("components.variation.index.description"));
             bool localPropIdChanged = collectionChanged || (data.currentLocalIdx != prevLocalPropId);
 
             if (localPropIdChanged)
@@ -950,7 +951,7 @@ void Sub_Decals_Types()
         return;
     }
 
-    AddTitle("Decal Overlays");
+    AddTitle(Language::Translate("components.decals.title"));
 
     for (auto& type : vPed->second)
     {
@@ -963,7 +964,7 @@ void Sub_Decals_Types()
     }
 
     bool bClearAllPressed = false;
-    AddTickol("CLEAR ALL", true, bClearAllPressed, bClearAllPressed, TICKOL::CROSS);
+    AddTickol(Language::Translate("components.decals.clearAll"), true, bClearAllPressed, bClearAllPressed, TICKOL::CROSS);
     if (bClearAllPressed)
     {
         ped.RequestControl(600);
@@ -977,9 +978,9 @@ void Sub_Decals_Zones()
     AddTitle(selectedType->first);
 
     bool bSearchPressed = false;
-    AddOption("~b~Search~s~", bSearchPressed, nullFunc, SUB::PEDDECALS_ZONES_SEARCH, true);
+    AddOption(Language::Translate("components.search.button"), bSearchPressed, nullFunc, SUB::PEDDECALS_ZONES_SEARCH, true);
 
-    AddBreak("---Categories---");
+    AddBreak(Language::Translate("components.decals.categories"));
 
     for (auto& zone : selectedType->second)
     {
@@ -1043,13 +1044,13 @@ void Sub_Decals_Zones_Search()
         };
     }
 
-    AddTitle("Search");
+    AddTitle(Language::Translate("components.search.title"));
 
     bool bSearchPressed = false;
-    AddOption(searchStr.empty() ? "~b~SEARCH~s~" : ("~b~" + searchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
+    AddOption(searchStr.empty() ? Language::Translate("components.search.button") : ("~b~" + searchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
     if (bSearchPressed)
     {
-        searchStr = Game::InputBox(searchStr, 64U, "Search decals:", boost::to_lower_copy(searchStr));
+        searchStr = Game::InputBox(searchStr, 64U, Language::Translate("components.decals.searchPrompt").c_str(), boost::to_lower_copy(searchStr));
         boost::to_upper(searchStr);
     }
 
@@ -1061,7 +1062,7 @@ void Sub_Decals_Zones_Search()
         dirty = false;
     }
 
-    AddBreak("---Results: " + std::to_string(results.size()) + "---");
+    AddBreak(Language::Format("components.decals.results", {{"count", results.size()}}));
 
     for (auto& result : results)
     {
@@ -1099,7 +1100,7 @@ void Sub_Decals_Zones_Search()
         }
     }
 
-    Keybinds::AddBindIB("menu_action", g_tattooPreviewMode, "Preview: ON ", "Preview: OFF ");
+    Keybinds::AddBindIB("menu_action", g_tattooPreviewMode, Language::Translate("components.decals.previewOn"), Language::Translate("components.decals.previewOff"));
     bShortcutDecalPreviewPressed = Keybinds::WasPressedThisFrame("menu_action");
     if (bShortcutDecalPreviewPressed)
     {
@@ -1162,7 +1163,7 @@ void Sub_Decals_InZone()
         }
     }
 
-    Keybinds::AddBindIB("menu_action", g_tattooPreviewMode, "Preview: ON ", "Preview: OFF ");
+    Keybinds::AddBindIB("menu_action", g_tattooPreviewMode, Language::Translate("components.decals.previewOn"), Language::Translate("components.decals.previewOff"));
     bShortcutDecalPreviewPressed = Keybinds::WasPressedThisFrame("menu_action");
     if (bShortcutDecalPreviewPressed)
     {
@@ -1186,7 +1187,7 @@ void OpenSubDecals()
     }
     else
     {
-        Game::Print::ShowNotification("~r~Error:", "No decal overlays available for this ped model.");
+        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.decals.none"));
     }
 }
 } // namespace PedDecals
@@ -1237,16 +1238,16 @@ using PedDamagePacks::vDamagePacks;
 
 void Sub_CategoryList()
 {
-    AddTitle("Damage Overlays");
-    AddOption("Damage Packs", null, nullFunc, SUB::PEDDAMAGET_DAMAGEPACKS);
-    AddBreak("---Wash Up---");
-    AddTickol("Clear Blood Damage", true, ClearAll241BloodDamage, ClearAll241BloodDamage, TICKOL::CROSS);
-    AddTickol("Clear All Visible Damage", true, ClearAll241VisibleDamage, ClearAll241VisibleDamage, TICKOL::CROSS);
+    AddTitle(Language::Translate("components.damage.title"));
+    AddOption(Language::Translate("components.damage.packs"), null, nullFunc, SUB::PEDDAMAGET_DAMAGEPACKS);
+    AddBreak(Language::Translate("components.damage.washUp"));
+    AddTickol(Language::Translate("components.damage.clearBlood"), true, ClearAll241BloodDamage, ClearAll241BloodDamage, TICKOL::CROSS);
+    AddTickol(Language::Translate("components.damage.clearVisible"), true, ClearAll241VisibleDamage, ClearAll241VisibleDamage, TICKOL::CROSS);
 }
 
 void Sub_BoneSelection()
 {
-    AddTitle("Select Bone");
+    AddTitle(Language::Translate("components.damage.selectBone"));
 
     for (const auto& bn : Bone::vBoneNames)
     {
@@ -1264,7 +1265,7 @@ void Sub_Blood()
     GTAped thisPed = selectedPedHandle;
     auto& thisBone = boneToUse;
 
-    AddTitle("Blood Decals");
+    AddTitle(Language::Translate("components.damage.blood"));
 
     for (const auto& bdn : vBloodDecals)
     {
@@ -1282,7 +1283,7 @@ void Sub_DamageDecals()
     GTAped thisPed = selectedPedHandle;
     auto& thisBone = boneToUse;
 
-    AddTitle("Damage Decals");
+    AddTitle(Language::Translate("components.damage.decals"));
 
     for (const auto& ddn : vDamageDecals)
     {
@@ -1301,7 +1302,7 @@ void Sub_DamagePacks()
 
     auto& dmgPacksApplied = vPedsAndDamagePacks[thisPed.Handle()];
 
-    AddTitle("Damage Packs");
+    AddTitle(Language::Translate("components.damage.packs"));
 
     for (const auto& dpn : vDamagePacks)
     {
@@ -1525,7 +1526,7 @@ void Sub_Main()
             vPedHeads.erase(pit);
         }
         Menu::SetPreviousMenu();
-        Game::Print::PrintBottomLeft("~r~Error:~s~ Either the ped died or it isn't an MP freemode model.");
+        Game::Print::PrintBottomLeft(Language::Translate("components.notifications.notFreemodePed"));
         return;
     }
 
@@ -1558,21 +1559,21 @@ void Sub_Main()
     bool hairStreaksPlus = false, hairStreaksMinus = false;
     bool eyeColourPlus = false, eyeColourMinus = false;
 
-    AddTitle("Head Features");
+    AddTitle(Language::Translate("components.head.title"));
 
     DrawFaceStats(StatsPanel::MenuTopY());
 
-    AddOption("Overlays", null, nullFunc, SUB::PED_HEADFEATURES_HEADOVERLAYS);
-    AddOption("Facial Features", null, nullFunc, SUB::PED_HEADFEATURES_FACEFEATURES);
-    AddOption("Shape & Skin Tone", null, nullFunc, SUB::PED_HEADFEATURES_SKINTONE);
-    AddOption("Face Generator", null, nullFunc, SUB::PED_HEADFEATURES_FACEGENERATOR);
+    AddOption(Language::Translate("components.head.overlays"), null, nullFunc, SUB::PED_HEADFEATURES_HEADOVERLAYS);
+    AddOption(Language::Translate("components.head.facialFeatures"), null, nullFunc, SUB::PED_HEADFEATURES_FACEFEATURES);
+    AddOption(Language::Translate("components.head.shapeSkin"), null, nullFunc, SUB::PED_HEADFEATURES_SKINTONE);
+    AddOption(Language::Translate("components.head.faceGenerator"), null, nullFunc, SUB::PED_HEADFEATURES_FACEGENERATOR);
 
-    AddBreak("---Hair---");
-    AddNumber("Hair Colour", pedHead->hairColour, 0, null, hairColourPlus, hairColourMinus);
-    AddNumber("Hair Streaks Colour", pedHead->hairColourStreaks, 0, null, hairStreaksPlus, hairStreaksMinus);
-    AddOptionDescription("Colour of the hair highlights.");
+    AddBreak(Language::Translate("components.head.hair"));
+    AddNumber(Language::Translate("components.head.hairColour"), pedHead->hairColour, 0, null, hairColourPlus, hairColourMinus);
+    AddNumber(Language::Translate("components.head.hairStreaksColour"), pedHead->hairColourStreaks, 0, null, hairStreaksPlus, hairStreaksMinus);
+    AddOptionDescription(Language::Translate("components.head.hairHighlights.description"));
 
-    AddBreak("---Eyes---");
+    AddBreak(Language::Translate("components.head.eyes"));
     AddNumber(Game::GetGXTEntry("FACE_APP_EYE", "Eye Colour"), pedHead->eyeColour, 0, null, eyeColourPlus, eyeColourMinus);
 
     if (hairColourPlus || hairColourMinus)
@@ -1647,14 +1648,14 @@ static void DrawOverlayStats(float topY, int focusSlot)
 void Sub_HeadOverlays()
 {
     auto& overlayIndex = s_selectedOverlayIndex;
-    AddTitle("Overlays");
+    AddTitle(Language::Translate("components.head.overlays"));
 
     DrawOverlayStats(StatsPanel::MenuTopY());
 
     for (UINT i = 0; i < vCaptions_headOverlays.size(); i++)
     {
         bool bOverlayNamePressed = false;
-        AddOption(vCaptions_headOverlays[i].first, bOverlayNamePressed, nullFunc, -1, true, true);
+        AddOption(TranslateOverlayText(vCaptions_headOverlays[i].first), bOverlayNamePressed, nullFunc, -1, true, true);
         if (bOverlayNamePressed)
         {
             overlayIndex = i;
@@ -1691,12 +1692,16 @@ void Sub_HeadOverlays_InItem()
     bool overlayPlus = false, overlayMinus = false;
     bool opacityPlus = false, opacityMinus = false;
 
-    AddTitle(vCaptions_headOverlays[overlayIndex].first);
+    AddTitle(TranslateOverlayText(vCaptions_headOverlays[overlayIndex].first));
 
     DrawOverlayStats(StatsPanel::MenuTopY(), overlayIndex);
 
     // VARIATION
-    AddTexter("Variation", overlayValue, vCaptions_headOverlays[overlayIndex].second, null, overlayPlus, overlayMinus);
+    std::vector<std::string> variationNames;
+    variationNames.reserve(vCaptions_headOverlays[overlayIndex].second.size());
+    for (const std::string& variationName : vCaptions_headOverlays[overlayIndex].second)
+        variationNames.push_back(TranslateOverlayText(variationName));
+    AddTexter(Language::Translate("components.variation"), overlayValue, variationNames, null, overlayPlus, overlayMinus);
     if (overlayPlus)
     {
         if (overlayValue < maxOverlays)
@@ -1899,7 +1904,7 @@ void Sub_FaceFeatures()
 {
     GTAped ped = g_activePedHandle;
 
-    AddTitle("Facial Features");
+    AddTitle(Language::Translate("components.head.facialFeatures"));
 
     DrawFaceStats(StatsPanel::MenuTopY());
 
@@ -1908,7 +1913,7 @@ void Sub_FaceFeatures()
         auto& featureValue = pedHead->facialFeatureData[i]; // Use data from memory or native func if possible later
 
         bool featurePlus = false, featureMinus = false;
-        AddNumber(vCaptions_facialFeatures[i], featureValue, 2, null, featurePlus, featureMinus);
+        AddNumber(TranslateOverlayText(vCaptions_facialFeatures[i]), featureValue, 2, null, featurePlus, featureMinus);
         if (featurePlus)
         {
             if (featureValue < 1.0f)
@@ -1940,11 +1945,11 @@ void Sub_SkinTone() // HEAD_BLEND
     float minMix = 0.0f;
     float mixStep = 0.01f;
 
-    AddTitle("Shape & Skin Tone");
+    AddTitle(Language::Translate("components.head.shapeSkin"));
 
     DrawFaceStats(StatsPanel::MenuTopY());
-    AddToggle("Unlock ID Limits", g_unlockMaxIDs);
-    AddOptionDescription("Allows parent IDs up to 255 (modded heads) instead of the standard 0-45.");
+    AddToggle(Language::Translate("components.face.unlockIds"), g_unlockMaxIDs);
+    AddOptionDescription(Language::Translate("components.face.unlockIds.description"));
 
     int maxIds = getMaxShapeAndSkinIds();
 
@@ -1971,7 +1976,7 @@ void Sub_SkinTone() // HEAD_BLEND
     addBlendIdTexter("Tone Inherited From Ancestor", blendData.skinThirdID, true);
 
     // Mixes
-    AddBreak("---Adjustment---");
+    AddBreak(Language::Translate("components.face.adjustmentBreak"));
 
     auto addMixSlider = [&](const char* label, float& mixValue)
     {
@@ -1984,12 +1989,12 @@ void Sub_SkinTone() // HEAD_BLEND
         }
     };
 
-    addMixSlider("Shape", blendData.shapeMix);
-    AddOptionDescription("Face shape blend between father (0) and mother (1).");
-    addMixSlider("Tone", blendData.skinMix);
-    AddOptionDescription("Skin tone blend between father (0) and mother (1).");
-    addMixSlider("Ancestor (Shape & Tone)", blendData.thirdMix);
-    AddOptionDescription("How much the third parent affects shape and tone.");
+    addMixSlider(Language::Translate("components.face.shape").c_str(), blendData.shapeMix);
+    AddOptionDescription(Language::Translate("components.face.shape.description"));
+    addMixSlider(Language::Translate("components.face.tone").c_str(), blendData.skinMix);
+    AddOptionDescription(Language::Translate("components.face.skin.description"));
+    addMixSlider(Language::Translate("components.face.ancestor").c_str(), blendData.thirdMix);
+    AddOptionDescription(Language::Translate("components.face.thirdParent.description"));
 }
 
 void Sub_FaceGenerator()
@@ -2041,34 +2046,41 @@ void Sub_FaceGenerator()
     auto randomizeMix = []() -> float { return GET_RANDOM_FLOAT_IN_RANGE(0.0f, 1.0f); };
 
     // --- UI ---
-    AddTitle("Face Generator");
+    AddTitle(Language::Translate("components.face.generator"));
 
     // --- Parents ---
-    AddTickol("Use Third Parent", PedFaceGen::settings.useThirdParent, PedFaceGen::settings.useThirdParent, PedFaceGen::settings.useThirdParent, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Randomizing also picks an ancestor parent.");
-    PedFaceGen::settings.parentGenderFilter = AddTexterCycler("Parent Filter", PedFaceGen::settings.parentGenderFilter, genderOpts);
-    AddOptionDescription("Limits random parents by gender.");
-    PedFaceGen::settings.skinColorFilter = AddTexterCycler("Skin Colour", PedFaceGen::settings.skinColorFilter, skinOpts);
-    AddOptionDescription("Limits random parents by ethnicity.");
+    AddTickol(
+        Language::Translate("components.face.useThirdParent"),
+        PedFaceGen::settings.useThirdParent,
+        PedFaceGen::settings.useThirdParent,
+        PedFaceGen::settings.useThirdParent,
+        TICKOL::BOXTICK,
+        TICKOL::BOXBLANK
+    );
+    AddOptionDescription(Language::Translate("components.face.randomAncestor.description"));
+    PedFaceGen::settings.parentGenderFilter = AddTexterCycler(Language::Translate("components.face.parentFilter"), PedFaceGen::settings.parentGenderFilter, genderOpts);
+    AddOptionDescription(Language::Translate("components.face.parentFilter.description"));
+    PedFaceGen::settings.skinColorFilter = AddTexterCycler(Language::Translate("components.face.skinColour"), PedFaceGen::settings.skinColorFilter, skinOpts);
+    AddOptionDescription(Language::Translate("components.face.skinColour.description"));
 
     // Show non-rockstar parents only if parent / skin color filter is set to "Any" (we don't know the genders/races of modded-parents)
     bool showNonRockstar = (PedFaceGen::settings.parentGenderFilter == 0) && (PedFaceGen::settings.skinColorFilter == 0);
     if (showNonRockstar)
     {
-        AddNumberStepper("Non-Rockstar Parent Max ID", PedFaceGen::settings.nonRockstarMax, 0, 1.0, 46.0, 255.0);
-        AddOptionDescription("Highest modded parent ID (46+) included when randomizing. Only shown when both filters are \"Any\".");
+        AddNumberStepper(Language::Translate("components.face.maxParent"), PedFaceGen::settings.nonRockstarMax, 0, 1.0, 46.0, 255.0);
+        AddOptionDescription(Language::Translate("components.face.maxParent.description"));
     }
 
     // --- Randomize ---
-    AddBreak("---Randomize---");
-    AddOption("Randomize Face", bRandFace);
-    AddOptionDescription("Random parents plus shape and tone blend.");
-    AddOption("Randomize Face Shapes", bRandShapes);
-    AddOptionDescription("Randomizes only the shape parents and blend.");
-    AddOption("Randomize Face Textures", bRandSkins);
-    AddOptionDescription("Randomizes only the skin tone parents and blend.");
-    AddOption("Randomize Everything", bRandEverything);
-    AddOptionDescription("Randomizes the face and all facial features.");
+    AddBreak(Language::Translate("components.face.randomizeBreak"));
+    AddOption(Language::Translate("components.face.randomize"), bRandFace);
+    AddOptionDescription(Language::Translate("components.face.randomize.description"));
+    AddOption(Language::Translate("components.face.randomizeShapes"), bRandShapes);
+    AddOptionDescription(Language::Translate("components.face.randomizeShapes.description"));
+    AddOption(Language::Translate("components.face.randomizeTextures"), bRandSkins);
+    AddOptionDescription(Language::Translate("components.face.randomizeTextures.description"));
+    AddOption(Language::Translate("components.face.randomizeEverything"), bRandEverything);
+    AddOptionDescription(Language::Translate("components.face.randomizeEverything.description"));
 
     if (bRandFace || bRandShapes || bRandSkins || bRandEverything)
     {
@@ -2133,8 +2145,8 @@ void Sub_FaceGenerator()
     }
 
     // --- Facial Features ---
-    AddBreak("---Facial Features---");
-    AddOption("Randomize Facial Features", bRandAllFeatures);
+    AddBreak(Language::Translate("components.face.features"));
+    AddOption(Language::Translate("components.face.randomizeFeatures"), bRandAllFeatures);
     if (bRandAllFeatures)
     {
         for (int i = 0; i < 20; i++)
@@ -2149,24 +2161,25 @@ void Sub_FaceGenerator()
     struct FeatureGroup
     {
         const char* label;
+        const char* key;
         int start;
         int end;
     };
 
     const FeatureGroup groups[] = {
-        {"Nose", 0, 5},
-        {"Brows", 6, 7},
-        {"Cheeks & Eyes", 8, 11},
-        {"Lips", 12, 12},
-        {"Jaw", 13, 14},
-        {"Chin", 15, 18},
-        {"Neck", 19, 19},
+        {"Nose", "nose", 0, 5},
+        {"Brows", "brows", 6, 7},
+        {"Cheeks & Eyes", "cheeksEyes", 8, 11},
+        {"Lips", "lips", 12, 12},
+        {"Jaw", "jaw", 13, 14},
+        {"Chin", "chin", 15, 18},
+        {"Neck", "neck", 19, 19},
     };
 
     for (const auto& grp : groups)
     {
         bool bPressed = false;
-        AddOption(std::string("Randomize ") + grp.label, bPressed);
+        AddOption(Language::Format("components.face.randomizeGroup", {{"group", Language::Translate(std::string("components.face.group.") + grp.key)}}), bPressed);
         if (bPressed)
         {
             for (int i = grp.start; i <= grp.end; i++)
@@ -2178,8 +2191,8 @@ void Sub_FaceGenerator()
             return;
         }
     }
-    AddBreak("---Reset---");
-    AddOption("Reset All Facial Features", bResetAllFeatures);
+    AddBreak(Language::Translate("components.face.reset"));
+    AddOption(Language::Translate("components.face.resetFeatures"), bResetAllFeatures);
     if (bResetAllFeatures)
     {
         for (int i = 0; i < 20; i++)
@@ -2192,7 +2205,7 @@ void Sub_FaceGenerator()
     for (const auto& grp : groups)
     {
         bool bPressed = false;
-        AddOption(std::string("Reset ") + grp.label, bPressed);
+        AddOption(Language::Format("components.face.resetGroup", {{"group", Language::Translate(std::string("components.face.group.") + grp.key)}}), bPressed);
         if (bPressed)
         {
             for (int i = grp.start; i <= grp.end; i++)
@@ -2537,12 +2550,19 @@ void ComponentChanger_Outfits()
     bool savePressed = false, createFolderPressed = false;
     std::vector<std::string> fileNames;
 
-    AddTitle("Outfits");
+    AddTitle(Language::Translate("components.outfits.title"));
     AddSaveFileSortOption();
 
     bool attachmentsPlus = false, attachmentsMinus = false;
-    AddTexter("AddAttachmentsToSpoonerDB", persistentAttachmentsTexterIndex, std::vector<std::string>{"FileDecides", "ForceOff", "ForceOn"}, null, attachmentsPlus, attachmentsMinus);
-    AddOptionDescription("When loading an outfit, whether its attached objects join the Spooner database. FileDecides uses the file's setting; ForceOff/ForceOn override it.");
+    AddTexter(
+        Language::Translate("components.outfits.attachments"),
+        persistentAttachmentsTexterIndex,
+        std::vector<std::string>{Language::Translate("components.outfits.fileDecides"), Language::Translate("components.outfits.forceOff"), Language::Translate("components.outfits.forceOn")},
+        null,
+        attachmentsPlus,
+        attachmentsMinus
+    );
+    AddOptionDescription(Language::Translate("components.outfits.attachments.description"));
     if (attachmentsPlus)
     {
         if (persistentAttachmentsTexterIndex < 2)
@@ -2554,14 +2574,18 @@ void ComponentChanger_Outfits()
             persistentAttachmentsTexterIndex--;
     }
 
-    ComponentChangerOutfit::legacyXMLFormat = AddTexterCycler("XML Format", ComponentChangerOutfit::legacyXMLFormat, {"New XML format", "Legacy XML format"}) == 1;
+    ComponentChangerOutfit::legacyXMLFormat = AddTexterCycler(
+                                                  Language::Translate("components.outfits.xmlFormat"),
+                                                  ComponentChangerOutfit::legacyXMLFormat,
+                                                  {Language::Translate("components.outfits.xmlNew"), Language::Translate("components.outfits.xmlLegacy")}
+                                              ) == 1;
     AddOptionDescription(
         "New XML Format saves the file with more readable node names. Legacy XML format saves it with non-human readable node names, but will more likely work with external XML importers."
     );
 
-    AddOption("Save Outfit To File", savePressed);
+    AddOption(Language::Translate("components.outfits.save"), savePressed);
 
-    AddOption("Create New Folder", createFolderPressed);
+    AddOption(Language::Translate("components.outfits.createFolder"), createFolderPressed);
 
     if (dir.empty())
     {
@@ -2578,7 +2602,7 @@ void ComponentChanger_Outfits()
 
     closedir(dirPoint);
     SortSaveFileEntries(fileNames, dir);
-    AddBreak("---Found Files---");
+    AddBreak(Language::Translate("components.outfits.foundFiles"));
 
     bool bFolderBackPressed = false;
     AddOption("..", bFolderBackPressed);
@@ -2591,10 +2615,10 @@ void ComponentChanger_Outfits()
     if (!fileNames.empty())
     {
         bool bSearchPressed = false;
-        AddOption(searchStr.empty() ? "SEARCH" : searchStr, bSearchPressed, nullFunc, -1, true);
+        AddOption(searchStr.empty() ? Language::Translate("components.search") : searchStr, bSearchPressed, nullFunc, -1, true);
         if (bSearchPressed)
         {
-            searchStr = Game::InputBox(searchStr, 126U, "SEARCH", boost::to_lower_copy(searchStr));
+            searchStr = Game::InputBox(searchStr, 126U, Language::Translate("components.search.prompt").c_str(), boost::to_lower_copy(searchStr));
             boost::to_upper(searchStr);
         }
 
@@ -2661,12 +2685,12 @@ void ComponentChanger_Outfits()
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
+                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
             }
             else
             {
                 ComponentChangerOutfit::Create(g_activePedHandle, dir + "\\" + inputStr + ".xml", ComponentChangerOutfit::legacyXMLFormat);
-                Game::Print::PrintBottomLeft("File ~b~created~s~.");
+                Game::Print::PrintBottomLeft(Language::Translate("components.notifications.fileCreated"));
             }
         }
         else
@@ -2676,22 +2700,22 @@ void ComponentChanger_Outfits()
 
     if (createFolderPressed)
     {
-        std::string inputStr = Game::InputBox("", 28U, "Enter folder name:");
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("components.outfits.folderPrompt").c_str());
         if (inputStr.length() > 0)
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
+                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
             }
             else if (CreateDirectoryA((dir + "\\" + inputStr).c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
             {
                 dir = dir + "\\" + inputStr;
                 Menu::selectedOptionIndex = 6;
-                Game::Print::PrintBottomLeft("Folder ~b~created~s~.");
+                Game::Print::PrintBottomLeft(Language::Translate("components.notifications.folderCreated"));
             }
             else
             {
-                Game::Print::ShowNotification("~r~Failed", "to create folder.");
+                Game::Print::ShowNotification(Language::Translate("components.failed"), Language::Translate("components.notifications.createFolderFailed"));
                 addlog(ige::LogType::LOG_ERROR, "Attempt to create folder " + inputStr + " failed");
             }
         }
@@ -2711,22 +2735,26 @@ void ComponentChanger_Outfits2()
          outfits2_delete = false;
 
     AddTitle(name);
-    AddOption("Apply", outfits2_apply);
-    AddOptionDescription("Applies everything: ped model/head, clothing, accessories, decals, damage and attachments.");
-    AddOption("Apply Clothing & Attachments", outfits2_applyAllFeatures);
-    AddOptionDescription("Applies everything except the ped model and head.");
-    AddOption((std::string) "Apply " + (g_activePedHandle == PLAYER_PED_ID() ? "Ped Model" : "Head Features"), outfits2_applyModel);
-    AddOptionDescription("Applies only the ped model and head features, without clothing.");
-    AddOption("Apply and Set as Default", outfits2_applySetDefault);
-    AddOptionDescription("Applies to your character and loads this outfit automatically every time the game starts.");
-    ComponentChangerOutfit::legacyXMLFormat = AddTexterCycler("XML Format", ComponentChangerOutfit::legacyXMLFormat, {"New XML format", "Legacy XML format"}) == 1;
+    AddOption(Language::Translate("components.outfits.apply"), outfits2_apply);
+    AddOptionDescription(Language::Translate("components.outfits.apply.description"));
+    AddOption(Language::Translate("components.outfits.applyClothing"), outfits2_applyAllFeatures);
+    AddOptionDescription(Language::Translate("components.outfits.applyClothing.description"));
+    AddOption(Language::Translate(g_activePedHandle == PLAYER_PED_ID() ? "components.applyPedModel" : "components.applyHeadFeatures"), outfits2_applyModel);
+    AddOptionDescription(Language::Translate("components.outfits.applyHead.description"));
+    AddOption(Language::Translate("components.outfits.applyDefault"), outfits2_applySetDefault);
+    AddOptionDescription(Language::Translate("components.outfits.applyDefault.description"));
+    ComponentChangerOutfit::legacyXMLFormat = AddTexterCycler(
+                                                  Language::Translate("components.outfits.xmlFormat"),
+                                                  ComponentChangerOutfit::legacyXMLFormat,
+                                                  {Language::Translate("components.outfits.xmlNew"), Language::Translate("components.outfits.xmlLegacy")}
+                                              ) == 1;
     AddOptionDescription(
         "New XML Format saves the file with more readable node names. Legacy XML format saves it with non-human readable node names, but will more likely work with external XML importers."
     );
-    AddOption("Rename File", outfits2_rename);
-    AddOption("Overwrite File", outfits2_overwrite);
-    AddOptionDescription("Replaces this file with the current ped's outfit.");
-    AddOption("Delete File", outfits2_delete);
+    AddOption(Language::Translate("components.outfits.rename"), outfits2_rename);
+    AddOption(Language::Translate("components.outfits.overwrite"), outfits2_overwrite);
+    AddOptionDescription(Language::Translate("components.outfits.overwrite.description"));
+    AddOption(Language::Translate("components.outfits.delete"), outfits2_delete);
 
     if (outfits2_apply)
     {
@@ -2753,11 +2781,11 @@ void ComponentChanger_Outfits2()
         ComponentChangerOutfit::Apply(PLAYER_PED_ID(), filePath, false, true, true, true, true, true);
         if (ComponentChangerOutfit::Create(PLAYER_PED_ID(), "menyooStuff/defaultPed.xml", ComponentChangerOutfit::legacyXMLFormat))
         {
-            Game::Print::PrintBottomLeft("Set as ~b~Default~s~, Outfit will be auto loaded on next game launch.");
+            Game::Print::PrintBottomLeft(Language::Translate("components.notifications.outfitDefault"));
         }
         else
         {
-            Game::Print::ShowNotification("~r~Error:", "Unable to create file.");
+            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.createFileFailed"));
             addlog(ige::LogType::LOG_ERROR, "Attempt to create file menyooStuff/defaultPed.xml failed");
         }
     }
@@ -2765,10 +2793,10 @@ void ComponentChanger_Outfits2()
     if (outfits2_overwrite)
     {
         if (ComponentChangerOutfit::Create(g_activePedHandle, filePath, ComponentChangerOutfit::legacyXMLFormat))
-            Game::Print::PrintBottomLeft("File ~b~overwritten~s~.");
+            Game::Print::PrintBottomLeft(Language::Translate("components.notifications.fileOverwritten"));
         else
         {
-            Game::Print::ShowNotification("~r~Error:", "Unable to overwrite file.");
+            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.overwriteFailed"));
             addlog(ige::LogType::LOG_ERROR, "Attempt to overwrite file " + filePath + " failed");
         }
     }
@@ -2780,15 +2808,15 @@ void ComponentChanger_Outfits2()
         {
             if (!IsSafePath(newName))
             {
-                Game::Print::ShowNotification("~r~Error:", "Invalid characters in name.");
+                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
             }
             else if (rename(filePath.c_str(), (dir + "\\" + newName + ".xml").c_str()) == 0)
             {
                 name = newName;
-                Game::Print::PrintBottomLeft("File ~b~renamed~s~.");
+                Game::Print::PrintBottomLeft(Language::Translate("components.notifications.fileRenamed"));
             }
             else
-                Game::Print::ShowNotification("~r~Error:", "Unable to rename file.");
+                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.renameFailed"));
             addlog(ige::LogType::LOG_ERROR, "Attempt to rename file " + name + " to " + newName + "failed");
         }
         else
@@ -2802,11 +2830,11 @@ void ComponentChanger_Outfits2()
     {
         if (remove(filePath.c_str()) == 0)
         {
-            Game::Print::PrintBottomLeft("File ~b~deleted~s~.");
+            Game::Print::PrintBottomLeft(Language::Translate("components.notifications.fileDeleted"));
         }
         else
         {
-            Game::Print::ShowNotification("~r~Error:", "Unable to delete file.");
+            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.deleteFailed"));
             addlog(ige::LogType::LOG_ERROR, "Attempt to delete file " + filePath + " failed");
         }
         Menu::SetPreviousMenu();
@@ -2817,14 +2845,21 @@ void ComponentChanger_Outfits2()
     pugi::xml_document doc;
     if (doc.load_file((const char*)filePath.c_str()).status == pugi::status_ok)
     {
-        AddBreak("---Attributes---");
+        AddBreak(Language::Translate("components.outfits.attributes"));
         auto nodeEntity = doc.child("OutfitPedData"); // Root
         auto nodePedStuff = nodeEntity.child("PedProperties");
 
         auto nodeClearDecalOverlays = nodeEntity.child("ClearDecalOverlays");
         bool bToggleClearDecalOverlaysPressed = false;
-        AddTickol("Clear Previous Decals", nodeClearDecalOverlays.text().as_bool(true), bToggleClearDecalOverlaysPressed, bToggleClearDecalOverlaysPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-        AddOptionDescription("Removes the ped's existing tattoos and decals before applying this outfit.");
+        AddTickol(
+            Language::Translate("components.outfits.clearPreviousDecals"),
+            nodeClearDecalOverlays.text().as_bool(true),
+            bToggleClearDecalOverlaysPressed,
+            bToggleClearDecalOverlaysPressed,
+            TICKOL::BOXTICK,
+            TICKOL::BOXBLANK
+        );
+        AddOptionDescription(Language::Translate("components.outfits.removeDecals.description"));
         if (bToggleClearDecalOverlaysPressed)
         {
             if (!nodeClearDecalOverlays)
@@ -2839,8 +2874,10 @@ void ComponentChanger_Outfits2()
         if (nodeShortHeighted)
         {
             bool bToggleShortHeightedPressed = false;
-            AddTickol("Short Height", nodeShortHeighted.text().as_bool(), bToggleShortHeightedPressed, bToggleShortHeightedPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-            AddOptionDescription("Loads the ped in its shorter form.");
+            AddTickol(
+                Language::Translate("components.outfits.shortHeight"), nodeShortHeighted.text().as_bool(), bToggleShortHeightedPressed, bToggleShortHeightedPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK
+            );
+            AddOptionDescription(Language::Translate("components.outfits.shortPed.description"));
             if (bToggleShortHeightedPressed)
             {
                 nodeShortHeighted.text() = !nodeShortHeighted.text().as_bool();
@@ -2854,14 +2891,14 @@ void ComponentChanger_Outfits2()
         {
             bool bToggleAddAttachmentsToSpoonerDbPressed = false;
             AddTickol(
-                "Persistent Attachments (AddToSpoonerDb)",
+                Language::Translate("components.outfits.persistentAttachments"),
                 bAddAttachemntsToSpoonerDb,
                 bToggleAddAttachmentsToSpoonerDbPressed,
                 bToggleAddAttachmentsToSpoonerDbPressed,
                 TICKOL::BOXTICK,
                 TICKOL::BOXBLANK
             );
-            AddOptionDescription("Attached objects are added to the Spooner database and don't despawn.");
+            AddOptionDescription(Language::Translate("components.outfits.attachmentsPersistent.description"));
             if (bToggleAddAttachmentsToSpoonerDbPressed)
             {
                 nodeAddAttachmentsToSpoonerDb = !nodeAddAttachmentsToSpoonerDb.as_bool();
@@ -2876,8 +2913,15 @@ void ComponentChanger_Outfits2()
             if (nodeStartTaskSeqOnLoad)
             {
                 bool bToggleStartTaskSeqOnLoadPressed = false;
-                AddTickol("Start Task Sequences Immediately", nodeStartTaskSeqOnLoad.as_bool(), bToggleStartTaskSeqOnLoadPressed, bToggleStartTaskSeqOnLoadPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-                AddOptionDescription("Attached entities start their Spooner task sequences as soon as they load.");
+                AddTickol(
+                    Language::Translate("components.outfits.startTaskSequences"),
+                    nodeStartTaskSeqOnLoad.as_bool(),
+                    bToggleStartTaskSeqOnLoadPressed,
+                    bToggleStartTaskSeqOnLoadPressed,
+                    TICKOL::BOXTICK,
+                    TICKOL::BOXBLANK
+                );
+                AddOptionDescription(Language::Translate("components.outfits.attachmentsTasks.description"));
                 if (bToggleStartTaskSeqOnLoadPressed)
                 {
                     nodeStartTaskSeqOnLoad = !nodeStartTaskSeqOnLoad.as_bool();
@@ -2937,7 +2981,7 @@ void ComponentChanger_DefaultOutfits()
         charType = 4;
     }
 
-    AddTitle("Default Outfits");
+    AddTitle(Language::Translate("components.outfits.defaultTitle"));
 
     if (charType != g_defaultOutfitCacheCharType)
     {
@@ -2986,15 +3030,15 @@ void ComponentChanger_DefaultOutfits()
     if (charType < 0)
     {
         bool dummy = false;
-        AddOption("No outfits found - unsupported ped model", dummy);
+        AddOption(Language::Translate("components.outfits.none"), dummy);
         return;
     }
 
     bool bSearchPressed = false;
-    AddOption(g_defaultOutfitSearch.empty() ? "SEARCH" : g_defaultOutfitSearch, bSearchPressed, nullFunc, -1, true);
+    AddOption(g_defaultOutfitSearch.empty() ? Language::Translate("components.search") : g_defaultOutfitSearch, bSearchPressed, nullFunc, -1, true);
     if (bSearchPressed)
     {
-        g_defaultOutfitSearch = Game::InputBox(g_defaultOutfitSearch, 126U, "SEARCH", boost::to_lower_copy(g_defaultOutfitSearch));
+        g_defaultOutfitSearch = Game::InputBox(g_defaultOutfitSearch, 126U, Language::Translate("components.search.prompt").c_str(), boost::to_lower_copy(g_defaultOutfitSearch));
         boost::to_lower(g_defaultOutfitSearch);
     }
 

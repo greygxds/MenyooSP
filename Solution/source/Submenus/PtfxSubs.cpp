@@ -9,6 +9,7 @@
 */
 #include "PtfxSubs.h"
 
+#include "..\Menu\Language.h"
 #include "..\Menu\Keybinds.h"
 #include "..\Menu\MenuCategory.h"
 
@@ -3262,7 +3263,7 @@ void LoadFavoritesFromFile(const std::string& filepath, bool& reloaded)
     std::ifstream file(filepath);
     if (!file.good())
     {
-        Game::Print::PrintBottomLeft("Error opening favorites file.");
+        Game::Print::PrintBottomLeft(Language::Translate("ptfx.favourites.openFailed"));
         return;
     }
 
@@ -3313,13 +3314,13 @@ void ToggleFavorite(const PtfxS& current)
         // Item is already a favorite, remove it
         size_t index = std::distance(favourites.begin(), it);
         RemoveFavoriteAtIndex(index);
-        Game::Print::PrintBottomLeft("Removed Favourite From Index " + std::to_string(index));
+        Game::Print::PrintBottomLeft(Language::Format("ptfx.favourites.removed", {{"index", index}}));
     }
     else
     {
         // Not a favorite, add it
         AddHoveredToFavorites(current);
-        Game::Print::PrintBottomLeft("Added Favourite To File");
+        Game::Print::PrintBottomLeft(Language::Translate("ptfx.favourites.added"));
     }
 }
 
@@ -3342,14 +3343,14 @@ void AddEffectOption(const PtfxS& effect, int source)
 
 void PTFXFavourites()
 {
-    AddTitle("Favorite FX's");
+    AddTitle(Language::Translate("ptfx.favourites.title"));
     for (size_t i = 0; i < favourites.size(); ++i)
     {
         AddEffectOption(favourites[i], lastSubmenuSource);
     }
     if (favourites.empty())
     {
-        AddOption("Nothing yet has been saved here..");
+        AddOption(Language::Translate("ptfx.favourites.empty"));
     }
 }
 
@@ -3406,14 +3407,14 @@ void PTFXSub()
     const bool searchActive = !ptfxSearchStr.empty();
     const int submenuSource = Menu::submenuHistory[Menu::menuHistoryIndex];
 
-    AddTitle("FX");
+    AddTitle(Language::Translate("ptfx.title"));
 
     bool searchPressed = false;
     std::string searchLabel = searchActive ? "~b~" + boost::to_upper_copy(ptfxSearchStr) + "~s~" : "~b~SEARCH~s~";
     AddOption(searchLabel, searchPressed, nullFunc, -1, true);
     if (searchPressed)
     {
-        std::string newSearch = Game::InputBox(ptfxSearchStr, 126U, "SEARCH", ptfxSearchStr);
+        std::string newSearch = Game::InputBox(ptfxSearchStr, 126U, Language::Translate("menu.search").c_str(), ptfxSearchStr);
         boost::to_lower(newSearch);
         if (newSearch != ptfxSearchStr)
         {
@@ -3423,14 +3424,14 @@ void PTFXSub()
     }
 
     bool favesPressed = false;
-    AddOption("Favourites", favesPressed, nullFunc, SUB::PTFX_FAVORITES);
+    AddOption(Language::Translate("ptfx.favourites"), favesPressed, nullFunc, SUB::PTFX_FAVORITES);
     if (favesPressed)
     {
         lastSubmenuSource = submenuSource;
     }
 
     const bool showFavesBefore = showOnlyFaves;
-    AddToggle("Only Show Favorites", showOnlyFaves);
+    AddToggle(Language::Translate("ptfx.onlyFavourites"), showOnlyFaves);
     if (showOnlyFaves != showFavesBefore)
     {
         ptfxCache.needsRebuild = true;
@@ -3438,14 +3439,14 @@ void PTFXSub()
 
     if (submenuSource == SUB::PLAYEROPS || submenuSource == SUB::SPOONER_SELECTEDENTITYOPS)
     {
-        AddOption("Loop On Entity", null, nullFunc, SUB::PTFXSUB);
-        AddOptionDescription("Effects that play continuously on the entity.");
+        AddOption(Language::Translate("ptfx.loopOnEntity"), null, nullFunc, SUB::PTFXSUB);
+        AddOptionDescription(Language::Translate("ptfx.loopOnEntity.description"));
     }
     else if (submenuSource == SUB::PTFXSUB)
     {
         bool clearPressed = false;
-        AddOption("Clear On All Entities", clearPressed);
-        AddOptionDescription("Stops all looping effects.");
+        AddOption(Language::Translate("ptfx.clearOnAll"), clearPressed);
+        AddOptionDescription(Language::Translate("ptfx.clearOnAll.description"));
         if (clearPressed)
         {
             fxLoops.clear();
@@ -3457,7 +3458,7 @@ void PTFXSub()
     if (searchActive)
     {
         bool clearSearchPressed = false;
-        AddOption("~r~Clear Search~s~", clearSearchPressed);
+        AddOption(Language::Translate("ptfx.clearSearch"), clearSearchPressed);
         if (clearSearchPressed)
         {
             ptfxSearchStr.clear();
@@ -3475,7 +3476,7 @@ void PTFXSub()
 
     if (ptfxCache.sortedAssets.empty())
     {
-        AddOption(searchActive ? "~r~No results~s~" : "No favourites saved yet..");
+        AddOption(searchActive ? Language::Translate("ptfx.search.noResults") : Language::Translate("ptfx.favourites.empty"));
         return;
     }
 
@@ -3501,7 +3502,7 @@ void PTFXSub()
                     {
                         favouritesLoaded = false;
                     }
-                    Keybinds::AddBindIB("menu_action", IsAlreadyFavorite(current), "Remove From Favourites", "Add To Favourites");
+                    Keybinds::AddBindIB("menu_action", IsAlreadyFavorite(current), Language::Translate("menu.removeFromFavourites"), Language::Translate("menu.addToFavourites"));
                     if (Keybinds::WasPressedThisFrame("menu_action"))
                     {
                         ToggleFavorite(current);

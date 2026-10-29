@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "FunnyVehicles.h"
+#include "..\Menu\Language.h"
 
 namespace sub
 {
@@ -149,7 +150,7 @@ namespace FunnyVehicles
 {
 void HaxBy(const std::string& name)
 {
-    Game::Print::PrintBottomLeft("Hax by ~b~" + name);
+    Game::Print::PrintBottomLeft(Language::Format("funnyVehicles.haxBy", {{"name", name}}));
 }
 
 int PlaceFunnyVehicle(Hash hash)
@@ -1360,44 +1361,44 @@ void Sub_FunnyVehicles()
 
     Vehicle tempVehicle;
 
-    AddTitle("Badly Constructed Vehicles");
-    AddOption("Adderuma", null, FunnyVehicles::Adderuma);
-    AddOption("Zentornuma", null, FunnyVehicles::Zentornuma);
-    AddOption("TurismoRuma", null, FunnyVehicles::TurismoRuma);
-    AddOption("EnturumaXF", null, FunnyVehicles::EnturumaXF);
-    AddOption("Osirisuma", null, FunnyVehicles::Osirisuma);
-    AddOption("T20uma", null, FunnyVehicles::T20uma);
-    AddOption("Feltzeruma", null, FunnyVehicles::Feltzeruma);
-    AddOption("Banshuma", null, FunnyVehicles::Banshuma);
-    AddOption("Bulletuma", null, FunnyVehicles::Bulletuma);
-    AddOption("Land Jetski", null, FunnyVehicles::LandJetski);
-    AddOption("Chino O Death", null, FunnyVehicles::ChinoODeath);
-    AddOption("RV-Building", null, FunnyVehicles::RVBuilding);
-    AddOption("Monster Train Truck", null, FunnyVehicles::MonsterTrainTruck);
-    AddOption("MonsterTruck (Boat Chassis)", null, FunnyVehicles::MonsterTruckBoatChassis);
-    AddOption("MonsterTruck (RV Chassis)", null, FunnyVehicles::MonsterTruckRVChassis);
-    AddOption("MonsterTruck (Helicopter Chassis)", null, FunnyVehicles::MonsterTruckHelicopterChassis);
-    AddOption("MonsterTruck (Fighter Jet Chassis)", null, FunnyVehicles::MonsterTruckFighterJetChassis);
-    AddOption("MonsterTruck (Tank Chassis)", null, FunnyVehicles::MonsterTruckTankChassis);
-    AddOption("Cow Car", funnyVehiclesCowCar);
-    AddOption("Deer Car", funnyVehiclesDeerCar);
-    AddOption("Shark Car", funnyVehiclesSharkCar);
-    AddOption("Poo Mobile", funnyVehiclesToilet);
-    AddOption("Wheelchair", funnyVehiclesWheelchair);
-    AddOption("Toy Car", null, FunnyVehicles::ToyCar);
-    AddOption("Bumper Car", funnyVehiclesBumperCar);
-    AddOption("Roller Car", funnyVehiclesRollerCar);
-    AddOption("Hydra UFO", funnyVehiclesUFO);
-    AddOption("Missile Surano", funnyVehiclesMissiles);
-    AddOption("'Murican Surano", funnyVehiclesLights);
-    AddOption("Moveable Platform", funnyVehiclesFort);
-    AddOption("Speakers Up", funnyVehiclesSpeakers);
-    AddOption("Yacht Airship", null, FunnyVehicles::YachtAirshipWithFans);
-    AddOption("Yacht Airship (Without Fans)", null, FunnyVehicles::YachtAirship);
-    AddOption("FIB Building", null, FunnyVehicles::FibBuilding);
-    AddOption("Go-Kart", null, FunnyVehicles::GoKart);
-    AddOption("Go-Bike", null, FunnyVehicles::DragsterBike);
-    AddOption("Weed-Wheels Bike", null, FunnyVehicles::WeedWheelsBike);
+    AddTitle(Language::Translate("funnyVehicles.title"));
+    AddOption(Language::Translate("funnyVehicles.adderuma"), null, FunnyVehicles::Adderuma);
+    AddOption(Language::Translate("funnyVehicles.zentornuma"), null, FunnyVehicles::Zentornuma);
+    AddOption(Language::Translate("funnyVehicles.turismoRuma"), null, FunnyVehicles::TurismoRuma);
+    AddOption(Language::Translate("funnyVehicles.enturuma"), null, FunnyVehicles::EnturumaXF);
+    AddOption(Language::Translate("funnyVehicles.osirisuma"), null, FunnyVehicles::Osirisuma);
+    AddOption(Language::Translate("funnyVehicles.t20uma"), null, FunnyVehicles::T20uma);
+    AddOption(Language::Translate("funnyVehicles.feltzeruma"), null, FunnyVehicles::Feltzeruma);
+    AddOption(Language::Translate("funnyVehicles.banshuma"), null, FunnyVehicles::Banshuma);
+    AddOption(Language::Translate("funnyVehicles.bulletuma"), null, FunnyVehicles::Bulletuma);
+    AddOption(Language::Translate("funnyVehicles.landJetski"), null, FunnyVehicles::LandJetski);
+    AddOption(Language::Translate("funnyVehicles.chinoDeath"), null, FunnyVehicles::ChinoODeath);
+    AddOption(Language::Translate("funnyVehicles.rvBuilding"), null, FunnyVehicles::RVBuilding);
+    AddOption(Language::Translate("funnyVehicles.monsterTrain"), null, FunnyVehicles::MonsterTrainTruck);
+    AddOption(Language::Translate("funnyVehicles.monsterBoat"), null, FunnyVehicles::MonsterTruckBoatChassis);
+    AddOption(Language::Translate("funnyVehicles.monsterRv"), null, FunnyVehicles::MonsterTruckRVChassis);
+    AddOption(Language::Translate("funnyVehicles.monsterHelicopter"), null, FunnyVehicles::MonsterTruckHelicopterChassis);
+    AddOption(Language::Translate("funnyVehicles.monsterJet"), null, FunnyVehicles::MonsterTruckFighterJetChassis);
+    AddOption(Language::Translate("funnyVehicles.monsterTank"), null, FunnyVehicles::MonsterTruckTankChassis);
+    AddOption(Language::Translate("funnyVehicles.cowCar"), funnyVehiclesCowCar);
+    AddOption(Language::Translate("funnyVehicles.deerCar"), funnyVehiclesDeerCar);
+    AddOption(Language::Translate("funnyVehicles.sharkCar"), funnyVehiclesSharkCar);
+    AddOption(Language::Translate("funnyVehicles.pooMobile"), funnyVehiclesToilet);
+    AddOption(Language::Translate("funnyVehicles.wheelchair"), funnyVehiclesWheelchair);
+    AddOption(Language::Translate("funnyVehicles.toyCar"), null, FunnyVehicles::ToyCar);
+    AddOption(Language::Translate("funnyVehicles.bumperCar"), funnyVehiclesBumperCar);
+    AddOption(Language::Translate("funnyVehicles.rollerCar"), funnyVehiclesRollerCar);
+    AddOption(Language::Translate("funnyVehicles.hydraUfo"), funnyVehiclesUFO);
+    AddOption(Language::Translate("funnyVehicles.missileSurano"), funnyVehiclesMissiles);
+    AddOption(Language::Translate("funnyVehicles.muricanSurano"), funnyVehiclesLights);
+    AddOption(Language::Translate("funnyVehicles.moveablePlatform"), funnyVehiclesFort);
+    AddOption(Language::Translate("funnyVehicles.speakersUp"), funnyVehiclesSpeakers);
+    AddOption(Language::Translate("funnyVehicles.yachtAirship"), null, FunnyVehicles::YachtAirshipWithFans);
+    AddOption(Language::Translate("funnyVehicles.yachtAirshipNoFans"), null, FunnyVehicles::YachtAirship);
+    AddOption(Language::Translate("funnyVehicles.fibBuilding"), null, FunnyVehicles::FibBuilding);
+    AddOption(Language::Translate("funnyVehicles.goKart"), null, FunnyVehicles::GoKart);
+    AddOption(Language::Translate("funnyVehicles.goBike"), null, FunnyVehicles::DragsterBike);
+    AddOption(Language::Translate("funnyVehicles.weedWheels"), null, FunnyVehicles::WeedWheelsBike);
 
 
     if (funnyVehiclesCowCar)

@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "MainMenu.h"
+#include "..\Menu\Language.h"
 
 namespace sub
 {
@@ -20,18 +21,18 @@ void MainMenu()
         addlog(ige::LogType::LOG_TRACE, "First Load of MainMenu Submenu");
     }
 
-    AddTitle("MENYOO");
-    AddOption("Players", null, nullFunc, SUB::PLAYERSSUB);
-    AddOption("Player Options", null, nullFunc, SUB::PLAYEROPS);
-    AddOption("Vehicle Options", null, nullFunc, SUB::VEHICLEOPS);
-    AddOption("Teleport Options", null, nullFunc, SUB::TELEPORTOPS);
-    AddOption("Weapon Options", null, nullFunc, SUB::WEAPONOPS);
-    AddOption("Weather Options", null, nullFunc, SUB::WEATHEROPS);
-    AddOption("Time Options", null, nullFunc, SUB::TIMEOPS);
-    AddOption("Object Spooner", null, nullFunc, SUB::SPOONER_MAIN);
-    AddOption("Misc Options", null, nullFunc, SUB::MISCOPS);
-    AddOption("Settings", null, nullFunc, SUB::SETTINGS);
-    AddOption("The People Behind Menyoo", null, nullFunc, SUB::CREDITSSUB);
+    AddTitle(Language::Translate("menu.main.title"));
+    AddOption(Language::Translate("menu.main.players.label"), null, nullFunc, SUB::PLAYERSSUB);
+    AddOption(Language::Translate("menu.main.playerOptions.label"), null, nullFunc, SUB::PLAYEROPS);
+    AddOption(Language::Translate("menu.main.vehicleOptions.label"), null, nullFunc, SUB::VEHICLEOPS);
+    AddOption(Language::Translate("menu.main.teleportOptions.label"), null, nullFunc, SUB::TELEPORTOPS);
+    AddOption(Language::Translate("menu.main.weaponOptions.label"), null, nullFunc, SUB::WEAPONOPS);
+    AddOption(Language::Translate("menu.main.weatherOptions.label"), null, nullFunc, SUB::WEATHEROPS);
+    AddOption(Language::Translate("menu.main.timeOptions.label"), null, nullFunc, SUB::TIMEOPS);
+    AddOption(Language::Translate("menu.main.objectSpooner.label"), null, nullFunc, SUB::SPOONER_MAIN);
+    AddOption(Language::Translate("menu.main.miscOptions.label"), null, nullFunc, SUB::MISCOPS);
+    AddOption(Language::Translate("menu.main.settings.label"), null, nullFunc, SUB::SETTINGS);
+    AddOption(Language::Translate("menu.main.peopleBehindMenyoo.label"), null, nullFunc, SUB::CREDITSSUB);
 
     g_activePlayerId = PLAYER_ID();
     g_activePedHandle = PLAYER_PED_ID();

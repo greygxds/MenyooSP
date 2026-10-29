@@ -1286,7 +1286,7 @@ void SetLocalCarHydraulics()
 {
     GTAvehicle vehicle = g_myVeh;
 
-    Keybinds::AddBindIB("vehicle_hydraulics", "Hydraulics");
+    Keybinds::AddBindIB("vehicle_hydraulics", Language::Translate("vehicle.hydraulics"));
 
     if (Keybinds::IsHeld("vehicle_hydraulics") && vehicle.IsOnAllWheels())
     {
@@ -2331,7 +2331,7 @@ static void TickVehicleEffects(bool gameIsPaused)
     {
         if (raceBoost)
         {
-            Keybinds::AddBindIB("vehicle_boost", "Boost");
+            Keybinds::AddBindIB("vehicle_boost", Language::Translate("vehicle.boost"));
             if (Keybinds::IsHeld("vehicle_boost"))
             {
                 SetSelfVehicleBoost();

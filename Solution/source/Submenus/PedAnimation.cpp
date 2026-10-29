@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "PedAnimation.h"
+#include "..\Menu\Language.h"
 
 #include "..\macros.h"
 
@@ -384,16 +385,16 @@ void AllPedAnimsMenu()
     bool currentPressed;
     bool notFoundInDict;
 
-    AddTitle("All Animations");
+    AddTitle(Language::Translate("animation.all.title"));
 
-    AddOption(searchStr.empty() ? "SEARCH" : boost::to_upper_copy(searchStr), searchObj, nullFunc, -1, true);
+    AddOption(searchStr.empty() ? Language::Translate("animation.search.button") : boost::to_upper_copy(searchStr), searchObj, nullFunc, -1, true);
     if (searchObj)
     {
-        searchStr = Game::InputBox(searchStr, 126U, "SEARCH", searchStr);
+        searchStr = Game::InputBox(searchStr, 126U, Language::Translate("animation.search.prompt").c_str(), searchStr);
         boost::to_lower(searchStr);
     }
 
-    AddTickol("Stop Animation", true, StopTargetAnimations, StopTargetAnimations, TICKOL::CROSS);
+    AddTickol(Language::Translate("animation.stop"), true, StopTargetAnimations, StopTargetAnimations, TICKOL::CROSS);
 
     for (auto& current : allPedAnims)
     {
@@ -445,7 +446,7 @@ void Sub_AllPedAnims_InDict()
         AddAnimOption(current, selectedDict.first, current);
     }
 
-    AddOption("Settings", null, nullFunc, SUB::ANIMATIONSUB_SETTINGS);
+    AddOption(Language::Translate("animation.settings"), null, nullFunc, SUB::ANIMATIONSUB_SETTINGS);
 }
 } // namespace AnimationMenu
 
@@ -581,7 +582,13 @@ void AddAnimOption(const std::string& text, const std::string& animDict, std::st
         animName = text;
     }
     bool pressed = false;
-    AddTickol(text, IS_ENTITY_PLAYING_ANIM(g_activePedHandle, animDict.c_str(), animName.c_str(), 3), pressed, pressed, TICKOL::MANWON);
+    AddTickol(
+        Language::TranslateStable("animation.preset", animDict + "." + animName, text),
+        IS_ENTITY_PLAYING_ANIM(g_activePedHandle, animDict.c_str(), animName.c_str(), 3),
+        pressed,
+        pressed,
+        TICKOL::MANWON
+    );
     if (pressed)
     {
         PlayAnimation(g_activePedHandle, animDict, animName);
@@ -593,14 +600,14 @@ void AddAnimOption(const std::string& text, const std::string& animDict, std::st
         if (HasMultiSelectSelection())
         {
             std::string selectedCount = std::to_string(Spooner::Submenus::MultiSelect::g_selectedEntities.size());
-            Keybinds::AddBindIB("anim_apply_multi", "Apply to all selected (" + selectedCount + ")");
+            Keybinds::AddBindIB("anim_apply_multi", Language::Format("animation.applyToSelected", {{"count", selectedCount}}));
             if (Keybinds::WasPressedThisFrame("anim_apply_multi"))
             {
                 PlayAnimationOnMultiSelected(animDict, animName);
             }
         }
         bool isAFavourite = IsAnimationAFavourite(animDict, animName);
-        Keybinds::AddBindIB("menu_action", isAFavourite, "Remove from favourites", "Add to favourites");
+        Keybinds::AddBindIB("menu_action", isAFavourite, Language::Translate("animation.favourites.remove").c_str(), Language::Translate("animation.favourites.add").c_str());
         if (Keybinds::WasPressedThisFrame("menu_action"))
         {
             !isAFavourite ? AddAnimationToFavourites(animDict, animName) : RemoveAnimationFromFavourites(animDict, animName);
@@ -608,7 +615,7 @@ void AddAnimOption(const std::string& text, const std::string& animDict, std::st
 
         if (isAFavourite)
         {
-            Keybinds::AddBindIB("favourite_recategorize", "Change category");
+            Keybinds::AddBindIB("favourite_recategorize", Language::Translate("animation.favourites.changeCategory"));
             if (Keybinds::WasPressedThisFrame("favourite_recategorize"))
             {
                 s_recatState.returnCursor = *Menu::activeOptionIndex;
@@ -658,8 +665,8 @@ void PedAnimationMenu()
         SET_PED_IS_IGNORED_BY_AUTO_OPEN_DOORS(g_activePedHandle, TRUE);
     }
 
-    AddTitle("Animations");
-    AddTickol("Stop Animation", true, StopTargetAnimations, StopTargetAnimations, TICKOL::CROSS);
+    AddTitle(Language::Translate("animation.title"));
+    AddTickol(Language::Translate("animation.stop"), true, StopTargetAnimations, StopTargetAnimations, TICKOL::CROSS);
     AddAnimOption("Pole Dance", "mini@strip_club@pole_dance@pole_dance3", "pd_dance_03");
     AddAnimOption("Hood Dance", "missfbi3_sniping", "dance_m_default");
     AddAnimOption("Burning", "ragdoll@human", "on_fire");
@@ -692,19 +699,19 @@ void PedAnimationMenu()
     AddAnimOption("Hands Up", "random@arrests", "idle_2_hands_up");
     AddAnimOption("Stand Still, Arms Spread", "mp_sleep", "bind_pose_180");
 
-    AddOption("Sitting Animations", dictSetGesturesSitting, nullFunc, SUB::ANIMATIONSUB_GESTSIT);
-    AddOption("Rappel Movements", dictSetMissionRappel, nullFunc, SUB::ANIMATIONSUB_MISSRAPPEL);
-    AddOption("Arrest Movements", dictSetRandomArrests, nullFunc, SUB::ANIMATIONSUB_RANDARREST);
-    AddOption("Swat Movements", dictSetSwat, nullFunc, SUB::ANIMATIONSUB_SWAT);
-    AddOption("Guard Movements", dictSetGuardReact, nullFunc, SUB::ANIMATIONSUB_GUARDREAC);
-    AddOption("Deer Movements", dictSetDeer, nullFunc, SUB::ANIMATIONSUB_DEER);
-    AddOption("Cow Movements", dictSetCow, nullFunc, SUB::ANIMATIONSUB_DEER);
-    AddOption("Shark Movements", dictSetShark, nullFunc, SUB::ANIMATIONSUB_SHARK);
-    AddOption("All Animations", null, nullFunc, SUB::ANIMATIONSUB_ALLPEDANIMS);
-    AddOption("Custom Input", null, nullFunc, SUB::ANIMATIONSUB_CUSTOM);
-    AddOptionDescription("Play any animation by typing its dictionary and name.");
-    AddOption("Favourites", null, nullFunc, SUB::ANIMATIONSUB_FAVOURITES);
-    AddOption("Settings", null, nullFunc, SUB::ANIMATIONSUB_SETTINGS);
+    AddOption(Language::Translate("animation.sitting"), dictSetGesturesSitting, nullFunc, SUB::ANIMATIONSUB_GESTSIT);
+    AddOption(Language::Translate("animation.rappel"), dictSetMissionRappel, nullFunc, SUB::ANIMATIONSUB_MISSRAPPEL);
+    AddOption(Language::Translate("animation.arrest"), dictSetRandomArrests, nullFunc, SUB::ANIMATIONSUB_RANDARREST);
+    AddOption(Language::Translate("animation.swat"), dictSetSwat, nullFunc, SUB::ANIMATIONSUB_SWAT);
+    AddOption(Language::Translate("animation.guard"), dictSetGuardReact, nullFunc, SUB::ANIMATIONSUB_GUARDREAC);
+    AddOption(Language::Translate("animation.deer"), dictSetDeer, nullFunc, SUB::ANIMATIONSUB_DEER);
+    AddOption(Language::Translate("animation.cow"), dictSetCow, nullFunc, SUB::ANIMATIONSUB_DEER);
+    AddOption(Language::Translate("animation.shark"), dictSetShark, nullFunc, SUB::ANIMATIONSUB_SHARK);
+    AddOption(Language::Translate("animation.all"), null, nullFunc, SUB::ANIMATIONSUB_ALLPEDANIMS);
+    AddOption(Language::Translate("animation.custom"), null, nullFunc, SUB::ANIMATIONSUB_CUSTOM);
+    AddOptionDescription(Language::Translate("animation.custom.description"));
+    AddOption(Language::Translate("animation.favourites"), null, nullFunc, SUB::ANIMATIONSUB_FAVOURITES);
+    AddOption(Language::Translate("animation.settings"), null, nullFunc, SUB::ANIMATIONSUB_SETTINGS);
 
 
     if (dictSetDeer)
@@ -751,27 +758,27 @@ void PedAnimationMenu()
 
 void AnimationSub_Settings()
 {
-    AddTitle("Settings");
-    AddNumberStepper("Blend-In Speed", g_customAnimSettings.speed, 2, 0.1, 0.0);
-    AddOptionDescription("How quickly the ped blends into the animation. Higher is snappier.");
-    AddNumberStepper("Blend-Out Speed", g_customAnimSettings.speedMult, 2, 0.1);
-    AddOptionDescription("How quickly the ped blends out when the animation ends. Usually negative (default -4).");
-    AddNumberStepper("Duration (ms)", g_customAnimSettings.duration, 0, 100.0, -1.0);
-    AddOptionDescription("How long the animation plays. -1 plays it in full, or until stopped if it loops.");
-    AddOption("Flag Options", null, nullFunc, SUB::ANIMATIONSUB_FLAGS);
-    AddOptionDescription("Choose how the animation plays: looping, upper body only, holding the last frame, etc.");
-    AddNumberStepper("Playback Rate", g_customAnimSettings.playbackRate, 2, 0.1, 0.0);
-    AddOptionDescription("Starting point of the animation, from 0 (beginning) to 1 (end).");
+    AddTitle(Language::Translate("animation.settings"));
+    AddNumberStepper(Language::Translate("animation.blendIn"), g_customAnimSettings.speed, 2, 0.1, 0.0);
+    AddOptionDescription(Language::Translate("animation.blendIn.description"));
+    AddNumberStepper(Language::Translate("animation.blendOut"), g_customAnimSettings.speedMult, 2, 0.1);
+    AddOptionDescription(Language::Translate("animation.blendOut.description"));
+    AddNumberStepper(Language::Translate("animation.duration"), g_customAnimSettings.duration, 0, 100.0, -1.0);
+    AddOptionDescription(Language::Translate("animation.duration.description"));
+    AddOption(Language::Translate("animation.flagOptions"), null, nullFunc, SUB::ANIMATIONSUB_FLAGS);
+    AddOptionDescription(Language::Translate("animation.flagOptions.description"));
+    AddNumberStepper(Language::Translate("animation.playbackRate"), g_customAnimSettings.playbackRate, 2, 0.1, 0.0);
+    AddOptionDescription(Language::Translate("animation.playbackRate.description"));
     bool toggleLockPosition = false;
-    AddTickol("Lock Position", g_customAnimSettings.lockPos, toggleLockPosition, toggleLockPosition, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Stops the animation from moving the ped's position.");
+    AddTickol(Language::Translate("animation.lockPosition"), g_customAnimSettings.lockPos, toggleLockPosition, toggleLockPosition, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("animation.lockPosition.description"));
     if (toggleLockPosition)
         g_customAnimSettings.lockPos = !g_customAnimSettings.lockPos;
 }
 
 void AnimationSub_Flags()
 {
-    AddTitle("Animation Flags");
+    AddTitle(Language::Translate("animation.flags.title"));
 
     // Find current preset index (or "Custom")
     const int numPresets = static_cast<int>(std::size(AnimFlag::kFlagPresets));
@@ -788,23 +795,23 @@ void AnimationSub_Flags()
     std::vector<std::string> presetLabels;
     presetLabels.reserve(numPresets + 1);
     for (int i = 0; i < numPresets; i++)
-        presetLabels.push_back(AnimFlag::kFlagPresets[i].name);
-    presetLabels.push_back("Custom");
+        presetLabels.push_back(Language::TranslateStable("animation.flagPreset", AnimFlag::kFlagPresets[i].name, AnimFlag::kFlagPresets[i].name));
+    presetLabels.push_back(Language::Translate("animation.flags.custom"));
 
-    int newPresetIdx = AddTexterCycler("Preset", currentPresetIdx, presetLabels);
-    AddOptionDescription("Common flag combinations. Changing a flag below switches this to \"Custom\".");
+    int newPresetIdx = AddTexterCycler(Language::Translate("animation.flags.preset"), currentPresetIdx, presetLabels);
+    AddOptionDescription(Language::Translate("animation.flags.preset.description"));
     if (newPresetIdx != currentPresetIdx && newPresetIdx < numPresets)
         g_customAnimSettings.flag = AnimFlag::kFlagPresets[newPresetIdx].value;
 
-    AddBreak("--- Animation Flags ---");
+    AddBreak(Language::Translate("animation.flags.break"));
 
     // Individual flag checkboxes
     for (auto& f : AnimFlag::kAnimFlags)
     {
         bool isSet = (g_customAnimSettings.flag & f.value) != 0;
         bool pressed = false;
-        AddTickol(f.name, isSet, pressed, pressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-        AddOptionDescription(f.desc);
+        AddTickol(Language::TranslateStable("animation.flag", f.name, f.name), isSet, pressed, pressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        AddOptionDescription(Language::TranslateStable("animation.flagDescription", f.name, f.desc));
         if (pressed)
             g_customAnimSettings.flag ^= f.value;
     }
@@ -826,7 +833,7 @@ void AnimationFavouritesMenu()
     {
         if (!RebuildFavCache(searchStr))
         {
-            Game::Print::ShowNotification("~r~Error:", "No favourites found. Go to ~b~Custom Input~s~ and add an animation to the favourites.");
+            Game::Print::ShowNotification(Language::Translate("animation.notifications.noFavourites.title"), Language::Translate("animation.notifications.noFavourites.message"));
             Menu::SetPreviousMenu();
             return;
         }
@@ -838,13 +845,13 @@ void AnimationFavouritesMenu()
     else if (!searchActive)
         MenuCategory::RestoreExpandedState();
 
-    AddTitle("Favourites");
+    AddTitle(Language::Translate("animation.favourites"));
 
     bool searchPressed = false;
-    AddOption(searchStr.empty() ? "SEARCH" : boost::to_upper_copy(searchStr), searchPressed, nullFunc, -1, true);
+    AddOption(searchStr.empty() ? Language::Translate("animation.search.button") : boost::to_upper_copy(searchStr), searchPressed, nullFunc, -1, true);
     if (searchPressed)
     {
-        std::string newSearch = Game::InputBox(searchStr, 126U, "SEARCH", searchStr);
+        std::string newSearch = Game::InputBox(searchStr, 126U, Language::Translate("animation.search.prompt").c_str(), searchStr);
         boost::to_lower(newSearch);
         if (newSearch != searchStr)
         {
@@ -863,7 +870,7 @@ void AnimationFavouritesMenu()
             continue;
 
         auto& anims = it->second;
-        std::string catName = cat.empty() ? "UNORDERED" : cat;
+        std::string catName = cat.empty() ? Language::Translate("animation.favourites.unordered") : cat;
         std::string catLabel = "— ~b~" + catName + "~s~ ~c~(" + std::to_string(anims.size()) + " anims)~s~";
 
         if (MenuCategory::AddCategory(catLabel))
@@ -896,7 +903,7 @@ void AnimationFavouritesMenu_CategorySelect()
         }
     }
 
-    AddTitle("Select Category");
+    AddTitle(Language::Translate("animation.categorySelect.title"));
 
     for (auto& cat : allCategories)
     {
@@ -915,10 +922,10 @@ void AnimationFavouritesMenu_CategorySelect()
         AddBreak("---");
 
     bool newCatPressed = false;
-    AddOption("New Category", newCatPressed);
+    AddOption(Language::Translate("animation.categorySelect.new"), newCatPressed);
     if (newCatPressed)
     {
-        std::string newCat = Game::InputBox("", 64U, "NEW CATEGORY", "");
+        std::string newCat = Game::InputBox("", 64U, Language::Translate("animation.categorySelect.newPrompt").c_str(), "");
         if (!newCat.empty())
         {
             SetAnimationCategory(s_recatState.animDict, s_recatState.animName, newCat);
@@ -930,7 +937,7 @@ void AnimationFavouritesMenu_CategorySelect()
     if (!currentCategory.empty())
     {
         bool removeCatPressed = false;
-        AddOption("Remove from Category", removeCatPressed);
+        AddOption(Language::Translate("animation.categorySelect.remove"), removeCatPressed);
         if (removeCatPressed)
         {
             SetAnimationCategory(s_recatState.animDict, s_recatState.animName, "");
@@ -952,28 +959,28 @@ void AnimationSub_Custom()
     bool toggleLockPosition = false;
     bool bIsAFavourite = IsAnimationAFavourite(sub_animDict, sub_animName);
 
-    AddTitle("Custom Animation");
+    AddTitle(Language::Translate("animation.custom.title"));
     AddOption(sub_animDict, inputDict);
-    AddOptionDescription("Press to enter the animation dictionary.");
+    AddOptionDescription(Language::Translate("animation.custom.dict.description"));
     AddOption(sub_animName, inputName);
-    AddOptionDescription("Press to enter the animation name.");
-    AddOption("Apply", apply);
-    AddOption("Stop", stop);
-    AddTickol("Favourite", bIsAFavourite, addToFavourites, removeFromFavourites, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Adds this dictionary and name to Favourites.");
-    AddBreak("---Settings---");
-    AddNumberStepper("Blend-In Speed", g_customAnimSettings.speed, 2, 0.1, 0.0);
-    AddOptionDescription("How quickly the ped blends into the animation. Higher is snappier.");
-    AddNumberStepper("Blend-Out Speed", g_customAnimSettings.speedMult, 2, 0.1);
-    AddOptionDescription("How quickly the ped blends out when the animation ends. Usually negative (default -4).");
-    AddNumberStepper("Duration (ms)", g_customAnimSettings.duration, 0, 100.0, -1.0);
-    AddOptionDescription("How long the animation plays. -1 plays it in full, or until stopped if it loops.");
-    AddOption("Flag Options", null, nullFunc, SUB::ANIMATIONSUB_FLAGS);
-    AddOptionDescription("Choose how the animation plays: looping, upper body only, holding the last frame, etc.");
-    AddNumberStepper("Playback Rate", g_customAnimSettings.playbackRate, 2, 0.1, 0.0);
-    AddOptionDescription("Starting point of the animation, from 0 (beginning) to 1 (end).");
-    AddTickol("Lock Position", g_customAnimSettings.lockPos, toggleLockPosition, toggleLockPosition, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Stops the animation from moving the ped's position.");
+    AddOptionDescription(Language::Translate("animation.custom.name.description"));
+    AddOption(Language::Translate("animation.custom.apply"), apply);
+    AddOption(Language::Translate("animation.custom.stop"), stop);
+    AddTickol(Language::Translate("animation.custom.favourite"), bIsAFavourite, addToFavourites, removeFromFavourites, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("animation.custom.favourite.description"));
+    AddBreak(Language::Translate("animation.custom.settingsBreak"));
+    AddNumberStepper(Language::Translate("animation.blendIn"), g_customAnimSettings.speed, 2, 0.1, 0.0);
+    AddOptionDescription(Language::Translate("animation.blendIn.description"));
+    AddNumberStepper(Language::Translate("animation.blendOut"), g_customAnimSettings.speedMult, 2, 0.1);
+    AddOptionDescription(Language::Translate("animation.blendOut.description"));
+    AddNumberStepper(Language::Translate("animation.duration"), g_customAnimSettings.duration, 0, 100.0, -1.0);
+    AddOptionDescription(Language::Translate("animation.duration.description"));
+    AddOption(Language::Translate("animation.flagOptions"), null, nullFunc, SUB::ANIMATIONSUB_FLAGS);
+    AddOptionDescription(Language::Translate("animation.flagOptions.description"));
+    AddNumberStepper(Language::Translate("animation.playbackRate"), g_customAnimSettings.playbackRate, 2, 0.1, 0.0);
+    AddOptionDescription(Language::Translate("animation.playbackRate.description"));
+    AddTickol(Language::Translate("animation.lockPosition"), g_customAnimSettings.lockPos, toggleLockPosition, toggleLockPosition, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("animation.lockPosition.description"));
     if (toggleLockPosition)
         g_customAnimSettings.lockPos = !g_customAnimSettings.lockPos;
 
@@ -1000,7 +1007,7 @@ void AnimationSub_Custom()
 
     if (inputDict)
     {
-        std::string inputStr = Game::InputBox(g_customAnimSettings.dict, 126U, "Enter dict:", g_customAnimSettings.dict);
+        std::string inputStr = Game::InputBox(g_customAnimSettings.dict, 126U, Language::Translate("animation.custom.dict.prompt").c_str(), g_customAnimSettings.dict);
         if (inputStr.length() > 0)
         {
             g_customAnimSettings.dict = inputStr;
@@ -1014,7 +1021,7 @@ void AnimationSub_Custom()
 
     if (inputName)
     {
-        std::string inputStr = Game::InputBox(g_customAnimSettings.name, 126U, "Enter name:", g_customAnimSettings.name);
+        std::string inputStr = Game::InputBox(g_customAnimSettings.name, 126U, Language::Translate("animation.custom.name.prompt").c_str(), g_customAnimSettings.name);
         if (inputStr.length() > 0)
         {
             g_customAnimSettings.name = inputStr;
@@ -1031,7 +1038,7 @@ void DeerAnimationMenu()
 {
     const std::string& tempDict = dict;
 
-    AddTitle("Animalations");
+    AddTitle(Language::Translate("animation.deer"));
     AddAnimOption("Idle Turn Left", tempDict, "idle_turn_l");
     AddAnimOption("Idle Turn Right", tempDict, "idle_turn_r");
     AddAnimOption("gallop_turn_l", tempDict);
@@ -1054,7 +1061,7 @@ void SharkAnimationMenu()
 {
     const std::string& tempDict = dict;
 
-    AddTitle("Animalations");
+    AddTitle(Language::Translate("animation.shark"));
     AddAnimOption("attack_player", tempDict, "attack_player");
     AddAnimOption("swim_turn_r", tempDict, "swim_turn_r");
     AddAnimOption("swim_turn_l", tempDict, "swim_turn_l");
@@ -1074,7 +1081,7 @@ void MissionRappelAnimationMenu()
 {
     const std::string& tempDict = dict;
 
-    AddTitle("Swat Animations");
+    AddTitle(Language::Translate("animation.swat"));
     AddAnimOption("rappel_to_free_rope_prop", tempDict);
     AddAnimOption("rope_slide", tempDict);
     AddAnimOption("rappel_jump_a_prop", tempDict);
@@ -1098,7 +1105,7 @@ void GestureSitAnimationMenu()
 {
     const std::string& tempDict = dict;
 
-    AddTitle("Sitting Animations");
+    AddTitle(Language::Translate("animation.sitting"));
     AddAnimOption("Sit n Shit", "timetable@trevor@on_the_toilet", "trevonlav_struggleloop");
     AddAnimOption("Smoke Meth", "timetable@trevor@smoking_meth@base", "base");
     AddAnimOption("Michael Exit Chair", "switch@michael@sitting", "exit_forward_chair");
@@ -1146,7 +1153,7 @@ void SwatAnimationMenu()
 {
     const std::string& tempDict = dict;
 
-    AddTitle("Swat Animations");
+    AddTitle(Language::Translate("animation.swat"));
     AddAnimOption("understood", tempDict);
     AddAnimOption("you_back", tempDict);
     AddAnimOption("rally_point", tempDict);
@@ -1162,7 +1169,7 @@ void GuardReactAnimationMenu()
 {
     const std::string& tempDict = dict;
 
-    AddTitle("Guard Animations");
+    AddTitle(Language::Translate("animation.guard"));
     AddAnimOption("1hand_fwd_fire_additive", tempDict);
     AddAnimOption("1hand_turn0r", tempDict);
     AddAnimOption("1hand_turn90r", tempDict);
@@ -1185,7 +1192,7 @@ void RandomArrestAnimationMenu()
 {
     const std::string& tempDict = dict;
 
-    AddTitle("Arrest Animations");
+    AddTitle(Language::Translate("animation.arrest"));
     AddAnimOption("kneeling_arrest_get_up", tempDict);
     AddAnimOption("generic_radio_enter", tempDict);
     AddAnimOption("kneeling_arrest_escape", tempDict);
@@ -1737,7 +1744,7 @@ auto& searchStr = dict;
 void AddScenarioOption(const std::string& text, const std::string& scenarioLabel, int delay = -1, bool playEnterAnim = true)
 {
     bool pressed = false;
-    AddTickol(text, IS_PED_USING_SCENARIO(g_activePedHandle, scenarioLabel.c_str()), pressed, pressed, TICKOL::MANWON);
+    AddTickol(Language::TranslateStable("animation.scenario", scenarioLabel, text), IS_PED_USING_SCENARIO(g_activePedHandle, scenarioLabel.c_str()), pressed, pressed, TICKOL::MANWON);
     if (pressed)
     {
         GTAped ped = g_activePedHandle;
@@ -1791,14 +1798,14 @@ void AnimationTaskScenarios1()
     bool clearSearchStr = false;
     bool musicianOn = false;
 
-    AddTitle("Scenarios");
-    AddOption("ALL SCENARIOS", clearSearchStr, nullFunc, SUB::AnimationTaskScenarios2);
+    AddTitle(Language::Translate("animation.scenarios"));
+    AddOption(Language::Translate("animation.scenarios.all"), clearSearchStr, nullFunc, SUB::AnimationTaskScenarios2);
     if (clearSearchStr)
     {
         searchStr.clear();
     }
 
-    AddTickol("End Scenarios", true, StopScenario, StopScenario, TICKOL::CROSS);
+    AddTickol(Language::Translate("animation.scenarios.end"), true, StopScenario, StopScenario, TICKOL::CROSS);
 
     for (auto& scen : vNamedScenarios)
     {
@@ -1810,15 +1817,15 @@ void AnimationTaskScenarios2()
 {
     bool searchObj = false;
 
-    AddTitle("All Scenarios");
-    AddOption(searchStr.empty() ? "SEARCH" : boost::to_upper_copy(searchStr), searchObj, nullFunc, -1, true);
+    AddTitle(Language::Translate("animation.scenarios.allTitle"));
+    AddOption(searchStr.empty() ? Language::Translate("animation.search.button") : boost::to_upper_copy(searchStr), searchObj, nullFunc, -1, true);
     if (searchObj)
     {
-        searchStr = Game::InputBox(searchStr, 126U, "SEARCH", searchStr);
+        searchStr = Game::InputBox(searchStr, 126U, Language::Translate("animation.search.prompt").c_str(), searchStr);
         boost::to_lower(searchStr);
     }
 
-    AddTickol("End Scenarios", true, StopScenario, StopScenario, TICKOL::CROSS);
+    AddTickol(Language::Translate("animation.scenarios.end"), true, StopScenario, StopScenario, TICKOL::CROSS);
 
     for (auto& current : vValues_TaskScenarios)
     {
@@ -1883,7 +1890,7 @@ void AddMoveGroupOption(const std::string& text, std::string moveGroup = "", boo
 
     bool moveGroupIsActive = GetPedMovementClipSet(g_activePedHandle) == moveGroup;
     bool pressed = false;
-    AddTickol(text, moveGroupIsActive, pressed, pressed);
+    AddTickol(Language::TranslateStable("animation.movement", moveGroup, text), moveGroupIsActive, pressed, pressed);
     if (pressed)
     {
         SetPedMovementClipSet(g_activePedHandle, moveGroup);
@@ -1901,7 +1908,7 @@ void AddWMoveGroupOption(const std::string& text, std::string moveGroup = "", bo
     bool bMovGrpIsActive = GetPedWeaponMovementClipSet(g_activePedHandle) == moveGroup;
 
     bool pressed = false;
-    AddTickol(text, bMovGrpIsActive, pressed, pressed);
+    AddTickol(Language::TranslateStable("animation.weaponMovement", moveGroup, text), bMovGrpIsActive, pressed, pressed);
     if (pressed)
     {
         SetPedWeaponMovementClipSet(g_activePedHandle, moveGroup);
@@ -1920,8 +1927,8 @@ void MovementGroupMenu()
     bool movementGroupReset = 0;
     bool movementGroupResetW = 0;
 
-    AddTitle("Movement Styles");
-    AddTickol("Default", !mgitIsValid, movementGroupReset, movementGroupReset);
+    AddTitle(Language::Translate("animation.movement.title"));
+    AddTickol(Language::Translate("animation.movement.default"), !mgitIsValid, movementGroupReset, movementGroupReset);
     AddMoveGroupOption("Generic Male", "move_m@generic");
     AddMoveGroupOption("Generic Female", "move_f@generic");
     AddMoveGroupOption("Policeman", "move_cop@action");
@@ -2006,8 +2013,8 @@ void MovementGroupMenu()
     AddMoveGroupOption("move_p_m_zero_slow");
     AddMoveGroupOption("Ballistic", "anim_group_move_ballistic");
 
-    AddBreak("Weapon Handling");
-    AddTickol("Default", !wmgitIsValid, movementGroupResetW, movementGroupResetW);
+    AddBreak(Language::Translate("animation.weaponHandling"));
+    AddTickol(Language::Translate("animation.movement.default"), !wmgitIsValid, movementGroupResetW, movementGroupResetW);
     AddWMoveGroupOption("Lester's Cane", "move_lester_CaneUp");
     AddWMoveGroupOption("Crouched", "move_ped_crouched");
     AddWMoveGroupOption("Bucket", "move_ped_wpn_bucket");
@@ -2025,7 +2032,7 @@ void MovementGroupMenu()
     AddWMoveGroupOption("Paparazzi (In Car)", "random@escape_paparazzi@incar@");
     AddWMoveGroupOption("Leaf Blower", "MOVE_M@LEAF_BLOWER");
 
-    AddBreak("Weapon Animations (Doesn't Save)");
+    AddBreak(Language::Translate("animation.weaponAnimations"));
     const std::vector<std::pair<std::string, Hash>> vWeaponAnimsOrWhatever{
         {"Default", 0xE4DF46D5},            // default
         {"Female", 0x6D155A1B},             // female
@@ -2038,7 +2045,7 @@ void MovementGroupMenu()
     {
         bool weaponAnimPressed = false;
         AddOption(wa.first, weaponAnimPressed);
-        AddOptionDescription("Changes how the ped holds its weapon. Not saved to outfits or Spooner files.");
+        AddOptionDescription(Language::Translate("animation.weaponAnimations.description"));
         if (weaponAnimPressed)
         {
             WEAPON::SET_WEAPON_ANIMATION_OVERRIDE(g_activePedHandle, wa.second);
@@ -2094,10 +2101,10 @@ void FacialMoodMenu()
     GTAentity ped = g_activePedHandle;
     auto current = GetPedFacialMood(ped);
 
-    AddTitle("Mood");
+    AddTitle(Language::Translate("animation.mood"));
 
     bool clearPressed = false;
-    AddTickol("Default", current.empty(), clearPressed, clearPressed);
+    AddTickol(Language::Translate("animation.movement.default"), current.empty(), clearPressed, clearPressed);
     if (clearPressed)
     {
         ped.RequestControl(400);

@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "BikerInteriors.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 
@@ -163,7 +164,7 @@ void TeleportPedToClubhouse(GTAentity ped, ClubhouseInfoStructure& info)
 
 void Sub_Clubhouses()
 {
-    AddTitle("Clubhouses");
+    AddTitle(Language::Translate("teleport.biker.clubhouses"));
 
     for (auto& loc : vLocations)
     {
@@ -207,8 +208,8 @@ void Sub_Clubhouses_InLoc()
     }
 
     bool bCreateClubhousePressed = false;
-    AddOption("Build Clubhouse", bCreateClubhousePressed);
-    AddOptionDescription("Loads the clubhouse with the options above and teleports you inside.");
+    AddOption(Language::Translate("teleport.biker.buildClubhouse"), bCreateClubhousePressed);
+    AddOptionDescription(Language::Translate("teleport.biker.buildClubhouse.description"));
     if (bCreateClubhousePressed)
     {
         DO_SCREEN_FADE_OUT(50);
@@ -344,7 +345,7 @@ void TeleportPedToBusiness(GTAentity ped, BusinessInfoStructure& info)
 
 void Sub_Businesses()
 {
-    AddTitle("Businesses");
+    AddTitle(Language::Translate("teleport.biker.businesses"));
 
     for (auto& loc : vLocations)
     {
@@ -388,8 +389,8 @@ void Sub_Businesses_InLoc()
     }
 
     bool bCreateBusinessPressed = false;
-    AddOption("Build Business", bCreateBusinessPressed);
-    AddOptionDescription("Loads the business with the option above and teleports you inside.");
+    AddOption(Language::Translate("teleport.biker.buildBusiness"), bCreateBusinessPressed);
+    AddOptionDescription(Language::Translate("teleport.biker.buildBusiness.description"));
     if (bCreateBusinessPressed)
     {
         DO_SCREEN_FADE_OUT(50);

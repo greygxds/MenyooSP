@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "Hangars.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 
@@ -290,7 +291,7 @@ void TeleportPedToHangar(GTAentity ped, HangarInfoStructure& info)
 
 void Sub_Hangars()
 {
-    AddTitle("Hangars");
+    AddTitle(Language::Translate("teleport.hangars.title"));
 
     for (auto& loc : vLocations)
     {
@@ -344,8 +345,8 @@ void Sub_Hangars_InLoc()
     }
 
     bool bCreateHangarPressed = false;
-    AddOption("Build Hangar", bCreateHangarPressed);
-    AddOptionDescription("Loads the hangar with the options above and teleports you inside.");
+    AddOption(Language::Translate("teleport.hangars.build"), bCreateHangarPressed);
+    AddOptionDescription(Language::Translate("teleport.hangars.build.description"));
     if (bCreateHangarPressed)
     {
         DO_SCREEN_FADE_OUT(50);
@@ -364,7 +365,7 @@ void Sub_Hangars_InOption()
         Menu::SetPreviousMenu();
         return;
     }
-    AddTitle(selectedOptionArray->name.empty() ? "Option" : selectedOptionArray->name);
+    AddTitle(selectedOptionArray->name.empty() ? Language::Translate("teleport.option.title") : selectedOptionArray->name);
 
     for (UINT i = 0; i < selectedOptionArray->arr->size(); i++)
     {

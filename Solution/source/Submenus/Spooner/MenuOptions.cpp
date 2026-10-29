@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "MenuOptions.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 
@@ -81,7 +82,7 @@ void AddOption_AddVehicle(const std::string& text, const GTAmodel::Model& model)
 
 void AddOption_RelationshipTextScroller()
 {
-    std::vector<std::string> relationshipStringVec{"NONE"};
+    std::vector<std::string> relationshipStringVec{Language::Translate("spooner.relationship.none")};
     for (UINT8 i = 0; i < RelationshipManagement::relationshipGroups.size(); i++)
     {
         if (GTAped(selectedEntity.handle).GetRelationshipGroup() == GET_HASH_KEY(RelationshipManagement::relationshipGroups[i]))
@@ -89,8 +90,8 @@ void AddOption_RelationshipTextScroller()
     }
 
     bool relationshipStringPlus = false, relationshipStringMinus = false;
-    AddTexter("Relationship", 0, relationshipStringVec, null, relationshipStringPlus, relationshipStringMinus);
-    AddOptionDescription("The ped's relationship group, which controls who it's friendly or hostile to.");
+    AddTexter(Language::Translate("spooner.relationship.title"), 0, relationshipStringVec, null, relationshipStringPlus, relationshipStringMinus);
+    AddOptionDescription(Language::Translate("spooner.relationship.description"));
     if (relationshipStringPlus)
     {
         Hash currHash;
@@ -163,7 +164,7 @@ void AddOption_AddPedWithCallback(const std::string& text, const GTAmodel::Model
         }
         else
         {
-            Game::Print::PrintBottomLeft("Failed to spawn ped.");
+            Game::Print::PrintBottomLeft(Language::Translate("spooner.ped.spawnFailed"));
         }
     }
 }

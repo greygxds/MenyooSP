@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "AnimalRiding.h"
+#include "..\Menu\Language.h"
 
 namespace sub
 {
@@ -204,7 +205,7 @@ class AnimalRidingMode final : public GenericLoopedMode
 
     void PrintInstructions()
     {
-        Game::Print::PrintBottomLeft("Approach a supported animal and hop on it like it's a car!");
+        Game::Print::PrintBottomLeft(Language::Translate("animalRiding.hint"));
     }
 };
 
@@ -247,11 +248,11 @@ void SpawnAnimalRide(const Model& model)
 
 void AnimalRidingMenu()
 {
-    AddTitle("Animal Riding");
-    AddLocal("Toggle", AnimalRiding::g_animalRidingMode.Enabled(), AnimalRiding::ToggleOnOff, AnimalRiding::ToggleOnOff);
-    AddOptionDescription("Aim at an animal and press the prompt to ride it.");
+    AddTitle(Language::Translate("animalRiding.title"));
+    AddLocal(Language::Translate("animalRiding.toggle"), AnimalRiding::g_animalRidingMode.Enabled(), AnimalRiding::ToggleOnOff, AnimalRiding::ToggleOnOff);
+    AddOptionDescription(Language::Translate("animalRiding.toggle.description"));
 
-    AddBreak("---Spawn A Ride---");
+    AddBreak(Language::Translate("animalRiding.spawnBreak"));
     for (auto& a : vAnimals)
     {
         bool bSpawnRidePressed = false;
@@ -262,9 +263,9 @@ void AnimalRidingMenu()
         }
     }
 
-    AddBreak("---Animal Data---");
-    AddOption("Reload Data From File", null, PopulateAnimals);
-    AddOptionDescription("Re-reads the animal list file.");
+    AddBreak(Language::Translate("animalRiding.dataBreak"));
+    AddOption(Language::Translate("animalRiding.reloadData"), null, PopulateAnimals);
+    AddOptionDescription(Language::Translate("animalRiding.reloadData.description"));
 }
 } // namespace AnimalRiding
 } // namespace sub

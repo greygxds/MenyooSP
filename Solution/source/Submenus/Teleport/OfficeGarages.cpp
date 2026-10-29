@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "OfficeGarages.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 
@@ -176,7 +177,7 @@ void TeleportPedToOfficeGarage(GTAentity ped, OfficeGarageInfoStructure& garageI
 
 void Sub_OfficeGarages()
 {
-    AddTitle("Office Garages");
+    AddTitle(Language::Translate("teleport.officeGarages.title"));
 
     for (auto& loc : vLocations)
     {
@@ -202,7 +203,7 @@ void Sub_OfficeGarages_InLoc()
     AddTitle(currentGarageInfo.location->first);
 
     bool bGarageId_plus = false, bGarageId_minus = false;
-    AddTexter("Garage", 0, std::vector<std::string>{vGarageIds[currentGarageInfo.garageId]}, null, bGarageId_plus, bGarageId_minus);
+    AddTexter(Language::Translate("teleport.officeGarages.garage"), 0, std::vector<std::string>{vGarageIds[currentGarageInfo.garageId]}, null, bGarageId_plus, bGarageId_minus);
     if (bGarageId_plus)
     {
         if (currentGarageInfo.garageId < vGarageIds.size() - 1)
@@ -221,7 +222,7 @@ void Sub_OfficeGarages_InLoc()
     if (currentGarageInfo.garageId == 3) //Autoshop
     {
         bool bFloorOption_plus = false, bFloorOption_minus = false;
-        AddTexter("Floor", 0, std::vector<std::string>{vFloorOptions[currentGarageInfo.floorOption].name}, null, bFloorOption_plus, bFloorOption_minus);
+        AddTexter(Language::Translate("teleport.officeGarages.floor"), 0, std::vector<std::string>{vFloorOptions[currentGarageInfo.floorOption].name}, null, bFloorOption_plus, bFloorOption_minus);
         if (bFloorOption_plus)
         {
             if (currentGarageInfo.floorOption < vFloorOptions.size() - 1)
@@ -240,7 +241,7 @@ void Sub_OfficeGarages_InLoc()
     else
     {
         bool bDecorOption_plus = false, bDecorOption_minus = false;
-        AddTexter("Theme", 0, std::vector<std::string>{vDecorOptions[currentGarageInfo.decorOption].name}, null, bDecorOption_plus, bDecorOption_minus);
+        AddTexter(Language::Translate("teleport.officeGarages.theme"), 0, std::vector<std::string>{vDecorOptions[currentGarageInfo.decorOption].name}, null, bDecorOption_plus, bDecorOption_minus);
         if (bDecorOption_plus)
         {
             if (currentGarageInfo.decorOption < vDecorOptions.size() - 1)
@@ -257,7 +258,14 @@ void Sub_OfficeGarages_InLoc()
         }
 
         bool bLightingOption_plus = false, bLightingOption_minus = false;
-        AddTexter("Lighting", 0, std::vector<std::string>{vLightingOptions[currentGarageInfo.lightingOption].name}, null, bLightingOption_plus, bLightingOption_minus);
+        AddTexter(
+            Language::Translate("teleport.officeGarages.lighting"),
+            0,
+            std::vector<std::string>{vLightingOptions[currentGarageInfo.lightingOption].name},
+            null,
+            bLightingOption_plus,
+            bLightingOption_minus
+        );
         if (bLightingOption_plus)
         {
             if (currentGarageInfo.lightingOption < vLightingOptions.size() - 1)
@@ -274,7 +282,7 @@ void Sub_OfficeGarages_InLoc()
         }
 
         bool bNumStyle_plus = false, bNumStyle_minus = false;
-        AddTexter("Numbering Style", 0, std::vector<std::string>{vNumStyleOptions[currentGarageInfo.numStyleOption].name}, null, bNumStyle_plus, bNumStyle_minus);
+        AddTexter(Language::Translate("teleport.officeGarages.numbering"), 0, std::vector<std::string>{vNumStyleOptions[currentGarageInfo.numStyleOption].name}, null, bNumStyle_plus, bNumStyle_minus);
         if (bNumStyle_plus)
         {
             if (currentGarageInfo.numStyleOption < vNumStyleOptions.size() - 1)
@@ -292,8 +300,8 @@ void Sub_OfficeGarages_InLoc()
     }
 
     bool bCreateOfficePressed = false;
-    AddOption("Build Office Garage", bCreateOfficePressed);
-    AddOptionDescription("Loads the garage with the options above and teleports you inside.");
+    AddOption(Language::Translate("teleport.officeGarages.build"), bCreateOfficePressed);
+    AddOptionDescription(Language::Translate("teleport.officeGarages.build.description"));
     if (bCreateOfficePressed)
     {
         DO_SCREEN_FADE_OUT(50);

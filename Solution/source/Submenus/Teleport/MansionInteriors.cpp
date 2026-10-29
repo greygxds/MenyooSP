@@ -1,5 +1,6 @@
 // Auto-generated from root-cause gist. Do not edit manually.
 #include "MansionInteriors.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 #include "..\..\Menu\Menu.h"
@@ -508,7 +509,7 @@ void UpdateMansionProp(MansionInfoStructure &info, const MansionInteriorOptionAr
 
 void Sub_MansionInteriors()
 {
-    AddTitle("Mansions");
+    AddTitle(Language::Translate("teleport.mansion.title"));
 
     for (auto &loc : vLocations)
     {
@@ -524,7 +525,7 @@ void Sub_MansionInteriors()
         }
     }
 
-    AddBreak("---Quick Teleport---");
+    AddBreak(Language::Translate("teleport.mansion.quickTeleport"));
     for (auto &loc : vLocations)
     {
         struct
@@ -580,8 +581,15 @@ void Sub_MansionInteriors_InLoc()
 
     {
         bool bPlus = false, bMinus = false;
-        AddTexter("Shell", 0, std::vector<std::string>{currentMansionInfo.shellType == 0 ? "Generic" : "Private"}, null, bPlus, bMinus);
-        AddOptionDescription("Generic or Private mansion layout.");
+        AddTexter(
+            Language::Translate("teleport.mansion.shell"),
+            0,
+            std::vector<std::string>{currentMansionInfo.shellType == 0 ? Language::Translate("teleport.mansion.generic") : Language::Translate("teleport.mansion.private")},
+            null,
+            bPlus,
+            bMinus
+        );
+        AddOptionDescription(Language::Translate("teleport.mansion.shell.description"));
         if (bPlus && currentMansionInfo.shellType < 1)
         {
             currentMansionInfo.shellType++;
@@ -600,8 +608,8 @@ void Sub_MansionInteriors_InLoc()
     if (currentMansionInfo.shellType == 1)
     {
         bool bPlus = false, bMinus = false;
-        AddTexter("Railings", 0, std::vector<std::string>{currentMansionInfo.railingsType == 0 ? "M" : "P"}, null, bPlus, bMinus);
-        AddOptionDescription("Railing style variant.");
+        AddTexter(Language::Translate("teleport.mansion.railings"), 0, std::vector<std::string>{currentMansionInfo.railingsType == 0 ? "M" : "P"}, null, bPlus, bMinus);
+        AddOptionDescription(Language::Translate("teleport.mansion.railings.description"));
         if (bPlus && currentMansionInfo.railingsType < 1)
         {
             currentMansionInfo.railingsType++;
@@ -618,7 +626,7 @@ void Sub_MansionInteriors_InLoc()
         }
         {
             bool bShutOn = false, bShutOff = false;
-            AddTickol("Exterior Shutters", currentMansionInfo.shuttersLoaded, bShutOn, bShutOff, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+            AddTickol(Language::Translate("teleport.mansion.shutters"), currentMansionInfo.shuttersLoaded, bShutOn, bShutOff, TICKOL::BOXTICK, TICKOL::BOXBLANK);
             if (bShutOn || bShutOff)
             {
                 currentMansionInfo.shuttersLoaded = bShutOn;
@@ -661,8 +669,8 @@ void Sub_MansionInteriors_InLoc()
     if (currentMansionInfo.styleOption.index > 0)
     {
         int oldTint = currentMansionInfo.mansionTint;
-        AddNumberStepper("Tint", currentMansionInfo.mansionTint, 0, 1.0, 0, 3);
-        AddOptionDescription("Interior colour tint (0-3).");
+        AddNumberStepper(Language::Translate("teleport.mansion.tint"), currentMansionInfo.mansionTint, 0, 1.0, 0, 3);
+        AddOptionDescription(Language::Translate("teleport.mansion.tint.description"));
         if (currentMansionInfo.mansionTint != oldTint)
         {
             Vector3 pos = currentMansionInfo.location->posMain;
@@ -675,7 +683,7 @@ void Sub_MansionInteriors_InLoc()
         }
     }
 
-    AddBreak("---Actions---");
+    AddBreak(Language::Translate("teleport.mansion.actions"));
     auto &loc = *currentMansionInfo.location;
     const char *teleLabels[] = {"Main Interior", "Lower Level", "Garage"};
     Vector3 telePos[] = {loc.posMain, loc.posLower, loc.posGarage};
@@ -695,7 +703,7 @@ void Sub_MansionInteriors_InOption()
         Menu::SetPreviousMenu();
         return;
     }
-    AddTitle(selectedOptionArray->name.empty() ? "Option" : selectedOptionArray->name);
+    AddTitle(selectedOptionArray->name.empty() ? Language::Translate("teleport.option.title") : selectedOptionArray->name);
 
     for (UINT i = 0; i < selectedOptionArray->arr->size(); i++)
     {

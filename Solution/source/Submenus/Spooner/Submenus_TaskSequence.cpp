@@ -15,6 +15,7 @@
 #include "..\..\Menu\Keybinds.h"
 #include "..\..\Menu\MenuCategory.h"
 #include "..\..\Menu\Routine.h"
+#include "..\..\Menu\Language.h"
 
 #include <iterator>
 
@@ -66,8 +67,8 @@ void SetHealth()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::SetHealth>();
 
     bool bTogglePlayOncePressed = false;
-    AddTickol("Apply Only Once", !tskPtr->isLoopedTask, bTogglePlayOncePressed, bTogglePlayOncePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Off: health is reapplied every frame for the task's duration.");
+    AddTickol(Language::Translate("spooner.task.setHealth.applyOnce"), !tskPtr->isLoopedTask, bTogglePlayOncePressed, bTogglePlayOncePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("spooner.task.setHealth.applyOnce.description"));
     if (bTogglePlayOncePressed)
     {
         if (tskPtr->isLoopedTask)
@@ -85,8 +86,8 @@ void SetHealth()
     }
 
     bool bInputPressed = false, bPlusPressed = false, bMinusPressed = false;
-    AddNumber("Health Value", tskPtr->healthValue, 0, bInputPressed, bPlusPressed, bMinusPressed);
-    AddOptionDescription("The health the entity is set to.");
+    AddNumber(Language::Translate("spooner.task.setHealth.value"), tskPtr->healthValue, 0, bInputPressed, bPlusPressed, bMinusPressed);
+    AddOptionDescription(Language::Translate("spooner.task.setHealth.value.description"));
     if (bPlusPressed)
     {
         if (tskPtr->healthValue < INT_MAX)
@@ -125,16 +126,16 @@ void AddBlip()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::AddBlip>();
 
     bool bEditLabelPressed = false;
-    AddTexter("Label", 0, std::vector<std::string>{tskPtr->label}, bEditLabelPressed);
+    AddTexter(Language::Translate("spooner.task.blip.label"), 0, std::vector<std::string>{tskPtr->label}, bEditLabelPressed);
     if (bEditLabelPressed)
     {
-        tskPtr->label = Game::InputBox(tskPtr->label, 26U, "Enter custom label:", tskPtr->label);
+        tskPtr->label = Game::InputBox(tskPtr->label, 26U, Language::Translate("spooner.task.blip.labelPrompt").c_str(), tskPtr->label);
         //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SetArg1String, tskPtr->label, 26U, "Enter custom marker name:", tskPtr->label);
         //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&tskPtr->label);
     }
 
     bool colour_plus = false, colour_minus = false;
-    AddTexter("Colour", 0, std::vector<std::string>{BlipColour::vNames.at(tskPtr->colour)}, null, colour_plus, colour_minus);
+    AddTexter(Language::Translate("spooner.task.blip.colour"), 0, std::vector<std::string>{BlipColour::vNames.at(tskPtr->colour)}, null, colour_plus, colour_minus);
     if (colour_plus)
     {
         auto colourIt = BlipColour::vNames.find(tskPtr->colour);
@@ -155,7 +156,7 @@ void AddBlip()
     };
 
     bool icon_plus = false, icon_minus = false;
-    AddTexter("Icon", 0, std::vector<std::string>{BlipIcon::vNames.at(tskPtr->icon)}, null, icon_plus, icon_minus);
+    AddTexter(Language::Translate("spooner.task.blip.icon"), 0, std::vector<std::string>{BlipIcon::vNames.at(tskPtr->icon)}, null, icon_plus, icon_minus);
     if (icon_plus)
     {
         auto iconIt = BlipIcon::vNames.find(tskPtr->icon);
@@ -176,7 +177,7 @@ void AddBlip()
     };
 
     bool bAlpha_plus = false, bAlpha_minus = false;
-    AddNumber("Alpha", tskPtr->alpha, 2, null, bAlpha_plus, bAlpha_minus);
+    AddNumber(Language::Translate("spooner.task.blip.alpha"), tskPtr->alpha, 2, null, bAlpha_plus, bAlpha_minus);
     if (bAlpha_plus)
     {
         if (tskPtr->alpha < UINT8_MAX)
@@ -189,7 +190,7 @@ void AddBlip()
     }
 
     bool bScale_plus = false, bScale_minus = false;
-    AddNumber("Scale", tskPtr->scale, 2, null, bScale_plus, bScale_minus);
+    AddNumber(Language::Translate("spooner.task.blip.scale"), tskPtr->scale, 2, null, bScale_plus, bScale_minus);
     if (bScale_plus)
     {
         if (tskPtr->scale < FLT_MAX)
@@ -201,18 +202,18 @@ void AddBlip()
             tskPtr->scale -= 0.01f;
     }
 
-    AddToggle("Flashing", tskPtr->isFlashing);
-    AddOptionDescription("The blip flashes on the map.");
-    AddToggle("Friendly", tskPtr->isFriendly);
-    AddOptionDescription("Shows the blip as friendly instead of hostile.");
-    AddToggle("Short-Range", tskPtr->isShortRange);
-    AddOptionDescription("The blip only shows on the minimap when you're nearby.");
-    AddToggle("Show Route", tskPtr->showRoute);
-    AddOptionDescription("Draws a GPS route to the blip.");
+    AddToggle(Language::Translate("spooner.task.blip.flashing"), tskPtr->isFlashing);
+    AddOptionDescription(Language::Translate("spooner.task.blip.flashing.description"));
+    AddToggle(Language::Translate("spooner.task.blip.friendly"), tskPtr->isFriendly);
+    AddOptionDescription(Language::Translate("spooner.task.blip.friendly.description"));
+    AddToggle(Language::Translate("spooner.task.blip.shortRange"), tskPtr->isShortRange);
+    AddOptionDescription(Language::Translate("spooner.task.blip.shortRange.description"));
+    AddToggle(Language::Translate("spooner.task.blip.showRoute"), tskPtr->showRoute);
+    AddOptionDescription(Language::Translate("spooner.task.blip.showRoute.description"));
 
     bool number_plus = false, number_minus = false;
-    AddTexter("Display Number", tskPtr->showNumber, std::vector<std::string>{""}, null, number_plus, number_minus);
-    AddOptionDescription("Shows a number on the blip.");
+    AddTexter(Language::Translate("spooner.task.blip.displayNumber"), tskPtr->showNumber, std::vector<std::string>{""}, null, number_plus, number_minus);
+    AddOptionDescription(Language::Translate("spooner.task.blip.displayNumber.description"));
     if (number_plus)
     {
         if (tskPtr->showNumber < INT_MAX)
@@ -257,7 +258,7 @@ void PAtCoord(Vector3& coord)
     if (!spoocam.IsActive())
     {
         bool bSetPosToMe = false;
-        AddOption("Set Target To Player Position", bSetPosToMe);
+        AddOption(Language::Translate("spooner.task.target.playerPosition"), bSetPosToMe);
         if (bSetPosToMe)
         {
             Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
@@ -267,8 +268,8 @@ void PAtCoord(Vector3& coord)
     else
     {
         bool bSetPosToHitCoords = false;
-        AddOption("Set Target To Camera Target", bSetPosToHitCoords);
-        AddOptionDescription("Uses the point your camera is aiming at.");
+        AddOption(Language::Translate("spooner.task.target.cameraTarget"), bSetPosToHitCoords);
+        AddOptionDescription(Language::Translate("spooner.task.target.cameraTarget.description"));
         if (bSetPosToHitCoords)
         {
             Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
@@ -278,7 +279,7 @@ void PAtCoord(Vector3& coord)
     if (IS_WAYPOINT_ACTIVE())
     {
         bool bSetPosToWp = false;
-        AddOption("Set Target To Waypoint", bSetPosToWp);
+        AddOption(Language::Translate("spooner.task.target.waypoint"), bSetPosToWp);
         if (bSetPosToWp)
         {
             GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
@@ -289,8 +290,8 @@ void PAtCoord(Vector3& coord)
     }
 
     bool bManualEditingForPosPressed = false;
-    AddOption("Adjust Target Manually", bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
-    AddOptionDescription("Fine-tune the target position with X/Y/Z values.");
+    AddOption(Language::Translate("spooner.task.target.manual"), bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+    AddOptionDescription(Language::Translate("spooner.task.target.manual.description"));
     if (bManualEditingForPosPressed)
     {
         SpoonerVector3ManualEditingPtrs = {0, &coord, nullptr};
@@ -300,8 +301,10 @@ void PAtCoord(Vector3& coord)
 void PAtEntity(GTAentity& targetEntity, EntityType eType = EntityType::ALL)
 {
     UINT8 eTypeInt = (UINT8)eType;
-    std::array<std::string, 4> eTypeNames{{"Entities", "Peds", "Vehicles", "Objects"}};
-    AddBreak("Available " + eTypeNames[eTypeInt >= 0 && eTypeInt < eTypeNames.size() ? eTypeInt : 0]);
+    std::array<std::string, 4> eTypeNames{
+        {Language::Translate("spooner.task.entities"), Language::Translate("spooner.task.peds"), Language::Translate("spooner.task.vehicles"), Language::Translate("spooner.task.objects")}
+    };
+    AddBreak(Language::Format("spooner.task.available", {{"type", eTypeNames[eTypeInt >= 0 && eTypeInt < eTypeNames.size() ? eTypeInt : 0]}}));
 
     GTAentity& thisTargetEnt = targetEntity;
 
@@ -309,7 +312,7 @@ void PAtEntity(GTAentity& targetEntity, EntityType eType = EntityType::ALL)
     if (myPed.Handle() != selectedEntity.handle.Handle() && myPed.Exists())
     {
         bool bMyPedPressed = false;
-        AddTickol("Self", thisTargetEnt == myPed, bMyPedPressed, bMyPedPressed);
+        AddTickol(Language::Translate("spooner.task.self"), thisTargetEnt == myPed, bMyPedPressed, bMyPedPressed);
         if (bMyPedPressed)
         {
             thisTargetEnt = myPed;
@@ -352,7 +355,7 @@ void ThrowProjectile()
     if (!spoocam.IsActive())
     {
         bool bSetPosToMe = false;
-        AddOption("Set Target To Player Position", bSetPosToMe);
+        AddOption(Language::Translate("spooner.task.target.playerPosition"), bSetPosToMe);
         if (bSetPosToMe)
         {
             Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
@@ -362,8 +365,8 @@ void ThrowProjectile()
     else
     {
         bool bSetPosToHitCoords = false;
-        AddOption("Set Target To Camera Target", bSetPosToHitCoords);
-        AddOptionDescription("Uses the point your camera is aiming at.");
+        AddOption(Language::Translate("spooner.task.target.cameraTarget"), bSetPosToHitCoords);
+        AddOptionDescription(Language::Translate("spooner.task.target.cameraTarget.description"));
         if (bSetPosToHitCoords)
         {
             Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
@@ -385,8 +388,8 @@ void FaceDirection()
     );
 
     bool bHeading_plus = false, bHeading_minus = false;
-    AddNumber("Direction To Face", tskPtr->heading, 0, null, bHeading_plus, bHeading_minus);
-    AddOptionDescription("Heading in degrees the ped faces after arriving.");
+    AddNumber(Language::Translate("spooner.task.directionToFace"), tskPtr->heading, 0, null, bHeading_plus, bHeading_minus);
+    AddOptionDescription(Language::Translate("spooner.task.directionToFace.description"));
     if (bHeading_plus)
     {
         tskPtr->heading += 1.0f;
@@ -443,8 +446,8 @@ void TeleportToCoord()
     if (selectedEntity.type == EntityType::PED)
     {
         bool bTeleVehicleToggle = false;
-        AddTickol("Take Vehicle Too (If In One)", tskPtr->takeVehicleToo, bTeleVehicleToggle, bTeleVehicleToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-        AddOptionDescription("If the ped is in a vehicle, it teleports with them.");
+        AddTickol(Language::Translate("spooner.task.teleport.takeVehicle"), tskPtr->takeVehicleToo, bTeleVehicleToggle, bTeleVehicleToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        AddOptionDescription(Language::Translate("spooner.task.teleport.takeVehicle.description"));
         if (bTeleVehicleToggle)
             tskPtr->takeVehicleToo = !tskPtr->takeVehicleToo;
     }
@@ -457,8 +460,8 @@ void SeekCoverAtCoord()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::SeekCoverAtCoord>();
 
     bool bAllowPeekingToggle = false;
-    AddTickol("Allow Peeking", tskPtr->canPeekInCover, bAllowPeekingToggle, bAllowPeekingToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("The ped can lean out of cover.");
+    AddTickol(Language::Translate("spooner.task.cover.allowPeeking"), tskPtr->canPeekInCover, bAllowPeekingToggle, bAllowPeekingToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("spooner.task.cover.allowPeeking.description"));
     if (bAllowPeekingToggle)
         tskPtr->canPeekInCover = !tskPtr->canPeekInCover;
 
@@ -474,7 +477,7 @@ void SlideToCoord()
     );
 
     bool bSpeed_plus = false, bSpeed_minus = false;
-    AddNumber("Speed", tskPtr->speed, 1, null, bSpeed_plus, bSpeed_minus);
+    AddNumber(Language::Translate("spooner.task.speed"), tskPtr->speed, 1, null, bSpeed_plus, bSpeed_minus);
     if (bSpeed_plus)
     {
         if (tskPtr->speed < 250.0f)
@@ -487,8 +490,8 @@ void SlideToCoord()
     }
 
     bool bHeading_plus = false, bHeading_minus = false;
-    AddNumber("Direction To Face", tskPtr->heading, 0, null, bHeading_plus, bHeading_minus);
-    AddOptionDescription("Heading in degrees the ped faces after arriving.");
+    AddNumber(Language::Translate("spooner.task.directionToFace"), tskPtr->heading, 0, null, bHeading_plus, bHeading_minus);
+    AddOptionDescription(Language::Translate("spooner.task.directionToFace.description"));
     if (bHeading_plus)
     {
         tskPtr->heading += 1.0f;
@@ -510,8 +513,15 @@ void GoToCoord()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::GoToCoord>();
 
     bool bSpeed_plus = false, bSpeed_minus = false;
-    AddTexter("Speed", (tskPtr->speed > 2.5f ? 1 : 0), std::vector<std::string>{"Walk", "Run"}, null, bSpeed_plus, bSpeed_minus);
-    AddOptionDescription("Walk or run.");
+    AddTexter(
+        Language::Translate("spooner.task.speed"),
+        (tskPtr->speed > 2.5f ? 1 : 0),
+        std::vector<std::string>{Language::Translate("spooner.task.walk"), Language::Translate("spooner.task.run")},
+        null,
+        bSpeed_plus,
+        bSpeed_minus
+    );
+    AddOptionDescription(Language::Translate("spooner.task.speed.walkOrRun"));
     if (bSpeed_plus)
     {
         if (tskPtr->speed < 4.0f)
@@ -539,8 +549,15 @@ void FollowRoute()
     }
 
     bool bSpeed_plus = false, bSpeed_minus = false;
-    AddTexter("Speed", (tskPtr->speed > 2.5f ? 1 : 0), std::vector<std::string>{"Walk", "Run"}, null, bSpeed_plus, bSpeed_minus);
-    AddOptionDescription("Walk or run.");
+    AddTexter(
+        Language::Translate("spooner.task.speed"),
+        (tskPtr->speed > 2.5f ? 1 : 0),
+        std::vector<std::string>{Language::Translate("spooner.task.walk"), Language::Translate("spooner.task.run")},
+        null,
+        bSpeed_plus,
+        bSpeed_minus
+    );
+    AddOptionDescription(Language::Translate("spooner.task.speed.walkOrRun"));
     if (bSpeed_plus)
     {
         if (tskPtr->speed < 4.0f)
@@ -559,7 +576,7 @@ void FollowRoute()
         if (Menu::IsLastDrawnOptionSelected())
         {
             bool bRemoveCoordPressed = false;
-            Keybinds::AddBindIB("menu_action", "Remove coord");
+            Keybinds::AddBindIB("menu_action", Language::Translate("spooner.task.removeCoord"));
             bRemoveCoordPressed = Keybinds::WasPressedThisFrame("menu_action");
             if (bRemoveCoordPressed)
             {
@@ -577,8 +594,8 @@ void FollowRoute()
     if (!spoocam.IsActive())
     {
         bool bSetPosToMe = false;
-        AddTickol("Add Player Position", true, bSetPosToMe, bSetPosToMe, TICKOL::SMALLNEWSTAR);
-        AddOptionDescription("Adds your position as the next point on the route.");
+        AddTickol(Language::Translate("spooner.task.route.addPlayerPosition"), true, bSetPosToMe, bSetPosToMe, TICKOL::SMALLNEWSTAR);
+        AddOptionDescription(Language::Translate("spooner.task.route.addPlayerPosition.description"));
         if (bSetPosToMe)
         {
             Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
@@ -589,8 +606,8 @@ void FollowRoute()
     else
     {
         bool bSetPosToHitCoords = false;
-        AddTickol("Add Camera Target Position", true, bSetPosToHitCoords, bSetPosToHitCoords, TICKOL::SMALLNEWSTAR);
-        AddOptionDescription("Adds the point your camera is aiming at as the next point on the route.");
+        AddTickol(Language::Translate("spooner.task.route.addCameraPosition"), true, bSetPosToHitCoords, bSetPosToHitCoords, TICKOL::SMALLNEWSTAR);
+        AddOptionDescription(Language::Translate("spooner.task.route.addCameraPosition.description"));
         if (bSetPosToHitCoords)
         {
             Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
@@ -605,8 +622,15 @@ void FollowEntity()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::FollowEntity>();
 
     bool bSpeed_plus = false, bSpeed_minus = false;
-    AddTexter("Speed", (tskPtr->speed > 2.5f ? 1 : 0), std::vector<std::string>{"Walk", "Run"}, null, bSpeed_plus, bSpeed_minus);
-    AddOptionDescription("Walk or run.");
+    AddTexter(
+        Language::Translate("spooner.task.speed"),
+        (tskPtr->speed > 2.5f ? 1 : 0),
+        std::vector<std::string>{Language::Translate("spooner.task.walk"), Language::Translate("spooner.task.run")},
+        null,
+        bSpeed_plus,
+        bSpeed_minus
+    );
+    AddOptionDescription(Language::Translate("spooner.task.speed.walkOrRun"));
     if (bSpeed_plus)
     {
         if (tskPtr->speed < 4.0f)
@@ -628,8 +652,8 @@ void PatrolInRange()
     float& thisRadius = tskPtr->radius;
 
     bool bRadius_plus = false, bRadius_minus = false;
-    AddNumber("Radius", thisRadius, 0, null, bRadius_plus, bRadius_minus);
-    AddOptionDescription("How far from the point the ped wanders while patrolling.");
+    AddNumber(Language::Translate("spooner.task.radius"), thisRadius, 0, null, bRadius_plus, bRadius_minus);
+    AddOptionDescription(Language::Translate("spooner.task.radius.patrol.description"));
     if (Menu::IsLastDrawnOptionSelected())
         EntityManagement::DrawRadiusDisplayingMarker(selectedEntity.handle.GetPosition(), thisRadius);
     if (bRadius_plus)
@@ -665,8 +689,8 @@ void NearestAppropriateAction()
     bool& thisWarp = tskPtr->warp;
 
     bool bSearchRadius_plus = false, bSearchRadius_minus = false;
-    AddNumber("Search Radius", thisSearchRadius, 0, null, bSearchRadius_plus, bSearchRadius_minus);
-    AddOptionDescription("How far to look for a nearby scenario (e.g. a bench or wall to lean on).");
+    AddNumber(Language::Translate("spooner.task.searchRadius"), thisSearchRadius, 0, null, bSearchRadius_plus, bSearchRadius_minus);
+    AddOptionDescription(Language::Translate("spooner.task.searchRadius.scenario.description"));
     if (Menu::IsLastDrawnOptionSelected())
         EntityManagement::DrawRadiusDisplayingMarker(selectedEntity.handle.GetPosition(), thisSearchRadius);
     if (bSearchRadius_plus)
@@ -681,8 +705,8 @@ void NearestAppropriateAction()
     }
 
     bool bWarpTogglePressed = false;
-    AddTickol("Warp", thisWarp, bWarpTogglePressed, bWarpTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Teleports straight into the scenario instead of walking there.");
+    AddTickol(Language::Translate("spooner.task.warp"), thisWarp, bWarpTogglePressed, bWarpTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("spooner.task.warp.description"));
     if (bWarpTogglePressed)
         thisWarp = !thisWarp;
 }
@@ -693,14 +717,14 @@ void ScenarioAction()
 
     std::string& thisScenarioName = tskPtr->scenarioName;
 
-    AddBreak("---Actions---");
+    AddBreak(Language::Translate("spooner.task.actions"));
 
-    AddOption("All Actions", null, nullFunc, SUB::SPOONER_TASKSEQUENCE_TASKSUB_SCENARIOACTION_LIST);
+    AddOption(Language::Translate("spooner.task.allActions"), null, nullFunc, SUB::SPOONER_TASKSEQUENCE_TASKSUB_SCENARIOACTION_LIST);
 
     for (auto& sn : AnimationTaskScenarios::vNamedScenarios)
     {
         bool bScenarioNamePressed = false;
-        AddTickol(sn.name, thisScenarioName == sn.label, bScenarioNamePressed, bScenarioNamePressed);
+        AddTickol(Language::TranslateStable("animation.scenario", sn.label, sn.name), thisScenarioName == sn.label, bScenarioNamePressed, bScenarioNamePressed);
         if (bScenarioNamePressed)
         {
             thisScenarioName = sn.label;
@@ -719,13 +743,13 @@ void ScenarioAction_list()
 
     std::string& thisScenarioName = tskPtr->scenarioName;
 
-    AddTitle("All Actions");
+    AddTitle(Language::Translate("spooner.task.allActions"));
 
     bool searchobj = false;
-    AddOption(_searchStr.empty() ? "SEARCH" : boost::to_upper_copy(_searchStr), searchobj, nullFunc, -1, true);
+    AddOption(_searchStr.empty() ? Language::Translate("spooner.taskSequence.search") : boost::to_upper_copy(_searchStr), searchobj, nullFunc, -1, true);
     if (searchobj)
     {
-        _searchStr = Game::InputBox(_searchStr, 126U, "SEARCH", _searchStr);
+        _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("menu.search").c_str(), _searchStr);
         boost::to_lower(_searchStr);
     }
 
@@ -738,7 +762,7 @@ void ScenarioAction_list()
         }
 
         bool bScenarioNamePressed = false;
-        AddTickol(sl, thisScenarioName == sl, bScenarioNamePressed, bScenarioNamePressed);
+        AddTickol(Language::TranslateStable("animation.scenario", sl, sl), thisScenarioName == sl, bScenarioNamePressed, bScenarioNamePressed);
         if (bScenarioNamePressed)
         {
             thisScenarioName = sl;
@@ -752,16 +776,21 @@ void PlayAnimation()
     auto& _searchStr = dict;
     _searchStr.clear();
 
-    AddOption("Settings", null, nullFunc, SUB::SPOONER_TASKSEQUENCE_TASKSUB_PLAYANIMATION_SETTINGS);
-    AddOption("All Animations", null, nullFunc, SUB::SPOONER_TASKSEQUENCE_TASKSUB_PLAYANIMATION_ALLPEDANIMS);
+    AddOption(Language::Translate("spooner.task.settings"), null, nullFunc, SUB::SPOONER_TASKSEQUENCE_TASKSUB_PLAYANIMATION_SETTINGS);
+    AddOption(Language::Translate("spooner.task.allAnimations"), null, nullFunc, SUB::SPOONER_TASKSEQUENCE_TASKSUB_PLAYANIMATION_ALLPEDANIMS);
 
     if (!sub::AnimationMenu::presetPedAnims.empty())
     {
-        AddBreak("---Basic---");
+        AddBreak(Language::Translate("spooner.task.basic"));
         for (auto& npa : sub::AnimationMenu::presetPedAnims)
         {
             bool bPresetAnimPressed = false;
-            AddTickol(npa.caption, (npa.animDict == tskPtr->animDict && npa.animName == tskPtr->animName), bPresetAnimPressed, bPresetAnimPressed);
+            AddTickol(
+                Language::TranslateStable("animation.preset", npa.animDict + "." + npa.animName, npa.caption),
+                (npa.animDict == tskPtr->animDict && npa.animName == tskPtr->animName),
+                bPresetAnimPressed,
+                bPresetAnimPressed
+            );
             if (bPresetAnimPressed)
             {
                 tskPtr->animDict = npa.animDict;
@@ -769,14 +798,14 @@ void PlayAnimation()
             }
         }
     }
-    AddBreak("---Favourites---");
+    AddBreak(Language::Translate("spooner.task.favourites"));
 
     static std::string favSearchStr;
     bool searchPressed = false;
-    AddOption(favSearchStr.empty() ? "SEARCH FAVOURITES" : boost::to_upper_copy(favSearchStr), searchPressed, nullFunc, -1, true);
+    AddOption(favSearchStr.empty() ? Language::Translate("spooner.task.searchFavourites") : boost::to_upper_copy(favSearchStr), searchPressed, nullFunc, -1, true);
     if (searchPressed)
     {
-        std::string newSearch = Game::InputBox(favSearchStr, 126U, "SEARCH FAVOURITES", favSearchStr);
+        std::string newSearch = Game::InputBox(favSearchStr, 126U, Language::Translate("spooner.task.searchFavourites").c_str(), favSearchStr);
         boost::to_lower(newSearch);
         if (newSearch != favSearchStr)
         {
@@ -798,7 +827,7 @@ void PlayAnimation()
 
             auto& anims = it->second;
             std::string catDisplay = cat.empty() ? "UNORDERED" : cat;
-            std::string catLabel = "— ~b~" + catDisplay + "~s~ ~c~(" + std::to_string(anims.size()) + " anims)~s~";
+            std::string catLabel = Language::Format("spooner.task.animationCategory", {{"category", catDisplay}, {"count", anims.size()}});
 
             if (MenuCategory::AddCategory(catLabel))
             {
@@ -816,14 +845,14 @@ void PlayAnimation()
         }
     }
 
-    AddBreak("---Custom---");
+    AddBreak(Language::Translate("spooner.task.custom"));
     bool bInputAnimDict = false, bInputAnimName = false;
     AddOption(tskPtr->animDict, bInputAnimDict);
     AddOption(tskPtr->animName, bInputAnimName);
     if (bInputAnimDict || bInputAnimName)
     {
         std::string* inputStr = bInputAnimDict ? &tskPtr->animDict : &tskPtr->animName;
-        *inputStr = Game::InputBox(*inputStr, 126U, bInputAnimDict ? "Enter Dictionary:" : "Enter Name:", *inputStr);
+        *inputStr = Game::InputBox(*inputStr, 126U, (bInputAnimDict ? Language::Translate("spooner.task.enterDictionary") : Language::Translate("spooner.task.enterName")).c_str(), *inputStr);
         //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SetArg1String, *inputStr, 126U, bInputAnimDict ? "Enter Dictionary:" : "Enter Name:", *inputStr);
         //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(inputStr);
     }
@@ -840,12 +869,12 @@ void PlayAnimation_settings()
     }
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::PlayAnimation>();
 
-    AddTitle("Settings");
+    AddTitle(Language::Translate("spooner.task.settings"));
 
-    AddNumberStepper("Blend-In Speed", tskPtr->speed, 1, 0.1);
-    AddOptionDescription("How quickly the ped blends into the animation. Higher is snappier.");
-    AddNumberStepper("Blend-Out Speed", tskPtr->speedMultiplier, 1, 0.1);
-    AddOptionDescription("How quickly the ped blends out when the animation ends. Usually negative (default -4).");
+    AddNumberStepper(Language::Translate("spooner.task.animation.blendInSpeed"), tskPtr->speed, 1, 0.1);
+    AddOptionDescription(Language::Translate("spooner.task.animation.blendInSpeed.description"));
+    AddNumberStepper(Language::Translate("spooner.task.animation.blendOutSpeed"), tskPtr->speedMultiplier, 1, 0.1);
+    AddOptionDescription(Language::Translate("spooner.task.animation.blendOutSpeed.description"));
 
     const int numPresets = static_cast<int>(std::size(AnimFlag::kFlagPresets));
     int currentPresetIdx = numPresets;
@@ -861,16 +890,16 @@ void PlayAnimation_settings()
     std::vector<std::string> presetLabels;
     presetLabels.reserve(numPresets + 1);
     for (int i = 0; i < numPresets; i++)
-        presetLabels.push_back(AnimFlag::kFlagPresets[i].name);
-    presetLabels.push_back("Custom");
+        presetLabels.push_back(Language::TranslateStable("animation.flagPreset", AnimFlag::kFlagPresets[i].name, AnimFlag::kFlagPresets[i].name));
+    presetLabels.push_back(Language::Translate("spooner.task.custom"));
 
-    int newPresetIdx = AddTexterCycler("Flag Preset", currentPresetIdx, presetLabels);
-    AddOptionDescription("Common animation flag combinations, such as looping, upper body only or holding the last frame.");
+    int newPresetIdx = AddTexterCycler(Language::Translate("spooner.task.animation.flagPreset"), currentPresetIdx, presetLabels);
+    AddOptionDescription(Language::Translate("spooner.task.animation.flagPreset.description"));
     if (newPresetIdx != currentPresetIdx && newPresetIdx < numPresets)
         tskPtr->flag = AnimFlag::kFlagPresets[newPresetIdx].value;
     bool bToggleLockPos = false;
-    AddTickol("Lock Position", tskPtr->lockPos, bToggleLockPos, bToggleLockPos, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Stops the animation from moving the ped's position.");
+    AddTickol(Language::Translate("spooner.task.animation.lockPosition"), tskPtr->lockPos, bToggleLockPos, bToggleLockPos, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("spooner.task.animation.lockPosition.description"));
     if (bToggleLockPos)
         tskPtr->lockPos = !tskPtr->lockPos;
 }
@@ -890,12 +919,12 @@ void PlayAnimation_allPedAnims()
     bool bCurrentPressed;
     bool notFoundInDict;
 
-    AddTitle("All Animations");
+    AddTitle(Language::Translate("spooner.task.allAnimations"));
 
-    AddOption(_searchStr.empty() ? "SEARCH" : boost::to_upper_copy(_searchStr), searchobj, nullFunc, -1, true);
+    AddOption(_searchStr.empty() ? Language::Translate("spooner.taskSequence.search") : boost::to_upper_copy(_searchStr), searchobj, nullFunc, -1, true);
     if (searchobj)
     {
-        _searchStr = Game::InputBox(_searchStr, 126U, "SEARCH", _searchStr);
+        _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("menu.search").c_str(), _searchStr);
         boost::to_lower(_searchStr);
         //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SearchToLower, _searchStr, 126U, std::string(), _searchStr);
         //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_searchStr);
@@ -961,7 +990,7 @@ void PlayAnimation_allPedAnims_inDict()
         if (Menu::IsLastDrawnOptionSelected())
         {
             bool bIsAFav = IsAnimationAFavourite(selectedDict.first, current);
-            Keybinds::AddBindIB("menu_action", bIsAFav, "Remove from favourites", "Add to favourites");
+            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("menu.removeFromFavourites"), Language::Translate("menu.addToFavourites"));
 
             if (Keybinds::WasPressedThisFrame("menu_action"))
             {
@@ -970,14 +999,14 @@ void PlayAnimation_allPedAnims_inDict()
         }
     }
 
-    AddOption("Settings", null, nullFunc, SUB::SPOONER_TASKSEQUENCE_TASKSUB_PLAYANIMATION_SETTINGS);
+    AddOption(Language::Translate("spooner.task.settings"), null, nullFunc, SUB::SPOONER_TASKSEQUENCE_TASKSUB_PLAYANIMATION_SETTINGS);
 }
 
 void SetActiveWeapon()
 {
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::SetActiveWeapon>();
 
-    AddBreak("---Weapon---");
+    AddBreak(Language::Translate("spooner.task.weapon"));
     for (auto& w : WeaponIndivs::vWeaponLabels)
     {
         bool bWeapPressed = false;
@@ -1024,8 +1053,8 @@ void FightHatedTargets()
     float& thisRadius = tskPtr->radius;
 
     bool bRadius_plus = false, bRadius_minus = false;
-    AddNumber("Radius", thisRadius, 0, null, bRadius_plus, bRadius_minus);
-    AddOptionDescription("The ped attacks hostile or disliked peds within this range.");
+    AddNumber(Language::Translate("spooner.task.radius"), thisRadius, 0, null, bRadius_plus, bRadius_minus);
+    AddOptionDescription(Language::Translate("spooner.task.radius.fight.description"));
     if (Menu::IsLastDrawnOptionSelected())
         EntityManagement::DrawRadiusDisplayingMarker(selectedEntity.handle.GetPosition(), thisRadius);
     if (bRadius_plus)
@@ -1076,10 +1105,10 @@ void PlaySpeechWithVoice()
     sub::Speech::_currVoiceInfo = nullptr;
 
     bool bSearchPressed = false;
-    AddOption(_searchStr.empty() ? "SEARCH" : _searchStr, bSearchPressed, nullFunc, -1, true);
+    AddOption(_searchStr.empty() ? Language::Translate("spooner.taskSequence.search") : _searchStr, bSearchPressed, nullFunc, -1, true);
     if (bSearchPressed)
     {
-        _searchStr = Game::InputBox(_searchStr, 126U, "SEARCH", boost::to_lower_copy(_searchStr));
+        _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("menu.search").c_str(), boost::to_lower_copy(_searchStr));
         boost::to_upper(_searchStr);
         //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SearchToUpper, _searchStr, 126U, std::string(), _searchStr);
         //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_searchStr);
@@ -1121,8 +1150,8 @@ void PlaySpeechWithVoice_inVoice()
     if (paramIter == sub::Speech::vSpeechParams.end())
         paramIter = sub::Speech::vSpeechParams.begin();
     bool bSpeechParam_plus = false, bSpeechParam_minus = false;
-    AddTexter("Modifier", 0, std::vector<std::string>{paramIter->title}, null, bSpeechParam_plus, bSpeechParam_minus);
-    AddOptionDescription("Variation of the speech line (e.g. shouted, near or far).");
+    AddTexter(Language::Translate("spooner.task.speech.modifier"), 0, std::vector<std::string>{paramIter->title}, null, bSpeechParam_plus, bSpeechParam_minus);
+    AddOptionDescription(Language::Translate("spooner.task.speech.modifier.description"));
     if (bSpeechParam_plus)
     {
         if (std::next(paramIter) != sub::Speech::vSpeechParams.end())
@@ -1152,7 +1181,20 @@ void WarpIntoVehicle()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::WarpIntoVehicle>();
 
     bool bSeatIndex_plus = false, bSeatIndex_minus = false;
-    AddTexter("Seat", tskPtr->seatIndex + 2, std::vector<std::string>{"First Free Seat", "Driver", "Passenger", "Back Seat - Left", "Back Seat - Right"}, null, bSeatIndex_plus, bSeatIndex_minus);
+    AddTexter(
+        Language::Translate("spooner.task.seat"),
+        tskPtr->seatIndex + 2,
+        std::vector<std::string>{
+            Language::Translate("spooner.task.seat.firstFree"),
+            Language::Translate("spooner.task.seat.driver"),
+            Language::Translate("spooner.task.seat.passenger"),
+            Language::Translate("spooner.task.seat.backLeft"),
+            Language::Translate("spooner.task.seat.backRight")
+        },
+        null,
+        bSeatIndex_plus,
+        bSeatIndex_minus
+    );
     if (bSeatIndex_plus)
     {
         if (tskPtr->seatIndex < 20)
@@ -1168,7 +1210,7 @@ void WarpIntoVehicle()
         }
     }
 
-    AddBreak("Available Vehicles");
+    AddBreak(Language::Translate("spooner.task.availableVehicles"));
 
     GTAentity& thisTargetVehicle = tskPtr->vehicleToEnter;
 
@@ -1193,7 +1235,20 @@ void EnterVehicle()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::EnterVehicle>();
 
     bool bSeatIndex_plus = false, bSeatIndex_minus = false;
-    AddTexter("Seat", tskPtr->seatIndex + 2, std::vector<std::string>{"First Free Seat", "Driver", "Passenger", "Back Seat - Left", "Back Seat - Right"}, null, bSeatIndex_plus, bSeatIndex_minus);
+    AddTexter(
+        Language::Translate("spooner.task.seat"),
+        tskPtr->seatIndex + 2,
+        std::vector<std::string>{
+            Language::Translate("spooner.task.seat.firstFree"),
+            Language::Translate("spooner.task.seat.driver"),
+            Language::Translate("spooner.task.seat.passenger"),
+            Language::Translate("spooner.task.seat.backLeft"),
+            Language::Translate("spooner.task.seat.backRight")
+        },
+        null,
+        bSeatIndex_plus,
+        bSeatIndex_minus
+    );
     if (bSeatIndex_plus)
     {
         if (tskPtr->seatIndex < 20)
@@ -1209,7 +1264,7 @@ void EnterVehicle()
         }
     }
 
-    AddBreak("Available Vehicles");
+    AddBreak(Language::Translate("spooner.task.availableVehicles"));
 
     GTAentity& thisTargetVehicle = tskPtr->vehicleToEnter;
 
@@ -1234,7 +1289,7 @@ void DriveWander()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::DriveWander>();
 
     bool bSpeed_plus = false, bSpeed_minus = false, bSpeed_input = false;
-    AddNumber("Speed (KMPH)", tskPtr->speedInKmph, 0, bSpeed_input, bSpeed_plus, bSpeed_minus);
+    AddNumber(Language::Translate("spooner.task.speedKmph"), tskPtr->speedInKmph, 0, bSpeed_input, bSpeed_plus, bSpeed_minus);
     if (bSpeed_plus)
     {
         if (tskPtr->speedInKmph < FLT_MAX)
@@ -1275,8 +1330,8 @@ void DriveWander()
         }
     }
     bool bDrivingStyle_plus = false, bDrivingStyle_minus = false;
-    AddTexter("Driving Style", 0, cds, null, bDrivingStyle_plus, bDrivingStyle_minus);
-    AddOptionDescription("How the driver behaves: obeying traffic, rushing, reckless, etc.");
+    AddTexter(Language::Translate("spooner.task.drivingStyle"), 0, cds, null, bDrivingStyle_plus, bDrivingStyle_minus);
+    AddOptionDescription(Language::Translate("spooner.task.drivingStyle.description"));
     if (bDrivingStyle_plus)
     {
         if (cdsi < DrivingStyle::nameArray.size() - 1)
@@ -1300,7 +1355,7 @@ void DriveToCoord()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::DriveToCoord>();
 
     bool bSpeed_plus = false, bSpeed_minus = false, bSpeed_input = false;
-    AddNumber("Speed (KMPH)", tskPtr->speedInKmph, 0, bSpeed_input, bSpeed_plus, bSpeed_minus);
+    AddNumber(Language::Translate("spooner.task.speedKmph"), tskPtr->speedInKmph, 0, bSpeed_input, bSpeed_plus, bSpeed_minus);
     if (bSpeed_plus)
     {
         if (tskPtr->speedInKmph < FLT_MAX)
@@ -1341,8 +1396,8 @@ void DriveToCoord()
         }
     }
     bool bDrivingStyle_plus = false, bDrivingStyle_minus = false;
-    AddTexter("Driving Style", 0, cds, null, bDrivingStyle_plus, bDrivingStyle_minus);
-    AddOptionDescription("How the driver behaves: obeying traffic, rushing, reckless, etc.");
+    AddTexter(Language::Translate("spooner.task.drivingStyle"), 0, cds, null, bDrivingStyle_plus, bDrivingStyle_minus);
+    AddOptionDescription(Language::Translate("spooner.task.drivingStyle.description"));
     if (bDrivingStyle_plus)
     {
         if (cdsi < DrivingStyle::nameArray.size() - 1)
@@ -1368,7 +1423,7 @@ void DriveFollowEntity()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::DriveFollowEntity>();
 
     bool bSpeed_plus = false, bSpeed_minus = false, bSpeed_input = false;
-    AddNumber("Max Speed (KMPH)", tskPtr->speedInKmph, 0, bSpeed_input, bSpeed_plus, bSpeed_minus);
+    AddNumber(Language::Translate("spooner.task.maxSpeedKmph"), tskPtr->speedInKmph, 0, bSpeed_input, bSpeed_plus, bSpeed_minus);
     if (bSpeed_plus)
     {
         if (tskPtr->speedInKmph < FLT_MAX)
@@ -1409,8 +1464,8 @@ void DriveFollowEntity()
         }
     }
     bool bDrivingStyle_plus = false, bDrivingStyle_minus = false;
-    AddTexter("Driving Style", 0, cds, null, bDrivingStyle_plus, bDrivingStyle_minus);
-    AddOptionDescription("How the driver behaves: obeying traffic, rushing, reckless, etc.");
+    AddTexter(Language::Translate("spooner.task.drivingStyle"), 0, cds, null, bDrivingStyle_plus, bDrivingStyle_minus);
+    AddOptionDescription(Language::Translate("spooner.task.drivingStyle.description"));
     if (bDrivingStyle_plus)
     {
         if (cdsi < DrivingStyle::nameArray.size() - 1)
@@ -1429,8 +1484,8 @@ void DriveFollowEntity()
     }
 
     bool bMinDistance_plus = false, bMinDistance_minus = false;
-    AddNumber("Minimum Distance", tskPtr->minDistance, 1, null, bMinDistance_plus, bMinDistance_minus);
-    AddOptionDescription("Distance kept from the vehicle being followed.");
+    AddNumber(Language::Translate("spooner.task.minimumDistance"), tskPtr->minDistance, 1, null, bMinDistance_plus, bMinDistance_minus);
+    AddOptionDescription(Language::Translate("spooner.task.minimumDistance.description"));
     if (bMinDistance_plus)
     {
         if (tskPtr->minDistance < FLT_MAX)
@@ -1453,7 +1508,8 @@ void DriveLandPlane()
     World::DrawMarker(MarkerType::ThickChevronUp, tskPtr->runwayEnd, Vector3(), Vector3(180.0f, 0.0f, 0.0f), Vector3(1, 1, 1), RGBA(177, 33, 193, 210));
     World::DrawLine(tskPtr->runwayStart, tskPtr->runwayEnd, RGBA(177, 33, 193, 210));
 
-    for (auto& nas : std::vector<std::pair<std::string, Vector3*>>{{"Runway Start", &tskPtr->runwayStart}, {"Runway End", &tskPtr->runwayEnd}})
+    for (auto& nas :
+         std::vector<std::pair<std::string, Vector3*>>{{Language::Translate("spooner.task.runwayStart"), &tskPtr->runwayStart}, {Language::Translate("spooner.task.runwayEnd"), &tskPtr->runwayEnd}})
     {
         AddBreak(nas.first);
         AddOption("~italic~" + nas.second->ToString(), null);
@@ -1462,7 +1518,7 @@ void DriveLandPlane()
         if (!spoocam.IsActive())
         {
             bool bSetPosToMe = false;
-            AddOption("Set To Player Position", bSetPosToMe);
+            AddOption(Language::Translate("spooner.task.target.playerPositionShort"), bSetPosToMe);
             if (bSetPosToMe)
             {
                 Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
@@ -1472,8 +1528,8 @@ void DriveLandPlane()
         else
         {
             bool bSetPosToHitCoords = false;
-            AddOption("Set To Camera Target", bSetPosToHitCoords);
-            AddOptionDescription("Uses the point your camera is aiming at.");
+            AddOption(Language::Translate("spooner.task.target.cameraTargetShort"), bSetPosToHitCoords);
+            AddOptionDescription(Language::Translate("spooner.task.target.cameraTarget.description"));
             if (bSetPosToHitCoords)
             {
                 Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
@@ -1483,7 +1539,7 @@ void DriveLandPlane()
         if (IS_WAYPOINT_ACTIVE())
         {
             bool bSetPosToWp = false;
-            AddOption("Set To Waypoint", bSetPosToWp);
+            AddOption(Language::Translate("spooner.task.target.waypointShort"), bSetPosToWp);
             if (bSetPosToWp)
             {
                 GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
@@ -1494,7 +1550,7 @@ void DriveLandPlane()
         }
 
         bool bManualEditingForPosPressed = false;
-        AddOption("Adjust Manually", bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+        AddOption(Language::Translate("spooner.task.target.manualShort"), bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
         if (bManualEditingForPosPressed)
         {
             SpoonerVector3ManualEditingPtrs = {0, nas.second, nullptr};
@@ -1507,7 +1563,7 @@ void AchieveVehicleForwardSpeed()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::AchieveVehicleForwardSpeed>();
 
     bool bSpeed_plus = false, bSpeed_minus = false, bSpeed_input = false;
-    AddNumber("Speed (KMPH)", tskPtr->speedInKmph, 0, bSpeed_input, bSpeed_plus, bSpeed_minus);
+    AddNumber(Language::Translate("spooner.task.speedKmph"), tskPtr->speedInKmph, 0, bSpeed_input, bSpeed_plus, bSpeed_minus);
     if (bSpeed_plus)
     {
         if (tskPtr->speedInKmph < FLT_MAX)
@@ -1537,8 +1593,8 @@ void AchieveVehicleForwardSpeed()
     }
 
     bool bOnGroundOnlyTogglePressed = false;
-    AddTickol("On Ground Only", tskPtr->onGroundOnly, bOnGroundOnlyTogglePressed, bOnGroundOnlyTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Only applies the speed while all wheels touch the ground.");
+    AddTickol(Language::Translate("spooner.task.onGroundOnly"), tskPtr->onGroundOnly, bOnGroundOnlyTogglePressed, bOnGroundOnlyTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("spooner.task.onGroundOnly.description"));
     if (bOnGroundOnlyTogglePressed)
         tskPtr->onGroundOnly = !tskPtr->onGroundOnly;
 }
@@ -1548,8 +1604,8 @@ void ChangeTextureVariation()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::ChangeTextureVariation>();
 
     bool bNewValue_plus = false, bNewValue_minus = false;
-    AddNumber("New Value", tskPtr->newValue, 0, null, bNewValue_plus, bNewValue_minus);
-    AddOptionDescription("Object tint/texture variation index to switch to.");
+    AddNumber(Language::Translate("spooner.task.newValue"), tskPtr->newValue, 0, null, bNewValue_plus, bNewValue_minus);
+    AddOptionDescription(Language::Translate("spooner.task.newValue.description"));
     if (bNewValue_plus)
     {
         if (tskPtr->newValue < UINT8_MAX)
@@ -1580,14 +1636,14 @@ void AchieveVelocity()
     World::DrawLine(entityPos, markerPos, RGBA(177, 33, 193, 210));
 
     bool bToggleRelativePressed = false;
-    AddTickol("Relative", tskPtr->isRelative, bToggleRelativePressed, bToggleRelativePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Direction is relative to the entity's facing instead of the world.");
+    AddTickol(Language::Translate("spooner.task.relative"), tskPtr->isRelative, bToggleRelativePressed, bToggleRelativePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("spooner.task.relative.description"));
     if (bToggleRelativePressed)
         tskPtr->isRelative = !tskPtr->isRelative;
 
     bool bHeading_plus = false, bHeading_minus = false;
-    AddNumber("Direction", tskPtr->heading, 0, null, bHeading_plus, bHeading_minus);
-    AddOptionDescription("Horizontal direction (heading) in degrees.");
+    AddNumber(Language::Translate("spooner.task.direction"), tskPtr->heading, 0, null, bHeading_plus, bHeading_minus);
+    AddOptionDescription(Language::Translate("spooner.task.direction.description"));
     if (bHeading_plus)
     {
         tskPtr->heading += 1.0f;
@@ -1602,8 +1658,8 @@ void AchieveVelocity()
     }
 
     bool bPitch_plus = false, bPitch_minus = false;
-    AddNumber("Pitch", tskPtr->pitch, 2, null, bPitch_plus, bPitch_minus);
-    AddOptionDescription("Vertical angle in degrees; positive points upward.");
+    AddNumber(Language::Translate("spooner.task.pitch"), tskPtr->pitch, 2, null, bPitch_plus, bPitch_minus);
+    AddOptionDescription(Language::Translate("spooner.task.pitch.description"));
     if (bPitch_plus)
     {
         tskPtr->pitch += 1.0f;
@@ -1618,8 +1674,8 @@ void AchieveVelocity()
     }
 
     bool bMagnitude_plus = false, bMagnitude_minus = false;
-    AddNumber("Magnitude (m/s)", tskPtr->magnitude, 1, null, bMagnitude_plus, bMagnitude_minus);
-    AddOptionDescription("Speed the entity is launched at.");
+    AddNumber(Language::Translate("spooner.task.magnitudeMetersPerSecond"), tskPtr->magnitude, 1, null, bMagnitude_plus, bMagnitude_minus);
+    AddOptionDescription(Language::Translate("spooner.task.magnitude.description"));
     if (bMagnitude_plus)
     {
         if (tskPtr->magnitude < FLT_MAX)
@@ -1652,15 +1708,15 @@ void AchievePushForce()
     World::DrawMarker(MarkerType::DebugSphere, thisEntity.GetOffsetInWorldCoords(tskPtr->offsetVector), markerRot, Vector3(), Vector3(0.07f, 0.07f, 0.07f), RGBA(177, 33, 193, 210));
 
     bool bToggleRelativePressed = false;
-    AddTickol("Relative", tskPtr->isRelative, bToggleRelativePressed, bToggleRelativePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Direction is relative to the entity's facing instead of the world.");
+    AddTickol(Language::Translate("spooner.task.relative"), tskPtr->isRelative, bToggleRelativePressed, bToggleRelativePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("spooner.task.relative.description"));
     if (bToggleRelativePressed)
         tskPtr->isRelative = !tskPtr->isRelative;
 
     std::vector<std::string> vForceTypeNames = {"0", "Standard", "2", "Standard Weak"};
     bool bForceType_plus = false, bForceType_minus = false;
-    AddTexter("Force Type", tskPtr->forceType, vForceTypeNames, null, bForceType_plus, bForceType_minus);
-    AddOptionDescription("How the game applies the push. \"Standard\" is the usual choice.");
+    AddTexter(Language::Translate("spooner.task.forceType"), tskPtr->forceType, vForceTypeNames, null, bForceType_plus, bForceType_minus);
+    AddOptionDescription(Language::Translate("spooner.task.forceType.description"));
     if (bForceType_plus)
     {
         if (tskPtr->forceType < vForceTypeNames.size() - 1)
@@ -1673,8 +1729,8 @@ void AchievePushForce()
     }
 
     bool bHeading_plus = false, bHeading_minus = false;
-    AddNumber("Direction", tskPtr->heading, 0, null, bHeading_plus, bHeading_minus);
-    AddOptionDescription("Horizontal direction (heading) in degrees.");
+    AddNumber(Language::Translate("spooner.task.direction"), tskPtr->heading, 0, null, bHeading_plus, bHeading_minus);
+    AddOptionDescription(Language::Translate("spooner.task.direction.description"));
     if (bHeading_plus)
     {
         tskPtr->heading += 1.0f;
@@ -1689,8 +1745,8 @@ void AchievePushForce()
     }
 
     bool bPitch_plus = false, bPitch_minus = false;
-    AddNumber("Pitch", tskPtr->pitch, 2, null, bPitch_plus, bPitch_minus);
-    AddOptionDescription("Vertical angle in degrees; positive points upward.");
+    AddNumber(Language::Translate("spooner.task.pitch"), tskPtr->pitch, 2, null, bPitch_plus, bPitch_minus);
+    AddOptionDescription(Language::Translate("spooner.task.pitch.description"));
     if (bPitch_plus)
     {
         tskPtr->pitch += 1.0f;
@@ -1705,8 +1761,8 @@ void AchievePushForce()
     }
 
     bool bMagnitude_plus = false, bMagnitude_minus = false;
-    AddNumber("Magnitude", tskPtr->magnitude, 1, null, bMagnitude_plus, bMagnitude_minus);
-    AddOptionDescription("Strength of the push.");
+    AddNumber(Language::Translate("spooner.task.magnitude"), tskPtr->magnitude, 1, null, bMagnitude_plus, bMagnitude_minus);
+    AddOptionDescription(Language::Translate("spooner.task.magnitude.push.description"));
     if (bMagnitude_plus)
     {
         if (tskPtr->magnitude < FLT_MAX)
@@ -1719,15 +1775,15 @@ void AchievePushForce()
     }
 
     //=========================OFFSET VECTOR======================
-    AddBreak("---Region To Push---");
+    AddBreak(Language::Translate("spooner.task.regionToPush"));
     bool offsetx_plus = 0, offsetx_minus = 0, offsety_plus = 0, offsety_minus = 0, offsetz_plus = 0, offsetz_minus = 0, bResetOffsetVector = 0;
 
-    AddNumberMultiplier("Scroll Sensitivity", SpoonerMode::editingState.precisionPos, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-    AddOptionDescription("Step size used by X/Y/Z. Each press multiplies or divides it by 10 (0.0001 to 10).");
-    AddNumber("X", tskPtr->offsetVector.x, 4, null, offsetx_plus, offsetx_minus);
-    AddNumber("Y", tskPtr->offsetVector.y, 4, null, offsety_plus, offsety_minus);
-    AddNumber("Z", tskPtr->offsetVector.z, 4, null, offsetz_plus, offsetz_minus);
-    AddOption("RESET", bResetOffsetVector);
+    AddNumberMultiplier(Language::Translate("spooner.task.scrollSensitivity"), SpoonerMode::editingState.precisionPos, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+    AddOptionDescription(Language::Translate("spooner.task.scrollSensitivity.position.description"));
+    AddNumber(Language::Translate("common.axis.x"), tskPtr->offsetVector.x, 4, null, offsetx_plus, offsetx_minus);
+    AddNumber(Language::Translate("common.axis.y"), tskPtr->offsetVector.y, 4, null, offsety_plus, offsety_minus);
+    AddNumber(Language::Translate("common.axis.z"), tskPtr->offsetVector.z, 4, null, offsetz_plus, offsetz_minus);
+    AddOption(Language::Translate("spooner.task.reset"), bResetOffsetVector);
     if (bResetOffsetVector)
         tskPtr->offsetVector.clear();
 
@@ -1750,8 +1806,8 @@ void OscillateToPoint()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::OscillateToPoint>();
 
     bool bAngleFreq_plus = false, bAngleFreq_minus = false;
-    AddNumber("Angular Frequency", tskPtr->angleFreq, 2, null, bAngleFreq_plus, bAngleFreq_minus);
-    AddOptionDescription("How strongly the entity is pulled toward the target. Higher is faster.");
+    AddNumber(Language::Translate("spooner.task.angularFrequency"), tskPtr->angleFreq, 2, null, bAngleFreq_plus, bAngleFreq_minus);
+    AddOptionDescription(Language::Translate("spooner.task.angularFrequency.description"));
     if (bAngleFreq_plus)
     {
         if (tskPtr->angleFreq < FLT_MAX - 2.0f)
@@ -1764,8 +1820,8 @@ void OscillateToPoint()
     }
 
     bool bDampRatio_plus = false, bDampRatio_minus = false;
-    AddNumber("Damping Ratio", tskPtr->dampRatio, 2, null, bDampRatio_plus, bDampRatio_minus);
-    AddOptionDescription("Below 1 overshoots and bounces; 1 settles smoothly; above 1 settles slowly.");
+    AddNumber(Language::Translate("spooner.task.dampingRatio"), tskPtr->dampRatio, 2, null, bDampRatio_plus, bDampRatio_minus);
+    AddOptionDescription(Language::Translate("spooner.task.dampingRatio.description"));
     if (bDampRatio_plus)
     {
         if (tskPtr->dampRatio < FLT_MAX - 2.0f)
@@ -1788,8 +1844,8 @@ void OscillateToEntity()
         World::DrawMarker(MarkerType::DebugSphere, tskPtr->targetEntity.GetOffsetInWorldCoords(tskPtr->offsetVector), Vector3(), Vector3(), Vector3(0.07f, 0.07f, 0.07f), RGBA(177, 33, 193, 210));
 
     bool bAngleFreq_plus = false, bAngleFreq_minus = false;
-    AddNumber("Angular Frequency", tskPtr->angleFreq, 2, null, bAngleFreq_plus, bAngleFreq_minus);
-    AddOptionDescription("How strongly the entity is pulled toward the target. Higher is faster.");
+    AddNumber(Language::Translate("spooner.task.angularFrequency"), tskPtr->angleFreq, 2, null, bAngleFreq_plus, bAngleFreq_minus);
+    AddOptionDescription(Language::Translate("spooner.task.angularFrequency.description"));
     if (bAngleFreq_plus)
     {
         if (tskPtr->angleFreq < FLT_MAX - 2.0f)
@@ -1802,8 +1858,8 @@ void OscillateToEntity()
     }
 
     bool bDampRatio_plus = false, bDampRatio_minus = false;
-    AddNumber("Damping Ratio", tskPtr->dampRatio, 2, null, bDampRatio_plus, bDampRatio_minus);
-    AddOptionDescription("Below 1 overshoots and bounces; 1 settles smoothly; above 1 settles slowly.");
+    AddNumber(Language::Translate("spooner.task.dampingRatio"), tskPtr->dampRatio, 2, null, bDampRatio_plus, bDampRatio_minus);
+    AddOptionDescription(Language::Translate("spooner.task.dampingRatio.description"));
     if (bDampRatio_plus)
     {
         if (tskPtr->dampRatio < FLT_MAX - 2.0f)
@@ -1816,15 +1872,15 @@ void OscillateToEntity()
     }
 
     //=========================OFFSET VECTOR======================
-    AddBreak("---Destination Offset---");
+    AddBreak(Language::Translate("spooner.task.destinationOffset"));
     bool offsetx_plus = 0, offsetx_minus = 0, offsety_plus = 0, offsety_minus = 0, offsetz_plus = 0, offsetz_minus = 0, bResetOffsetVector = 0;
 
-    AddNumberMultiplier("Scroll Sensitivity", SpoonerMode::editingState.precisionPos, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-    AddOptionDescription("Step size used by X/Y/Z. Each press multiplies or divides it by 10 (0.0001 to 10).");
-    AddNumber("X", tskPtr->offsetVector.x, 4, null, offsetx_plus, offsetx_minus);
-    AddNumber("Y", tskPtr->offsetVector.y, 4, null, offsety_plus, offsety_minus);
-    AddNumber("Z", tskPtr->offsetVector.z, 4, null, offsetz_plus, offsetz_minus);
-    AddOption("RESET", bResetOffsetVector);
+    AddNumberMultiplier(Language::Translate("spooner.task.scrollSensitivity"), SpoonerMode::editingState.precisionPos, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+    AddOptionDescription(Language::Translate("spooner.task.scrollSensitivity.position.description"));
+    AddNumber(Language::Translate("common.axis.x"), tskPtr->offsetVector.x, 4, null, offsetx_plus, offsetx_minus);
+    AddNumber(Language::Translate("common.axis.y"), tskPtr->offsetVector.y, 4, null, offsety_plus, offsety_minus);
+    AddNumber(Language::Translate("common.axis.z"), tskPtr->offsetVector.z, 4, null, offsetz_plus, offsetz_minus);
+    AddOption(Language::Translate("spooner.task.reset"), bResetOffsetVector);
     if (bResetOffsetVector)
         tskPtr->offsetVector.clear();
 
@@ -1849,16 +1905,16 @@ void FreezeInPlace()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::FreezeInPlace>();
 
     std::vector<std::pair<STSTasks::FreezeInPlace::eFreezeType, std::string>> vFrzTypNames{
-        {STSTasks::FreezeInPlace::eFreezeType::FREEZETYPE_FREEZE, "Freeze"},
-        {STSTasks::FreezeInPlace::eFreezeType::FREEZETYPE_UNFREEZE, "Unfreeze"},
-        {STSTasks::FreezeInPlace::eFreezeType::FREEZETYPE_RESETVELOCITY, "Reset Velocity"},
+        {STSTasks::FreezeInPlace::eFreezeType::FREEZETYPE_FREEZE, Language::Translate("spooner.task.freeze")},
+        {STSTasks::FreezeInPlace::eFreezeType::FREEZETYPE_UNFREEZE, Language::Translate("spooner.task.unfreeze")},
+        {STSTasks::FreezeInPlace::eFreezeType::FREEZETYPE_RESETVELOCITY, Language::Translate("spooner.task.resetVelocity")},
     };
 
     for (auto& ft : vFrzTypNames)
     {
         bool bFrzTypPressed = false;
         AddTickol(ft.second, tskPtr->freezeType == ft.first, bFrzTypPressed, bFrzTypPressed);
-        AddOptionDescription("Freeze: locks it in place. Unfreeze: releases it. Reset Velocity: stops all movement without leaving it frozen.");
+        AddOptionDescription(Language::Translate("spooner.task.freeze.description"));
         if (bFrzTypPressed)
         {
             tskPtr->freezeType = ft.first;
@@ -1889,19 +1945,19 @@ void SetRotation()
     World::DrawLine(entityPos, markerPos, RGBA(177, 33, 193, 210));
 
     bool bToggleRelativePressed = false;
-    AddTickol("Relative", tskPtr->isRelative, bToggleRelativePressed, bToggleRelativePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Adds the values to the entity's current rotation instead of setting it outright.");
+    AddTickol(Language::Translate("spooner.task.relative"), tskPtr->isRelative, bToggleRelativePressed, bToggleRelativePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("spooner.task.rotation.relative.description"));
     if (bToggleRelativePressed)
         tskPtr->isRelative = !tskPtr->isRelative;
 
     bool rotx_plus = 0, rotx_minus = 0, roty_plus = 0, roty_minus = 0, rotz_plus = 0, rotz_minus = 0, bResetRotVector = 0;
 
-    AddNumberMultiplier("Scroll Sensitivity", SpoonerMode::editingState.precisionRot, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-    AddOptionDescription("Step size used by X/Y/Z rotation. Each press multiplies or divides it by 10 (0.0001 to 10).");
-    AddNumber("X", tskPtr->rotationValue.x, 4, null, rotx_plus, rotx_minus);
-    AddNumber("Y", tskPtr->rotationValue.y, 4, null, roty_plus, roty_minus);
-    AddNumber("Z", tskPtr->rotationValue.z, 4, null, rotz_plus, rotz_minus);
-    AddOption("RESET", bResetRotVector);
+    AddNumberMultiplier(Language::Translate("spooner.task.scrollSensitivity"), SpoonerMode::editingState.precisionRot, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+    AddOptionDescription(Language::Translate("spooner.task.scrollSensitivity.rotation.description"));
+    AddNumber(Language::Translate("common.axis.x"), tskPtr->rotationValue.x, 4, null, rotx_plus, rotx_minus);
+    AddNumber(Language::Translate("common.axis.y"), tskPtr->rotationValue.y, 4, null, roty_plus, roty_minus);
+    AddNumber(Language::Translate("common.axis.z"), tskPtr->rotationValue.z, 4, null, rotz_plus, rotz_minus);
+    AddOption(Language::Translate("spooner.task.reset"), bResetRotVector);
     if (bResetRotVector)
     {
         if (tskPtr->isRelative)
@@ -1929,8 +1985,8 @@ void ChangeOpacity()
     auto tskPtr = _selectedSTST->GetTypeTask<STSTasks::ChangeOpacity>();
 
     bool bAlphaLevelResetPressed = false;
-    AddTickol("Reset To Default", tskPtr->opacityValue == 269, bAlphaLevelResetPressed, null);
-    AddOptionDescription("Restores the entity's normal opacity.");
+    AddTickol(Language::Translate("spooner.task.opacity.reset"), tskPtr->opacityValue == 269, bAlphaLevelResetPressed, null);
+    AddOptionDescription(Language::Translate("spooner.task.opacity.reset.description"));
     if (bAlphaLevelResetPressed)
     {
         tskPtr->opacityValue = 269;
@@ -1950,9 +2006,9 @@ void ChangeOpacity()
 
     if (tskPtr->opacityValue >= 0 && tskPtr->opacityValue <= 255)
     {
-        AddBreak("---Manual---");
+        AddBreak(Language::Translate("spooner.task.manual"));
         bool bInputPressed = false, bPlusPressed = false, bMinusPressed = false;
-        AddNumber("Level", tskPtr->opacityValue, 0, bInputPressed, bPlusPressed, bMinusPressed);
+        AddNumber(Language::Translate("spooner.task.level"), tskPtr->opacityValue, 0, bInputPressed, bPlusPressed, bMinusPressed);
         if (bPlusPressed)
         {
             if (tskPtr->opacityValue < 255)
@@ -2000,8 +2056,8 @@ void TriggerFx()
     World::DrawMarker(MarkerType::DebugSphere, thisEntity.GetOffsetInWorldCoords(tskPtr->posOffset), Vector3(), Vector3(), Vector3(0.1f, 0.1f, 0.1f), RGBA(tskPtr->colour, 190));
 
     bool bTogglePlayOncePressed = false;
-    AddTickol("Play Only Once", !tskPtr->isLoopedTask, bTogglePlayOncePressed, bTogglePlayOncePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription("Off: the effect repeats every Interval for the task's duration.");
+    AddTickol(Language::Translate("spooner.task.playOnlyOnce"), !tskPtr->isLoopedTask, bTogglePlayOncePressed, bTogglePlayOncePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("spooner.task.playOnlyOnce.description"));
     if (bTogglePlayOncePressed)
     {
         if (tskPtr->isLoopedTask)
@@ -2021,8 +2077,8 @@ void TriggerFx()
     if (tskPtr->isLoopedTask)
     {
         bool bDelay_input = false, bDelay_plus = false, bDelay_minus = false;
-        AddNumber("Interval (In Seconds)", (float(tskPtr->delay) / 1000), 1, bDelay_input, bDelay_plus, bDelay_minus);
-        AddOptionDescription("Time between each effect repeat.");
+        AddNumber(Language::Translate("spooner.task.intervalSeconds"), (float(tskPtr->delay) / 1000), 1, bDelay_input, bDelay_plus, bDelay_minus);
+        AddOptionDescription(Language::Translate("spooner.task.intervalSeconds.description"));
         if (bDelay_plus)
         {
             if (tskPtr->delay < INT_MAX)
@@ -2035,7 +2091,7 @@ void TriggerFx()
         }
         if (bDelay_input)
         {
-            std::string inputStr = Game::InputBox("", 7 + 1, "Enter delay/interval in seconds:", std::to_string((float(tskPtr->delay) / 1000)));
+            std::string inputStr = Game::InputBox("", 7 + 1, Language::Translate("spooner.task.intervalSeconds.prompt").c_str(), std::to_string((float(tskPtr->delay) / 1000)));
             if (inputStr.length() > 0)
             {
                 UINT inputVal;
@@ -2060,7 +2116,7 @@ void TriggerFx()
     }
 
     bool bSize_plus = false, bSize_minus = false;
-    AddNumber("Size", tskPtr->scale, 2, null, bSize_plus, bSize_minus);
+    AddNumber(Language::Translate("spooner.task.size"), tskPtr->scale, 2, null, bSize_plus, bSize_minus);
     if (bSize_plus)
     {
         if (tskPtr->scale < FLT_MAX - 1.0f)
@@ -2076,17 +2132,17 @@ void TriggerFx()
         }
     }
 
-    AddsettingscolOption("Colour", tskPtr->colour);
+    AddsettingscolOption(Language::Translate("spooner.task.colour"), tskPtr->colour);
 
     bool bManualEditingForPosPressed = false;
-    AddOption("Adjust Relative Position", bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
-    AddOptionDescription("Offset of the effect from the entity.");
+    AddOption(Language::Translate("spooner.task.adjustRelativePosition"), bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+    AddOptionDescription(Language::Translate("spooner.task.adjustRelativePosition.description"));
     if (bManualEditingForPosPressed)
     {
         SpoonerVector3ManualEditingPtrs = {thisEntity, &tskPtr->posOffset, &tskPtr->rotOffset};
     }
 
-    AddBreak("---FX---");
+    AddBreak(Language::Translate("spooner.task.fx"));
     const auto& fxData = tskPtr->fx.GetFxData();
     for (auto& ef : sub::PtfxSubs::PTFX)
     {
@@ -2123,7 +2179,7 @@ void LightPointAtEntitySub()
     auto tskPtr = _selectedSTST;
     auto task = tskPtr->GetTypeTask<STSTasks::LightPointAtEntity>();
 
-    AddBreak("---Target Light---");
+    AddBreak(Language::Translate("spooner.task.targetLight"));
     for (auto& light : Databases::LightDb)
     {
         if (light.m_lightType == SpoonerLight::LightType::Omni)
@@ -2141,12 +2197,12 @@ void LightPointAtEntitySub()
         }
     }
 
-    AddBreak("---Target Bone---");
+    AddBreak(Language::Translate("spooner.task.targetBone"));
     if (selectedEntity.handle.IsPed())
     {
         {
             bool bNonePressed = false;
-            AddTickol("None (Root Position)", task->m_pedBoneId < 0, bNonePressed, null);
+            AddTickol(Language::Translate("spooner.task.noneRootPosition"), task->m_pedBoneId < 0, bNonePressed, null);
             if (bNonePressed)
             {
                 task->m_pedBoneId = -1;
@@ -2168,7 +2224,7 @@ void LightPointAtEntitySub()
     {
         {
             bool bNonePressed = false;
-            AddTickol("None (Root Position)", task->m_vehBoneTag.empty(), bNonePressed, null);
+            AddTickol(Language::Translate("spooner.task.noneRootPosition"), task->m_vehBoneTag.empty(), bNonePressed, null);
             if (bNonePressed)
             {
                 task->m_vehBoneTag.clear();
@@ -2205,13 +2261,13 @@ void Sub_TaskSequence_TaskList()
     bool isThisEntityInDb = thisEntityIndexInDb >= 0;
     if (!isThisEntityInDb)
     {
-        Game::Print::PrintBottomLeft("~r~Error:~s~ Entity is not in the Spooner Database");
+        Game::Print::PrintBottomLeft(Language::Translate("spooner.entity.notInDatabase"));
         addlog(ige::LogType::LOG_WARNING, "Cannot display task list, Entity not in Spooner Database");
         Menu::SetPreviousMenu();
         return;
     }
 
-    AddTitle("Tasks");
+    AddTitle(Language::Translate("spooner.task.tasks"));
 
     auto& taskSequence = Databases::EntityDb[thisEntityIndexInDb].taskSequence;
     auto& taskList = taskSequence.AllTasks();
@@ -2221,18 +2277,18 @@ void Sub_TaskSequence_TaskList()
     selectedEntity.taskSequence = taskSequence;
 
     bool bStartPressed = false, bStopPressed = false;
-    AddLocal("Status", taskSequence.IsActive(), bStartPressed, bStopPressed);
-    AddOptionDescription("Starts or stops this entity's task sequence.");
+    AddLocal(Language::Translate("spooner.task.status"), taskSequence.IsActive(), bStartPressed, bStopPressed);
+    AddOptionDescription(Language::Translate("spooner.task.sequenceStatus.description"));
     if (bStartPressed)
     {
         if (!taskList.empty())
         {
             taskSequence.Start();
-            Game::Print::PrintBottomLeft("Started a Spooner task sequence.");
+            Game::Print::PrintBottomLeft(Language::Translate("spooner.task.sequenceStarted"));
         }
         else
         {
-            Game::Print::ShowNotification("~r~Error:", "Task list is empty.");
+            Game::Print::ShowNotification(Language::Translate("spooner.task.error"), Language::Translate("spooner.task.empty"));
             addlog(ige::LogType::LOG_WARNING, "Cannot start tasks, Task list is empty");
         }
     }
@@ -2240,7 +2296,7 @@ void Sub_TaskSequence_TaskList()
     {
         taskSequence.Reset(false);
         CLEAR_PED_TASKS_IMMEDIATELY(selectedEntity.handle.Handle());
-        Game::Print::PrintBottomLeft("Ended a Spooner task sequence.");
+        Game::Print::PrintBottomLeft(Language::Translate("spooner.task.sequenceEnded"));
     }
 
     char bMenuUpDown = 0i8;
@@ -2262,11 +2318,11 @@ void Sub_TaskSequence_TaskList()
         {
             bool bRemoveTaskPressed = false;
             char bMoveTaskPressed = 0i8;
-            Keybinds::AddBindIB("menu_action", "Remove");
+            Keybinds::AddBindIB("menu_action", Language::Translate("menu.remove"));
             bRemoveTaskPressed = Keybinds::WasPressedThisFrame("menu_action");
 
             Menu::add_IB(INPUT_FRONTEND_RIGHT, std::string());
-            Menu::add_IB(INPUT_FRONTEND_LEFT, "Move");
+            Menu::add_IB(INPUT_FRONTEND_LEFT, Language::Translate("spooner.task.move"));
             bMoveTaskPressed = MenuPressTimer::IsButtonHeldOrTapped(MenuPressTimer::Button::Left) ? -1 : MenuPressTimer::IsButtonHeldOrTapped(MenuPressTimer::Button::Right) ? 1 : 0;
             if (bRemoveTaskPressed) // Remove task
             {
@@ -2310,7 +2366,7 @@ void Sub_TaskSequence_TaskList()
         //bMenuUpDown = 0;
     }
 
-    AddOption("ADD NEW", null, nullFunc, SUB::SPOONER_TASKSEQUENCE_ADDTASK);
+    AddOption(Language::Translate("spooner.task.addNew"), null, nullFunc, SUB::SPOONER_TASKSEQUENCE_ADDTASK);
 }
 
 void Sub_TaskSequence_AddTask()
@@ -2328,7 +2384,7 @@ void Sub_TaskSequence_AddTask()
         return;
     }
 
-    AddTitle("Add Task");
+    AddTitle(Language::Translate("spooner.task.addTask"));
 
     auto& thisEntity = Databases::EntityDb[thisEntityIndexInDb];
     auto& taskSequence = thisEntity.taskSequence;
@@ -2365,10 +2421,10 @@ void Sub_TaskSequence_InTask()
     if (thisDuration >= 0) // -1 for tasks with no settings. -2 for tasks with settings but no duration setting.
     {
         bool bDuration_plus = false, bDuration_minus = false, bDuration_input = false, bDurationMult_plus = false, bDurationMult_minus = false;
-        AddNumber("Duration (In Seconds)", (float(thisDuration) / 1000), 3, bDuration_input, bDuration_plus, bDuration_minus);
-        AddOptionDescription("How long this task runs before the sequence moves to the next one.");
-        AddNumberMultiplier("Scroll Sensitivity", SpoonerMode::editingState.precisionPos, 3, 10.0, 0.001, 10.0, !Settings::bInvertScrollSensitivity);
-        AddOptionDescription("Seconds added or removed per press on Duration. Each press multiplies or divides it by 10 (0.001 to 10).");
+        AddNumber(Language::Translate("spooner.task.durationSeconds"), (float(thisDuration) / 1000), 3, bDuration_input, bDuration_plus, bDuration_minus);
+        AddOptionDescription(Language::Translate("spooner.task.durationSeconds.description"));
+        AddNumberMultiplier(Language::Translate("spooner.task.scrollSensitivity"), SpoonerMode::editingState.precisionPos, 3, 10.0, 0.001, 10.0, !Settings::bInvertScrollSensitivity);
+        AddOptionDescription(Language::Translate("spooner.task.scrollSensitivity.duration.description"));
         if (bDuration_plus)
         {
             addlog(
@@ -2395,7 +2451,7 @@ void Sub_TaskSequence_InTask()
         {
             std::string oldDurationPreText = std::to_string(float(thisDuration) / 1000);
             oldDurationPreText = oldDurationPreText.substr(0, oldDurationPreText.find('.') + 2);
-            std::string inputStr = Game::InputBox("", 7 + 1, "Enter duration in seconds:", oldDurationPreText);
+            std::string inputStr = Game::InputBox("", 7 + 1, Language::Translate("spooner.task.durationSeconds.prompt").c_str(), oldDurationPreText);
             if (inputStr.length() > 0)
             {
                 int inputVal;
@@ -2420,8 +2476,8 @@ void Sub_TaskSequence_InTask()
         if (tskPtr->durationAfterLife >= 0)
         {
             bool bInfDurationToggle = false;
-            AddTickol("Keep Task Running After Allocated Time", tskPtr->durationAfterLife == 1, bInfDurationToggle, bInfDurationToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-            AddOptionDescription("Doesn't end this task when its time runs out, so it keeps going while later tasks run.");
+            AddTickol(Language::Translate("spooner.task.keepRunning"), tskPtr->durationAfterLife == 1, bInfDurationToggle, bInfDurationToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+            AddOptionDescription(Language::Translate("spooner.task.keepRunning.description"));
             if (bInfDurationToggle)
                 tskPtr->durationAfterLife = tskPtr->durationAfterLife == 1 ? 0 : 1;
         }

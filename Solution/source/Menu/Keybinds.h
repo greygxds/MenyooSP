@@ -51,8 +51,8 @@ class KeybindEntry
     );
 
     const std::string& Id() const;
-    const std::string& Label() const;
-    const std::string& Description() const;
+    std::string Label() const;
+    std::string Description() const;
     const std::string& Category() const;
 
     UINT16 KeyboardKey1() const

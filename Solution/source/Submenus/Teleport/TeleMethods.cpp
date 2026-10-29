@@ -13,6 +13,7 @@
 
 //#include "..\..\Menu\Menu.h"
 #include "..\..\Menu\Routine.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\Natives\natives2.h"
 #include "..\..\Scripting\PTFX.h"
@@ -160,7 +161,7 @@ void ToWaypoint(GTAped ped)
 
         if (!e.Exists())
         {
-            Game::Print::ShowNotification("~r~Error:", "Entity is no longer valid.");
+            Game::Print::ShowNotification(Language::Translate("teleport.error"), Language::Translate("teleport.entityInvalid"));
             return;
         }
 
@@ -180,7 +181,7 @@ void ToWaypoint(GTAped ped)
     }
     else
     {
-        Game::Print::ShowNotification("~r~Error:", "No Waypoint set.");
+        Game::Print::ShowNotification(Language::Translate("teleport.error"), Language::Translate("teleport.noWaypoint"));
     }
 }
 

@@ -1,4 +1,5 @@
 #include "Credits.h"
+#include "..\Menu\Language.h"
 #include "MainMenu.h"
 
 #include "..\Util\ExePath.h"
@@ -163,13 +164,13 @@ static void LoadCredits()
 
 void CreditsMenu()
 {
-    AddTitle("Credits");
+    AddTitle(Language::Translate("credits.title"));
 
     if (!g_CreditsLoaded)
         LoadCredits();
 
     bool openPatreon = false;
-    AddOption("Support Menyoo on Patreon", openPatreon, nullFunc, -1, true);
+    AddOption(Language::Translate("credits.patreon"), openPatreon, nullFunc, -1, true);
     if (openPatreon)
     {
         ShellExecuteA(nullptr, "open", "https://www.patreon.com/cw/ItsJustCurtis", nullptr, nullptr, SW_SHOWNORMAL);
@@ -177,7 +178,7 @@ void CreditsMenu()
 
     if (g_CreditsTiers.empty())
     {
-        AddOption("No credits found - Check your connection", null);
+        AddOption(Language::Translate("credits.none"), null);
         return;
     }
 
