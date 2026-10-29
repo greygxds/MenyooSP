@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "FileManagement.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 
@@ -600,9 +601,9 @@ void LoadPedCompsFromXml(GTAped ep, const pugi::xml_node& nodePedComps)
     for (auto& line : collectionErrors)
         errorLines += line + "\n";
     if (!collectionWarnings.empty())
-        Game::Print::ShowNotification("~y~Warning:", "Outfit items moved since saving:\n" + warningLines);
+        Game::Print::ShowNotification(Language::Translate("spooner.files.warning"), Language::Format("spooner.files.itemsMoved", {{"items", warningLines}}));
     if (!collectionErrors.empty())
-        Game::Print::ShowNotification("~r~Error:", "Outfit items not found, kept saved look:\n" + errorLines);
+        Game::Print::ShowNotification(Language::Translate("spooner.files.error"), Language::Format("spooner.files.itemsMissing", {{"items", errorLines}}));
 }
 
 void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNetworkIsGameInProgress)
@@ -638,9 +639,9 @@ void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNe
     for (auto& line : collectionErrors)
         errorLines += line + "\n";
     if (!collectionWarnings.empty())
-        Game::Print::ShowNotification("~y~Warning:", "Outfit items moved since saving:\n" + warningLines);
+        Game::Print::ShowNotification(Language::Translate("spooner.files.warning"), Language::Format("spooner.files.itemsMoved", {{"items", warningLines}}));
     if (!collectionErrors.empty())
-        Game::Print::ShowNotification("~r~Error:", "Outfit items not found, kept saved look:\n" + errorLines);
+        Game::Print::ShowNotification(Language::Translate("spooner.files.error"), Language::Format("spooner.files.itemsMissing", {{"items", errorLines}}));
 }
 
 void LoadPedHeadFeaturesFromXml(GTAped ep, const pugi::xml_node& nodePedHeadFeatures, const GTAmodel::Model& eModel)
@@ -663,7 +664,7 @@ void LoadPedHeadFeaturesFromXml(GTAped ep, const pugi::xml_node& nodePedHeadFeat
     headBlend.isParent = nodePedHeadBlend.child("IsP").text().as_int();
     if (!g_unlockMaxIDs && (headBlend.shapeFirstID > 45 || headBlend.shapeSecondID > 45 || headBlend.shapeThirdID > 45))
     {
-        Game::Print::ShowNotification("~r~Warning:", "Parent Head Index outside normal range. Ensure Addon Heads are installed and Max Head IDs are unlocked");
+        Game::Print::ShowNotification(Language::Translate("spooner.files.warning"), Language::Translate("spooner.files.parentHeadRange"));
         addlog(
             ige::LogType::LOG_WARNING,
             "Ped Head Index " + std::to_string(max(headBlend.shapeFirstID, max(headBlend.shapeSecondID, headBlend.shapeThirdID))) +
@@ -1482,7 +1483,7 @@ SpoonerBlip SpawnBlipFromXmlNode(pugi::xml_node& nodeBlip, const std::vector<Spo
         }
         if (!found)
         {
-            Game::Print::PrintBottomLeft("~r~Blip Error:~s~ Entity blip \"" + b.Name + "\" failed to load — host entity not found.");
+            Game::Print::PrintBottomLeft(Language::Format("spooner.files.blipLoadFailed", {{"name", b.Name}}));
             return SpoonerBlip(); // Return empty blip to signal skip
         }
     }
@@ -2471,7 +2472,7 @@ bool LoadPlacementsFromFile(const std::string& filePath)
     std::string noteStr = nodeRoot.child("Note").text().as_string();
     if (noteStr.length())
     {
-        Game::Print::PrintBottomLeft("~b~Note:~s~ " + noteStr);
+        Game::Print::PrintBottomLeft(Language::Format("spooner.files.noteLoaded", {{"note", noteStr}}));
     }
 
     mciSendStringA(("close " + _oldAudioAlias).c_str(), NULL, 0, 0);

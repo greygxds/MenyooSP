@@ -9,52 +9,64 @@
 */
 #pragma once
 
+#include <cstdint>
+#include <initializer_list>
 #include <string>
-#include <map>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+#include <variant>
 #include <vector>
 
 namespace Language
 {
-class Lang
+using ArgumentValue = std::variant<std::string, std::int64_t, std::uint64_t>;
+
+struct Argument
 {
-  private:
-    std::string filepath;
     std::string name;
-    std::map<std::string, std::string> pairs;
+    ArgumentValue value;
 
-  public:
-    Lang(std::string aName, std::string afilePath);
+    Argument(std::string argumentName, std::string argumentValue);
+    Argument(std::string argumentName, const char* argumentValue);
+    Argument(std::string argumentName, std::int64_t argumentValue);
+    Argument(std::string argumentName, std::uint64_t argumentValue);
 
-    inline const std::string& GetName() const
+    template <
+        typename T,
+        typename = std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, bool> && !std::is_same_v<T, char> && !std::is_same_v<T, signed char> && !std::is_same_v<T, unsigned char>>>
+    Argument(std::string argumentName, T argumentValue) : name(std::move(argumentName))
     {
-        return this->name;
+        if constexpr (std::is_signed_v<T>)
+            value = static_cast<std::int64_t>(argumentValue);
+        else
+            value = static_cast<std::uint64_t>(argumentValue);
     }
-
-    inline const std::string& GetFilePath() const
-    {
-        return this->filepath;
-    }
-
-    inline decltype(pairs)& Dictionary()
-    {
-        return this->pairs;
-    }
-
-    std::string Translate(std::string text);
 };
 
-extern std::vector<Lang> allLangs;
-extern Lang* selectedLang;
+struct LocaleInfo
+{
+    std::string localeTag;
+    std::string displayName;
+};
+
+extern std::vector<LocaleInfo> allLangs;
 extern std::string configLangName;
 
+std::string Translate(std::string_view key);
+std::string Format(std::string_view key, std::initializer_list<Argument> arguments);
+
 std::string TranslateToSelected(std::string text);
+std::string TranslateStable(std::string_view prefix, std::string_view identifier, std::string_view fallback);
 
 int Init();
-
-std::string GetSelectedLangTitle();
+void Reload();
 int SetSelectedLangFromConfig();
-int SetSelectedLangFromString(std::string aName);
-void SetSelectedLang(Lang* ptr);
+int SetSelectedLangFromString(std::string localeTag);
 void ResetSelectedLang();
+std::string GetSelectedLangTitle();
+std::string GetSelectedLocale();
+std::string GetLocaleTitle(std::string_view localeTag);
+const std::vector<LocaleInfo>& GetAvailableLocales();
 
 } // namespace Language

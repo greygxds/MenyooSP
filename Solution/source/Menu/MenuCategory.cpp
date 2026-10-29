@@ -31,6 +31,7 @@ These can be used to implement custom category navigation if desired. Take a loo
 #include "MenuCategory.h"
 #include "Menu.h"
 #include "Keybinds.h"
+#include "Language.h"
 #include "..\Util\keyboard.h"
 #include "..\Natives\natives2.h"
 
@@ -115,15 +116,15 @@ bool AddCategory(const std::string& label, bool defaultExpanded)
     categoryHeaderLabels.push_back(label);
 
     if ((std::max)(categoryHeaderPositions.size(), s_lastCategoryCount) > 1)
-        AddOptionDescription("Press to expand or collapse. Press the shown key to jump to another category.");
+        AddOptionDescription(Language::Translate("menu.category.expandJump.description"));
     else
-        AddOptionDescription("Press to expand or collapse.");
+        AddOptionDescription(Language::Translate("menu.category.expand.description"));
 
     if (categoryHeaderPositions.size() > 1)
     {
         if (!categoryNavigationHintAdded)
         {
-            Keybinds::AddBindIB("category_jump", "Navigate categories");
+            Keybinds::AddBindIB("category_jump", Language::Translate("menu.category.navigate"));
             categoryNavigationHintAdded = true;
         }
 
@@ -192,7 +193,7 @@ void CategoryNavigate()
         return;
     }
 
-    AddTitle("Jump to Category");
+    AddTitle(Language::Translate("menu.category.jump.title"));
 
     for (size_t i = 0; i < labels.size(); i++)
     {

@@ -3,6 +3,7 @@
 #include "..\macros.h"
 
 #include "Menu.h"
+#include "Language.h"
 #include "submenu_enum.h"
 
 #include "..\Natives\natives2.h"
@@ -98,7 +99,7 @@ bool FindConflict(UINT16 value, const KeybindEntry* captureEntry)
 // Returns "key" or "button" for prompt wording.
 std::string SideName()
 {
-    return g_context == Context::Keyboard ? "key" : "button";
+    return Language::Translate(g_context == Context::Keyboard ? "keybinds.side.key" : "keybinds.side.button");
 }
 
 std::string ContextName()
@@ -120,23 +121,25 @@ std::string ColoredGlyph(UINT16 value)
 // Per-context capture-cancel gestures shown as a dim trailing hint line.
 std::string CancelHintText()
 {
-    return g_context == Context::Keyboard ? "~c~ESC / Numpad0 cancel, Backspace unbinds~s~" : "~c~B cancels, D-Pad Left unbinds~s~";
+    return Language::Translate(g_context == Context::Keyboard ? "keybinds.rebind.cancel.keyboard" : "keybinds.rebind.cancel.gamepad");
 }
 
 std::string WaitingPromptText()
 {
-    return "Rebinding ~b~" + g_entry->Label() + "~s~\n~b~Waiting for input...~s~\n" + CancelHintText();
+    return Language::Format("keybinds.rebind.waiting", {{"label", g_entry->Label()}, {"cancel", CancelHintText()}});
 }
 
 std::string HeldPromptText()
 {
-    const std::string side = g_context == Context::Keyboard ? "Key" : "Button";
-    return side + " " + ColoredGlyph(g_primary) + " held. ~g~Release to apply~s~, or press another " + SideName() + " for a combo.\n" + CancelHintText();
+    return Language::Format(
+        "keybinds.rebind.held",
+        {{"side", Language::Translate(g_context == Context::Keyboard ? "keybinds.side.keyUpper" : "keybinds.side.buttonUpper")}, {"glyph", ColoredGlyph(g_primary)}, {"cancel", CancelHintText()}}
+    );
 }
 
 std::string OverwritePromptText()
 {
-    return ColoredGlyph(g_confirmValue) + " is ~r~already bound~s~.\nPress the same " + SideName() + " again to overwrite, or a different one to cancel.\n" + CancelHintText();
+    return Language::Format("keybinds.rebind.overwrite", {{"glyph", ColoredGlyph(g_confirmValue)}, {"side", SideName()}, {"cancel", CancelHintText()}});
 }
 
 void DrawRebindPrompt(const std::string& text)
@@ -168,9 +171,7 @@ void NotifyConflict(UINT16 conflictValue)
     if (g_lastNotify && GetTickCount() - g_lastNotify < 250)
         return;
     g_lastNotify = GetTickCount();
-    Game::Print::ShowNotification(
-        "~r~Keybind conflict~s~", ColoredGlyph(conflictValue) + " is already in use.\n~c~Press the same " + SideName() + " again to overwrite,\nor a different one to cancel.~s~", 2.0f
-    );
+    Game::Print::ShowNotification(Language::Translate("keybinds.conflict.title"), Language::Format("keybinds.conflict.message", {{"glyph", ColoredGlyph(conflictValue)}, {"side", SideName()}}), 2.0f);
 }
 
 // Writes the captured value(s) on the capture side; combos write both members.
@@ -197,7 +198,7 @@ void Commit(UINT16 first, UINT16 second = NoBind)
     SetBinds(first, second);
     Save();
     addlog(ige::LogType::LOG_DEBUG, "Keybinds: committed \"" + g_entry->Id() + "\" = " + glyph + (combo ? " (combo)" : "") + " (" + ContextName() + ")");
-    Game::Print::ShowNotification("~b~" + g_entry->Label() + "~s~", "Bound to ~g~" + glyph + "~s~", 2.0f);
+    Game::Print::ShowNotification("~b~" + g_entry->Label() + "~s~", Language::Format("keybinds.bound", {{"glyph", glyph}}), 2.0f);
     CancelRebind();
 }
 
@@ -206,7 +207,7 @@ void Unbind()
     SetBinds(NoBind, NoBind);
     Save();
     addlog(ige::LogType::LOG_DEBUG, "Keybinds: \"" + g_entry->Id() + "\" unbound");
-    Game::Print::ShowNotification("~b~" + g_entry->Label() + "~s~", "~o~unbound~s~", 2.0f);
+    Game::Print::ShowNotification("~b~" + g_entry->Label() + "~s~", Language::Translate("keybinds.unbound"), 2.0f);
     CancelRebind();
 }
 

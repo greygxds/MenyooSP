@@ -30,7 +30,7 @@ class GameplayCamera final
 {
   public:
     static float GetFieldOfView();
-    static void SetFieldOfView(float value);
+    static void SetMotionBlurScalingThisUpdate(float value);
 
     static bool IsAimCamActive();
     static bool IsFirstPersonAimCamActive();

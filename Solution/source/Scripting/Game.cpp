@@ -816,13 +816,13 @@ void TickNotifications()
 // Messages - Errors
 void PrintErrorInvalidInput(std::string inputStr)
 {
-    Game::Print::ShowNotification("~r~Error:", "Invalid Input: " + inputStr);
+    Game::Print::ShowNotification(Language::Translate("common.error.title"), Language::Format("common.invalidInput", {{"input", inputStr}}));
     addlog(ige::LogType::LOG_ERROR, "Invalid Input: " + inputStr);
 }
 
 void PrintErrorInvalidModel(std::string inputStr)
 {
-    Game::Print::ShowNotification("~r~Error:", "Invalid Model: " + inputStr);
+    Game::Print::ShowNotification(Language::Translate("common.error.title"), Language::Format("common.invalidModel", {{"input", inputStr}}));
     addlog(ige::LogType::LOG_ERROR, "Invalid Model: " + inputStr);
 }
 

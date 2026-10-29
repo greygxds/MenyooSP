@@ -4,8 +4,11 @@
 
 #include "Keybinds.h"
 
+#include "..\Menu\Language.h"
 #include "..\Menu\submenu_enum.h"
 #include "..\Menu\MenuCategory.h"
+
+#include <cctype>
 
 namespace sub
 {
@@ -19,7 +22,11 @@ void DrawBindCategories(Keybinds::Context context)
         for (const auto& entry : Keybinds::Registry())
             if (entry.Category() == category)
                 count++;
-        std::string catLabel = std::string("— ~b~") + category + "~s~ ~c~(" + std::to_string(count) + " binds)~s~";
+        std::string categoryKey = "keybinds.category.";
+        for (const unsigned char character : category)
+            categoryKey.push_back(static_cast<char>(std::tolower(character)));
+        const std::string categoryLabel = Language::Translate(categoryKey);
+        std::string catLabel = std::string("— ~b~") + categoryLabel + "~s~ ~c~(" + std::to_string(count) + " binds)~s~";
 
         if (!MenuCategory::AddCategory(catLabel))
             continue;
@@ -39,11 +46,12 @@ void DrawBindCategories(Keybinds::Context context)
 
 void KeybindsMenu()
 {
-    AddTitle("Keybinds");
-    AddOption("Keyboard", null, nullFunc, SUB::SETTINGS_KEYBINDS_KEYBOARD);
-    AddOption("Controller", null, nullFunc, SUB::SETTINGS_KEYBINDS_GAMEPAD);
-    AddOptionDescription("Rebind the keys and buttons used by Menyoo.");
-    int styleIdx = AddTexterCycler("Gamepad Labels", (int)Keybinds::gamepadLabelStyle, {"Xbox", "PlayStation"});
+    AddTitle(Language::Translate("keybinds.title"));
+    AddOption(Language::Translate("keybinds.keyboard"), null, nullFunc, SUB::SETTINGS_KEYBINDS_KEYBOARD);
+    AddOption(Language::Translate("keybinds.controller"), null, nullFunc, SUB::SETTINGS_KEYBINDS_GAMEPAD);
+    AddOptionDescription(Language::Translate("keybinds.description"));
+    int styleIdx =
+        AddTexterCycler(Language::Translate("keybinds.gamepadLabels"), (int)Keybinds::gamepadLabelStyle, {Language::Translate("keybinds.xbox"), Language::Translate("keybinds.playstation")});
     if (styleIdx != (int)Keybinds::gamepadLabelStyle)
     {
         Keybinds::gamepadLabelStyle = (Keybinds::GamepadLabelStyle)styleIdx;
@@ -53,13 +61,13 @@ void KeybindsMenu()
 
 void KeybindsKeyboard()
 {
-    AddTitle("Keybinds - Keyboard");
+    AddTitle(Language::Translate("keybinds.keyboard.title"));
     DrawBindCategories(Keybinds::Context::Keyboard);
 }
 
 void KeybindsGamepad()
 {
-    AddTitle("Keybinds - Controller");
+    AddTitle(Language::Translate("keybinds.controller.title"));
     DrawBindCategories(Keybinds::Context::Gamepad);
 }
 } // namespace sub

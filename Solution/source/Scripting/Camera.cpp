@@ -346,9 +346,9 @@ void Camera::DestroyAllCameras()
     DESTROY_ALL_CAMS(0);
 }
 
-void Camera::RenderScriptCams(bool render)
+void Camera::RenderScriptCams(bool render, bool ease, int transitionDurationMs)
 {
-    RENDER_SCRIPT_CAMS(render, 0, 3000, 1, 0, 0);
+    RENDER_SCRIPT_CAMS(render, ease, transitionDurationMs, 1, 0, 0);
 }
 
 Vector3 Camera::ScreenToWorld(const Vector2& screenCoord) const
@@ -427,13 +427,14 @@ bool Camera::WorldToScreenRel(const Vector3& worldCoords, Vector2& screenCoords)
 
 Vector3 GetCoordsFromCamera(int camid, float distance)
 {
-    Vector3 Rot = DegreeToRadian(GET_CAM_ROT(camid, 2));
-    Vector3 Coord = GET_CAM_COORD(camid);
+    const Camera camera(camid);
+    Vector3 rotation = DegreeToRadian(camera.GetRotation());
+    Vector3 position = camera.GetPosition();
 
-    Rot.y = distance * cos(Rot.x);
-    Coord.x = Coord.x + Rot.y * sin(Rot.z * -1.0f);
-    Coord.y = Coord.y + Rot.y * cos(Rot.z * -1.0f);
-    Coord.z = Coord.z + distance * sin(Rot.x);
+    rotation.y = distance * cos(rotation.x);
+    position.x = position.x + rotation.y * sin(rotation.z * -1.0f);
+    position.y = position.y + rotation.y * cos(rotation.z * -1.0f);
+    position.z = position.z + distance * sin(rotation.x);
 
-    return Coord;
+    return position;
 }

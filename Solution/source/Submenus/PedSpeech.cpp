@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "PedSpeech.h"
+#include "..\Menu\Language.h"
 
 namespace sub
 {
@@ -356,13 +357,13 @@ void VoiceChangerMenu()
     }
 
     bool pressed = false;
-    AddTitle("Voice Changer");
+    AddTitle(Language::Translate("speech.voiceChanger.title"));
 
     bool searchPressed = false;
-    AddOption(searchStr.empty() ? "SEARCH" : searchStr, searchPressed, nullFunc, -1, true);
+    AddOption(searchStr.empty() ? Language::Translate("speech.search.prompt") : searchStr, searchPressed, nullFunc, -1, true);
     if (searchPressed)
     {
-        searchStr = Game::InputBox(searchStr, 126U, "SEARCH", boost::to_lower_copy(searchStr));
+        searchStr = Game::InputBox(searchStr, 126U, Language::Translate("speech.search.prompt").c_str(), boost::to_lower_copy(searchStr));
         boost::to_upper(searchStr);
     }
 
@@ -382,7 +383,7 @@ void VoiceChangerMenu()
         {
             ped.RequestControl();
             ped.SetVoiceName(v.voiceName);
-            Game::Print::ShowNotification("Voice ~b~changed~s~.", "~r~Note:~s~ This does not work for all peds.");
+            Game::Print::ShowNotification(Language::Translate("speech.notifications.changed.title"), Language::Translate("speech.notifications.changed.message"));
         }
     }
 }
@@ -397,13 +398,13 @@ void AmbientSpeechPlayerMenu()
         return;
     }
 
-    AddTitle("Speech");
+    AddTitle(Language::Translate("speech.title"));
 
     bool searchPressed = false;
-    AddOption(searchStr.empty() ? "SEARCH" : searchStr, searchPressed, nullFunc, -1, true);
+    AddOption(searchStr.empty() ? Language::Translate("speech.search.prompt") : searchStr, searchPressed, nullFunc, -1, true);
     if (searchPressed)
     {
-        searchStr = Game::InputBox(searchStr, 126U, "SEARCH", boost::to_lower_copy(searchStr));
+        searchStr = Game::InputBox(searchStr, 126U, Language::Translate("speech.search.prompt").c_str(), boost::to_lower_copy(searchStr));
         boost::to_upper(searchStr);
     }
 
@@ -438,7 +439,7 @@ void Sub_AmbientSpeechPlayer_InVoice()
     AddTitle(v.voiceName);
 
     bool bSpeechParam_plus = false, bSpeechParam_minus = false;
-    AddTexter("Modifier", 0, std::vector<std::string>{vSpeechParams[_currSpeechParamIndex].title}, null, bSpeechParam_plus, bSpeechParam_minus);
+    AddTexter(Language::Translate("speech.modifier"), 0, std::vector<std::string>{vSpeechParams[_currSpeechParamIndex].title}, null, bSpeechParam_plus, bSpeechParam_minus);
     if (bSpeechParam_plus)
     {
         if (_currSpeechParamIndex < vSpeechParams.size() - 1)

@@ -14,6 +14,7 @@
 #include "..\..\Menu\Menu.h"
 #include "..\..\Menu\Keybinds.h"
 #include "..\..\Menu\Routine.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\Natives\natives2.h"
 #include "..\..\Util\GTAmath.h"
@@ -42,25 +43,25 @@ Vector3 _customTeleLoc(Locations::vApartmentInteriors[0].x, Locations::vApartmen
 
 void LoadIpl()
 {
-    std::string inputStr = Game::InputBox("", 64U, "Enter IPL name:");
+    std::string inputStr = Game::InputBox("", 64U, Language::Translate("teleport.ipl.namePrompt").c_str());
 
     if (inputStr.length() == 0)
         return;
 
     if (IS_IPL_ACTIVE(inputStr.c_str()))
     {
-        Game::Print::PrintBottomLeft("IPL ~b~already loaded~s~: " + inputStr);
+        Game::Print::PrintBottomLeft(Language::Format("teleport.ipl.alreadyLoaded", {{"name", inputStr}}));
     }
     else
     {
         REQUEST_IPL(inputStr.c_str());
-        Game::Print::PrintBottomLeft("IPL ~g~loaded~s~: " + inputStr);
+        Game::Print::PrintBottomLeft(Language::Format("teleport.ipl.loaded", {{"name", inputStr}}));
     }
 }
 
 void UnloadIpl()
 {
-    std::string inputStr = Game::InputBox("", 64U, "Enter IPL name:");
+    std::string inputStr = Game::InputBox("", 64U, Language::Translate("teleport.ipl.namePrompt").c_str());
 
     if (inputStr.length() == 0)
         return;
@@ -68,11 +69,11 @@ void UnloadIpl()
     if (IS_IPL_ACTIVE(inputStr.c_str()))
     {
         REMOVE_IPL(inputStr.c_str());
-        Game::Print::PrintBottomLeft("IPL ~r~unloaded~s~: " + inputStr);
+        Game::Print::PrintBottomLeft(Language::Format("teleport.ipl.unloaded", {{"name", inputStr}}));
     }
     else
     {
-        Game::Print::PrintBottomLeft("IPL ~y~already unloaded~s~: " + inputStr);
+        Game::Print::PrintBottomLeft(Language::Format("teleport.ipl.alreadyUnloaded", {{"name", inputStr}}));
     }
 }
 
@@ -80,16 +81,16 @@ namespace Submenus
 {
 void Sub_TeleportMain()
 {
-    AddTitle("Locations");
+    AddTitle(Language::Translate("teleport.locations.title"));
 
-    AddOption("Forward", null, TeleMethods::ToForward241);
-    AddOptionDescription("Teleports you a few metres forward.");
-    AddOption("Waypoint", null, TeleMethods::ToWaypoint241);
-    AddOption("Mission Objective", null, TeleMethods::ToMissionBlip241);
-    AddOptionDescription("Teleports to the current mission objective blip.");
-    AddOption("Map Blips", null, nullFunc, SUB::TELEPORTOPS_BLIPLIST);
+    AddOption(Language::Translate("teleport.forward"), null, TeleMethods::ToForward241);
+    AddOptionDescription(Language::Translate("teleport.forward.description"));
+    AddOption(Language::Translate("teleport.waypoint"), null, TeleMethods::ToWaypoint241);
+    AddOption(Language::Translate("teleport.missionObjective"), null, TeleMethods::ToMissionBlip241);
+    AddOptionDescription(Language::Translate("teleport.missionObjective.description"));
+    AddOption(Language::Translate("teleport.mapBlips"), null, nullFunc, SUB::TELEPORTOPS_BLIPLIST);
 
-    AddBreak("---Ready To Go---");
+    AddBreak(Language::Translate("teleport.ready"));
     for (auto& cat : Locations::vAllCategories)
     {
         bool bCategoryPressed = false;
@@ -108,15 +109,15 @@ void Sub_TeleportMain()
         }
     }
 
-    AddBreak("---Custom---");
-    AddOption("Custom Coordinates", null, nullFunc, SUB::TELEPORTOPS_CUSTOMCOORDS);
-    AddOption("Favourites", null, nullFunc, SUB::TELEPORTOPS_SAVEDLOCATIONS);
+    AddBreak(Language::Translate("teleport.custom"));
+    AddOption(Language::Translate("teleport.customCoordinates"), null, nullFunc, SUB::TELEPORTOPS_CUSTOMCOORDS);
+    AddOption(Language::Translate("teleport.favourites"), null, nullFunc, SUB::TELEPORTOPS_SAVEDLOCATIONS);
 
-    AddBreak("---IPLs---");
-    AddOption("Load IPL", null, LoadIpl);
-    AddOptionDescription("Enter a map data (IPL) name to load it.");
-    AddOption("Unload IPL", null, UnloadIpl);
-    AddOptionDescription("Enter a map data (IPL) name to unload it.");
+    AddBreak(Language::Translate("teleport.ipls"));
+    AddOption(Language::Translate("teleport.loadIpl"), null, LoadIpl);
+    AddOptionDescription(Language::Translate("teleport.loadIpl.description"));
+    AddOption(Language::Translate("teleport.unloadIpl"), null, UnloadIpl);
+    AddOptionDescription(Language::Translate("teleport.unloadIpl.description"));
 }
 
 void Sub_CustomCoords()
@@ -131,13 +132,13 @@ void Sub_CustomCoords()
 
     bool x_plus = 0, x_minus = 0, y_plus = 0, y_minus = 0, z_plus = 0, z_minus = 0, x_custom = 0, y_custom = 0, z_custom = 0, apply = 0, update = 0;
 
-    AddTitle("Custom Coordinates");
-    AddOption("Update to current", update);
-    AddOptionDescription("Fills X/Y/Z with your current position.");
+    AddTitle(Language::Translate("teleport.customCoordinates"));
+    AddOption(Language::Translate("teleport.updateCurrent"), update);
+    AddOptionDescription(Language::Translate("teleport.updateCurrent.description"));
     AddNumber("  X", _customTeleLoc.x, 4, x_custom, x_plus, x_minus);
     AddNumber("  Y", _customTeleLoc.y, 4, y_custom, y_plus, y_minus);
     AddNumber("  Z", _customTeleLoc.z, 4, z_custom, z_plus, z_minus);
-    AddOption("Apply", apply);
+    AddOption(Language::Translate("teleport.apply"), apply);
 
 
     if (x_plus)
@@ -263,7 +264,7 @@ void Sub_SelectedCategory()
 
 void Sub_BlipList()
 {
-    AddTitle("Map Blips");
+    AddTitle(Language::Translate("teleport.mapBlips"));
 
     //std::vector<GTAblip> vBlips;
     //World::GetActiveBlips(vBlips);
@@ -302,7 +303,7 @@ void Sub_BlipList()
 
 void Sub_SavedLocations()
 {
-    AddTitle("Favourites");
+    AddTitle(Language::Translate("teleport.favourites"));
 
     std::string xmlSavedMapLocations = "SavedMapLocations.xml";
     pugi::xml_document doc;
@@ -321,10 +322,10 @@ void Sub_SavedLocations()
     pugi::xml_node nodeRoot = doc.child("SavedMapLocations");
 
     bool bSaveCurrentLocation = false;
-    AddOption("Save Current Location", bSaveCurrentLocation);
+    AddOption(Language::Translate("teleport.saveCurrentLocation"), bSaveCurrentLocation);
     if (bSaveCurrentLocation)
     {
-        std::string inputStr = Game::InputBox("", 28U, "Enter name:");
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("teleport.locations.namePrompt").c_str());
         if (inputStr.length() > 0)
         {
             GTAentity ent = g_activePedHandle;
@@ -343,7 +344,7 @@ void Sub_SavedLocations()
             nodeNewLoc.append_child("Yaw").text() = myRot.z;
             if (doc.save_file((const char*)(GetPathffA(Pathff::Main, true) + xmlSavedMapLocations).c_str()))
             {
-                Game::Print::PrintBottomLeft("Location ~b~saved~s~.");
+                Game::Print::PrintBottomLeft(Language::Translate("teleport.locations.saved"));
             }
         }
         else
@@ -372,7 +373,7 @@ void Sub_SavedLocations()
 
     if (nodeRoot.first_child())
     {
-        AddBreak("---Locations---");
+        AddBreak(Language::Translate("teleport.locations.section"));
         for (auto nodeLocToLoad = nodeRoot.first_child(); nodeLocToLoad; nodeLocToLoad = nodeLocToLoad.next_sibling())
         {
             bool bPressedLoc = false;
@@ -388,7 +389,7 @@ void Sub_SavedLocations()
 
             if (Menu::IsLastDrawnOptionSelected())
             {
-                Keybinds::AddBindIB("menu_action", "Remove");
+                Keybinds::AddBindIB("menu_action", Language::Translate("menu.remove"));
 
                 if (Keybinds::WasPressedThisFrame("menu_action"))
                 {

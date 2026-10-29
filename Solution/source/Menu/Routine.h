@@ -39,11 +39,6 @@ class GTAentity;
 class GTAvehicle;
 class GTAped;
 
-namespace PTFX
-{
-class sFxData;
-}
-
 void ThreadMenyooMain();
 void ThreadMenuLoops2();
 void TickMenyooConfig();
@@ -66,11 +61,6 @@ extern UINT8 pauseClockM;
 extern Vehicle g_myVeh;
 extern GTAmodel::Model g_myVehModel;
 extern Hash g_myWeap;
-extern PTFX::sFxData triggerFXGunData;
-extern Hash kaboomGunHash;
-extern Hash bullet_gun_hash;
-extern GTAmodel::Model pedGunHash;
-extern GTAmodel::Model objectGunHash;
 extern FLOAT currentTimescale;
 
 extern INT g_activePedHandle;
@@ -79,11 +69,6 @@ extern INT g_playerGroupId;
 
 extern const char* g_playerName;
 extern INT bitMSPaintsRGBMode;
-extern bool kaboomGunInvis;
-extern bool kaboomGunRandBit;
-extern bool pedGunRandBit;
-extern bool objectGunRandBitO;
-extern bool objectGunRandBitV;
 extern bool bitNightVision;
 
 extern FLOAT swimSpeedMult;
@@ -91,7 +76,6 @@ extern FLOAT playerNoiseMult;
 extern FLOAT selfSweatMult;
 extern FLOAT g_playerVerticalElongationMultiplier;
 extern FLOAT vehicleDamageAndDefense;
-extern FLOAT vehicleSlam;
 extern FLOAT currentTimecycleStrength;
 
 extern INT accelMult;
@@ -134,104 +118,51 @@ extern bool g_spawnVehicleDrawBMPs;
 extern FLOAT g_clearAreaRadius;
 extern FLOAT g_rainFXIntensity;
 
-extern Entity g_driveWaterObject;
 
 extern INT8 spectatePlayer;
-extern UINT8 explostionWP;
 
 extern bool multiPlatNeons;
-extern bool multiPlatNeonsRainbow;
 
 extern RgbS g_multiPlatNeonsColor;
 extern std::vector<GTAvehicle> g_multiPlatNeonsList;
 
 extern bool checkSelfDeathModel;
 
-extern UINT8 carJump;
-extern UINT8 autoKillEnemies;
 extern float weaponDamageIncrease;
 
-extern UINT8 forceField;
 extern UINT8 selfFreezeWantedLevel;
 extern Entity bitInfiniteAmmoEnth;
 
 extern bool rainbowBoxes;
-extern bool forgeGun;
 extern bool playerNoRagdoll;
 extern bool playerSeatbelt;
 extern bool playerUnlimitedAbility;
 extern bool playerAutoClean;
-extern bool playerWalkUnderwater;
-extern bool explosiveRounds;
-extern bool flamingRounds;
-extern bool teleportGun;
-extern bool kaboomGun;
-extern bool triggerFXGun;
-extern bool bulletGun;
-extern bool pedGun;
-extern bool objectGun;
-extern bool lightGun;
-extern bool bulletTime;
-extern bool selfTriggerbot;
-extern bool explosiveMelee;
-extern bool superJump;
 extern bool selfRefillHealthInCover;
 extern bool playerInvincibility;
-extern bool superRun;
 extern bool bDisplayXyzhCoords;
 extern bool ignoredByEveryone;
 extern bool neverWanted;
-extern bool superman;
-extern bool supermanAuto;
 extern bool vehiclePopulation;
 extern bool pedPopulation;
 extern bool clearWeaponPickups;
-extern bool driveOnWater;
-extern bool massacreMode;
-extern bool playerBurn;
 extern bool vehicleInvincibility;
-extern bool vehicleHeavyMass;
 extern bool raceBoost;
 extern bool carHydraulics;
-extern bool superGrip;
-extern bool superCarMode;
 extern bool unlimitedVehicleBoost;
-extern bool vehicleWeaponLines;
-extern bool vehicleRPG;
-extern bool vehicleFireworks;
-extern bool vehicleGuns;
-extern bool vehicleSnowballs;
-extern bool vehicleBalls;
-extern bool vehicleWaterHydrant;
-extern bool vehicleLaserGreen;
-extern bool vehicleFlameLeak;
-extern bool vehicleLaserRed;
-extern bool vehicleTurretsValkyrie;
-extern bool vehicleFlaregun;
-extern bool vehicleHeavySniper;
-extern bool vehicleTazerWeapon;
-extern bool vehicleMolotovWeapon;
-extern bool vehicleCombatPDW;
-extern bool carColorChange;
 extern bool vehicleInvisibility;
 extern bool selfEngineOn;
 extern bool hideHUD;
 extern bool showFullHUD;
 extern bool pauseClock;
 extern bool syncClock;
-extern bool tripleBullets;
-extern bool rapidFire;
-extern bool selfResurrectionGun;
-extern bool soulSwitchGun;
 extern bool selfDeleteGun;
 extern bool vehicleFixLoop;
 extern bool vehicleFlipLoop;
-extern bool blackoutMode;
 extern bool simpleBlackoutMode;
 extern bool restrictedAreasAccess;
 extern bool hvSnipers;
 extern bool vehicleDisableSiren;
-extern bool fireworksDisplay;
 extern bool bitInfiniteAmmo;
 extern bool selfInfiniteParachutes;
 extern bool s_neonDirty;
@@ -240,15 +171,6 @@ extern int loop_neon_fade, loop_neon_flash, loop_neon_delay;
 extern bool loop_neon_rgb, neonstate[4];
 
 extern RgbS g_setNeonColour;
-extern Entity targetSlotEntity;
-extern bool targetEntityLocked;
-
-extern bool bitGravityGunDisabled;
-
-extern float forgeDist;
-extern float g_forgeGunPrecision;
-extern float g_forgeGunShootForce;
-extern bool objectSpawnForgeAssistance;
 
 extern bool g_unlockMaxIDs;
 extern UINT8 max_shapeAndSkinIDs;
@@ -259,31 +181,12 @@ void SetPauseMenuTeleToWpCommand();
 
 void SetPTFXLopTick();
 void SetSyncClockTime();
-void SetMassacreModeTick();
-void SetBlackoutEMPMode();
 void SetBlackoutMode();
 void SetSelfNearbyPedsCalm();
 void NetworkSetEveryoneIgnorePlayer(Player player);
-void SetExplosionAtCoords(GTAentity entity, Vector3 pos, UINT8 type, float radius, float camshake, bool sound, bool invis, GTAentity owner);
-void StartFireworksAtCoords(const Vector3& pos, const Vector3& rot, float scale);
-void SetTargetIntoSlot();
-void SetPlayerTriggerbot(GTAplayer player);
-void SetRapidFire();
-void SetSoulSwitchGun();
+void TickAimedWeaponFeatures();
 void SetSelfDeleteGun();
-void SetSelfResurrectionGun();
 void SetHVSnipers(bool set);
-void SetTeleportGun();
-void SetBulletGun();
-void SetPedGun();
-void SetObjectGun();
-void SetLightGun();
-void SetTripleBullets();
-void SetForgeGunDist(float& distance);
-inline void SetForgeGunRotationHotKeys();
-void SetForgeGun();
-void SetExplosionAtBulletHit(Ped ped, Hash type, bool invisible);
-void SetTriggerFXAtBulletHit(Ped ped, const std::string& fxAsset, const std::string& fxName, const Vector3& Rot, float scale);
 void SetBecomePed(GTAped ped);
 void SetPedInvincibleOn(Ped ped);
 void SetPedInvincibleOff(Ped ped);
@@ -292,29 +195,19 @@ void SetPedNoRagdollOff(Ped ped);
 void SetPedSeatbeltOn(Ped ped);
 void SetPedSeatbeltOff(Ped ped);
 
-void SetLocalButtonSuperRun();
 void SetSelfRefillHealthWhenInCover();
 void xyzhDrawFloat(float text, float x_coord, float y_coord);
 void XYZH();
-void SetLocalSupermanManual();
-void SetPedSupermanAuto(Ped ped);
 void SetVehicleNosPTFXThisFrame(GTAvehicle vehicle);
-void SetSuperCarModeSelf();
-void SetLocalCarJump();
 void SetLocalCarHydraulics();
-void SetLocalForcefield();
 
 extern float g_multiPlatNeonsIntensity;
 void DrawVehicleAmbientLightNeons(const GTAvehicle& vehicle, const RgbS& colour);
 void SetMultiPlatNeons();
-void DriveOnWater(GTAped ped, Entity& waterobject);
-void SetPedBurnMode(GTAped ped, bool enable);
 void SetVehicleInvincibleOn(Vehicle vehicle);
 void SetVehicleInvincibleOff(Vehicle vehicle);
 void SetVehicleFlip(GTAvehicle vehicle);
-void SetVehicleRainbowMode(GTAvehicle vehicle, bool useFader);
 void set_vehicle_neon_anim(GTAvehicle vehicle);
-void SetVehicleHeavyMass(GTAvehicle vehicle);
 void SetSelfVehicleBoost();
 
 extern GTAvehicle pvSubVehicleID;
@@ -341,35 +234,5 @@ extern std::map<Ped, std::string> g_pedListFacialMood;
 extern std::string GetPedFacialMood(GTAentity ped);
 void SetPedFacialMood(GTAentity ped, const std::string& animName);
 void clear_ped_facial_mood(GTAentity ped);
-
-enum class WeaponTargetType
-{
-    TargetPlayer,
-    TargetPed
-};
-
-inline WeaponTargetType g_WeaponTargetType = WeaponTargetType::TargetPlayer;
-inline Ped g_WeaponTargetPed = 0;
-
-struct ScopedWeaponTargetOverride
-{
-    WeaponTargetType oldType;
-    Ped oldPed;
-
-    ScopedWeaponTargetOverride(Ped ped)
-    {
-        oldType = g_WeaponTargetType;
-        oldPed = g_WeaponTargetPed;
-
-        g_WeaponTargetType = WeaponTargetType::TargetPed;
-        g_WeaponTargetPed = ped;
-    }
-
-    ~ScopedWeaponTargetOverride()
-    {
-        g_WeaponTargetType = oldType;
-        g_WeaponTargetPed = oldPed;
-    }
-};
 
 extern int GetRandomSpriteId();

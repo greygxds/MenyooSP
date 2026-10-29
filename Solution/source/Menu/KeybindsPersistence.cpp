@@ -118,8 +118,6 @@ void ImportFromIni()
         {"object-spooner", "SpoonerModeGamepadBind_2", "spooner_mode", 2},
         {"settings", "tp_to_wp_key", "teleport_waypoint", 0},
         {"settings", "tp_to_wp_pad", "teleport_waypoint", 1},
-        {"general", "tow_key", "tow_rope", 0},
-        {"general", "tow_pad", "tow_rope", 1},
         {"settings", "category_nav_key", "category_jump", 0},
         {"settings", "category_nav_pad", "category_jump", 1},
         {"object-spooner", "SpoonerMarkerHotkey", "spooner_marker", 0},

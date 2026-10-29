@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "PlayerOptions.h"
+#include "..\Menu\Language.h"
 #include "Spooner/Submenus.h"
 
 namespace sub
@@ -23,8 +24,6 @@ void PlayerOptionsMenu()
     bool invisibilityOff = false;
     bool noRagdollOff = false;
     bool seatbeltOff = false;
-    bool supermanOn = false;
-    bool supermanAutoOn = false;
     bool ignoredByEveryoneOff = false;
     bool neverWantedOn = false;
     bool neverWantedOff = false;
@@ -32,8 +31,6 @@ void PlayerOptionsMenu()
     bool wantedMinus = false;
     bool wantedFreezeOn = false;
     bool wantedFreezeOff = false;
-    bool burnModeOn = false;
-    bool burnModeOff = false;
     bool movementSpeedModifierPlus = false;
     bool movementSpeedModifierMinus = false;
     bool sweatPlus = false;
@@ -42,17 +39,12 @@ void PlayerOptionsMenu()
     bool noiseValueMinus = false;
     bool collisionOn = false;
     bool collisionOff = false;
-    bool forceFieldPlus = false;
-    bool forceFieldMinus = false;
     bool heightPlus = false;
     bool heightMinus = false;
     bool movementSpeedPlus = false;
     bool movementSpeedMinus = false;
     bool swimSpeedPlus = false;
     bool swimSpeedMinus = false;
-
-    std::vector<std::string> forceFieldNames{"Off", "Push Out", "Destroy"};
-
 
     float& height = g_playerVerticalElongationMultiplier;
     float movementSpeed = 0.0f, swimSpeed = 0.0f;
@@ -67,86 +59,67 @@ void PlayerOptionsMenu()
 
     int wantedLevel = myPlayer.GetWantedLevel();
 
-    AddTitle("Player Options");
-    AddOption("Basic Stats", null, nullFunc, SUB::SPSTATMANAGER);
-    AddOption("Model Changer", null, nullFunc, SUB::MODELCHANGER);
+    AddTitle(Language::Translate("player.options.title"));
+    AddOption(Language::Translate("player.options.basicStats.label"), null, nullFunc, SUB::SPSTATMANAGER);
+    AddOption(Language::Translate("player.options.modelChanger.label"), null, nullFunc, SUB::MODELCHANGER);
 
-    AddOption("Wardrobe", null, nullFunc, SUB::COMPONENTS);
+    AddOption(Language::Translate("player.options.wardrobe.label"), null, nullFunc, SUB::COMPONENTS);
 
-    AddOption("Animations", null, nullFunc, SUB::ANIMATIONSUB);
-    AddOption("Scenario Actions", null, nullFunc, SUB::AnimationTaskScenarios);
-    AddOption("Moods", null, nullFunc, SUB::FACIALMOOD);
-    AddOption("Movement Styles", null, nullFunc, SUB::MOVEMENTGROUP);
-    AddOption("Speech Player", null, nullFunc, SUB::SPEECHPLAYER);
-    AddOption("Voice Changer", null, nullFunc, SUB::VOICECHANGER);
-    AddOption("Ped Flags", null, nullFunc, SUB::PEDFLAGMANAGER_NAMEDLIST);
-    AddOptionDescription("Turn individual game ped config flags on or off.");
-    AddOption("TriggerFX", null, nullFunc, SUB::PTFXSUB);
-    AddOption("Breathe Stuff", null, nullFunc, SUB::BREATHESTUFF);
-    AddOptionDescription("Breathe particle effects out of your mouth while holding the bound key, once enabled.");
-    AddOption("Ghost Rider Mode", null, nullFunc, SUB::GHOSTRIDERMODE);
-
-    AddOption("Opacity (Local)", goToAlphaLevel, nullFunc, SUB::ENTITYALPHALEVEL);
-    AddOptionDescription("Your transparency. Only visible to you.");
+    AddOption(Language::Translate("player.options.animations.label"), null, nullFunc, SUB::ANIMATIONSUB);
+    AddOption(Language::Translate("player.options.scenarioActions.label"), null, nullFunc, SUB::AnimationTaskScenarios);
+    AddOption(Language::Translate("player.options.moods.label"), null, nullFunc, SUB::FACIALMOOD);
+    AddOption(Language::Translate("player.options.movementStyles.label"), null, nullFunc, SUB::MOVEMENTGROUP);
+    AddOption(Language::Translate("player.options.speechPlayer.label"), null, nullFunc, SUB::SPEECHPLAYER);
+    AddOption(Language::Translate("player.options.voiceChanger.label"), null, nullFunc, SUB::VOICECHANGER);
+    AddOption(Language::Translate("player.options.pedFlags.label"), null, nullFunc, SUB::PEDFLAGMANAGER_NAMEDLIST);
+    AddOptionDescription(Language::Translate("player.options.pedFlags.description"));
+    AddOption(Language::Translate("player.options.triggerFx.label"), null, nullFunc, SUB::PTFXSUB);
+    AddOption(Language::Translate("player.options.opacityLocal.label"), goToAlphaLevel, nullFunc, SUB::ENTITYALPHALEVEL);
+    AddOptionDescription(Language::Translate("player.options.opacityLocal.description"));
     if (goToAlphaLevel)
     {
         Spooner::Submenus::SetPlayerAsEntityAlphaTarget();
     }
 
-    AddOption("Cloning Options", null, nullFunc, SUB::CLONECOMPANIONSUB);
+    AddOption(Language::Translate("player.options.cloning.label"), null, nullFunc, SUB::CLONECOMPANIONSUB);
 
-    AddOption("Replenish Player", replenishPlayer);
-    AddOptionDescription("Restores full health and armour.");
-    AddOption("Max All Stats (SP)", maxAllStats);
-    AddOptionDescription("Maxes all skill stats for the current story character.");
-    AddToggle("Refill Health When In Cover", selfRefillHealthInCover);
-    AddOptionDescription("Slowly regains health while in cover and not aiming.");
-    AddToggle("Invincibility", playerInvincibility, null, invincibilityOff);
-    AddLocal("Invisibility", !myPed.IsVisible(), invisibilityOff, invisibilityOff);
-    AddToggle("No Ragdoll", playerNoRagdoll, null, noRagdollOff);
-    AddOptionDescription("You won't fall over from impacts.");
-    AddToggle("Seatbelt", playerSeatbelt, null, seatbeltOff);
-    AddOptionDescription("Stops you flying out of vehicles in crashes.");
-    AddToggle("Unlimited Special Ability (SP)", playerUnlimitedAbility);
-    AddToggle("Auto-Clean", playerAutoClean);
-    AddOptionDescription("Continuously removes blood and visible damage.");
-    AddToggle("Super Run", superRun);
-    AddOptionDescription("Hold sprint to run much faster.");
-    AddToggle("Super Jump", superJump);
-    AddToggle("Walk underwater", playerWalkUnderwater);
-    AddOptionDescription("Walk along the bottom instead of swimming.");
-    AddTexter("Forcefield", forceField, forceFieldNames, null, forceFieldPlus, forceFieldMinus);
-    AddOptionDescription("Push Out shoves nearby entities away; Destroy damages them.");
-    AddLocal("Smash Ability", SmashAbility::g_smashAbility.Enabled(), SmashAbility::ToggleOnOff, SmashAbility::ToggleOnOff);
-    AddOptionDescription("Hold Jump to use a ground-smash ability.");
-    AddToggle("Fly Manual", superman, supermanOn);
-    AddOptionDescription("While skydiving: ascend, descend, boost forward and hover with the shown keys. Rebind them in Settings > Keybinds.");
-    AddToggle("Fly Auto", supermanAuto, supermanAutoOn);
-    AddOptionDescription("While skydiving, you're pushed forward and upward automatically.");
-    AddToggle("Ignored By Everyone", ignoredByEveryone, null, ignoredByEveryoneOff);
-    AddOptionDescription("Peds and police ignore you and stay calm.");
-    AddNumber("Wanted Level", wantedLevel, 0, null, wantedPlus, wantedMinus);
+    AddOption(Language::Translate("player.options.replenish.label"), replenishPlayer);
+    AddOptionDescription(Language::Translate("player.options.replenish.description"));
+    AddOption(Language::Translate("player.options.maxAllStats.label"), maxAllStats);
+    AddOptionDescription(Language::Translate("player.options.maxAllStats.description"));
+    AddToggle(Language::Translate("player.options.refillHealthInCover.label"), selfRefillHealthInCover);
+    AddOptionDescription(Language::Translate("player.options.refillHealthInCover.description"));
+    AddToggle(Language::Translate("player.options.invincibility.label"), playerInvincibility, null, invincibilityOff);
+    AddLocal(Language::Translate("player.options.invisibility.label"), !myPed.IsVisible(), invisibilityOff, invisibilityOff);
+    AddToggle(Language::Translate("player.options.noRagdoll.label"), playerNoRagdoll, null, noRagdollOff);
+    AddOptionDescription(Language::Translate("player.options.noRagdoll.description"));
+    AddToggle(Language::Translate("player.options.seatbelt.label"), playerSeatbelt, null, seatbeltOff);
+    AddOptionDescription(Language::Translate("player.options.seatbelt.description"));
+    AddToggle(Language::Translate("player.options.unlimitedSpecialAbility.label"), playerUnlimitedAbility);
+    AddToggle(Language::Translate("player.options.autoClean.label"), playerAutoClean);
+    AddOptionDescription(Language::Translate("player.options.autoClean.description"));
+    AddToggle(Language::Translate("player.options.ignoredByEveryone.label"), ignoredByEveryone, null, ignoredByEveryoneOff);
+    AddOptionDescription(Language::Translate("player.options.ignoredByEveryone.description"));
+    AddNumber(Language::Translate("player.options.wantedLevel.label"), wantedLevel, 0, null, wantedPlus, wantedMinus);
     if (wantedLevel > 0)
     {
-        AddLocal("Freeze Wanted Level", selfFreezeWantedLevel, wantedFreezeOn, wantedFreezeOff);
-        AddOptionDescription("Keeps your wanted level at its current value.");
+        AddLocal(Language::Translate("player.options.freezeWantedLevel.label"), selfFreezeWantedLevel, wantedFreezeOn, wantedFreezeOff);
+        AddOptionDescription(Language::Translate("player.options.freezeWantedLevel.description"));
     }
     else
     {
-        AddToggle("Never Wanted", neverWanted, neverWantedOn, neverWantedOff);
+        AddToggle(Language::Translate("player.options.neverWanted.label"), neverWanted, neverWantedOn, neverWantedOff);
     }
-    AddToggle("Burn Mode", playerBurn, burnModeOn, burnModeOff);
-    AddOptionDescription("Keeps you on fire (use with Invincibility).");
-    AddNumber("Height (Elongation) - Experimental", height, 2, null, heightPlus, heightMinus);
-    AddOptionDescription("Stretches your ped vertically. 1.0 is normal.");
-    AddNumber("Movement Speed (Alt)", swimSpeedMult, 2, null, movementSpeedModifierPlus, movementSpeedModifierMinus);
-    AddOptionDescription("Multiplies run and swim speed.");
-    AddNumber("Sweat Level", selfSweatMult, 2, null, sweatPlus, sweatMinus);
-    AddOptionDescription("How sweaty your ped looks. High values also make clothes look wet.");
-    AddNumber("Noise Level", playerNoiseMult, 2, null, noiseValuePlus, noiseValueMinus);
-    AddOptionDescription("How much noise you make for stealth detection. 1.0 is normal.");
-    AddLocal("Collision", myPed.GetIsCollisionEnabled(), collisionOn, collisionOff);
-    AddOptionDescription("Off: you walk through objects and walls.");
+    AddNumber(Language::Translate("player.options.height.label"), height, 2, null, heightPlus, heightMinus);
+    AddOptionDescription(Language::Translate("player.options.height.description"));
+    AddNumber(Language::Translate("player.options.movementSpeed.label"), swimSpeedMult, 2, null, movementSpeedModifierPlus, movementSpeedModifierMinus);
+    AddOptionDescription(Language::Translate("player.options.movementSpeed.description"));
+    AddNumber(Language::Translate("player.options.sweatLevel.label"), selfSweatMult, 2, null, sweatPlus, sweatMinus);
+    AddOptionDescription(Language::Translate("player.options.sweatLevel.description"));
+    AddNumber(Language::Translate("player.options.noiseLevel.label"), playerNoiseMult, 2, null, noiseValuePlus, noiseValueMinus);
+    AddOptionDescription(Language::Translate("player.options.noiseLevel.description"));
+    AddLocal(Language::Translate("player.options.collision.label"), myPed.GetIsCollisionEnabled(), collisionOn, collisionOff);
+    AddOptionDescription(Language::Translate("player.options.collision.description"));
 
 
     if (collisionOn || collisionOff)
@@ -206,7 +179,7 @@ void PlayerOptionsMenu()
         if (!STAT_SAVE_PENDING_OR_REQUESTED())
             STAT_SAVE(0, 0, 3, 0);
         DO_AUTO_SAVE();
-        Game::Print::PrintBottomLeft("All stats maxed!");
+        Game::Print::PrintBottomLeft(Language::Translate("player.notifications.allStatsMaxed"));
         return;
     }
 
@@ -234,34 +207,6 @@ void PlayerOptionsMenu()
     {
         addlog(ige::LogType::LOG_TRACE, "Turning Off Seatbelt");
         SetPedSeatbeltOff(PLAYER_PED_ID());
-        return;
-    }
-
-    if (forceFieldPlus)
-    {
-        addlog(ige::LogType::LOG_TRACE, "Increase Force Field");
-        if (forceField < forceFieldNames.size() - 1)
-        {
-            forceField++;
-            return;
-        }
-    }
-    if (forceFieldMinus)
-    {
-        addlog(ige::LogType::LOG_TRACE, "Decrease Force Field");
-        if (forceField > 0)
-        {
-            forceField--;
-            return;
-        }
-    }
-
-    if (supermanAutoOn)
-    {
-        Vector3 Pos = GET_ENTITY_COORDS(g_activePedHandle, 1);
-        CREATE_AMBIENT_PICKUP(PICKUP_PARACHUTE, Pos.x, Pos.y, Pos.z, 0, 300, 1, 0, 1);
-        TASK_PARACHUTE(g_activePedHandle, true, false);
-        APPLY_FORCE_TO_ENTITY(PLAYER_PED_ID(), 1, 0.0f, 0.0f, 10.0f, 0.0, 0.0, 0.0, 1, 1, 1, 1, 0, 1);
         return;
     }
 
@@ -342,32 +287,6 @@ void PlayerOptionsMenu()
     {
         addlog(ige::LogType::LOG_TRACE, "Freeze Wanted Level Off");
         selfFreezeWantedLevel = 0;
-        return;
-    }
-
-    if (burnModeOn)
-    {
-        addlog(ige::LogType::LOG_TRACE, "Burn Mode On");
-        if (GET_PLAYER_INVINCIBLE(g_activePlayerId))
-        {
-            SET_PLAYER_INVINCIBLE(g_activePlayerId, 0);
-        }
-        SetPedInvincibleOff(g_activePedHandle);
-        WAIT(130);
-        if (!IS_ENTITY_ON_FIRE(g_activePedHandle))
-        {
-            START_ENTITY_FIRE(g_activePedHandle);
-        }
-        Game::Print::ShowNotification("~b~Note:", "If you're not on fire yet, kill yourself.");
-        return;
-    }
-    if (burnModeOff)
-    {
-        addlog(ige::LogType::LOG_TRACE, "Burn Mode Off");
-        if (IS_ENTITY_ON_FIRE(g_activePedHandle))
-        {
-            STOP_ENTITY_FIRE(g_activePedHandle);
-        }
         return;
     }
 
@@ -505,8 +424,8 @@ void FlagListMenu()
 {
     GTAped ped = g_activePedHandle;
 
-    AddTitle("Ped Flags");
-    AddOption("Custom", null, nullFunc, SUB::PEDFLAGMANAGER_CUSTOM);
+    AddTitle(Language::Translate("player.pedFlags.title"));
+    AddOption(Language::Translate("player.pedFlags.custom.label"), null, nullFunc, SUB::PEDFLAGMANAGER_CUSTOM);
 
     for (auto& f : pedFlags)
     {
@@ -531,10 +450,10 @@ void CustomFlagSetterMenu()
     bool idToggle = false;
     BOOL flagStatus = GET_PED_CONFIG_FLAG(ped.Handle(), flagID, true);
 
-    AddTitle("Custom");
-    AddNumber("ID", flagID, 0, idInput, idPlus, idMinus);
-    AddLocal("Status", flagStatus, idToggle, idToggle);
-    AddOptionDescription("Sets the ped config flag with this ID on or off.");
+    AddTitle(Language::Translate("player.pedFlags.custom.title"));
+    AddNumber(Language::Translate("player.pedFlags.custom.id.label"), flagID, 0, idInput, idPlus, idMinus);
+    AddLocal(Language::Translate("player.pedFlags.custom.status.label"), flagStatus, idToggle, idToggle);
+    AddOptionDescription(Language::Translate("player.pedFlags.custom.status.description"));
 
     if (idPlus)
     {
@@ -581,17 +500,17 @@ void CloneCompanionMenu()
 
     if (!playerPed.Exists())
     {
-        Game::Print::ShowNotification("~r~Error:", "No longer in memory.");
+        Game::Print::ShowNotification(Language::Translate("player.notifications.error.title"), Language::Translate("player.notifications.noLongerInMemory"));
         addlog(ige::LogType::LOG_WARNING, "Cannot start clone menu, playerPed No longer in memory");
         Menu::SetPreviousMenu();
         return;
     }
 
-    AddTitle("Cloning");
+    AddTitle(Language::Translate("player.cloning.title"));
 
     bool cloneNeutralPressed = false;
-    AddOption("Clone As Neutral", cloneNeutralPressed);
-    AddOptionDescription("Clone ignores you.");
+    AddOption(Language::Translate("player.cloning.neutral.label"), cloneNeutralPressed);
+    AddOptionDescription(Language::Translate("player.cloning.neutral.description"));
     if (cloneNeutralPressed)
     {
         GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
@@ -604,12 +523,12 @@ void CloneCompanionMenu()
         clone.SetMissionEntity(true);
         clone.NoLongerNeeded();
 
-        Game::Print::PrintBottomLeft(oss_ << "Cloned ~b~" << player.GetName());
+        Game::Print::PrintBottomLeft(Language::Format("player.notifications.cloned", {{"player", player.GetName()}}));
     }
 
     bool cloneCompanionPressed = false;
-    AddOption("Clone As Companion (7 Max)", cloneCompanionPressed);
-    AddOptionDescription("Clone follows and fights for you (max 7).");
+    AddOption(Language::Translate("player.cloning.companion.label"), cloneCompanionPressed);
+    AddOptionDescription(Language::Translate("player.cloning.companion.description"));
     if (cloneCompanionPressed)
     {
         GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
@@ -646,13 +565,13 @@ void CloneCompanionMenu()
         grp.SetSeparationRange(100.0f);
         grp.SetFormationSpacing(1.5f);
 
-        Game::Print::PrintBottomLeft(oss_ << "Cloned ~b~" << player.GetName() << "~s~ and made the clone " << (playerPed.GetGender() == Gender::Female ? "her" : "his") << " companion.");
-        Game::Print::PrintBottomLeft("Clone added to Spooner Database as a persistent entity.");
+        Game::Print::PrintBottomLeft(Language::Format("player.notifications.clonedCompanion", {{"player", player.GetName()}, {"possessive", playerPed.GetGender() == Gender::Female ? "her" : "his"}}));
+        Game::Print::PrintBottomLeft(Language::Translate("player.notifications.cloneAddedToSpooner"));
     }
 
     bool cloneEnemyPressed = false;
-    AddOption("Clone As Enemy", cloneEnemyPressed);
-    AddOptionDescription("Clone attacks you.");
+    AddOption(Language::Translate("player.cloning.enemy.label"), cloneEnemyPressed);
+    AddOptionDescription(Language::Translate("player.cloning.enemy.description"));
     if (cloneEnemyPressed)
     {
         GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
@@ -687,8 +606,8 @@ void CloneCompanionMenu()
         clone.SetAlwaysKeepTask(true); // May ruin the task sequence. Not sure.
         squ.Clear();
 
-        Game::Print::PrintBottomLeft(oss_ << "Cloned ~b~" << player.GetName() << "~s~ and made the clone " << (playerPed.GetGender() == Gender::Female ? "her" : "his") << " enemy.");
-        Game::Print::PrintBottomLeft("Clone added to Spooner Database as a persistent entity.");
+        Game::Print::PrintBottomLeft(Language::Format("player.notifications.clonedEnemy", {{"player", player.GetName()}, {"possessive", playerPed.GetGender() == Gender::Female ? "her" : "his"}}));
+        Game::Print::PrintBottomLeft(Language::Translate("player.notifications.cloneAddedToSpooner"));
     }
 }
 } // namespace sub

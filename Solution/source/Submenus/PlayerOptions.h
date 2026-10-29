@@ -24,8 +24,6 @@
 #include "..\Scripting\World.h"
 #include "..\Scripting\Camera.h"
 
-#include "..\Misc\SmashAbility.h"
-
 #include "..\Submenus\PedComponentChanger.h"
 #include "..\Submenus\Spooner\SpoonerEntity.h"
 #include "..\Submenus\Spooner\EntityManagement.h"

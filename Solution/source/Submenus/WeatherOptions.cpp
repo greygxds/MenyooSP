@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "WeatherOptions.h"
+#include "..\Menu\Language.h"
 
 namespace sub
 {
@@ -29,17 +30,37 @@ void WeatherMenu()
     float windSpeed = GET_WIND_SPEED();
     float wavesHeight = GET_DEEP_OCEAN_SCALER();
 
-    AddTitle("Weather");
-    AddTickol("Reset Weather", true, clearWeatherOverride, clearWeatherOverride, TICKOL::CROSS);
-    AddOptionDescription("Returns to the game's natural weather cycle.");
+    AddTitle(Language::Translate("weather.title"));
+    AddTickol(Language::Translate("weather.reset"), true, clearWeatherOverride, clearWeatherOverride, TICKOL::CROSS);
+    AddOptionDescription(Language::Translate("weather.reset.description"));
     if (clearWeatherOverride)
     {
         World::ClearWeatherOverride();
     }
-    for (auto& weatherName : World::sWeatherNames)
+    const std::vector<std::string> weatherLabels{
+        Language::Translate("weather.extraSunny"),
+        Language::Translate("weather.clear"),
+        Language::Translate("weather.clouds"),
+        Language::Translate("weather.smog"),
+        Language::Translate("weather.foggy"),
+        Language::Translate("weather.overcast"),
+        Language::Translate("weather.rain"),
+        Language::Translate("weather.thunder"),
+        Language::Translate("weather.clearing"),
+        Language::Translate("weather.neutral"),
+        Language::Translate("weather.snow"),
+        Language::Translate("weather.blizzard"),
+        Language::Translate("weather.snowLight"),
+        Language::Translate("weather.halloween"),
+        Language::Translate("weather.halloweenSnow"),
+        Language::Translate("weather.halloweenRain")
+    };
+    for (size_t weatherIndex = 0; weatherIndex < World::sWeatherNames.size(); ++weatherIndex)
     {
+        auto& weatherName = World::sWeatherNames[weatherIndex];
         bool bWeatherPressed = false;
-        AddTickol(weatherName.first, GET_PREV_WEATHER_TYPE_HASH_NAME() == GET_HASH_KEY(weatherName.second), bWeatherPressed, bWeatherPressed);
+        const std::string& weatherLabel = weatherIndex < weatherLabels.size() ? weatherLabels[weatherIndex] : weatherName.first;
+        AddTickol(weatherLabel, GET_PREV_WEATHER_TYPE_HASH_NAME() == GET_HASH_KEY(weatherName.second), bWeatherPressed, bWeatherPressed);
         if (bWeatherPressed)
         {
             addlog(ige::LogType::LOG_DEBUG, "Setting weather to " + weatherName.first);
@@ -47,17 +68,17 @@ void WeatherMenu()
         }
     }
 
-    AddLocal("Snow On Terrain", g_spSnow.IsSnow(), spSnowOn, spSnowOff);
-    AddOptionDescription("Covers the ground in snow.");
-    AddNumber("Wind Speed", windSpeed, 2, null, windSpeedPlus, windSpeedMinus);
-    AddNumber("Ocean Wave Strength", wavesHeight, 2, null, wavesHeightPlus, wavesHeightMinus);
-    AddNumber("Rain Puddles Multiplier", g_rainFXIntensity, 2, null, rainFXPlus, rainFXMinus);
-    AddOptionDescription("How much water collects on the ground.");
-    AddNumber("Gravity", gravityMultiplier, 2, null, gravityLevelPlus, gravityLevelMinus);
-    AddOptionDescription("World gravity for all entities.");
-    AddOption("Clouds", null, nullFunc, SUB::CLOUDOPS);
-    AddOption("Water Hack (For Waves At Beaches)", null, nullFunc, SUB::WATERHACK);
-    AddOptionDescription("Raises the water level locally to create waves.");
+    AddLocal(Language::Translate("weather.snowOnTerrain"), g_spSnow.IsSnow(), spSnowOn, spSnowOff);
+    AddOptionDescription(Language::Translate("weather.snowOnTerrain.description"));
+    AddNumber(Language::Translate("weather.windSpeed"), windSpeed, 2, null, windSpeedPlus, windSpeedMinus);
+    AddNumber(Language::Translate("weather.oceanWaveStrength"), wavesHeight, 2, null, wavesHeightPlus, wavesHeightMinus);
+    AddNumber(Language::Translate("weather.rainPuddles"), g_rainFXIntensity, 2, null, rainFXPlus, rainFXMinus);
+    AddOptionDescription(Language::Translate("weather.rainPuddles.description"));
+    AddNumber(Language::Translate("weather.gravity"), gravityMultiplier, 2, null, gravityLevelPlus, gravityLevelMinus);
+    AddOptionDescription(Language::Translate("weather.gravity.description"));
+    AddOption(Language::Translate("weather.cloudsMenu"), null, nullFunc, SUB::CLOUDOPS);
+    AddOption(Language::Translate("weather.waterHack"), null, nullFunc, SUB::WATERHACK);
+    AddOptionDescription(Language::Translate("weather.waterHack.description"));
 
 
     if (spSnowOn || spSnowOff)
@@ -135,19 +156,20 @@ const std::array<std::string, 20> cloudNames{{{"Altostratus"},  {"Cirrocumulus"}
 
 void CloudMenu()
 {
-    AddTitle("Clouds");
+    AddTitle(Language::Translate("weather.clouds.title"));
 
     bool bResetPressed = false;
-    AddTickol("Reset", true, bResetPressed, bResetPressed, TICKOL::CROSS);
+    AddTickol(Language::Translate("weather.clouds.reset"), true, bResetPressed, bResetPressed, TICKOL::CROSS);
     if (bResetPressed)
     {
         UNLOAD_ALL_CLOUD_HATS();
     }
 
-    for (auto& name : cloudNames)
+    for (size_t cloudIndex = 0; cloudIndex < cloudNames.size(); ++cloudIndex)
     {
+        auto& name = cloudNames[cloudIndex];
         bool bPressed = false;
-        AddOption(name, bPressed);
+        AddOption(Language::Translate("weather.clouds." + std::to_string(cloudIndex)), bPressed);
         if (bPressed)
         {
             addlog(ige::LogType::LOG_DEBUG, "Set Clouds: " + name);

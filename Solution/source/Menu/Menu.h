@@ -171,11 +171,12 @@ class Menu final
         MouseSupport::Tick();
         Menu::base();
         Menu::loops();
-        Menu::sub_handler();
+        Menu::HandleSubmenu();
     }
 
     static void loops();
-    static void sub_handler();
+    static void HandleSubmenu();
+    static void CorrectSelectionBounds();
     static void submenu_switch();
     static void justopened();
     static bool IsGameReadyForDeferredInit();
@@ -189,11 +190,9 @@ class Menu final
     static void background();
     static void optionhi();
     static void draw_description();
-    static bool isBinds();
-    static void while_closed();
-    static void while_opened();
-    static bool isStopAnimBinds();
-    static void while_stopanim();
+    static bool IsMenuTogglePressed();
+    static void HandleClosedMenu();
+    static void HandleOpenMenu();
     static void Up(bool playSound = true);
     static void Down(bool playSound = true);
     static void Bottom(bool playSound = true);
@@ -295,6 +294,8 @@ void AddTexter(const std::string& text, int selectedindex, const std::vector<std
 
 int AddTexterCycler(const std::string& label, int currentIdx, const std::vector<std::string>& opts);
 int AddTexterCycler(const std::string& label, int currentIdx, const std::vector<std::string>& opts, bool& pressed);
+void AddSaveFileSortOption();
+void SortSaveFileEntries(std::vector<std::string>& fileNames, const std::string& directoryPath);
 
 // Displays a right-aligned bind key/button and captures a replacement when pressed.
 void AddKeybindOption(const std::string& label, const std::string& bindText, const std::string& description, bool& A_PRESS, bool capturingThis);

@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "MiscMapMods.h"
+#include "..\Menu\Language.h"
 
 namespace sub
 {
@@ -78,7 +79,7 @@ class GTAMapMod
         LoadFromXml();
         if (showMsg)
         {
-            Game::Print::ShowNotification(name + " ~b~loaded~s~.");
+            Game::Print::ShowNotification(Language::Format("mapMods.loaded", {{"name", name}}));
         }
     }
 
@@ -91,7 +92,7 @@ class GTAMapMod
         ohandles.clear();
 
         if (showMsg)
-            Game::Print::ShowNotification(name + " ~p~unloaded~s~.");
+            Game::Print::ShowNotification(Language::Format("mapMods.unloaded", {{"name", name}}));
     }
 
     const std::string& Name()
@@ -163,7 +164,7 @@ class GTAMapMod
 
         if (!author.empty())
         {
-            Game::Print::PrintBottomLeft("Hax by ~b~" + author);
+            Game::Print::PrintBottomLeft(Language::Format("mapMods.haxBy", {{"name", author}}));
         }
     }
 };
@@ -223,7 +224,7 @@ void MapMods()
         LoadMapModsFromXml();
     }
 
-    AddTitle("Map Mods");
+    AddTitle(Language::Translate("mapMods.title"));
 
     for (auto& mm : allMapMods)
     {
@@ -239,9 +240,9 @@ void MapMods2()
     bool currentMapModUnload = false;
 
     AddTitle(currentMAPMODC->Name());
-    AddOption("Teleport", currentMapModTeleport);
-    AddLocal("Load", currentMAPMODC->IsLoaded(), currentMapModLoad, currentMapModUnload);
-    AddOptionDescription("Spawns or removes this map mod's objects.");
+    AddOption(Language::Translate("mapMods.teleport"), currentMapModTeleport);
+    AddLocal(Language::Translate("mapMods.load"), currentMAPMODC->IsLoaded(), currentMapModLoad, currentMapModUnload);
+    AddOptionDescription(Language::Translate("mapMods.load.description"));
 
     if (currentMapModTeleport)
     {

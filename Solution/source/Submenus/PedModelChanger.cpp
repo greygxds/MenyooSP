@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "PedModelChanger.h"
+#include "..\Menu\Language.h"
 
 #include "..\macros.h"
 
@@ -30,12 +31,10 @@
 #include "..\Scripting\WeaponIndivs.h"
 
 #include "..\Submenus\PedComponentChanger.h"
-#include "..\Submenus\WeaponOptions.h"
 #include "..\Submenus\Spooner\SpoonerEntity.h"
 #include "..\Submenus\Spooner\Databases.h"
 #include "..\Submenus\Spooner\EntityManagement.h"
 #include "..\Submenus\Spooner\MenuOptions.h"
-#include "..\Submenus\Bodyguards\BodyguardSpawn.h"
 
 #include <string>
 #include <vector>
@@ -111,17 +110,17 @@ bool RemovePedFromFavourites(GTAmodel::Model model)
 void ShowInstructionalButton(GTAmodel::Model model)
 {
     bool bIsAFav = IsPedAFavourite(model);
-    Keybinds::AddBindIB("menu_action", bIsAFav, "Remove from favourites", "Add to favourites");
+    Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("pedModel.favourites.remove").c_str(), Language::Translate("pedModel.favourites.add").c_str());
     if (Keybinds::WasPressedThisFrame("menu_action"))
     {
-        !bIsAFav ? AddPedToFavourites(model, Game::InputBox("", 28U, "Enter custom name:", GetPedModelLabel(model, true))) : RemovePedFromFavourites(model);
+        !bIsAFav ? AddPedToFavourites(model, Game::InputBox("", 28U, Language::Translate("pedModel.input.customName").c_str(), GetPedModelLabel(model, true))) : RemovePedFromFavourites(model);
     }
 }
 
 void PedFavouritesMenu()
 {
     Menu::OnSubBack = ClearSearchStr;
-    AddTitle("Favourites");
+    AddTitle(Language::Translate("pedModel.favourites.title"));
 
     pugi::xml_document doc;
     if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str()).status != pugi::status_ok)
@@ -137,26 +136,26 @@ void PedFavouritesMenu()
     pugi::xml_node nodeRoot = doc.document_element();
 
     bool inputAdd = false;
-    AddOption("Add New Ped Model", inputAdd);
+    AddOption(Language::Translate("pedModel.favourites.addNew"), inputAdd);
     if (inputAdd)
     {
-        std::string hashNameStr = Game::InputBox("", 40U, "Enter model name (e.g. IG_BENNY):");
+        std::string hashNameStr = Game::InputBox("", 40U, Language::Translate("pedModel.input.modelName").c_str());
         if (hashNameStr.length())
         {
             Model hashNameHash = GET_HASH_KEY(hashNameStr);
             if (hashNameHash.IsInCdImage())
             {
                 WAIT(500);
-                std::string customNameStr = Game::InputBox("", 28U, "Enter custom name:", GetPedModelLabel(hashNameHash, true));
+                std::string customNameStr = Game::InputBox("", 28U, Language::Translate("pedModel.input.customName").c_str(), GetPedModelLabel(hashNameHash, true));
                 if (customNameStr.length())
                 {
                     if (AddPedToFavourites(hashNameHash, customNameStr))
                     {
-                        Game::Print::PrintBottomLeft("Ped model ~b~added~s~.");
+                        Game::Print::PrintBottomLeft(Language::Translate("pedModel.notifications.added"));
                     }
                     else
                     {
-                        Game::Print::PrintBottomLeft("~r~Error:~s~ Unable to add ped model.");
+                        Game::Print::PrintBottomLeft(Language::Translate("pedModel.notifications.addFailed"));
                     }
                 }
                 else
@@ -177,13 +176,13 @@ void PedFavouritesMenu()
 
     if (nodeRoot.first_child())
     {
-        AddBreak("---Added Ped Models---");
+        AddBreak(Language::Translate("pedModel.favourites.addedBreak"));
 
         bool bSearchPressed = false;
-        AddOption(searchStr.empty() ? "SEARCH" : searchStr, bSearchPressed, nullFunc, -1, true);
+        AddOption(searchStr.empty() ? Language::Translate("pedModel.search.button") : searchStr, bSearchPressed, nullFunc, -1, true);
         if (bSearchPressed)
         {
-            searchStr = Game::InputBox(searchStr, 126U, "SEARCH", boost::to_lower_copy(searchStr));
+            searchStr = Game::InputBox(searchStr, 126U, Language::Translate("pedModel.search.prompt").c_str(), boost::to_lower_copy(searchStr));
             boost::to_upper(searchStr);
         }
 
@@ -318,40 +317,23 @@ void AddModelOption(const std::string& text, const GTAmodel::Model& model, bool*
 {
     if (model.IsInCdImage())
     {
-        int context = 0;
+        bool isSpoonerSpawn = false;
         for (int ci = Menu::menuHistoryIndex; ci >= 0; ci--)
         {
             if (Menu::submenuHistory[ci] == SUB::SPOONER_SPAWN_PED)
             {
-                context = 1;
-                break;
-            }
-            if (Menu::submenuHistory[ci] == SUB::BODYGUARD_SPAWN)
-            {
-                context = 2;
-                break;
-            }
-            if (Menu::submenuHistory[ci] == SUB::PEDGUN_ALLPEDS)
-            {
-                context = 3;
+                isSpoonerSpawn = true;
                 break;
             }
         }
 
-        switch (context)
+        if (isSpoonerSpawn)
         {
-        case 1:
             sub::Spooner::MenuOptions::AddOptionAddPed(text, model);
-            break;
-        case 2:
-            sub::BodyguardMenu::BodyguardManagement::AddOptionBodyGuardPed(text, model);
-            break;
-        case 3:
-            AddPedGunOption(text, model.hash, extraOptionCode);
-            break;
-        default:
+        }
+        else
+        {
             AddModelChangerOption(text, model.hash, tickTrue);
-            break;
         }
 
         if (Menu::IsLastDrawnOptionSelected())
@@ -371,36 +353,36 @@ void ModelChangerMenu()
     dict3.clear();
 
     g_activePedHandle = PLAYER_PED_ID();
-    AddTitle("Model Changer");
-    AddOption("~b~Search~s~ Peds", null, nullFunc, SUB::MODELCHANGER_SEARCH);
-    AddOption("Favourites", null, nullFunc, SUB::MODELCHANGER_FAVOURITES);
-    AddOption("Randomize Ped Variation", modelChangerRandomPedVariation);
-    AddOptionDescription("Randomizes clothing and features for the current model.");
+    AddTitle(Language::Translate("pedModel.title"));
+    AddOption(Language::Translate("pedModel.search.menu"), null, nullFunc, SUB::MODELCHANGER_SEARCH);
+    AddOption(Language::Translate("pedModel.favourites.menu"), null, nullFunc, SUB::MODELCHANGER_FAVOURITES);
+    AddOption(Language::Translate("pedModel.randomizeVariation"), modelChangerRandomPedVariation);
+    AddOptionDescription(Language::Translate("pedModel.randomizeVariation.description"));
 
-    AddBreak("---Categories---");
-    AddOption("Player", null, nullFunc, SUB::MODELCHANGER_PLAYER);
-    AddOption("Story Models", null, nullFunc, SUB::MODELCHANGER_STORY);
-    AddOption("Cutscene Models", null, nullFunc, SUB::MODELCHANGER_CS);
-    AddOption("Multiplayer Models", null, nullFunc, SUB::MODELCHANGER_MP);
-    AddOption("Animals", null, nullFunc, SUB::MODELCHANGER_ANIMAL);
+    AddBreak(Language::Translate("pedModel.categoriesBreak"));
+    AddOption(Language::Translate("pedModel.category.player"), null, nullFunc, SUB::MODELCHANGER_PLAYER);
+    AddOption(Language::Translate("pedModel.category.story"), null, nullFunc, SUB::MODELCHANGER_STORY);
+    AddOption(Language::Translate("pedModel.category.cutscene"), null, nullFunc, SUB::MODELCHANGER_CS);
+    AddOption(Language::Translate("pedModel.category.multiplayer"), null, nullFunc, SUB::MODELCHANGER_MP);
+    AddOption(Language::Translate("pedModel.category.animals"), null, nullFunc, SUB::MODELCHANGER_ANIMAL);
 
-    AddBreak("---Ambient---");
-    AddOption("Ambient Females", null, nullFunc, SUB::MODELCHANGER_AMBFEMALES);
-    AddOption("Ambient Males", null, nullFunc, SUB::MODELCHANGER_AMBMALES);
-    AddOption("Gang Female", null, nullFunc, SUB::MODELCHANGER_GANGFEMALES);
-    AddOption("Gang Males", null, nullFunc, SUB::MODELCHANGER_GANGMALES);
+    AddBreak(Language::Translate("pedModel.ambientBreak"));
+    AddOption(Language::Translate("pedModel.category.ambientFemales"), null, nullFunc, SUB::MODELCHANGER_AMBFEMALES);
+    AddOption(Language::Translate("pedModel.category.ambientMales"), null, nullFunc, SUB::MODELCHANGER_AMBMALES);
+    AddOption(Language::Translate("pedModel.category.gangFemale"), null, nullFunc, SUB::MODELCHANGER_GANGFEMALES);
+    AddOption(Language::Translate("pedModel.category.gangMales"), null, nullFunc, SUB::MODELCHANGER_GANGMALES);
 
-    AddBreak("---Scenario---");
-    AddOption("Scenario Females", null, nullFunc, SUB::MODELCHANGER_SCENARIOFEMALES);
-    AddOptionDescription("Peds used by world scenarios, such as workers and joggers.");
-    AddOption("Scenario Males", null, nullFunc, SUB::MODELCHANGER_SCENARIOMALES);
-    AddOptionDescription("Peds used by world scenarios, such as workers and joggers.");
-    AddOption("Story Scenario Females", null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOFEMALES);
-    AddOptionDescription("Scenario peds from story mode.");
-    AddOption("Story Scenario Males", null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOMALES);
-    AddOptionDescription("Scenario peds from story mode.");
-    AddOption("Others", null, nullFunc, SUB::MODELCHANGER_OTHERS);
-    AddOption("~b~Input~s~ Model", modelChangerInput);
+    AddBreak(Language::Translate("pedModel.scenarioBreak"));
+    AddOption(Language::Translate("pedModel.category.scenarioFemales"), null, nullFunc, SUB::MODELCHANGER_SCENARIOFEMALES);
+    AddOptionDescription(Language::Translate("pedModel.category.scenario.description"));
+    AddOption(Language::Translate("pedModel.category.scenarioMales"), null, nullFunc, SUB::MODELCHANGER_SCENARIOMALES);
+    AddOptionDescription(Language::Translate("pedModel.category.scenario.description"));
+    AddOption(Language::Translate("pedModel.category.storyScenarioFemales"), null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOFEMALES);
+    AddOptionDescription(Language::Translate("pedModel.category.storyScenario.description"));
+    AddOption(Language::Translate("pedModel.category.storyScenarioMales"), null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOMALES);
+    AddOptionDescription(Language::Translate("pedModel.category.storyScenario.description"));
+    AddOption(Language::Translate("pedModel.category.others"), null, nullFunc, SUB::MODELCHANGER_OTHERS);
+    AddOption(Language::Translate("pedModel.input.menu"), modelChangerInput);
 
     if (modelChangerRandomPedVariation)
     {
@@ -412,7 +394,7 @@ void ModelChangerMenu()
 
     if (modelChangerInput)
     {
-        std::string inputStr = Game::InputBox("", 64U, "Enter ped model name (e.g. IG_BENNY):");
+        std::string inputStr = Game::InputBox("", 64U, Language::Translate("pedModel.input.modelName").c_str());
         if (inputStr.length() > 0)
         {
             Model model = (inputStr);
@@ -441,12 +423,12 @@ GTAmodel::Model ModelChangerRandom(std::vector<std::pair<std::string, std::strin
 
 void ModelChangerPlayer()
 {
-    AddTitle("Player");
+    AddTitle(Language::Translate("pedModel.category.player"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_Player);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_Player)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -455,12 +437,12 @@ void ModelChangerPlayer()
 
 void ModelChangerAnimal()
 {
-    AddTitle("Animals");
+    AddTitle(Language::Translate("pedModel.category.animals"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_Animal);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_Animal)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -469,12 +451,12 @@ void ModelChangerAnimal()
 
 void ModelChangerAmbientFemale()
 {
-    AddTitle("Ambient Females");
+    AddTitle(Language::Translate("pedModel.category.ambientFemales"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_AmbientFemale);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_AmbientFemale)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -483,12 +465,12 @@ void ModelChangerAmbientFemale()
 
 void ModelChangerAmbientMale()
 {
-    AddTitle("Ambient Males");
+    AddTitle(Language::Translate("pedModel.category.ambientMales"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_AmbientMale);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_AmbientMale)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -497,12 +479,12 @@ void ModelChangerAmbientMale()
 
 void ModelChangerCutscene()
 {
-    AddTitle("Cutscene Models");
+    AddTitle(Language::Translate("pedModel.category.cutscene"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_Cutscene);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_Cutscene)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -511,12 +493,12 @@ void ModelChangerCutscene()
 
 void ModelChangerGangFemale()
 {
-    AddTitle("Gang Females");
+    AddTitle(Language::Translate("pedModel.category.gangFemale"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_GangFemale);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_GangFemale)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -525,12 +507,12 @@ void ModelChangerGangFemale()
 
 void ModelChangerGangMale()
 {
-    AddTitle("Gang Males");
+    AddTitle(Language::Translate("pedModel.category.gangMales"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_GangMale);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_GangMale)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -539,12 +521,12 @@ void ModelChangerGangMale()
 
 void ModelChangerStory()
 {
-    AddTitle("Story Models");
+    AddTitle(Language::Translate("pedModel.category.story"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_Story);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_Story)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -553,12 +535,12 @@ void ModelChangerStory()
 
 void ModelChangerMultiplayer()
 {
-    AddTitle("Multiplayer Models");
+    AddTitle(Language::Translate("pedModel.category.multiplayer"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_Multiplayer);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_Multiplayer)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -567,12 +549,12 @@ void ModelChangerMultiplayer()
 
 void ModelChangerScenarioFemale()
 {
-    AddTitle("Scenario Females");
+    AddTitle(Language::Translate("pedModel.category.scenarioFemales"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_ScenarioFemale);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_ScenarioFemale)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -581,12 +563,12 @@ void ModelChangerScenarioFemale()
 
 void ModelChangerScenarioMale()
 {
-    AddTitle("Scenario Males");
+    AddTitle(Language::Translate("pedModel.category.scenarioMales"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_ScenarioMale);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_ScenarioMale)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -595,12 +577,12 @@ void ModelChangerScenarioMale()
 
 void ModelChangerStoryScenarioFemale()
 {
-    AddTitle("Story Scenario Females");
+    AddTitle(Language::Translate("pedModel.category.storyScenarioFemales"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_StoryScenarioFemale);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_StoryScenarioFemale)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -609,12 +591,12 @@ void ModelChangerStoryScenarioFemale()
 
 void ModelChangerStoryScenarioMale()
 {
-    AddTitle("Story Scenario Males");
+    AddTitle(Language::Translate("pedModel.category.storyScenarioMales"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_StoryScenarioMale);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_StoryScenarioMale)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -623,12 +605,12 @@ void ModelChangerStoryScenarioMale()
 
 void ModelChangerOthers()
 {
-    AddTitle("Others");
+    AddTitle(Language::Translate("pedModel.category.others"));
     if (rngped.first == Game::PlayerPed().Model() || rngped.first == "")
     {
         ModelChangerRandom(g_pedModels_Others);
     }
-    AddModelOption("Random", rngped.first, nullptr, 0);
+    AddModelOption(Language::Translate("pedModel.random"), rngped.first, nullptr, 0);
     for (auto& pmn : g_pedModels_Others)
     {
         AddModelOption(pmn.second, (pmn.first));
@@ -645,7 +627,7 @@ static bool dirty = true;
 static std::string lastSearch;
 static int lastSort = -1, lastCategory = -1;
 
-static const std::vector<std::string> sortOptions = {"Name (A-Z)", "Name (Z-A)", "Model Name"};
+static const std::vector<std::string> sortOptionKeys = {"pedModel.search.sortNameAsc", "pedModel.search.sortNameDesc", "pedModel.search.sortModel"};
 
 struct CategoryEntry
 {
@@ -670,14 +652,30 @@ static const CategoryEntry categories[] = {
     {"Others", &g_pedModels_Others},
 };
 static const int numCategories = 14;
+static const std::vector<std::string> categoryKeys = {
+    "pedModel.category.player",
+    "pedModel.category.animals",
+    "pedModel.category.ambientFemales",
+    "pedModel.category.ambientMales",
+    "pedModel.category.cutscene",
+    "pedModel.category.gangFemales",
+    "pedModel.category.gangMales",
+    "pedModel.category.story",
+    "pedModel.category.multiplayer",
+    "pedModel.category.scenarioFemales",
+    "pedModel.category.scenarioMales",
+    "pedModel.category.storyScenarioFemales",
+    "pedModel.category.storyScenarioMales",
+    "pedModel.category.others"
+};
 
 void BuildCategoryOptions()
 {
     categoryOptions.clear();
-    categoryOptions.push_back("All (" + std::to_string(g_pedModels.size()) + ")");
+    categoryOptions.push_back(Language::Format("pedModel.search.categoryCount", {{"category", Language::Translate("pedModel.search.all")}, {"count", g_pedModels.size()}}));
     for (int i = 0; i < numCategories; i++)
     {
-        categoryOptions.push_back(std::string(categories[i].name) + " (" + std::to_string(categories[i].vec->size()) + ")");
+        categoryOptions.push_back(Language::Format("pedModel.search.categoryCount", {{"category", Language::Translate(categoryKeys[i])}, {"count", categories[i].vec->size()}}));
     }
 }
 
@@ -725,25 +723,26 @@ void ModelChangerSearchMenu()
     if (categoryOptions.empty())
         BuildCategoryOptions();
 
-    AddTitle("Ped Search");
+    AddTitle(Language::Translate("pedModel.search.title"));
 
     bool bSearchPressed = false;
-    AddOption(searchStr.empty() ? "~b~SEARCH~s~" : ("~b~" + searchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
+    AddOption(searchStr.empty() ? Language::Translate("pedModel.search.button") : ("~b~" + searchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
     if (bSearchPressed)
     {
-        searchStr = Game::InputBox(searchStr, 64U, "Search peds:", boost::to_lower_copy(searchStr));
+        searchStr = Game::InputBox(searchStr, 64U, Language::Translate("pedModel.search.prompt").c_str(), boost::to_lower_copy(searchStr));
         boost::to_upper(searchStr);
     }
 
     bool sortRight = false, sortLeft = false;
-    AddTexter("Sort", sortIndex, sortOptions, null, sortRight, sortLeft);
+    const std::vector<std::string> sortOptions{Language::Translate(sortOptionKeys[0]), Language::Translate(sortOptionKeys[1]), Language::Translate(sortOptionKeys[2])};
+    AddTexter(Language::Translate("pedModel.search.sort"), sortIndex, sortOptions, null, sortRight, sortLeft);
     if (sortRight && sortIndex < (int)(sortOptions.size() - 1))
         sortIndex++;
     if (sortLeft && sortIndex > 0)
         sortIndex--;
 
     bool catRight = false, catLeft = false;
-    AddTexter("Category", categoryFilter, categoryOptions, null, catRight, catLeft);
+    AddTexter(Language::Translate("pedModel.search.category"), categoryFilter, categoryOptions, null, catRight, catLeft);
     if (catRight && categoryFilter < (int)(categoryOptions.size() - 1))
         categoryFilter++;
     if (catLeft && categoryFilter > 0)
@@ -758,7 +757,7 @@ void ModelChangerSearchMenu()
         dirty = false;
     }
 
-    AddBreak("---Results: " + std::to_string(results.size()) + "---");
+    AddBreak(Language::Format("pedModel.search.results", {{"count", results.size()}}));
 
     for (auto& ped : results)
     {

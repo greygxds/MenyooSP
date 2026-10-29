@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "SpoonerMode.h"
+#include "..\..\Menu\Language.h"
 
 #include "ImGuiSpooner.h"
 #include "SpoonerCursor.h"
@@ -435,11 +436,11 @@ void TurnOn()
         SpoonerMode::bEnabled = true;
         sub::Spooner::ImGuiSpooner::SetVisible(true);
         if (Menu::activeSubmenu != SUB::CLOSED)
-            Game::Print::PrintBottomLeft("~b~Note:~s~ Spooner Mode instructions only appear when Menyoo is closed.");
+            Game::Print::PrintBottomLeft(Language::Translate("spooner.mode.instructionsNote"));
     }
     else
     {
-        Game::Print::ShowNotification("~r~Error:", "Menu not opened yet.");
+        Game::Print::ShowNotification(Language::Translate("spooner.mode.error"), Language::Translate("spooner.mode.notOpened"));
     }
 }
 
@@ -656,7 +657,7 @@ void UpdateEntityEditingState(Vector3& position, Vector3& rotation)
         {
             const SpoonerEntity& copiedEntity = EntityManagement::CopyEntity(selectedEntity, EntityManagement::GetEntityIndexInDb(selectedEntity) >= 0, true, Submenus::_copyEntTexterValue);
             selectedEntity = copiedEntity;
-            Game::Print::ShowNotification("Entity copied.", 2.5f);
+            Game::Print::ShowNotification(Language::Translate("spooner.mode.entityCopied"), 2.5f);
         }
     }
 

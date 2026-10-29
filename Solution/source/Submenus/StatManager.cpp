@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "StatManager.h"
+#include "..\Menu\Language.h"
 
 namespace sub
 {
@@ -257,7 +258,7 @@ void AddOptionStats(const CharStat_t& stat)
         {
             int liveValue = StatGetInt(statName);
 
-            AddNumber("Special Ability", liveValue * 3.3333, 0, null, bFillPressed, bEmptyPressed);
+            AddNumber(Language::Translate("stats.specialAbility"), liveValue * 3.3333, 0, null, bFillPressed, bEmptyPressed);
             if (bFillPressed)
             {
                 SPECIAL_ABILITY_FILL_METER(PLAYER_ID(), false, null);
@@ -274,7 +275,7 @@ void AddOptionStats(const CharStat_t& stat)
         AddNumber(stat.caption, statValue, 0, bStatValue_input, bStatValue_plus, bStatValue_minus);
         if (bStatValue_input)
         {
-            std::string inputStr = Game::InputBox(std::string(), (int)std::to_string((int)stat.max).length() + 1, "Enter integer value:", std::to_string(statValue));
+            std::string inputStr = Game::InputBox(std::string(), (int)std::to_string((int)stat.max).length() + 1, Language::Translate("stats.input.integer").c_str(), std::to_string(statValue));
             if (inputStr.length() > 0)
             {
                 try
@@ -319,7 +320,7 @@ void AddOptionStats(const CharStat_t& stat)
         AddNumber(stat.caption, statValue, 2, bStatValue_input, bStatValue_plus, bStatValue_minus);
         if (bStatValue_input)
         {
-            std::string inputStr = Game::InputBox(std::string(), 13U, "Enter floating point value:", std::to_string(statValue));
+            std::string inputStr = Game::InputBox(std::string(), 13U, Language::Translate("stats.input.float").c_str(), std::to_string(statValue));
             if (inputStr.length() > 0)
             {
                 try
@@ -360,9 +361,9 @@ void AddOptionStats(const CharStat_t& stat)
 
 void SPStatsManagerMenu()
 {
-    AddTitle("Stat Manager");
+    AddTitle(Language::Translate("stats.title"));
 
-    AddBreak("---Story Mode---");
+    AddBreak(Language::Translate("stats.storyMode"));
     for (int i = 0; i < 3; i++)
     {
         bool bGoToCharacterPressed = false;
@@ -375,7 +376,7 @@ void SPStatsManagerMenu()
 
     if (NETWORK_IS_IN_SESSION())
     {
-        AddBreak("---GTA Online---");
+        AddBreak(Language::Translate("stats.gtaOnline"));
         for (int i = 3; i < 5; i++)
         {
             bool bGoToCharacterPressed = false;
@@ -387,10 +388,10 @@ void SPStatsManagerMenu()
         }
     }
 
-    AddBreak("---Achievements---");
+    AddBreak(Language::Translate("stats.achievements"));
     bool unlockAllAchievements = false;
-    AddOption("Unlock All Achievements", unlockAllAchievements);
-    AddOptionDescription("Unlocks every game achievement. This can't be undone.");
+    AddOption(Language::Translate("stats.unlockAchievements"), unlockAllAchievements);
+    AddOptionDescription(Language::Translate("stats.unlockAchievements.description"));
     if (unlockAllAchievements)
     {
         int numAchievements = 78;
@@ -515,7 +516,7 @@ void SPStatsInCharMenu()
 
     if (IsOnlineChar(selectedCharName->first))
     {
-        AddBreak("---Property Ownership---");
+        AddBreak(Language::Translate("stats.propertyOwnership"));
         for (auto& statList : vMPPropertyLists)
         {
             bool bStatListPressed = false;

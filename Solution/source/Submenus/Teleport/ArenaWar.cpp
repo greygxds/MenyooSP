@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "ArenaWar.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 
@@ -438,7 +439,7 @@ const std::vector<TeleLocation> vOtherArenaWarRelatedTeleports{
 
 void Sub_ArenaWar()
 {
-    AddTitle("Arena War");
+    AddTitle(Language::Translate("teleport.arenaWar.title"));
 
     for (auto& otherTele : vOtherArenaWarRelatedTeleports)
     {

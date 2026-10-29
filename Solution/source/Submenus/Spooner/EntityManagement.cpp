@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "EntityManagement.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 
@@ -306,7 +307,7 @@ SpoonerEntity AddProp(const GTAmodel::Model& model, const std::string& name, boo
 {
     if (Databases::EntityDb.size() >= GTA_MAX_ENTITIES)
     {
-        Game::Print::PrintBottomLeft("~r~Error:~s~ Max spawn count reached.");
+        Game::Print::PrintBottomLeft(Language::Translate("spooner.entity.maxSpawnCount"));
         addlog(ige::LogType::LOG_WARNING, "Failed to add prop, max spawn count " + std::to_string(GTA_MAX_ENTITIES) + " Reached");
         return SpoonerEntity();
     }
@@ -363,7 +364,7 @@ SpoonerEntity AddProp(const GTAmodel::Model& model, const std::string& name, boo
                 }
             }
         }
-        Game::Print::ShowNotification("~r~Error:", "Invalid model.\n Check suggested locations: [" + suggestedLocation + "]");
+        Game::Print::ShowNotification(Language::Translate("spooner.entity.invalidModel"), Language::Format("spooner.entity.invalidModel.message", {{"locations", suggestedLocation}}));
         return SpoonerEntity();
     }
 
@@ -442,7 +443,7 @@ SpoonerEntity AddPed(const GTAmodel::Model& model, const std::string& name, bool
 {
     if (Databases::EntityDb.size() >= GTA_MAX_ENTITIES)
     {
-        Game::Print::PrintBottomLeft("~r~Error:~s~ Max spawn count reached.");
+        Game::Print::PrintBottomLeft(Language::Translate("spooner.entity.maxSpawnCount"));
         addlog(ige::LogType::LOG_WARNING, "Failed to spawn ped, max spawn count " + std::to_string(GTA_MAX_ENTITIES) + " Reached");
         return SpoonerEntity();
     }
@@ -544,7 +545,7 @@ SpoonerEntity AddVehicle(const GTAmodel::Model& model, const std::string& name, 
 {
     if (Databases::EntityDb.size() >= GTA_MAX_ENTITIES)
     {
-        Game::Print::PrintBottomLeft("~r~Error:~s~ Max spawn count reached.");
+        Game::Print::PrintBottomLeft(Language::Translate("spooner.entity.maxSpawnCount"));
         addlog(ige::LogType::LOG_WARNING, "Failed to add vehicle, max spawn count " + std::to_string(GTA_MAX_ENTITIES) + " Reached");
         return SpoonerEntity();
     }
@@ -1003,7 +1004,7 @@ void AttachEntityInit(SpoonerEntity& ent, GTAentity to, bool bAttachWithRelative
 // Keyboard input
 SpoonerEntity InputEntityIntoDb(const EntityType& type)
 {
-    std::string inputStr = Game::InputBox("", 64U, "Input model name:");
+    std::string inputStr = Game::InputBox("", 64U, Language::Translate("spooner.entity.inputModel").c_str());
     if (inputStr.length() > 0)
     {
         return AddEntityOfType(type, GET_HASH_KEY(inputStr), inputStr);

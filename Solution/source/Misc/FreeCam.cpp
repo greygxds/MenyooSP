@@ -9,6 +9,8 @@
 */
 #include "FreeCam.h"
 
+#include "..\Menu\Language.h"
+
 #include "..\macros.h"
 
 #include "..\Menu\Menu.h"
@@ -238,7 +240,7 @@ void ApplyRotation(const Input& input)
 
     const GTAplayer player = PLAYER_ID();
     if (!player.IsFreeAiming() && !player.IsTargetingAnything())
-        SET_GAMEPLAY_CAM_RELATIVE_HEADING(0.0f);
+        GameplayCamera::SetRelativeHeading(0.0f);
 }
 
 void ApplyMovement(const Input& input)
@@ -265,7 +267,7 @@ void ToggleHeightLock()
     state.heightLocked = !state.heightLocked;
     if (state.heightLocked)
         state.lockedHeight = GetControlledEntity().GetPosition().z;
-    Game::Print::ShowNotification(state.heightLocked ? "FreeCam Height Locked" : "FreeCam Height Unlocked", 1.0f);
+    Game::Print::ShowNotification(Language::Translate(state.heightLocked ? "freeCam.heightLocked" : "freeCam.heightUnlocked"), 1.0f);
 }
 
 // Returns -1 / 0 / +1 for scroll down / none / up
@@ -287,7 +289,7 @@ void AdjustSpeed(int scroll)
 
     MenuConfig::FreeCam::defaultSpeed = newSpeed;
     MenuConfig::RequestSave();
-    Game::Print::ShowNotification(oss_ << "FreeCam Speed: " << newSpeed, 1.0f);
+    Game::Print::ShowNotification(Language::Format("misc.freeCam.speed.notification", {{"speed", std::to_string(newSpeed)}}), 1.0f);
 }
 
 void AdjustFov(int scroll)
@@ -300,7 +302,7 @@ void AdjustFov(int scroll)
     state.camera.SetFieldOfView(newFov);
     MenuConfig::FreeCam::defaultFov = newFov;
     MenuConfig::RequestSave();
-    Game::Print::ShowNotification(oss_ << "FreeCam FOV: " << newFov, 1.0f);
+    Game::Print::ShowNotification(Language::Format("misc.freeCam.fov.notification", {{"fov", std::to_string(newFov)}}), 1.0f);
 }
 
 void HandleKeyboardAdjustments()
@@ -324,9 +326,9 @@ void HandleKeyboardAdjustments()
 
 void DrawHelpBindRows()
 {
-    Keybinds::AddBindIB("freecam_hasten", "Hasten");
-    Keybinds::AddBindIB("freecam_slow", "Slow Down");
-    Keybinds::AddBindIB("freecam_height_lock", "Height Lock");
+    Keybinds::AddBindIB("freecam_hasten", Language::Translate("freeCam.hasten"));
+    Keybinds::AddBindIB("freecam_slow", Language::Translate("freeCam.slowDown"));
+    Keybinds::AddBindIB("freecam_height_lock", Language::Translate("freeCam.heightLock"));
 }
 } // namespace
 

@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "IeVehicleWarehouses.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 
@@ -126,7 +127,7 @@ void TeleportPedToWarehouse(GTAentity ped, IeWarehouseInfoStructure& info)
 
 void Sub_IeVehicleWarehouses()
 {
-    AddTitle("Vehicle Warehouses");
+    AddTitle(Language::Translate("teleport.ieWarehouses.title"));
 
     for (auto& loc : vLocations)
     {
@@ -170,8 +171,8 @@ void Sub_IeVehicleWarehouses_InLoc()
     }
 
     bool bCreateWarehousePressed = false;
-    AddOption("Build Warehouse", bCreateWarehousePressed);
-    AddOptionDescription("Loads the warehouse with the options above and teleports you inside.");
+    AddOption(Language::Translate("teleport.ieWarehouses.build"), bCreateWarehousePressed);
+    AddOptionDescription(Language::Translate("teleport.ieWarehouses.build.description"));
     if (bCreateWarehousePressed)
     {
         DO_SCREEN_FADE_OUT(50);

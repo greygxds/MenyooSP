@@ -4,12 +4,14 @@
 # Menyoo PC (greygods fork)
 ## [DOWNLOAD LATEST RELEASE](https://github.com/greygxds/MenyooSP/releases/latest/download/MenyooSP.zip)
 #### Trainer for Grand Theft Auto V.
-This fork is being updated separately from [ItsJustCurtis version (aka the Menyoo 2.0)]((https://github.com/itsjustcurtis/MenyooSP)). Some features from it might be merged into ItsJustCurtis's fork or vice-versa. 
+This fork is being updated separately from [ItsJustCurtis version (aka the Menyoo 2.0)]((https://github.com/itsjustcurtis/MenyooSP)). Some features from here might be merged into ItsJustCurtis's fork or vice-versa.
+
+It focuses mainly on **screenshot & video-making features**. Some things that I deemed unnecessary were removed to make the code easier to maintain and faster to compile. 
+If you would like to see some new features / improvements that would make Menyoo even better for creating scenes, screenshots or videos you can create a Feature Request in the [Issues tab](https://github.com/greygxds/MenyooSP/issues).
 
 ---
 
 ## Requirements
-- [OpenIV and its ASI Loader](https://openiv.com/)
 - [ScriptHookV by Alexander Blade](http://www.dev-c.com/gtav/scripthookv/)
 - [Battleye disabled in the Rockstar Launcher Settings](https://staticg.sportskeeda.com/editor/2024/11/bdc35-17305620610616-1920.jpg)
 - GTA V Legacy Version 3095.0 or newer

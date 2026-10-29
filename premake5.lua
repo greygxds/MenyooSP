@@ -46,7 +46,7 @@ project "Menyoo"
         "Solution/external/MinHook/include",
     }
 
-    links { "ScriptHookV", "d3d11", "d3dcompiler", "dxgi", "Psapi" }
+    links { "ScriptHookV", "d3d11", "d3dcompiler", "dxgi", "Psapi", "winmm" }
 
     libdirs {
         "Solution/external/ScriptHookV/SDK/lib",

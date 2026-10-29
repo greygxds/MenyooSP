@@ -3,6 +3,7 @@
 #include "..\macros.h"
 
 #include "Menu.h"
+#include "Language.h"
 #include "submenu_enum.h"
 
 #include "..\Natives\natives2.h"
@@ -56,8 +57,6 @@ const std::vector<KeybindEntry> g_registry{
     {"category_jump", "Navigate Categories", "Opens the category navigator when a submenu has more than one category.", (UINT16)VirtualKey::G, NoBind, (UINT16)INPUT_SPECIAL_ABILITY, NoBind, "Menus"},
 
     {"teleport_waypoint", "Teleport to Waypoint", "Teleports the player to the active map waypoint.", (UINT16)VirtualKey::T, NoBind, (UINT16)INPUT_FRONTEND_RLEFT, NoBind, "Teleport"},
-
-    {"tow_rope", "Tow Rope", "Extends or shortens the physics rope to the vehicle behind.", (UINT16)VirtualKey::K, NoBind, (UINT16)INPUT_FRONTEND_LS, NoBind, "Vehicles", false},
 
     {"vehicle_boost", "Vehicle Boost", "Hold for a speed boost while driving. Enable it in Vehicle Options.", (UINT16)VirtualKey::E, NoBind, (UINT16)INPUT_VEH_HORN, NoBind, "Vehicles", false},
 
@@ -122,51 +121,8 @@ const std::vector<KeybindEntry> g_registry{
      NoBind,
      "Spooner"},
 
-    {"vehicle_weapons_fire",
-     "Fire Vehicle Weapons",
-     "Hold to fire the enabled vehicle weapons. Enable them in Vehicle Options.",
-     (UINT16)VirtualKey::Add,
-     NoBind,
-     (UINT16)INPUT_FRONTEND_LS,
-     NoBind,
-     "Vehicles",
-     false},
-
     {"vehicle_hydraulics", "Car Hydraulics", "Hold and steer to bounce the car on its hydraulics.", (UINT16)VirtualKey::LeftShift, NoBind, (UINT16)INPUT_FRONTEND_LS, NoBind, "Vehicles", true},
 
-    {"breathe_ptfx",
-     "Breathe Effect",
-     "Hold to breathe the selected particle effect. Enable it in Player Options > Breathe Stuff.",
-     (UINT16)VirtualKey::J,
-     NoBind,
-     (UINT16)INPUT_FRONTEND_LS,
-     NoBind,
-     "Player",
-     false},
-
-    {"superman_boost",
-     "Superman Forward Boost",
-     "Boosts the player forward while skydiving with Fly Manual enabled.",
-     (UINT16)VirtualKey::Add,
-     NoBind,
-     (UINT16)INPUT_FRONTEND_RB,
-     NoBind,
-     "Player",
-     false},
-
-    {"superman_freeze",
-     "Superman Hover / Brake",
-     "Freezes the player in place while held, resumes on release.",
-     (UINT16)VirtualKey::Subtract,
-     NoBind,
-     (UINT16)INPUT_FRONTEND_RDOWN,
-     NoBind,
-     "Player",
-     false},
-
-    {"superman_ascend", "Superman Ascend", "Pushes the flying player upward while Fly Manual is enabled.", (UINT16)VirtualKey::Numpad7, NoBind, (UINT16)INPUT_FRONTEND_RT, NoBind, "Player", false},
-
-    {"superman_descend", "Superman Descend", "Pushes the flying player downward while Fly Manual is enabled.", (UINT16)VirtualKey::Numpad1, NoBind, (UINT16)INPUT_FRONTEND_LT, NoBind, "Player", false},
 };
 } // namespace
 
@@ -242,14 +198,18 @@ const std::string& KeybindEntry::Id() const
     return m_id;
 }
 
-const std::string& KeybindEntry::Label() const
+std::string KeybindEntry::Label() const
 {
-    return m_label;
+    const std::string key = "keybinds." + m_id + ".label";
+    const std::string translated = Language::TranslateToSelected(key);
+    return translated == key ? m_label : translated;
 }
 
-const std::string& KeybindEntry::Description() const
+std::string KeybindEntry::Description() const
 {
-    return m_description;
+    const std::string key = "keybinds." + m_id + ".description";
+    const std::string translated = Language::TranslateToSelected(key);
+    return translated == key ? m_description : translated;
 }
 
 const std::string& KeybindEntry::Category() const

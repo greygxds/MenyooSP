@@ -130,8 +130,5 @@ void Sub_Blip_CoordInBlip();
 
 void EntityAlphaLevelSub_();
 
-void PedExplosionSub();
-
-void AttachFunnyObjectSub();
 
 } // namespace sub

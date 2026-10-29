@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "Facilities.h"
+#include "..\..\Menu\Language.h"
 
 #include "..\..\macros.h"
 
@@ -289,7 +290,7 @@ void TeleportPedToFacility(GTAentity ped, FacilityInfoStructure& info)
 
 void Sub_Facilities()
 {
-    AddTitle("Facilities");
+    AddTitle(Language::Translate("teleport.facilities.title"));
 
     for (auto& otherTele : vOtherFacilityRelatedTeleports)
     {
@@ -301,7 +302,7 @@ void Sub_Facilities()
         }
     }
 
-    AddBreak("---Build A Facility---");
+    AddBreak(Language::Translate("teleport.facilities.buildSection"));
 
     for (auto& loc : vLocations)
     {
@@ -355,8 +356,8 @@ void Sub_Facilities_InLoc()
     }
 
     bool bCreateFacilityPressed = false;
-    AddOption("Build Facility", bCreateFacilityPressed);
-    AddOptionDescription("Loads the facility with the options above and teleports you inside.");
+    AddOption(Language::Translate("teleport.facilities.build"), bCreateFacilityPressed);
+    AddOptionDescription(Language::Translate("teleport.facilities.build.description"));
     if (bCreateFacilityPressed)
     {
         DO_SCREEN_FADE_OUT(50);
@@ -375,7 +376,7 @@ void Sub_Facilities_InOption()
         Menu::SetPreviousMenu();
         return;
     }
-    AddTitle(selectedOptionArray->name.empty() ? "Option" : selectedOptionArray->name);
+    AddTitle(selectedOptionArray->name.empty() ? Language::Translate("teleport.option.title") : selectedOptionArray->name);
 
     for (UINT i = 0; i < selectedOptionArray->arr->size(); i++)
     {

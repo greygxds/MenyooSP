@@ -9,6 +9,7 @@
 #include "..\..\Menu\Menu.h"
 #include "..\..\Menu\MenuConfig.h"
 #include "..\..\Menu\Keybinds.h"
+#include "..\..\Menu\Language.h"
 #include "..\..\Misc\FreeCam.h"
 #include "..\..\Natives\natives2.h"
 #include "..\..\Util\keyboard.h"
@@ -142,7 +143,7 @@ static void UpdatePreviewRotationGamepad()
         return;
 
     Menu::add_IB(INPUT_FRONTEND_RB, "");
-    Menu::add_IB(INPUT_FRONTEND_LB, "Rotate Preview");
+    Menu::add_IB(INPUT_FRONTEND_LB, Language::Translate("spooner.camera.rotatePreview"));
 
     bool lbPressed = IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_LB);
     bool rbPressed = IS_DISABLED_CONTROL_PRESSED(2, INPUT_FRONTEND_RB);
@@ -167,7 +168,7 @@ static void AdjustSpeed(int scroll)
 
     MenuConfig::FreeCam::defaultSpeed = newSpeed;
     MenuConfig::RequestSave();
-    Game::Print::ShowNotification(oss_ << "Spooner Camera Speed: " << newSpeed, 1.0f);
+    Game::Print::ShowNotification(Language::Format("spooner.camera.speed.notification", {{"speed", std::to_string(newSpeed)}}), 1.0f);
 }
 
 static void AdjustFov(int scroll)
@@ -180,7 +181,7 @@ static void AdjustFov(int scroll)
     camera.SetFieldOfView(newFov);
     MenuConfig::FreeCam::defaultFov = newFov;
     MenuConfig::RequestSave();
-    Game::Print::ShowNotification(oss_ << "Spooner Camera FOV: " << newFov, 1.0f);
+    Game::Print::ShowNotification(Language::Format("spooner.camera.fov.notification", {{"fov", std::to_string(newFov)}}), 1.0f);
 }
 
 static void HandleScrollAdjustments()
@@ -190,7 +191,7 @@ static void HandleScrollAdjustments()
     // keyboard: rotate the previewed model instead of the camera
     if (!Menu::usingControllerInput && IsModelPreviewVisible())
     {
-        Menu::add_IB(INPUT_CURSOR_SCROLL_UP, "Rotate Preview");
+        Menu::add_IB(INPUT_CURSOR_SCROLL_UP, Language::Translate("spooner.camera.rotatePreview"));
         if (scroll != 0)
             AddPreviewYaw(scroll * Settings::previewRotateStepDegrees);
         return;
@@ -235,11 +236,11 @@ static void HandleShortcuts()
     if (Menu::activeSubmenu != SUB::CLOSED)
         return;
 
-    Menu::add_IB(INPUT_VEH_EXIT, "Open main menu");
+    Menu::add_IB(INPUT_VEH_EXIT, Language::Translate("spooner.camera.openMainMenu"));
     if (IS_DISABLED_CONTROL_JUST_PRESSED(2, INPUT_VEH_EXIT))
         SpoonerMode::OpenMenu(SUB::SPOONER_MAIN, 2);
 
-    Keybinds::AddBindIB("spooner_marker", "Place Marker");
+    Keybinds::AddBindIB("spooner_marker", Language::Translate("spooner.marker.place"));
     if (Keybinds::WasPressedThisFrame("spooner_marker"))
         AddMarkerAtAim();
 }
@@ -253,9 +254,9 @@ static void DrawDistanceWarning(const GTAped& playerPed)
 
     const RGBA warningColour(255, 200, 0, 255);
     Game::Print::SetupDraw(GTAfont::Arial, Vector2(0.35f, 0.35f), true, false, true, warningColour);
-    Game::Print::DrawString(oss_ << "WARNING: Your camera is too far from the player. You might experience texture loss or the environment might look low quality.", 0.5f, 0.72f);
+    Game::Print::DrawString(oss_ << Language::Translate("spooner.camera.warningFar"), 0.5f, 0.72f);
     Game::Print::SetupDraw(GTAfont::Arial, Vector2(0.35f, 0.35f), true, false, true, warningColour);
-    Game::Print::DrawString(oss_ << "This is expected - use the Freecam (available in \"Misc Options > FreeCam Settings\" menu) to move around the map freely.", 0.5f, 0.75f);
+    Game::Print::DrawString(oss_ << Language::Translate("spooner.camera.warningFar.detail"), 0.5f, 0.75f);
 }
 
 void Tick()

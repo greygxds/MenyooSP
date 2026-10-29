@@ -8,10 +8,12 @@
 * (at your option) any later version.
 */
 #include "Menu.h"
+#include "MenuConfig.h"
 
 #include "..\macros.h"
 
 #include "..\Util\GTAmath.h"
+#include "..\Util\SaveFileSorting.h"
 #include "..\Util\keyboard.h"
 #include "..\Natives\natives2.h"
 #include "..\Natives\types.h" // RGBA/RgbS
@@ -27,7 +29,6 @@
 #include "..\Menu\Menu.h"
 #include "..\Menu\Keybinds.h"
 #include "..\Menu\MenuCategory.h"
-#include "..\Submenus\PedAnimation.h"
 
 #include <Windows.h>
 #include <utility>
@@ -525,9 +526,8 @@ void Menu::draw_description()
     Game::Print::drawstring(text, textX, boxTop + padding);
 }
 
-bool Menu::isBinds()
+bool Menu::IsMenuTogglePressed()
 {
-    // Open menu - combination of two buttons, or a single button when no combo is bound.
     const Keybinds::KeybindEntry* entry = Keybinds::FindEntry("menu_open");
     if (entry == nullptr)
         return false;
@@ -576,27 +576,23 @@ void Menu::TickDeferredMenuInit()
     addlog(ige::LogType::LOG_INIT, "Deferred menu init done");
 }
 
-void Menu::while_closed()
+void Menu::HandleClosedMenu()
 {
-    if (isBinds())
+    if (!Menu::IsMenuTogglePressed())
+        return;
+
+    Game::Sound::PlayFrontend("FocusIn", "HintCamSounds");
+    activeSubmenu = lastOpenedSubmenu;
+    suppressMenuToggleUntilRelease = true;
+    addlog(ige::LogType::LOG_TRACE, "Opening Menyoo, restored submenu: " + std::to_string(activeSubmenu));
+    if (activeSubmenu == SUB::MAINMENU)
     {
-        addlog(ige::LogType::LOG_TRACE, "Binds Pressed, opening Menyoo");
-
-        Game::Sound::PlayFrontend("FocusIn", "HintCamSounds");
-
-        activeSubmenu = lastOpenedSubmenu;
-        suppressMenuToggleUntilRelease = true;
-        addlog(ige::LogType::LOG_TRACE, "Setting current submenu to lastOpenedSubmenu: " + std::to_string(lastOpenedSubmenu));
-        if (activeSubmenu == SUB::MAINMENU)
-        {
-            addlog(ige::LogType::LOG_TRACE, "Current is MainMenu");
-            selectedOptionIndex = 1;
-            *activeOptionIndex = 1;
-        }
+        selectedOptionIndex = 1;
+        *activeOptionIndex = 1;
     }
 }
 
-void Menu::while_opened()
+void Menu::HandleOpenMenu()
 {
     totalOptionCount = currentOptionCount;
     currentOptionCount = 0;
@@ -669,23 +665,9 @@ void Menu::while_opened()
             SetPreviousMenu();
     }
 
-    // Binds press
-    if (isBinds()) //&& activeSubmenu != SUB::MAINMENU)
+    if (Menu::IsMenuTogglePressed())
     {
         SetSub_closed();
-    }
-}
-
-bool Menu::isStopAnimBinds()
-{
-    return Keybinds::WasPressedThisFrame("stop_animation");
-}
-
-void Menu::while_stopanim()
-{
-    if (isStopAnimBinds())
-    {
-        sub::AnimationStopAnimationCallback();
     }
 }
 
@@ -969,50 +951,47 @@ void Menu::draw_IB()
     vIB.clear();
 }
 
-void Menu::sub_handler()
+void Menu::CorrectSelectionBounds()
+{
+    if (selectedOptionIndex > currentOptionCount)
+    {
+        selectedOptionIndex = currentOptionCount + 1;
+        Menu::Up(false);
+    }
+    else if (selectedOptionIndex < 1)
+    {
+        selectedOptionIndex = 0;
+        Menu::Down(false);
+    }
+}
+
+void Menu::HandleSubmenu()
 {
     MenuCategory::BeginFrame();
-    static bool firstRun = true, isClosed = true;
+    static bool firstRun = true;
+    static bool wasClosed = true;
     if (firstRun)
     {
-        addlog(ige::LogType::LOG_TRACE, "First Run sub_handler");
-        ;
+        addlog(ige::LogType::LOG_TRACE, "First Run HandleSubmenu");
+        firstRun = false;
     }
-    if (activeSubmenu == SUB::CLOSED)
+
+    const bool isClosed = activeSubmenu == SUB::CLOSED;
+    if (wasClosed != isClosed)
     {
-        if (!isClosed)
-        {
-            addlog(ige::LogType::LOG_TRACE, "Sub Closed");
-            ;
-            isClosed = true;
-        }
-        while_closed();
+        addlog(ige::LogType::LOG_TRACE, isClosed ? "Sub Closed" : "Sub Opened");
+        wasClosed = isClosed;
+    }
+
+    if (isClosed)
+    {
+        Menu::HandleClosedMenu();
     }
     else
     {
-        if (isClosed)
-        {
-            addlog(ige::LogType::LOG_TRACE, "Sub Opened");
-            ;
-            isClosed = false;
-        }
         submenu_switch();
         draw_description();
-
-        if (Menu::selectedOptionIndex > Menu::currentOptionCount)
-        {
-            Menu::selectedOptionIndex = Menu::currentOptionCount + 1;
-            Menu::Up(false);
-        }
-        else if (Menu::selectedOptionIndex < 1)
-        {
-            Menu::selectedOptionIndex = 0;
-            Menu::Down(false);
-        }
-
-        //// These czechs is kill
-        //if (selectedOptionIndex < 1) selectedOptionIndex = 1;
-        //else if (selectedOptionIndex > totalOptionCount) selectedOptionIndex = totalOptionCount;
+        Menu::CorrectSelectionBounds();
 
         if (pendingSubmenu != -1)
         {
@@ -1020,18 +999,8 @@ void Menu::sub_handler()
             pendingSubmenu = -1;
         }
 
-        while_opened();
+        Menu::HandleOpenMenu();
     }
-
-    while_stopanim();
-
-    if (GET_GAME_TIMER() >= nextDeferredActionTime)
-    {
-        nextDeferredActionTime = GET_GAME_TIMER() + 810; // Delay for rainbow related loops
-        if (nextDeferredActionTime > INT_MAX - 1000)
-            nextDeferredActionTime = 0;
-    }
-    firstRun = false;
 }
 
 //--------------------------------MouseSupport---------------------------------------------------
@@ -1655,7 +1624,7 @@ void AddNumber(const std::string& text, double value, __int8 decimal_places, boo
     {
         numberInputActive = true;
         if (&A_PRESS != &null)
-            Menu::add_IB(INPUT_CELLPHONE_SELECT, "Input");
+            Menu::add_IB(INPUT_CELLPHONE_SELECT, Language::Translate("common.input.label"));
 
         if (null)
             A_PRESS = true;
@@ -2021,7 +1990,7 @@ template <typename TA> inline void AddTexter(const std::string& text, int select
     {
         numberInputActive = true;
         if (&A_PRESS != &null)
-            Menu::add_IB(INPUT_CELLPHONE_SELECT, "Input");
+            Menu::add_IB(INPUT_CELLPHONE_SELECT, Language::Translate("common.input.label"));
 
         if (null)
             A_PRESS = true;
@@ -2047,6 +2016,23 @@ int AddTexterCycler(const std::string& label, int currentIdx, const std::vector<
 {
     bool discarded = false;
     return AddTexterCycler(label, currentIdx, opts, discarded);
+}
+
+void AddSaveFileSortOption()
+{
+    const int previousSortMode = MenuConfig::saveFileSortMode;
+    MenuConfig::saveFileSortMode = AddTexterCycler(
+        Language::Translate("menu.files.sortBy"),
+        previousSortMode,
+        {Language::Translate("menu.files.sortBy.name"), Language::Translate("menu.files.sortBy.created"), Language::Translate("menu.files.sortBy.modified")}
+    );
+    if (MenuConfig::saveFileSortMode != previousSortMode)
+        MenuConfig::RequestSave();
+}
+
+void SortSaveFileEntries(std::vector<std::string>& fileNames, const std::string& directoryPath)
+{
+    SaveFileSorting::SortDirectoryEntries(fileNames, directoryPath, static_cast<SaveFileSorting::SortMode>(MenuConfig::saveFileSortMode));
 }
 
 void AddTexter(const std::string& text, int selectedindex, const std::vector<std::string>& textarray, bool& A_PRESS, bool& RIGHT_PRESS, bool& LEFT_PRESS, bool gxt)
@@ -2077,7 +2063,7 @@ void AddKeybindOption(const std::string& label, const std::string& bindText, con
     if (Menu::IsLastDrawnOptionSelected())
     {
         if (&A_PRESS != &null)
-            Menu::add_IB(INPUT_CELLPHONE_SELECT, "Input");
+            Menu::add_IB(INPUT_CELLPHONE_SELECT, Language::Translate("common.input.label"));
         if (null)
             A_PRESS = true;
     }
