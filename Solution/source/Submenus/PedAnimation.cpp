@@ -582,13 +582,7 @@ void AddAnimOption(const std::string& text, const std::string& animDict, std::st
         animName = text;
     }
     bool pressed = false;
-    AddTickol(
-        Language::TranslateStable("animation.preset", animDict + "." + animName, text),
-        IS_ENTITY_PLAYING_ANIM(g_activePedHandle, animDict.c_str(), animName.c_str(), 3),
-        pressed,
-        pressed,
-        TICKOL::MANWON
-    );
+    AddTickol(text, IS_ENTITY_PLAYING_ANIM(g_activePedHandle, animDict.c_str(), animName.c_str(), 3), pressed, pressed, TICKOL::MANWON);
     if (pressed)
     {
         PlayAnimation(g_activePedHandle, animDict, animName);

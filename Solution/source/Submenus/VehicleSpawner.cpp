@@ -11,6 +11,7 @@
 #include "..\Menu\Language.h"
 #include "..\Util\FileLogger.h"
 #include "..\Util\VehiclePrices.h"
+#include "..\Util\XmlDocumentCache.h"
 #include "..\Menu\Keybinds.h"
 
 namespace sub
@@ -1906,17 +1907,25 @@ void SpawnVehicleOptions()
     }
 }
 
-bool SpawnVehicleIsVehicleModelAFavourite(GTAmodel::Model vehModel)
+namespace
 {
-    std::string xmlAddedVehicleModels = "AddedVehicleModels.xml";
-    pugi::xml_document doc;
-    if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlAddedVehicleModels).c_str()).status != pugi::status_ok)
-    {
-        return false;
-    }
-    pugi::xml_node nodeRoot = doc.child("AddedVehicleModels");
-    const std::string& vehModelName = vehModel.VehicleDisplayName(false);
-    return nodeRoot.find_child_by_attribute("modelName", vehModelName.c_str()) || nodeRoot.find_child_by_attribute("modelHash", IntToHexString(vehModel.hash, true).c_str());
+constexpr const char* favouriteVehiclesFileName = "AddedVehicleModels.xml";
+Util::XmlDocumentCache favouriteVehiclesCache;
+
+bool SaveFavouriteVehicles(const pugi::xml_document& document)
+{
+    const bool saved = document.save_file((GetPathffA(Pathff::Main, true) + favouriteVehiclesFileName).c_str());
+    favouriteVehiclesCache.Invalidate();
+    return saved;
+}
+} // namespace
+
+bool SpawnVehicleIsVehicleModelAFavourite(GTAmodel::Model vehicleModel)
+{
+    const auto document = favouriteVehiclesCache.Load(GetPathffA(Pathff::Main, true) + favouriteVehiclesFileName);
+    const pugi::xml_node root = document->child("AddedVehicleModels");
+    const std::string& vehicleModelName = vehicleModel.VehicleDisplayName(false);
+    return root.find_child_by_attribute("modelName", vehicleModelName.c_str()) || root.find_child_by_attribute("modelHash", IntToHexString(vehicleModel.hash, true).c_str());
 }
 
 void SaveVehiclePropsToNode(pugi::xml_node& node, GTAvehicle ev)
@@ -2043,70 +2052,67 @@ void ApplyVehiclePropsFromNode(pugi::xml_node& node, GTAvehicle ev)
     }
 }
 
-bool SpawnVehicleAddVehicleModelToFavourites(GTAmodel::Model vehModel, const std::string& customName)
+bool SpawnVehicleAddVehicleModelToFavourites(GTAmodel::Model vehicleModel, const std::string& customName)
 {
     if (customName.empty())
         return false;
 
-    std::string xmlAddedVehicleModels = "AddedVehicleModels.xml";
-    pugi::xml_document doc;
-    if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlAddedVehicleModels).c_str()).status != pugi::status_ok)
+    pugi::xml_document document;
+    if (document.load_file((GetPathffA(Pathff::Main, true) + favouriteVehiclesFileName).c_str()).status != pugi::status_ok)
     {
-        doc.reset();
-        auto nodeDecleration = doc.append_child(pugi::node_declaration);
-        nodeDecleration.append_attribute("version") = "1.0";
-        nodeDecleration.append_attribute("encoding") = "ISO-8859-1";
-        auto nodeRoot = doc.append_child("AddedVehicleModels");
-        doc.save_file((const char*)(GetPathffA(Pathff::Main, true) + xmlAddedVehicleModels).c_str());
+        document.reset();
+        auto declaration = document.append_child(pugi::node_declaration);
+        declaration.append_attribute("version") = "1.0";
+        declaration.append_attribute("encoding") = "ISO-8859-1";
+        document.append_child("AddedVehicleModels");
     }
-    pugi::xml_node nodeRoot = doc.child("AddedVehicleModels");
+    pugi::xml_node root = document.child("AddedVehicleModels");
 
-    const std::string& vehModelName = vehModel.VehicleDisplayName(false);
-    auto nodeOldLoc = nodeRoot.find_child_by_attribute("modelHash", IntToHexString(vehModel.hash, true).c_str());
-    if (!nodeOldLoc)
-        nodeOldLoc = nodeRoot.find_child_by_attribute("modelName", vehModelName.c_str());
-    if (nodeOldLoc)
-        nodeOldLoc.parent().remove_child(nodeOldLoc);
+    const std::string& vehicleModelName = vehicleModel.VehicleDisplayName(false);
+    auto existingVehicle = root.find_child_by_attribute("modelHash", IntToHexString(vehicleModel.hash, true).c_str());
+    if (!existingVehicle)
+        existingVehicle = root.find_child_by_attribute("modelName", vehicleModelName.c_str());
+    if (existingVehicle)
+        existingVehicle.parent().remove_child(existingVehicle);
 
-    auto nodeNewLoc = nodeRoot.append_child("VehModel");
-    nodeNewLoc.append_attribute("modelName") = vehModelName.c_str();
-    nodeNewLoc.append_attribute("modelHash") = IntToHexString(vehModel.hash, true).c_str();
-    nodeNewLoc.append_attribute("customName") = customName.c_str();
+    auto vehicleNode = root.append_child("VehModel");
+    vehicleNode.append_attribute("modelName") = vehicleModelName.c_str();
+    vehicleNode.append_attribute("modelHash") = IntToHexString(vehicleModel.hash, true).c_str();
+    vehicleNode.append_attribute("customName") = customName.c_str();
 
-    GTAped myPed = PLAYER_PED_ID();
-    if (myPed.IsInVehicle())
+    GTAped playerPed = PLAYER_PED_ID();
+    if (playerPed.IsInVehicle())
     {
-        GTAvehicle myVeh = myPed.CurrentVehicle();
-        if (myVeh.Model().hash == vehModel.hash)
+        GTAvehicle playerVehicle = playerPed.CurrentVehicle();
+        if (playerVehicle.Model().hash == vehicleModel.hash)
         {
-            SaveVehiclePropsToNode(nodeNewLoc, myVeh);
+            SaveVehiclePropsToNode(vehicleNode, playerVehicle);
         }
     }
 
-    return (doc.save_file((const char*)(GetPathffA(Pathff::Main, true) + xmlAddedVehicleModels).c_str()));
+    return SaveFavouriteVehicles(document);
 }
 
-bool SpawnVehicleRemoveVehicleModelFromFavourites(GTAmodel::Model vehModel)
+bool SpawnVehicleRemoveVehicleModelFromFavourites(GTAmodel::Model vehicleModel)
 {
-    std::string xmlAddedVehicleModels = "AddedVehicleModels.xml";
-    pugi::xml_document doc;
-    if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlAddedVehicleModels).c_str()).status != pugi::status_ok)
+    pugi::xml_document document;
+    if (document.load_file((GetPathffA(Pathff::Main, true) + favouriteVehiclesFileName).c_str()).status != pugi::status_ok)
     {
         return false;
     }
-    pugi::xml_node nodeRoot = doc.child("AddedVehicleModels");
+    pugi::xml_node root = document.child("AddedVehicleModels");
 
-    const std::string& vehModelName = vehModel.VehicleDisplayName(false);
-    auto nodeOldLoc = nodeRoot.find_child_by_attribute("modelHash", IntToHexString(vehModel.hash, true).c_str());
-    if (!nodeOldLoc) // If null
+    const std::string& vehicleModelName = vehicleModel.VehicleDisplayName(false);
+    auto existingVehicle = root.find_child_by_attribute("modelHash", IntToHexString(vehicleModel.hash, true).c_str());
+    if (!existingVehicle)
     {
-        nodeOldLoc = nodeRoot.find_child_by_attribute("modelName", vehModelName.c_str());
+        existingVehicle = root.find_child_by_attribute("modelName", vehicleModelName.c_str());
     }
-    if (nodeOldLoc) // If not null
+    if (existingVehicle)
     {
-        nodeOldLoc.parent().remove_child(nodeOldLoc);
+        existingVehicle.parent().remove_child(existingVehicle);
     }
-    return (doc.save_file((const char*)(GetPathffA(Pathff::Main, true) + xmlAddedVehicleModels).c_str()));
+    return SaveFavouriteVehicles(document);
 }
 
 void SpawnVehicleAllCategoriesMenu()
@@ -2258,42 +2264,31 @@ void SpawnVehicleAllCategoriesMenu()
 
 void SpawnVehicleFavouritesMenu()
 {
-    auto& searchStr = dict2;
+    auto& searchText = dict2;
     using namespace VehicleSpawner;
 
-    GTAped myPed = g_activePedHandle;
-    GTAvehicle myVehicle = myPed.CurrentVehicle();
-    bool isInVehicle = myVehicle.Exists();
+    GTAped activePed = g_activePedHandle;
+    GTAvehicle activeVehicle = activePed.CurrentVehicle();
+    bool isInVehicle = activeVehicle.Exists();
 
     AddTitle(Language::Translate("vehicleSpawner.favourites.title"));
 
-    std::string xmlAddedVehicleModels = "AddedVehicleModels.xml";
-    pugi::xml_document doc;
-    if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlAddedVehicleModels).c_str()).status != pugi::status_ok)
-    {
-        doc.reset();
-        auto nodeDecleration = doc.append_child(pugi::node_declaration);
-        nodeDecleration.append_attribute("version") = "1.0";
-        nodeDecleration.append_attribute("encoding") = "ISO-8859-1";
-        auto nodeRoot = doc.append_child("AddedVehicleModels");
-        doc.save_file((const char*)(GetPathffA(Pathff::Main, true) + xmlAddedVehicleModels).c_str());
-        return;
-    }
-    pugi::xml_node nodeRoot = doc.child("AddedVehicleModels");
+    const auto document = favouriteVehiclesCache.Load(GetPathffA(Pathff::Main, true) + favouriteVehiclesFileName);
+    const pugi::xml_node root = document->child("AddedVehicleModels");
 
-    bool bInputAdd = false;
-    AddOption(Language::Translate("vehicleSpawner.favourites.addModel"), bInputAdd);
-    if (bInputAdd)
+    bool addModelPressed = false;
+    AddOption(Language::Translate("vehicleSpawner.favourites.addModel"), addModelPressed);
+    if (addModelPressed)
     {
-        std::string inputStrModel = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.favourites.modelPrompt").c_str());
-        if (inputStrModel.length() > 0)
+        std::string modelNameInput = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.favourites.modelPrompt").c_str());
+        if (modelNameInput.length() > 0)
         {
             WAIT(500);
-            Model ism = GET_HASH_KEY(inputStrModel);
-            if (ism.IsInCdImage())
+            Model inputModel = GET_HASH_KEY(modelNameInput);
+            if (inputModel.IsInCdImage())
             {
-                std::string inputStrName = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.input.customName").c_str(), ism.VehicleDisplayName(true));
-                if (SpawnVehicleAddVehicleModelToFavourites(ism, inputStrName))
+                std::string customNameInput = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.input.customName").c_str(), inputModel.VehicleDisplayName(true));
+                if (SpawnVehicleAddVehicleModelToFavourites(inputModel, customNameInput))
                 {
                     Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.modelAdded"));
                 }
@@ -2305,22 +2300,22 @@ void SpawnVehicleFavouritesMenu()
         }
         else
         {
-            Game::Print::PrintErrorInvalidModel(inputStrModel);
+            Game::Print::PrintErrorInvalidModel(modelNameInput);
         }
     }
 
     if (isInVehicle)
     {
-        const Model& myVehicleModel = myVehicle.Model();
-        bool bIsCurrentModelAFav = SpawnVehicleIsVehicleModelAFavourite(myVehicleModel);
-        bool bAddCurrentModelToFav = false, bRemoveCurrentModelFromFav = false;
-        AddTickol(Language::Translate("vehicleSpawner.favourites.currentModel"), bIsCurrentModelAFav, bAddCurrentModelToFav, bRemoveCurrentModelFromFav, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-        if (bAddCurrentModelToFav)
+        const Model& currentVehicleModel = activeVehicle.Model();
+        bool isCurrentModelAFavourite = SpawnVehicleIsVehicleModelAFavourite(currentVehicleModel);
+        bool addCurrentModelPressed = false, removeCurrentModelPressed = false;
+        AddTickol(Language::Translate("vehicleSpawner.favourites.currentModel"), isCurrentModelAFavourite, addCurrentModelPressed, removeCurrentModelPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        if (addCurrentModelPressed)
         {
-            std::string inputStrName = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.input.customName").c_str(), myVehicleModel.VehicleDisplayName(true));
-            if (inputStrName.length() > 0)
+            std::string customNameInput = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.input.customName").c_str(), currentVehicleModel.VehicleDisplayName(true));
+            if (customNameInput.length() > 0)
             {
-                if (SpawnVehicleAddVehicleModelToFavourites(myVehicleModel, inputStrName))
+                if (SpawnVehicleAddVehicleModelToFavourites(currentVehicleModel, customNameInput))
                 {
                     Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.modelAdded"));
                 }
@@ -2331,12 +2326,12 @@ void SpawnVehicleFavouritesMenu()
             }
             else
             {
-                Game::Print::PrintErrorInvalidInput(inputStrName);
+                Game::Print::PrintErrorInvalidInput(customNameInput);
             }
         }
-        else if (bRemoveCurrentModelFromFav)
+        else if (removeCurrentModelPressed)
         {
-            if (SpawnVehicleRemoveVehicleModelFromFavourites(myVehicleModel))
+            if (SpawnVehicleRemoveVehicleModelFromFavourites(currentVehicleModel))
             {
                 Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.modelRemoved"));
             }
@@ -2347,40 +2342,40 @@ void SpawnVehicleFavouritesMenu()
         }
     }
 
-    if (nodeRoot.first_child())
+    if (root.first_child())
     {
         AddBreak(Language::Translate("vehicleSpawner.favourites.addedModels"));
 
-        bool bSearchPressed = false;
-        AddOption(searchStr.empty() ? Language::Translate("vehicleSpawner.search.button") : searchStr, bSearchPressed, nullFunc, -1, true);
-        if (bSearchPressed)
+        bool searchPressed = false;
+        AddOption(searchText.empty() ? Language::Translate("vehicleSpawner.search.button") : searchText, searchPressed, nullFunc, -1, true);
+        if (searchPressed)
         {
-            searchStr = Game::InputBox(searchStr, 126U, Language::Translate("menu.search").c_str(), boost::to_lower_copy(searchStr));
-            boost::to_upper(searchStr);
+            searchText = Game::InputBox(searchText, 126U, Language::Translate("menu.search").c_str(), boost::to_lower_copy(searchText));
+            boost::to_upper(searchText);
         }
 
-        for (auto nodeLocToLoad = nodeRoot.first_child(); nodeLocToLoad; nodeLocToLoad = nodeLocToLoad.next_sibling())
+        for (auto vehicleNode = root.first_child(); vehicleNode; vehicleNode = vehicleNode.next_sibling())
         {
-            std::string vehModelName = nodeLocToLoad.attribute("modelName").as_string();
-            Model vehModel = nodeLocToLoad.attribute("modelHash").as_uint(0);
-            std::string vehCustomName = nodeLocToLoad.attribute("customName").as_string();
+            std::string vehicleModelName = vehicleNode.attribute("modelName").as_string();
+            Model vehicleModel = vehicleNode.attribute("modelHash").as_uint(0);
+            std::string customName = vehicleNode.attribute("customName").as_string();
 
-            if (!searchStr.empty())
+            if (!searchText.empty())
             {
-                if (boost::to_upper_copy(vehModelName).find(searchStr) == std::string::npos)
+                if (boost::to_upper_copy(vehicleModelName).find(searchText) == std::string::npos)
                     continue;
             }
 
-            if (vehModel.hash == 0)
+            if (vehicleModel.hash == 0)
             {
-                vehModel = GET_HASH_KEY(vehModelName);
+                vehicleModel = GET_HASH_KEY(vehicleModelName);
             }
 
-            std::string vehDisplayName = vehCustomName.length() ? vehCustomName : vehModel.VehicleDisplayName(true);
+            std::string displayName = customName.length() ? customName : vehicleModel.VehicleDisplayName(true);
 
-            if (!vehModel.IsInCdImage())
+            if (!vehicleModel.IsInCdImage())
             {
-                AddOption(vehDisplayName + " (Invalid)", null);
+                AddOption(displayName + " (Invalid)", null);
             }
             else
             {
@@ -2389,21 +2384,21 @@ void SpawnVehicleFavouritesMenu()
                 switch (Menu::submenuHistory[Menu::menuHistoryIndex])
                 {
                 case SUB::SPOONER_SPAWN_VEHICLE:
-                    sub::Spooner::MenuOptions::AddOption_AddVehicle(vehDisplayName, vehModel);
+                    sub::Spooner::MenuOptions::AddOption_AddVehicle(displayName, vehicleModel);
                     break;
                 case SUB::SPAWNVEHICLE:
                 {
-                    bool bFavPressed = false;
-                    AddOption(vehDisplayName, bFavPressed);
-                    if (bFavPressed)
+                    bool spawnPressed = false;
+                    AddOption(displayName, spawnPressed);
+                    if (spawnPressed)
                     {
-                        Vehicle vehicle = SpawnVehicle(vehModel, g_activePedHandle, g_spawnVehicleDeleteOld, g_spawnVehicleAutoSit);
+                        Vehicle vehicle = SpawnVehicle(vehicleModel, g_activePedHandle, g_spawnVehicleDeleteOld, g_spawnVehicleAutoSit);
                         if (vehicle != 0)
                         {
-                            GTAvehicle gv(vehicle);
-                            gv.RequestControl(300);
-                            if (nodeLocToLoad.child("VehicleProperties"))
-                                ApplyVehiclePropsFromNode(nodeLocToLoad, gv);
+                            GTAvehicle spawnedVehicle(vehicle);
+                            spawnedVehicle.RequestControl(300);
+                            if (vehicleNode.child("VehicleProperties"))
+                                ApplyVehiclePropsFromNode(vehicleNode, spawnedVehicle);
                             else
                                 SetVehicleMaxUpgrades(
                                     vehicle,
@@ -2430,12 +2425,12 @@ void SpawnVehicleFavouritesMenu()
                 {
                 case SUB::MSENGINESOUND:
                     Vehicle engineSoundVehicleTarget = GetVehicleModShopTarget();
-                    AddTickol(vehDisplayName, GetVehicleEngineSoundName(engineSoundVehicleTarget) == vehModel.VehicleDisplayName(false), setEngineSoundPressed, setEngineSoundPressed);
+                    AddTickol(displayName, GetVehicleEngineSoundName(engineSoundVehicleTarget) == vehicleModel.VehicleDisplayName(false), setEngineSoundPressed, setEngineSoundPressed);
                     if (setEngineSoundPressed)
                     {
-                        GTAvehicle veh12 = engineSoundVehicleTarget;
-                        veh12.RequestControl(200);
-                        SetVehicleEngineSoundName(veh12, vehModel.VehicleDisplayName(false));
+                        GTAvehicle engineSoundVehicle = engineSoundVehicleTarget;
+                        engineSoundVehicle.RequestControl(200);
+                        SetVehicleEngineSoundName(engineSoundVehicle, vehicleModel.VehicleDisplayName(false));
                     }
                     break;
                 }
@@ -2445,18 +2440,18 @@ void SpawnVehicleFavouritesMenu()
             {
                 if (g_spawnVehicleDrawBMPs)
                 {
-                    DrawVehicleBmp(vehModel);
-                    DrawVehicleStats(vehModel);
+                    DrawVehicleBmp(vehicleModel);
+                    DrawVehicleStats(vehicleModel);
                 }
 
-                DrawVehicleModelName(vehModel);
+                DrawVehicleModelName(vehicleModel);
 
                 Keybinds::AddBindIB("menu_action", Language::Translate("menu.remove"));
 
                 if (Keybinds::WasPressedThisFrame("menu_action"))
                 {
-                    nodeLocToLoad.parent().remove_child(nodeLocToLoad);
-                    doc.save_file((const char*)(GetPathffA(Pathff::Main, true) + xmlAddedVehicleModels).c_str());
+                    vehicleNode.parent().remove_child(vehicleNode);
+                    SaveFavouriteVehicles(*document);
                     if (Menu::IsSelectionAtBottom())
                     {
                         Menu::Up();

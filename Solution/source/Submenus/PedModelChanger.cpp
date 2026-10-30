@@ -21,6 +21,7 @@
 #include "..\Util\ExePath.h"
 #include "..\Util\FileLogger.h"
 #include "..\Util\StringManip.h"
+#include "..\Util\XmlDocumentCache.h"
 #include "..\Util\keyboard.h"
 #include "..\Scripting\Game.h"
 #include "..\Scripting\ModelNames.h"
@@ -47,6 +48,18 @@ namespace PedFavourites
 std::string xmlFavouritePeds = "FavouritePeds.xml";
 std::string searchStr = std::string();
 
+namespace
+{
+Util::XmlDocumentCache favouritePedsCache;
+
+bool SaveFavouritePeds(const pugi::xml_document& document)
+{
+    const bool saved = document.save_file((GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str());
+    favouritePedsCache.Invalidate();
+    return saved;
+}
+} // namespace
+
 void ClearSearchStr()
 {
     searchStr.clear();
@@ -54,12 +67,8 @@ void ClearSearchStr()
 
 bool IsPedAFavourite(GTAmodel::Model model)
 {
-    pugi::xml_document doc;
-    if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str()).status != pugi::status_ok)
-    {
-        return false;
-    }
-    pugi::xml_node nodeRoot = doc.document_element();
+    const auto document = favouritePedsCache.Load(GetPathffA(Pathff::Main, true) + xmlFavouritePeds);
+    const pugi::xml_node nodeRoot = document->document_element();
     return nodeRoot.find_child_by_attribute("hash", IntToHexString(model.hash, true).c_str()) != NULL;
 }
 
@@ -69,42 +78,41 @@ bool AddPedToFavourites(GTAmodel::Model model, const std::string& customName)
     {
         return false;
     }
-    pugi::xml_document doc;
-    if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str()).status != pugi::status_ok)
+    pugi::xml_document document;
+    if (document.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str()).status != pugi::status_ok)
     {
-        doc.reset();
-        auto nodeDecleration = doc.append_child(pugi::node_declaration);
-        nodeDecleration.append_attribute("version") = "1.0";
-        nodeDecleration.append_attribute("encoding") = "ISO-8859-1";
-        auto nodeRoot = doc.append_child("FavouriteWeapons");
-        doc.save_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str());
+        document.reset();
+        auto declaration = document.append_child(pugi::node_declaration);
+        declaration.append_attribute("version") = "1.0";
+        declaration.append_attribute("encoding") = "ISO-8859-1";
+        document.append_child("FavouritePeds");
     }
-    pugi::xml_node nodeRoot = doc.document_element();
-    auto nodeOldLoc = nodeRoot.find_child_by_attribute("hash", IntToHexString(model.hash, true).c_str());
-    if (nodeOldLoc) // If not null
+    pugi::xml_node root = document.document_element();
+    auto existingPed = root.find_child_by_attribute("hash", IntToHexString(model.hash, true).c_str());
+    if (existingPed)
     {
-        nodeOldLoc.parent().remove_child(nodeOldLoc);
+        existingPed.parent().remove_child(existingPed);
     }
-    auto nodeNewLoc = nodeRoot.append_child("Ped");
-    nodeNewLoc.append_attribute("hash") = IntToHexString(model.hash, true).c_str();
-    nodeNewLoc.append_attribute("customName") = customName.c_str();
-    return (doc.save_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str()));
+    auto pedNode = root.append_child("Ped");
+    pedNode.append_attribute("hash") = IntToHexString(model.hash, true).c_str();
+    pedNode.append_attribute("customName") = customName.c_str();
+    return SaveFavouritePeds(document);
 }
 
 bool RemovePedFromFavourites(GTAmodel::Model model)
 {
-    pugi::xml_document doc;
-    if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str()).status != pugi::status_ok)
+    pugi::xml_document document;
+    if (document.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str()).status != pugi::status_ok)
     {
         return false;
     }
-    pugi::xml_node nodeRoot = doc.document_element();
-    auto nodeOldLoc = nodeRoot.find_child_by_attribute("hash", IntToHexString(model.hash, true).c_str());
-    if (nodeOldLoc) // If not null
+    pugi::xml_node root = document.document_element();
+    auto existingPed = root.find_child_by_attribute("hash", IntToHexString(model.hash, true).c_str());
+    if (existingPed)
     {
-        nodeOldLoc.parent().remove_child(nodeOldLoc);
+        existingPed.parent().remove_child(existingPed);
     }
-    return (doc.save_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str()));
+    return SaveFavouritePeds(document);
 }
 
 void ShowInstructionalButton(GTAmodel::Model model)
@@ -122,34 +130,24 @@ void PedFavouritesMenu()
     Menu::OnSubBack = ClearSearchStr;
     AddTitle(Language::Translate("pedModel.favourites.title"));
 
-    pugi::xml_document doc;
-    if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str()).status != pugi::status_ok)
-    {
-        doc.reset();
-        auto nodeDeclaration = doc.append_child(pugi::node_declaration);
-        nodeDeclaration.append_attribute("version") = "1.0";
-        nodeDeclaration.append_attribute("encoding") = "ISO-8859-1";
-        auto nodeRoot = doc.append_child("FavouritePeds");
-        doc.save_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouritePeds).c_str());
-        return;
-    }
-    pugi::xml_node nodeRoot = doc.document_element();
+    const auto document = favouritePedsCache.Load(GetPathffA(Pathff::Main, true) + xmlFavouritePeds);
+    const pugi::xml_node root = document->document_element();
 
     bool inputAdd = false;
     AddOption(Language::Translate("pedModel.favourites.addNew"), inputAdd);
     if (inputAdd)
     {
-        std::string hashNameStr = Game::InputBox("", 40U, Language::Translate("pedModel.input.modelName").c_str());
-        if (hashNameStr.length())
+        std::string modelName = Game::InputBox("", 40U, Language::Translate("pedModel.input.modelName").c_str());
+        if (modelName.length())
         {
-            Model hashNameHash = GET_HASH_KEY(hashNameStr);
-            if (hashNameHash.IsInCdImage())
+            Model model = GET_HASH_KEY(modelName);
+            if (model.IsInCdImage())
             {
                 WAIT(500);
-                std::string customNameStr = Game::InputBox("", 28U, Language::Translate("pedModel.input.customName").c_str(), GetPedModelLabel(hashNameHash, true));
-                if (customNameStr.length())
+                std::string customName = Game::InputBox("", 28U, Language::Translate("pedModel.input.customName").c_str(), GetPedModelLabel(model, true));
+                if (customName.length())
                 {
-                    if (AddPedToFavourites(hashNameHash, customNameStr))
+                    if (AddPedToFavourites(model, customName))
                     {
                         Game::Print::PrintBottomLeft(Language::Translate("pedModel.notifications.added"));
                     }
@@ -160,36 +158,36 @@ void PedFavouritesMenu()
                 }
                 else
                 {
-                    Game::Print::PrintErrorInvalidInput(customNameStr);
+                    Game::Print::PrintErrorInvalidInput(customName);
                 }
             }
             else
             {
-                Game::Print::PrintErrorInvalidModel(hashNameStr);
+                Game::Print::PrintErrorInvalidModel(modelName);
             }
         }
         else
         {
-            Game::Print::PrintErrorInvalidInput(hashNameStr);
+            Game::Print::PrintErrorInvalidInput(modelName);
         }
     }
 
-    if (nodeRoot.first_child())
+    if (root.first_child())
     {
         AddBreak(Language::Translate("pedModel.favourites.addedBreak"));
 
-        bool bSearchPressed = false;
-        AddOption(searchStr.empty() ? Language::Translate("pedModel.search.button") : searchStr, bSearchPressed, nullFunc, -1, true);
-        if (bSearchPressed)
+        bool searchPressed = false;
+        AddOption(searchStr.empty() ? Language::Translate("pedModel.search.button") : searchStr, searchPressed, nullFunc, -1, true);
+        if (searchPressed)
         {
             searchStr = Game::InputBox(searchStr, 126U, Language::Translate("pedModel.search.prompt").c_str(), boost::to_lower_copy(searchStr));
             boost::to_upper(searchStr);
         }
 
-        for (auto nodeLocToLoad = nodeRoot.first_child(); nodeLocToLoad; nodeLocToLoad = nodeLocToLoad.next_sibling())
+        for (auto pedNode = root.first_child(); pedNode; pedNode = pedNode.next_sibling())
         {
-            const std::string& customName = nodeLocToLoad.attribute("customName").as_string();
-            Model model = nodeLocToLoad.attribute("hash").as_uint();
+            const std::string& customName = pedNode.attribute("customName").as_string();
+            Model model = pedNode.attribute("hash").as_uint();
 
             if (!searchStr.empty())
             {
