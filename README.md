@@ -61,7 +61,7 @@ msbuild /m /p:Configuration=Release /p:Platform=x64 Solution\Menyoo.sln
 
 Output:
 - Release: `Solution/source/_Build/bin/Release/Menyoo.asi`
-- Debug:   `Solution/source/bin/Debug/Menyoo.asi`
+- Debug:   `Solution/source/_Build/bin/Debug/Menyoo.asi`
 
 ### Runtime requirement
 Menyoo links the dynamic Visual C++ runtime (`/MD`). Targets must have the **Microsoft Visual C++ Redistributable (x64)** installed — Steam-installed GTA V already ships it, so end users normally don't need to install anything extra.

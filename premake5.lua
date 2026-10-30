@@ -11,8 +11,8 @@ project "Menyoo"
     characterset "Unicode"
     targetextension ".asi"
 
-    targetdir "Solution/source/%{cfg.buildcfg == 'Release' and '_Build/bin/Release' or 'bin/Debug'}"
-    objdir    "Solution/source/%{cfg.buildcfg == 'Release' and '_Build/tmp/Release' or 'tmp/Debug'}"
+    targetdir "Solution/source/_Build/bin/%{cfg.buildcfg}"
+    objdir    "Solution/source/_Build/tmp/%{cfg.buildcfg}"
 
     files {
         "Solution/source/**.h",
