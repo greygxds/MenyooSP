@@ -78,10 +78,10 @@ standard `MenyooSP.zip` archive so the latest-release download link remains
 stable.
 
 Build numbers are assigned by the GitHub Actions build workflow from its run
-number. Every build, including `Development` branch and pull request builds,
-receives a number and uploads a 14-day Actions artifact. A successful push to
-`main` additionally creates a tag and GitHub release. Number gaps are expected
-when a workflow run fails or is cancelled.
+number. Pushes and pull requests targeting `main`, along with manual workflow
+runs, receive a number and upload a 14-day Actions artifact. Manually running
+the workflow on `main` also creates a tag and GitHub release. Number gaps are
+expected when a workflow run fails or is cancelled.
 
 The application also records the short Git commit SHA so every build can be
 traced back to its exact source revision. Local builds are shown as

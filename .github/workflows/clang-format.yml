@@ -3,10 +3,10 @@ name: clang-format
 on:
   pull_request:
     branches:
-      - Development
+      - main
   push:
     branches:
-      - Development
+      - main
 
 permissions:
   contents: read
