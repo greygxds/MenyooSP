@@ -74,7 +74,7 @@ project "Menyoo"
 
     filter "configurations:Release"
         runtime "Release"
-        symbols "On"
+        symbols "Off"
         optimize "Speed"
         defines { "NDEBUG" }
         multiprocessorcompile "On"
@@ -85,5 +85,4 @@ project "Menyoo"
             "/OPT:REF",
             "/OPT:ICF",
             "/INCREMENTAL:NO",
-            "/MAP",
         }
