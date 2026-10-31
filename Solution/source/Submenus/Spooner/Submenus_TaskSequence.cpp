@@ -37,6 +37,7 @@
 
 #include "STSTask.h"
 #include "STSTasks.h"
+#include "..\PedAnimation.h"
 #include "SpoonerEntity.h"
 #include "SpoonerMode.h"
 #include "SpoonerSettings.h"
@@ -876,32 +877,26 @@ void PlayAnimation_settings()
     AddNumberStepper(Language::Translate("spooner.task.animation.blendOutSpeed"), tskPtr->speedMultiplier, 1, 0.1);
     AddOptionDescription(Language::Translate("spooner.task.animation.blendOutSpeed.description"));
 
-    const int numPresets = static_cast<int>(std::size(AnimFlag::kFlagPresets));
-    int currentPresetIdx = numPresets;
-    for (int i = 0; i < numPresets; i++)
-    {
-        if (AnimFlag::kFlagPresets[i].value == tskPtr->flag)
-        {
-            currentPresetIdx = i;
-            break;
-        }
-    }
+    AddOption(Language::Translate("animation.flagOptions"), null, nullFunc, SUB::SPOONER_TASKSEQUENCE_TASKSUB_PLAYANIMATION_FLAGS);
 
-    std::vector<std::string> presetLabels;
-    presetLabels.reserve(numPresets + 1);
-    for (int i = 0; i < numPresets; i++)
-        presetLabels.push_back(Language::TranslateStable("animation.flagPreset", AnimFlag::kFlagPresets[i].name, AnimFlag::kFlagPresets[i].name));
-    presetLabels.push_back(Language::Translate("spooner.task.custom"));
-
-    int newPresetIdx = AddTexterCycler(Language::Translate("spooner.task.animation.flagPreset"), currentPresetIdx, presetLabels);
-    AddOptionDescription(Language::Translate("spooner.task.animation.flagPreset.description"));
-    if (newPresetIdx != currentPresetIdx && newPresetIdx < numPresets)
-        tskPtr->flag = AnimFlag::kFlagPresets[newPresetIdx].value;
     bool bToggleLockPos = false;
     AddTickol(Language::Translate("spooner.task.animation.lockPosition"), tskPtr->lockPos, bToggleLockPos, bToggleLockPos, TICKOL::BOXTICK, TICKOL::BOXBLANK);
     AddOptionDescription(Language::Translate("spooner.task.animation.lockPosition.description"));
     if (bToggleLockPos)
         tskPtr->lockPos = !tskPtr->lockPos;
+}
+
+void PlayAnimation_flags()
+{
+    if (_selectedSTST == nullptr || _selectedSTST->type != STSTaskType::PlayAnimation)
+    {
+        Menu::SetPreviousMenu();
+        return;
+    }
+
+    auto task = _selectedSTST->GetTypeTask<STSTasks::PlayAnimation>();
+    AddTitle(Language::Translate("animation.flags.title"));
+    sub::DrawAnimationFlagsMenu(task->flag);
 }
 
 void PlayAnimation_allPedAnims()
@@ -2497,6 +2492,7 @@ REGISTER_SUBMENU(SPOONER_TASKSEQUENCE_ADDTASK, sub::Spooner::Submenus::Sub_TaskS
 REGISTER_SUBMENU(SPOONER_TASKSEQUENCE_INTASK, sub::Spooner::Submenus::Sub_TaskSequence_InTask)
 REGISTER_SUBMENU(SPOONER_TASKSEQUENCE_TASKSUB_SCENARIOACTION_LIST, sub::Spooner::Submenus::Sub_TaskSequence::ScenarioAction_list)
 REGISTER_SUBMENU(SPOONER_TASKSEQUENCE_TASKSUB_PLAYANIMATION_SETTINGS, sub::Spooner::Submenus::Sub_TaskSequence::PlayAnimation_settings)
+REGISTER_SUBMENU(SPOONER_TASKSEQUENCE_TASKSUB_PLAYANIMATION_FLAGS, sub::Spooner::Submenus::Sub_TaskSequence::PlayAnimation_flags)
 REGISTER_SUBMENU(SPOONER_TASKSEQUENCE_TASKSUB_PLAYANIMATION_ALLPEDANIMS, sub::Spooner::Submenus::Sub_TaskSequence::PlayAnimation_allPedAnims)
 REGISTER_SUBMENU(SPOONER_TASKSEQUENCE_TASKSUB_PLAYANIMATION_ALLPEDANIMS_INDICT, sub::Spooner::Submenus::Sub_TaskSequence::PlayAnimation_allPedAnims_inDict)
 REGISTER_SUBMENU(SPOONER_TASKSEQUENCE_TASKSUB_PLAYSPEECHWITHVOICE_INVOICE, sub::Spooner::Submenus::Sub_TaskSequence::PlaySpeechWithVoice_inVoice)

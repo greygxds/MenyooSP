@@ -49,6 +49,7 @@ void ScenarioAction();
 void ScenarioAction_list();
 void PlayAnimation();
 void PlayAnimation_settings();
+void PlayAnimation_flags();
 void PlayAnimation_allPedAnims();
 void PlayAnimation_allPedAnims_inDict();
 void SetActiveWeapon();

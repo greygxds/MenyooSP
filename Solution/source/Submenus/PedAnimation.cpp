@@ -222,7 +222,17 @@ void PlayAnimation(GTAentity entity, const std::string& animDict, const std::str
     }
     else
     {
-        PLAY_ENTITY_ANIM(entity.Handle(), animName.c_str(), animDict.c_str(), 8.0f, static_cast<BOOL>(g_customAnimSettings.flag & 1), static_cast<BOOL>(g_customAnimSettings.flag & 2), 0, 0.0f, 0);
+        PLAY_ENTITY_ANIM(
+            entity.Handle(),
+            animName.c_str(),
+            animDict.c_str(),
+            8.0f,
+            static_cast<BOOL>(g_customAnimSettings.flag & AnimFlag::Loop),
+            static_cast<BOOL>(g_customAnimSettings.flag & AnimFlag::StayInLastFrame),
+            0,
+            0.0f,
+            g_customAnimSettings.flag
+        );
     }
 
     if (ctx.dbIndex >= 0)
@@ -770,16 +780,14 @@ void AnimationSub_Settings()
         g_customAnimSettings.lockPos = !g_customAnimSettings.lockPos;
 }
 
-void AnimationSub_Flags()
+void DrawAnimationFlagsMenu(int& animationFlags)
 {
-    AddTitle(Language::Translate("animation.flags.title"));
-
     // Find current preset index (or "Custom")
     const int numPresets = static_cast<int>(std::size(AnimFlag::kFlagPresets));
     int currentPresetIdx = numPresets; // default to "Custom"
     for (int i = 0; i < numPresets; i++)
     {
-        if (AnimFlag::kFlagPresets[i].value == g_customAnimSettings.flag)
+        if (AnimFlag::kFlagPresets[i].value == animationFlags)
         {
             currentPresetIdx = i;
             break;
@@ -795,20 +803,26 @@ void AnimationSub_Flags()
     int newPresetIdx = AddTexterCycler(Language::Translate("animation.flags.preset"), currentPresetIdx, presetLabels);
     AddOptionDescription(Language::Translate("animation.flags.preset.description"));
     if (newPresetIdx != currentPresetIdx && newPresetIdx < numPresets)
-        g_customAnimSettings.flag = AnimFlag::kFlagPresets[newPresetIdx].value;
+        animationFlags = AnimFlag::kFlagPresets[newPresetIdx].value;
 
     AddBreak(Language::Translate("animation.flags.break"));
 
     // Individual flag checkboxes
     for (auto& f : AnimFlag::kAnimFlags)
     {
-        bool isSet = (g_customAnimSettings.flag & f.value) != 0;
+        bool isSet = (animationFlags & f.value) != 0;
         bool pressed = false;
         AddTickol(Language::TranslateStable("animation.flag", f.name, f.name), isSet, pressed, pressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
         AddOptionDescription(Language::TranslateStable("animation.flagDescription", f.name, f.desc));
         if (pressed)
-            g_customAnimSettings.flag ^= f.value;
+            animationFlags ^= f.value;
     }
+}
+
+void AnimationSub_Flags()
+{
+    AddTitle(Language::Translate("animation.flags.title"));
+    DrawAnimationFlagsMenu(g_customAnimSettings.flag);
 }
 
 void AnimationFavouritesMenu()

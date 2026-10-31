@@ -1131,7 +1131,15 @@ void PlayAnimation::Run(void* ve)
     else
     {
         PLAY_ENTITY_ANIM(
-            entity.Handle(), this->animName.c_str(), this->animDict.c_str(), 8.0f, static_cast<BOOL>(this->flag & AnimFlag::Loop), static_cast<BOOL>(this->flag & AnimFlag::StayInLastFrame), 0, 0.0f, 0
+            entity.Handle(),
+            this->animName.c_str(),
+            this->animDict.c_str(),
+            8.0f,
+            static_cast<BOOL>(this->flag & AnimFlag::Loop),
+            static_cast<BOOL>(this->flag & AnimFlag::StayInLastFrame),
+            0,
+            0.0f,
+            this->flag
         );
     }
 }
