@@ -1050,7 +1050,7 @@ void DrawVehicleBmp(const GTAmodel::Model& vehModel)
     else
     {
         Game::Print::SetupDraw(0, Vector2(0, 0.185f), true, false, false);
-        Game::Print::drawstring("No preview available", x_coord, y_coord - 0.0043f);
+        Game::Print::drawstring(Language::Translate("vehicleSpawner.stats.noPreview"), x_coord, y_coord - 0.0043f);
     }
 }
 
@@ -1060,7 +1060,7 @@ void DrawVehicleModelName(const GTAmodel::Model& vehModel)
     FLOAT y_coord = currentOptionY + menuPos.y;
 
     Game::Print::SetupDraw(font_selection, Vector2(0.0f, (font_options == 0 ? 0.33f : 0.4f)), false, true, false, selectedtext, {0, x_coord});
-    Game::Print::drawstring("ModelName: " + vehModel.VehicleModelName(), 0, y_coord);
+    Game::Print::drawstring(Language::Translate("vehicleSpawner.stats.modelName") + ": " + vehModel.VehicleModelName(), 0, y_coord);
 }
 
 std::string GetVehicleClassName(int classId)
@@ -1068,53 +1068,53 @@ std::string GetVehicleClassName(int classId)
     switch (classId)
     {
     case 0:
-        return "Compact";
+        return Language::Translate("vehicleSpawner.stats.class.compact");
     case 1:
-        return "Sedan";
+        return Language::Translate("vehicleSpawner.stats.class.sedan");
     case 2:
-        return "SUV";
+        return Language::Translate("vehicleSpawner.stats.class.suv");
     case 3:
-        return "Coupe";
+        return Language::Translate("vehicleSpawner.stats.class.coupe");
     case 4:
-        return "Muscle";
+        return Language::Translate("vehicleSpawner.stats.class.muscle");
     case 5:
-        return "Sports Classic";
+        return Language::Translate("vehicleSpawner.stats.class.sportsClassic");
     case 6:
-        return "Sport";
+        return Language::Translate("vehicleSpawner.stats.class.sport");
     case 7:
-        return "Super";
+        return Language::Translate("vehicleSpawner.stats.class.super");
     case 8:
-        return "Motorcycle";
+        return Language::Translate("vehicleSpawner.stats.class.motorcycle");
     case 9:
-        return "Offroad";
+        return Language::Translate("vehicleSpawner.stats.class.offroad");
     case 10:
-        return "Industrial";
+        return Language::Translate("vehicleSpawner.stats.class.industrial");
     case 11:
-        return "Utility";
+        return Language::Translate("vehicleSpawner.stats.class.utility");
     case 12:
-        return "Van";
+        return Language::Translate("vehicleSpawner.stats.class.van");
     case 13:
-        return "Bicycle";
+        return Language::Translate("vehicleSpawner.stats.class.bicycle");
     case 14:
-        return "Boat";
+        return Language::Translate("vehicleSpawner.stats.class.boat");
     case 15:
-        return "Helicopter";
+        return Language::Translate("vehicleSpawner.stats.class.helicopter");
     case 16:
-        return "Plane";
+        return Language::Translate("vehicleSpawner.stats.class.plane");
     case 17:
-        return "Service";
+        return Language::Translate("vehicleSpawner.stats.class.service");
     case 18:
-        return "Emergency";
+        return Language::Translate("vehicleSpawner.stats.class.emergency");
     case 19:
-        return "Military";
+        return Language::Translate("vehicleSpawner.stats.class.military");
     case 20:
-        return "Commercial";
+        return Language::Translate("vehicleSpawner.stats.class.commercial");
     case 21:
-        return "Train";
+        return Language::Translate("vehicleSpawner.stats.class.train");
     case 22:
-        return "Open Wheel";
+        return Language::Translate("vehicleSpawner.stats.class.openWheel");
     default:
-        return "Unknown";
+        return Language::Translate("vehicleSpawner.stats.class.unknown");
     }
 }
 
@@ -1171,7 +1171,7 @@ struct VehicleStatsCache
     float speedMph;
     int seats, gears, classId;
     int onlinePrice;
-    std::string className, makeName, massStr, priceStr, shopStr;
+    std::string makeName, massStr, priceStr, shopStr;
     bool hasPrice;
 };
 
@@ -1203,7 +1203,6 @@ void DrawVehicleStats(const GTAmodel::Model& vehModel)
         statsCache.seats = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(hash);
         statsCache.gears = GET_VEHICLE_MODEL_NUM_DRIVE_GEARS_(hash);
         statsCache.classId = classId;
-        statsCache.className = GetVehicleClassName(classId);
 
         std::string make = GTAmemory::GetVehicleMakeName(hash);
         if (make.empty() || make == "NOTFOUND")
@@ -1258,20 +1257,20 @@ void DrawVehicleStats(const GTAmodel::Model& vehModel)
     float barW = panelW - 0.006f;
     float barStartY = panelY + 0.012f;
 
-    std::string speedStr = std::to_string((int)c.speedMph) + " mph";
-    DrawStatBar(panelX, barStartY, barW, barH, c.speedRatio, "Speed", speedStr, barFillColor, barBgColor);
+    std::string speedStr = std::to_string((int)c.speedMph) + " " + Language::Translate("vehicleSpawner.stats.mph");
+    DrawStatBar(panelX, barStartY, barW, barH, c.speedRatio, Language::Translate("vehicleSpawner.stats.speed"), speedStr, barFillColor, barBgColor);
 
     barStartY += barSpacing;
     std::string accelStr = std::to_string((int)(c.accelRatio * 100)) + "%";
-    DrawStatBar(panelX, barStartY, barW, barH, c.accelRatio, "Acceleration", accelStr, barFillColor, barBgColor);
+    DrawStatBar(panelX, barStartY, barW, barH, c.accelRatio, Language::Translate("vehicleSpawner.stats.acceleration"), accelStr, barFillColor, barBgColor);
 
     barStartY += barSpacing;
     std::string brakeStr = std::to_string((int)(c.brakingRatio * 100)) + "%";
-    DrawStatBar(panelX, barStartY, barW, barH, c.brakingRatio, "Braking", brakeStr, barFillColor, barBgColor);
+    DrawStatBar(panelX, barStartY, barW, barH, c.brakingRatio, Language::Translate("vehicleSpawner.stats.braking"), brakeStr, barFillColor, barBgColor);
 
     barStartY += barSpacing;
     std::string tractStr = std::to_string((int)(c.tractionRatio * 100)) + "%";
-    DrawStatBar(panelX, barStartY, barW, barH, c.tractionRatio, "Traction", tractStr, barFillColor, barBgColor);
+    DrawStatBar(panelX, barStartY, barW, barH, c.tractionRatio, Language::Translate("vehicleSpawner.stats.traction"), tractStr, barFillColor, barBgColor);
 
     float infoStartY = barStartY + barSpacing + 0.002f;
     float infoLabelX = panelX - (barW / 2.0f) + 0.003f;
@@ -1288,13 +1287,15 @@ void DrawVehicleStats(const GTAmodel::Model& vehModel)
     DRAW_RECT(panelX, infoStartY - 0.003f, barW, 0.001f, 80, 80, 80, 200, false);
 
     int curLine = 0;
-    drawInfoLine(infoStartY + lineH * curLine++, "Class", c.className);
-    drawInfoLine(infoStartY + lineH * curLine++, "Manufacturer", c.makeName);
-    std::string seatsGears = std::to_string(c.seats) + " Seats  |  " + std::to_string(c.gears) + " Gears";
-    drawInfoLine(infoStartY + lineH * curLine++, "Layout", seatsGears);
+    drawInfoLine(infoStartY + lineH * curLine++, Language::Translate("vehicleSpawner.stats.class"), GetVehicleClassName(c.classId));
+    drawInfoLine(infoStartY + lineH * curLine++, Language::Translate("vehicleSpawner.stats.manufacturer"), c.makeName);
+    std::string seats = Language::Format("vehicleSpawner.stats.seats", {{"count", static_cast<std::int64_t>(c.seats)}});
+    std::string gears = Language::Format("vehicleSpawner.stats.gears", {{"count", static_cast<std::int64_t>(c.gears)}});
+    std::string seatsGears = seats + Language::Translate("vehicleSpawner.stats.layoutSeparator") + gears;
+    drawInfoLine(infoStartY + lineH * curLine++, Language::Translate("vehicleSpawner.stats.layout"), seatsGears);
 
     if (c.hasPrice)
-        drawInfoLine(infoStartY + lineH * curLine++, "Price", c.priceStr);
+        drawInfoLine(infoStartY + lineH * curLine++, Language::Translate("vehicleSpawner.stats.price"), c.priceStr);
 }
 
 void AddVehicleCategoryOption(const std::string& text, UINT8 index, bool* extra_option_code)

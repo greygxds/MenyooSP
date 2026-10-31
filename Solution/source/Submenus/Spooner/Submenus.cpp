@@ -370,6 +370,7 @@ void Sub_Settings()
 static void DrawSaveFileStats(const std::string& filePath, float optionTextY)
 {
     static std::string lastStatsPath = "";
+    static std::string lastStatsLocale = "";
     static std::vector<StatsPanel::Row> statsRows;
     static std::string lastHoveredXml = "";
     static DxHookIMG::DxTexture hoveredXmlTexture;
@@ -384,9 +385,11 @@ static void DrawSaveFileStats(const std::string& filePath, float optionTextY)
             hoveredXmlTexture.Load(hoverImgPath);
     }
 
-    if (lastStatsPath != filePath)
+    const std::string locale = Language::GetSelectedLocale();
+    if (lastStatsPath != filePath || lastStatsLocale != locale)
     {
         lastStatsPath = filePath;
+        lastStatsLocale = locale;
         statsRows.clear();
 
         int entityCount = 0, pedCount = 0, vehCount = 0, propCount = 0, markerCount = 0, blipCount = 0, lightCount = 0, iplCount = 0;
@@ -481,47 +484,48 @@ static void DrawSaveFileStats(const std::string& filePath, float optionTextY)
         {
             std::string zoneName = World::GetZoneName(locationPos, true);
             if (!zoneName.empty())
-                statsRows.push_back(StatsPanel::StatRow{"Location", zoneName});
+                statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.location"), zoneName});
             else
                 statsRows.push_back(
                     StatsPanel::StatRow{
-                        "Location", std::to_string((int)std::round(locationPos.x)) + ", " + std::to_string((int)std::round(locationPos.y)) + ", " + std::to_string((int)std::round(locationPos.z))
+                        Language::Translate("spooner.filePreview.location"),
+                        std::to_string((int)std::round(locationPos.x)) + ", " + std::to_string((int)std::round(locationPos.y)) + ", " + std::to_string((int)std::round(locationPos.z))
                     }
                 );
         }
 
-        statsRows.push_back(StatsPanel::StatRow{"Entities", std::to_string(entityCount)});
+        statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.entities", {{"count", static_cast<std::uint64_t>(entityCount)}}), std::to_string(entityCount)});
         if (pedCount)
-            statsRows.push_back(StatsPanel::StatRow{"Peds", std::to_string(pedCount)});
+            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.peds", {{"count", static_cast<std::uint64_t>(pedCount)}}), std::to_string(pedCount)});
         if (vehCount)
-            statsRows.push_back(StatsPanel::StatRow{"Vehicles", std::to_string(vehCount)});
+            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.vehicles", {{"count", static_cast<std::uint64_t>(vehCount)}}), std::to_string(vehCount)});
         if (propCount)
-            statsRows.push_back(StatsPanel::StatRow{"Objects", std::to_string(propCount)});
+            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.objects", {{"count", static_cast<std::uint64_t>(propCount)}}), std::to_string(propCount)});
         if (markerCount)
-            statsRows.push_back(StatsPanel::StatRow{"Markers", std::to_string(markerCount)});
+            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.markers", {{"count", static_cast<std::uint64_t>(markerCount)}}), std::to_string(markerCount)});
         if (blipCount)
-            statsRows.push_back(StatsPanel::StatRow{"Blips", std::to_string(blipCount)});
+            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.blips", {{"count", static_cast<std::uint64_t>(blipCount)}}), std::to_string(blipCount)});
         if (lightCount)
-            statsRows.push_back(StatsPanel::StatRow{"Lights", std::to_string(lightCount)});
+            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.lights", {{"count", static_cast<std::uint64_t>(lightCount)}}), std::to_string(lightCount)});
         if (iplCount)
-            statsRows.push_back(StatsPanel::StatRow{"IPLs", std::to_string(iplCount)});
+            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.ipls", {{"count", static_cast<std::uint64_t>(iplCount)}}), std::to_string(iplCount)});
         if (!audioFile.empty())
-            statsRows.push_back(StatsPanel::StatRow{"Audio", audioFile});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.audio"), audioFile});
         if (!weatherToSet.empty())
-            statsRows.push_back(StatsPanel::StatRow{"Weather", weatherToSet});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.weather"), weatherToSet});
         if (!timecycleMod.empty())
-            statsRows.push_back(StatsPanel::StatRow{"Timecycle", timecycleMod});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.timecycle"), timecycleMod});
         if (clearDatabase)
-            statsRows.push_back(StatsPanel::StatRow{"Clear DB", "Yes"});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.clearDatabase"), Language::Translate("statsPanel.yes")});
         if (clearMarkers)
-            statsRows.push_back(StatsPanel::StatRow{"Clear Markers", "Yes"});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.clearMarkers"), Language::Translate("statsPanel.yes")});
         if (clearWorldRadius > 0.0f)
-            statsRows.push_back(StatsPanel::StatRow{"Clear Area", std::to_string((int)clearWorldRadius) + "m"});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.clearArea"), std::to_string((int)clearWorldRadius) + "m"});
         if (!startTaskSeqs)
-            statsRows.push_back(StatsPanel::StatRow{"Task Seqs", "Off"});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.taskSequences"), Language::Translate("statsPanel.off")});
         statsRows.push_back(StatsPanel::SeparatorRow{});
-        statsRows.push_back(StatsPanel::StatRow{"Size", GetFileSizeStr(filePath)});
-        statsRows.push_back(StatsPanel::StatRow{"Modified", GetFileLastWriteDateStr(filePath)});
+        statsRows.push_back(StatsPanel::StatRow{Language::Translate("statsPanel.size"), GetFileSizeStr(filePath)});
+        statsRows.push_back(StatsPanel::StatRow{Language::Translate("statsPanel.modified"), GetFileLastWriteDateStr(filePath)});
         for (auto& noteLine : StatsPanel::WrapText(saveNote, 24))
             statsRows.push_back(StatsPanel::TextRow{noteLine});
     }

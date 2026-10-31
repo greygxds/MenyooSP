@@ -1617,7 +1617,7 @@ static void DrawOverlayStats(float topY, int focusSlot)
         rows.push_back(StatsPanel::TitleRow{TranslateOverlayText(vCaptions_headOverlays[i].first)});
         if (overlayValue == 255)
         {
-            rows.push_back(StatsPanel::StatRow{"Variation", TranslateOverlayText("None")});
+            rows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.variation"), TranslateOverlayText("None")});
         }
         else
         {
@@ -1625,18 +1625,34 @@ static void DrawOverlayStats(float topY, int focusSlot)
             auto& variationNames = vCaptions_headOverlays[i].second;
             if (overlayValue >= 0 && (size_t)overlayValue < variationNames.size() && !variationNames[overlayValue].empty())
                 variationText = TranslateOverlayText(variationNames[overlayValue]) + " (" + std::to_string(overlayValue) + ")";
-            rows.push_back(StatsPanel::StatRow{"Variation", variationText});
-            rows.push_back(StatsPanel::StatRow{"Opacity", FormatMixValue(overlayData.opacity)});
+            rows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.variation"), variationText});
+            rows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.opacity"), FormatMixValue(overlayData.opacity)});
             int colourType = GetPedHeadOverlayColourType((PedHeadOverlay)overlayIndex);
             if (colourType != 0)
             {
                 std::string colourText = overlayData.colour >= 0 ? std::to_string(overlayData.colour) : "---";
                 std::string secondaryText = overlayData.colourSecondary >= 0 ? std::to_string(overlayData.colourSecondary) : "---";
                 if (colourType == 1)
-                    rows.push_back(StatsPanel::DoubleColorRow{"Colour", GetHairTintColor(overlayData.colour), colourText, "Secondary", GetHairTintColor(overlayData.colourSecondary), secondaryText});
+                    rows.push_back(
+                        StatsPanel::DoubleColorRow{
+                            Language::Translate("components.stats.colour"),
+                            GetHairTintColor(overlayData.colour),
+                            colourText,
+                            Language::Translate("components.stats.secondary"),
+                            GetHairTintColor(overlayData.colourSecondary),
+                            secondaryText
+                        }
+                    );
                 else
                     rows.push_back(
-                        StatsPanel::DoubleColorRow{"Colour", GetMakeupTintColor(overlayData.colour), colourText, "Secondary", GetMakeupTintColor(overlayData.colourSecondary), secondaryText}
+                        StatsPanel::DoubleColorRow{
+                            Language::Translate("components.stats.colour"),
+                            GetMakeupTintColor(overlayData.colour),
+                            colourText,
+                            Language::Translate("components.stats.secondary"),
+                            GetMakeupTintColor(overlayData.colourSecondary),
+                            secondaryText
+                        }
                     );
             }
         }
@@ -1872,11 +1888,27 @@ static void DrawFaceStats(float topY)
     GET_PED_HEAD_BLEND_DATA(ped.Handle(), (Any*)&blendData);
 
     std::vector<StatsPanel::Row> rows;
-    rows.push_back(StatsPanel::DoubleStatRow{"Shape Father", std::to_string(blendData.shapeFirstID), "Tone Father", std::to_string(blendData.skinFirstID)});
-    rows.push_back(StatsPanel::DoubleStatRow{"Shape Mother", std::to_string(blendData.shapeSecondID), "Tone Mother", std::to_string(blendData.skinSecondID)});
-    rows.push_back(StatsPanel::DoubleStatRow{"Shape Mix", FormatMixValue(blendData.shapeMix), "Tone Mix", FormatMixValue(blendData.skinMix)});
-    rows.push_back(StatsPanel::DoubleStatRow{"Shape Ancestor", std::to_string(blendData.shapeThirdID), "Tone Ancestor", std::to_string(blendData.skinThirdID)});
-    rows.push_back(StatsPanel::DoubleStatRow{"Ancestor Mix", FormatMixValue(blendData.thirdMix), "", ""});
+    rows.push_back(
+        StatsPanel::DoubleStatRow{
+            Language::Translate("components.stats.shapeFather"), std::to_string(blendData.shapeFirstID), Language::Translate("components.stats.toneFather"), std::to_string(blendData.skinFirstID)
+        }
+    );
+    rows.push_back(
+        StatsPanel::DoubleStatRow{
+            Language::Translate("components.stats.shapeMother"), std::to_string(blendData.shapeSecondID), Language::Translate("components.stats.toneMother"), std::to_string(blendData.skinSecondID)
+        }
+    );
+    rows.push_back(
+        StatsPanel::DoubleStatRow{
+            Language::Translate("components.stats.shapeMix"), FormatMixValue(blendData.shapeMix), Language::Translate("components.stats.toneMix"), FormatMixValue(blendData.skinMix)
+        }
+    );
+    rows.push_back(
+        StatsPanel::DoubleStatRow{
+            Language::Translate("components.stats.shapeAncestor"), std::to_string(blendData.shapeThirdID), Language::Translate("components.stats.toneAncestor"), std::to_string(blendData.skinThirdID)
+        }
+    );
+    rows.push_back(StatsPanel::DoubleStatRow{Language::Translate("components.stats.ancestorMix"), FormatMixValue(blendData.thirdMix), "", ""});
     rows.push_back(StatsPanel::SeparatorRow{});
     for (size_t i = 0; i < vCaptions_facialFeatures.size(); i += 2)
     {
@@ -1884,18 +1916,24 @@ static void DrawFaceStats(float topY)
         std::string rightValue = "";
         if (i + 1 < vCaptions_facialFeatures.size())
         {
-            rightLabel = vCaptions_facialFeatures[i + 1];
+            rightLabel = Language::TranslateStable("components.stats.faceFeature", vCaptions_facialFeatures[i + 1], vCaptions_facialFeatures[i + 1]);
             rightValue = FormatMixValue(pedHead->facialFeatureData[i + 1]);
         }
-        rows.push_back(StatsPanel::DoubleStatRow{vCaptions_facialFeatures[i], FormatMixValue(pedHead->facialFeatureData[i]), rightLabel, rightValue});
+        std::string leftLabel = Language::TranslateStable("components.stats.faceFeature", vCaptions_facialFeatures[i], vCaptions_facialFeatures[i]);
+        rows.push_back(StatsPanel::DoubleStatRow{leftLabel, FormatMixValue(pedHead->facialFeatureData[i]), rightLabel, rightValue});
     }
     rows.push_back(StatsPanel::SeparatorRow{});
     rows.push_back(
         StatsPanel::DoubleColorRow{
-            "Hair", GetHairTintColor(pedHead->hairColour), std::to_string(pedHead->hairColour), "Hair Streaks", GetHairTintColor(pedHead->hairColourStreaks), std::to_string(pedHead->hairColourStreaks)
+            Language::Translate("components.stats.hair"),
+            GetHairTintColor(pedHead->hairColour),
+            std::to_string(pedHead->hairColour),
+            Language::Translate("components.stats.hairStreaks"),
+            GetHairTintColor(pedHead->hairColourStreaks),
+            std::to_string(pedHead->hairColourStreaks)
         }
     );
-    rows.push_back(StatsPanel::DoubleStatRow{"Eyes", std::to_string(pedHead->eyeColour), "", ""});
+    rows.push_back(StatsPanel::DoubleStatRow{Language::Translate("components.stats.eyes"), std::to_string(pedHead->eyeColour), "", ""});
 
     StatsPanel::Draw(topY, 0.200f, rows);
 }
@@ -2413,6 +2451,7 @@ bool Apply(GTAped ep, const std::string& filePath, bool applyModelAndHead, bool 
 static void DrawOutfitFileStats(const std::string& filePath, float optionTextY)
 {
     static std::string lastStatsPath = "";
+    static std::string lastStatsLocale = "";
     static std::vector<StatsPanel::Row> statsRows;
     static const char* compSlotNames[] = {"head", "berd", "hair", "uppr", "lowr", "hand", "feet", "teef", "accs", "task", "decl", "jbib"};
     static const char* propSlotNames[] = {"p_head", "p_eyes", "p_ears", "p_mouth", "p_lhand", "p_rhand", "p_lwrist", "p_rwrist", "p_hip", "p_lfoot", "p_rfoot", "p_unk1", "p_unk2"};
@@ -2421,9 +2460,11 @@ static void DrawOutfitFileStats(const std::string& filePath, float optionTextY)
     static const int propSlotNameCount = sizeof(propSlotNames) / sizeof(propSlotNames[0]);
     static const int usedPropSlotCount = sizeof(usedPropSlots) / sizeof(usedPropSlots[0]);
 
-    if (lastStatsPath != filePath)
+    const std::string locale = Language::GetSelectedLocale();
+    if (lastStatsPath != filePath || lastStatsLocale != locale)
     {
         lastStatsPath = filePath;
+        lastStatsLocale = locale;
         statsRows.clear();
 
         int attachmentCount = 0;
@@ -2462,7 +2503,7 @@ static void DrawOutfitFileStats(const std::string& filePath, float optionTextY)
                     {
                         slotLabel = "Comp " + std::to_string(compSlotIndex);
                         if (compSlotIndex < compSlotNameCount)
-                            slotLabel = compSlotNames[compSlotIndex];
+                            slotLabel = Language::TranslateStable("components.stats.slot", compSlotNames[compSlotIndex], compSlotNames[compSlotIndex]);
                     }
                     compValues.push_back({slotLabel, node.text().as_string()});
                     compSlotIndex++;
@@ -2486,7 +2527,7 @@ static void DrawOutfitFileStats(const std::string& filePath, float optionTextY)
                         {
                             slotLabel = "Prop " + std::to_string(propSlotIndex);
                             if (propSlotIndex < propSlotNameCount)
-                                slotLabel = propSlotNames[propSlotIndex];
+                                slotLabel = Language::TranslateStable("components.stats.slot", propSlotNames[propSlotIndex], propSlotNames[propSlotIndex]);
                         }
                         propValues.push_back({slotLabel, node.text().as_string()});
                     }
@@ -2498,20 +2539,20 @@ static void DrawOutfitFileStats(const std::string& filePath, float optionTextY)
             }
         }
 
-        statsRows.push_back(StatsPanel::StatRow{"Model", modelLabel});
+        statsRows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.model"), modelLabel});
         if (opacityLevel < 255)
-            statsRows.push_back(StatsPanel::StatRow{"Opacity", std::to_string(opacityLevel)});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.opacity"), std::to_string(opacityLevel)});
         if (!isVisible)
-            statsRows.push_back(StatsPanel::StatRow{"Visible", "No"});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.visible"), Language::Translate("statsPanel.no")});
         if (!facialMood.empty())
-            statsRows.push_back(StatsPanel::StatRow{"Mood", facialMood});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.mood"), facialMood});
         if (decalCount > 0)
-            statsRows.push_back(StatsPanel::StatRow{"Decals", std::to_string(decalCount)});
+            statsRows.push_back(StatsPanel::StatRow{Language::Format("components.stats.decals", {{"count", static_cast<std::uint64_t>(decalCount)}}), std::to_string(decalCount)});
         size_t slotRowCount = compValues.size() > propValues.size() ? compValues.size() : propValues.size();
         if (slotRowCount > 0)
         {
             statsRows.push_back(StatsPanel::SeparatorRow{});
-            statsRows.push_back(StatsPanel::DoubleStatRow{"Components", "", "Props", ""});
+            statsRows.push_back(StatsPanel::DoubleStatRow{Language::Translate("components.stats.components"), "", Language::Translate("components.stats.props"), ""});
             for (size_t i = 0; i < slotRowCount; i++)
             {
                 std::string leftLabel = "";
@@ -2532,9 +2573,9 @@ static void DrawOutfitFileStats(const std::string& filePath, float optionTextY)
             }
             statsRows.push_back(StatsPanel::SeparatorRow{});
         }
-        statsRows.push_back(StatsPanel::StatRow{"Attachments", std::to_string(attachmentCount)});
-        statsRows.push_back(StatsPanel::StatRow{"Size", GetFileSizeStr(filePath)});
-        statsRows.push_back(StatsPanel::StatRow{"Modified", GetFileLastWriteDateStr(filePath)});
+        statsRows.push_back(StatsPanel::StatRow{Language::Format("components.stats.attachments", {{"count", static_cast<std::uint64_t>(attachmentCount)}}), std::to_string(attachmentCount)});
+        statsRows.push_back(StatsPanel::StatRow{Language::Translate("statsPanel.size"), GetFileSizeStr(filePath)});
+        statsRows.push_back(StatsPanel::StatRow{Language::Translate("statsPanel.modified"), GetFileLastWriteDateStr(filePath)});
     }
 
     StatsPanel::DrawAtOption(optionTextY, 0.100f, statsRows);
