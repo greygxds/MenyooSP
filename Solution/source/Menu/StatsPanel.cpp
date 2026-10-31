@@ -10,6 +10,7 @@
 #include "StatsPanel.h"
 
 #include "Menu.h" // menuPos
+#include "Keybinds.h"
 
 #include "..\Util\GTAmath.h"     // Vector2
 #include "..\Natives\natives2.h" // DRAW_RECT
@@ -30,6 +31,13 @@ constexpr float barH = 0.018f;
 constexpr float barSpacing = 0.0195f;
 constexpr float separatorH = 0.007f;
 constexpr float contentTop = 0.007f;
+bool g_panelsVisible = true;
+
+void HandleVisibilityToggle()
+{
+    if (Keybinds::WasPressedThisFrame("stats_panel_visibility"))
+        g_panelsVisible = !g_panelsVisible;
+}
 
 template <class... Ts> struct Overloaded : Ts...
 {
@@ -102,6 +110,11 @@ float MenuTopY()
 void Draw(float topY, float width, const std::vector<Row>& rows)
 {
     if (rows.empty())
+        return;
+
+    HandleVisibilityToggle();
+    Keybinds::AddBindIB("stats_panel_visibility", g_panelsVisible, "Hide panel", "Show panel");
+    if (!g_panelsVisible)
         return;
 
     // Menu spans 0.16f +/- 0.10f: keep the legacy 0.014f/0.013f gutters so width 0.100f panels sit exactly where they used to, wider panels clear the menu.
@@ -215,6 +228,11 @@ void Draw(float topY, float width, const std::vector<Row>& rows)
 void DrawAtOption(float optionTextY, float width, const std::vector<Row>& rows)
 {
     if (rows.empty())
+        return;
+
+    HandleVisibilityToggle();
+    Keybinds::AddBindIB("stats_panel_visibility", g_panelsVisible, "Hide panel", "Show panel");
+    if (!g_panelsVisible)
         return;
 
     float panelH = MeasurePanelHeight(rows);

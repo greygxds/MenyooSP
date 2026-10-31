@@ -123,6 +123,8 @@ const std::vector<KeybindEntry> g_registry{
 
     {"vehicle_hydraulics", "Car Hydraulics", "Hold and steer to bounce the car on its hydraulics.", (UINT16)VirtualKey::LeftShift, NoBind, (UINT16)INPUT_FRONTEND_LS, NoBind, "Vehicles", true},
 
+    {"stats_panel_visibility", "Hide / Show Panel", "Hides or shows custom statspanels.", (UINT16)VirtualKey::H, NoBind, NoBind, NoBind, "Menus"},
+
 };
 } // namespace
 
