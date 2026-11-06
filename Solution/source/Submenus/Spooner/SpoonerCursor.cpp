@@ -6,7 +6,7 @@
 #include "SpoonerEntity.h"
 #include "EntityManagement.h"
 #include "Submenus.h"
-#include "..\PedComponentChanger.h"
+#include "..\Wardrobe\WardrobeCamera.h"
 #include "..\..\Menu\Menu.h"
 #include "..\..\Menu\Keybinds.h"
 #include "..\..\Menu\Language.h"

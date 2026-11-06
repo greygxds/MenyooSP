@@ -15,6 +15,7 @@
 #include "..\Scripting\enums.h"
 #include "..\Scripting\Game.h"
 #include "..\Menu\Menu.h"
+#include "..\Menu\Language.h"
 #include "..\Menu\Keybinds.h"
 #include "..\Util\FileLogger.h"
 
@@ -26,7 +27,7 @@
 #include "..\Scripting\CustomHelpText.h"
 #include "..\Scripting\WeaponIndivs.h"
 
-#include "..\Submenus\PedComponentChanger.h"
+#include "..\Submenus\Wardrobe\PedOutfitPersistence.h"
 
 #include <vector>
 
@@ -136,7 +137,9 @@ void CheckSelfDealthModel()
         playerPed.StoreWeaponsInArray(weaponsBackup);
 
         const std::string& ofn = GetPathffA(Pathff::Outfit, true) + "_reserved.xml";
-        sub::ComponentChangerOutfit::Create(PLAYER_PED_ID(), ofn);
+        const bool outfitSaved = sub::PedOutfitPersistence::SavePedOutfit(GTAped(PLAYER_PED_ID()), ofn);
+        if (!outfitSaved)
+            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.createFileFailed"));
 
 
         if (is_death)
@@ -163,7 +166,12 @@ void CheckSelfDealthModel()
             WAIT(0);
 
         // change back the model
-        sub::ComponentChangerOutfit::Apply(PLAYER_PED_ID(), ofn, true, true, true, true, true, false);
+        if (outfitSaved)
+        {
+            const bool outfitApplied = sub::PedOutfitPersistence::ApplyPedOutfit(GTAped(PLAYER_PED_ID()), ofn, sub::PedOutfitPersistence::OutfitApplyOptions::CompleteWithoutAttachments());
+            if (!outfitApplied)
+                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.loadFailed"));
+        }
 
         WAIT(0);
 

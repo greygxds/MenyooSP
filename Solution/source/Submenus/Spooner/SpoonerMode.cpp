@@ -12,7 +12,7 @@
 
 #include "ImGuiSpooner.h"
 #include "SpoonerCursor.h"
-#include "..\PedComponentChanger.h"
+#include "..\Wardrobe\WardrobeCamera.h"
 #include "..\..\Misc\FreeCam.h"
 #include "..\..\macros.h"
 

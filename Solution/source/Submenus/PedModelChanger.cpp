@@ -31,7 +31,6 @@
 #include "..\Scripting\PTFX.h"
 #include "..\Scripting\WeaponIndivs.h"
 
-#include "..\Submenus\PedComponentChanger.h"
 #include "..\Submenus\Spooner\SpoonerEntity.h"
 #include "..\Submenus\Spooner\Databases.h"
 #include "..\Submenus\Spooner\EntityManagement.h"
@@ -211,14 +210,8 @@ void ChangeModel(GTAmodel::Model model)
             GTAped playerPed = PLAYER_PED_ID();
             int oldPlayerPed = playerPed.Handle();
 
-            if (sub::PedDamageTextures::vPedsAndDamagePacks.count(playerPed.Handle()))
-            {
-                sub::PedDamageTextures::vPedsAndDamagePacks.erase(playerPed.Handle());
-            }
-            if (sub::PedDecals::vPedsAndDecals.count(playerPed.Handle()))
-            {
-                sub::PedDecals::vPedsAndDecals.erase(playerPed.Handle());
-            }
+            playerPed.ForgetTrackedDamagePacks();
+            playerPed.ForgetTrackedDecorations();
 
             std::vector<s_Weapon_Components_Tint> weaponsBackup;
             playerPed.StoreWeaponsInArray(weaponsBackup);

@@ -149,6 +149,15 @@ class PedHeadBlendData
     DWORD _padding9;
 };
 
+struct PedHeadOverlayData
+{
+    int drawableIndex = 255;
+    int colourType = 0;
+    int primaryColour = -1;
+    int secondaryColour = -1;
+    float opacity = 0.0f;
+};
+
 class PedGroup
 {
   public:
@@ -208,6 +217,12 @@ namespace PedDamagePacks
 extern const std::vector<std::string> vDamagePacks;
 }
 
+struct PedDecoration
+{
+    Hash collectionHash;
+    Hash overlayHash;
+};
+
 class GTAped : public GTAentity
 {
   public:
@@ -230,6 +245,48 @@ class GTAped : public GTAentity
 
     PedHeadBlendData GetHeadBlendData() const;
     void SetHeadBlendData(const PedHeadBlendData& blendData);
+    bool GetHeadBlendData(PedHeadBlendData& blendData) const;
+
+    bool GetFaceFeatureValue(int featureIndex, float& featureValue) const;
+    void SetFaceFeatureValue(int featureIndex, float featureValue);
+    bool GetHeadOverlayData(int overlayIndex, PedHeadOverlayData& overlayData) const;
+    int GetHeadOverlayDrawableCount(int overlayIndex) const;
+    void SetHeadOverlay(int overlayIndex, int drawableIndex, float opacity);
+    void SetHeadOverlayTint(int overlayIndex, int colourType, int primaryColour, int secondaryColour);
+    bool GetHairTint(int& hairColour, int& highlightColour) const;
+    void SetHairTint(int hairColour, int highlightColour);
+    int GetEyeColour() const;
+    void SetEyeColour(int eyeColour);
+
+    int GetComponentDrawableIndex(int componentIndex) const;
+    int GetComponentTextureIndex(int componentIndex) const;
+    int GetComponentDrawableCount(int componentIndex) const;
+    int GetComponentTextureCount(int componentIndex, int drawableIndex) const;
+    bool IsComponentVariationValid(int componentIndex, int drawableId, int textureId) const;
+    void SetComponentVariation(int componentIndex, int drawableId, int textureId, int paletteId = 0);
+
+    int GetPropDrawableIndex(int propIndex) const;
+    int GetPropTextureIndex(int propIndex) const;
+    int GetPropDrawableCount(int propIndex) const;
+    int GetPropTextureCount(int propIndex, int drawableIndex) const;
+    bool IsPropVariationValid(int propIndex, int drawableId, int textureId) const;
+    void SetPropVariation(int propIndex, int drawableId, int textureId, bool attach);
+
+    bool HasTrackedDecoration(Hash collectionHash, Hash overlayHash) const;
+    const std::vector<PedDecoration>* GetTrackedDecorations() const;
+    void ApplyDecoration(Hash collectionHash, Hash overlayHash);
+    void RemoveDecoration(Hash collectionHash, Hash overlayHash);
+    void ClearDecorations();
+    void ClearTrackedDecorations();
+    void ForgetTrackedDecorations();
+    void CopyDecorationTrackingFrom(const GTAped& sourcePed);
+
+    bool HasTrackedDamagePack(const std::string& damagePackName) const;
+    const std::vector<std::string>* GetTrackedDamagePacks() const;
+    void EnsureDamagePackTracking();
+    void ClearTrackedDamagePacks();
+    void ForgetTrackedDamagePacks();
+    void CopyDamagePackTrackingFrom(const GTAped& sourcePed);
 
     void SetVoiceName(const std::string& value);
 
@@ -385,7 +442,10 @@ class GTAped : public GTAentity
     bool WasKilledByStealth() const;
     bool WasKilledByTakedown() const;
 
-    void SetWetnessHeight(float value);
+    void SetSweat(float sweatLevel);
+    void SetWetnessHeight(float wetnessHeight);
+    void EnableWetnessThisFrame();
+    void ClearWetness();
 
     bool IsInVehicle() const;
     bool IsInVehicle(GTAvehicle vehicle) const;
@@ -409,6 +469,7 @@ class GTAped : public GTAentity
     void ResetVisibleDamage();
     void ClearBloodDamage();
     void ApplyDamage(int damageAmount);
+    void RemoveDamagePack(const std::string& damagePackName);
 
     Vector3 GetBoneCoord(int boneID) const;
     Vector3 GetBoneCoord(int boneID, const Vector3& offset) const;
