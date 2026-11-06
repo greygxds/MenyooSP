@@ -63,7 +63,7 @@ void PlayerOptionsMenu()
     AddOption(Language::Translate("player.options.basicStats.label"), null, nullFunc, SUB::SPSTATMANAGER);
     AddOption(Language::Translate("player.options.modelChanger.label"), null, nullFunc, SUB::MODELCHANGER);
 
-    AddOption(Language::Translate("player.options.wardrobe.label"), null, nullFunc, SUB::COMPONENTS);
+    AddOption(Language::Translate("player.options.wardrobe.label"), null, nullFunc, SUB::PED_WARDROBE);
 
     AddOption(Language::Translate("player.options.animations.label"), null, nullFunc, SUB::ANIMATIONSUB);
     AddOption(Language::Translate("player.options.scenarioActions.label"), null, nullFunc, SUB::AnimationTaskScenarios);
@@ -132,8 +132,8 @@ void PlayerOptionsMenu()
         addlog(ige::LogType::LOG_TRACE, "Replenishing Player");
         myPed.SetHealth(myPed.GetMaxHealth());
         myPed.SetArmour(myPlayer.MaxArmour_get());
-        PedDamageTextures::ClearAllBloodDamage(myPed);
-        PedDamageTextures::ClearAllVisibleDamage(myPed);
+        myPed.ClearBloodDamage();
+        myPed.ResetVisibleDamage();
         return;
     }
 
@@ -382,8 +382,8 @@ void PlayerOptionsMenu()
         }
         if (selfSweatMult == 0.0f)
         {
-            SET_PED_SWEAT(g_activePedHandle, selfSweatMult);
-            CLEAR_PED_WETNESS(g_activePedHandle);
+            myPed.SetSweat(selfSweatMult);
+            myPed.ClearWetness();
         }
         return;
     }

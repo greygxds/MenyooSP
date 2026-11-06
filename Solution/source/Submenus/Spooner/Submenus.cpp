@@ -52,7 +52,6 @@
 #include "MenuOptions.h"
 #include "SpoonerMarker.h"
 #include "SpoonerLight.h"
-#include "..\..\Submenus\PedComponentChanger.h"
 #include "..\..\Submenus\Settings.h"
 #include "..\..\Submenus\PedModelChanger.h"
 #include "..\..\Submenus\VehicleSpawner.h"
@@ -2958,7 +2957,7 @@ void Sub_PedOps()
         //OnscreenKeyboard::State::arg1._int = ent.GetHandle();
     }
 
-    AddOption(Language::Translate("spooner.ped.wardrobe"), null, SetSelectedEntityAsActivePed, SUB::COMPONENTS);
+    AddOption(Language::Translate("spooner.ped.wardrobe"), null, SetSelectedEntityAsActivePed, SUB::PED_WARDROBE);
 
     AddOption(Language::Translate("spooner.ped.animations"), null, SetSelectedEntityAsActivePed, SUB::ANIMATIONSUB);
     AddOption(Language::Translate("spooner.ped.scenarioActions"), null, SetSelectedEntityAsActivePed, SUB::AnimationTaskScenarios);

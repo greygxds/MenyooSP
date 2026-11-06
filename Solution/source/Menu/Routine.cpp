@@ -49,7 +49,9 @@
 
 #include "..\Submenus\PedAnimation.h"
 #include "..\Submenus\WeaponOptions.h"
-#include "..\Submenus\PedComponentChanger.h"
+#include "..\Submenus\Wardrobe\PedOutfitPersistence.h"
+#include "..\Submenus\Wardrobe\PedDecals.h"
+#include "..\Submenus\Wardrobe\WardrobeCamera.h"
 #include "..\Submenus\VehicleSpawner.h"
 #include "..\Menu\FolderPreviewBmps.h"
 #include "..\Submenus\PedSpeech.h"
@@ -68,6 +70,8 @@
 #include "..\Submenus\Spooner\FileManagement.h"
 #include "..\Submenus\Spooner\SpoonerSettings.h"
 #include "..\Submenus\CutscenePlayer.h"
+
+#include <filesystem>
 
 #include <Windows.h>
 #include <climits>
@@ -177,7 +181,7 @@ inline void MenyooMain()
     addlog(ige::LogType::LOG_TRACE, "Populate Favourites");
     sub::WeaponFavourites_catind::PopulateFavouritesInfo();
     addlog(ige::LogType::LOG_TRACE, "Populate Decals");
-    sub::PedDecals::PopulateDecalsDict();
+    sub::PedDecals::LoadDecalCatalog();
     addlog(ige::LogType::LOG_TRACE, "Populate Animals");
     addlog(ige::LogType::LOG_TRACE, "Populate Vehicle Previews");
     sub::VehicleSpawner::PopulateVehicleBmps();
@@ -1827,8 +1831,9 @@ static void TickPlayerState(int player, int iped, GTAplayer& player2)
 
     if (playerAutoClean)
     {
-        sub::PedDamageTextures::ClearAllBloodDamage(iped);
-        sub::PedDamageTextures::ClearAllVisibleDamage(iped);
+        GTAped activePed = iped;
+        activePed.ClearBloodDamage();
+        activePed.ResetVisibleDamage();
     }
 
     if (clearWeaponPickups)
@@ -1929,11 +1934,12 @@ static void TickPlayerAbilities()
 
     if (selfSweatMult > 0.0f)
     {
-        SET_PED_SWEAT(myPed, selfSweatMult);
+        GTAped activePed = myPed;
+        activePed.SetSweat(selfSweatMult);
         if (selfSweatMult > 4.0f)
         {
-            SET_PED_WETNESS_ENABLED_THIS_FRAME(myPed);
-            SET_PED_WETNESS_HEIGHT(myPed, selfSweatMult / 6);
+            activePed.EnableWetnessThisFrame();
+            activePed.SetWetnessHeight(selfSweatMult / 6);
         }
     }
 
@@ -2134,8 +2140,20 @@ void Menu::loops()
     // Apply default outfit on first load
     if (!defaultPedSet && IsGameReadyForDeferredInit())
     {
-        sub::ComponentChangerOutfit::Apply(PLAYER_PED_ID(), "menyooStuff/defaultPed.xml", true, false, false, false, false, false);
-        sub::ComponentChangerOutfit::Apply(PLAYER_PED_ID(), "menyooStuff/defaultPed.xml", false, true, true, true, true, true);
+        const std::string defaultOutfitPath = "menyooStuff/defaultPed.xml";
+        std::error_code fileStatusError;
+        if (std::filesystem::exists(defaultOutfitPath, fileStatusError))
+        {
+            const bool modelAndHeadApplied = sub::PedOutfitPersistence::ApplyPedOutfit(GTAped(PLAYER_PED_ID()), defaultOutfitPath, sub::PedOutfitPersistence::OutfitApplyOptions::ModelAndHeadOnly());
+            const bool otherAppearanceApplied =
+                sub::PedOutfitPersistence::ApplyPedOutfit(GTAped(PLAYER_PED_ID()), defaultOutfitPath, sub::PedOutfitPersistence::OutfitApplyOptions::AllExceptModelAndHead());
+            if (!modelAndHeadApplied || !otherAppearanceApplied)
+                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.loadFailed"));
+        }
+        else if (fileStatusError)
+        {
+            addlog(ige::LogType::LOG_ERROR, "Unable to check default ped outfit file: " + fileStatusError.message());
+        }
         defaultPedSet = true;
     }
 

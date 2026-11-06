@@ -18,6 +18,7 @@
 #include "..\..\Natives\natives2.h"
 #include "..\..\Scripting\GTAentity.h"
 #include "..\..\Scripting\GTAvehicle.h"
+#include "..\..\Scripting\GTAcollection.h"
 #include "..\..\Scripting\GTAped.h"
 #include "..\..\Scripting\GTAprop.h"
 #include "..\..\Scripting\Model.h"
@@ -42,14 +43,13 @@
 #include "Databases.h"
 #include "BlipManagement.h"
 #include "MarkerManagement.h"
-#include "..\PedComponentChanger.h"
+#include "..\Wardrobe\PedHeadFeatures.h"
+#include "..\Wardrobe\PedDecals.h"
 #include "..\PtfxSubs.h"
 #include "..\PedAnimation.h"
 #include "..\Teleport\TeleMethods.h"
 #include "BlipCustoms.h"
 #include "SpoonerBlips.h"
-#include "..\..\Memory\GTAmemory.h"
-
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -91,17 +91,29 @@ const std::vector<std::string> overlaySlotNames = {"SkinRash", "Beard", "Eyebrow
 			return false;
 		}*/
 
-// adds collection (internal GTA name for clothing/prop collections) and localId attributes to the given XML node, skips enhanced
-void AddCollectionAttributes(int pedHandle, int slotIndex, bool isPropSlot, pugi::xml_node& nodeSlot)
+void AddCollectionAttributes(const std::string& collectionString, pugi::xml_node& nodeSlot)
 {
-    if (g_isEnhanced)
-        return;
-    const std::string collectionString = isPropSlot ? GTAmemory::GetPedPropCollectionString(pedHandle, slotIndex) : GTAmemory::GetPedDrawableCollectionString(pedHandle, slotIndex);
     const size_t separatorPos = collectionString.find(':');
     if (separatorPos == std::string::npos)
         return;
     nodeSlot.append_attribute("collection") = collectionString.substr(0, separatorPos).c_str();
     nodeSlot.append_attribute("localId") = collectionString.substr(separatorPos + 1).c_str();
+}
+
+void AddComponentCollectionAttributes(const GTAped& ped, int componentIndex, pugi::xml_node& node)
+{
+    if (g_isEnhanced)
+        return;
+
+    AddCollectionAttributes(GTAcollection::GetComponentCollectionString(ped, componentIndex), node);
+}
+
+void AddPropCollectionAttributes(const GTAped& ped, int propIndex, pugi::xml_node& node)
+{
+    if (g_isEnhanced)
+        return;
+
+    AddCollectionAttributes(GTAcollection::GetPropCollectionString(ped, propIndex), node);
 }
 
 void AddEntityToXmlNode(SpoonerEntity& e, pugi::xml_node& nodeEntity, bool legacyXMLFormat)
@@ -168,91 +180,102 @@ void AddEntityToXmlNode(SpoonerEntity& e, pugi::xml_node& nodeEntity, bool legac
         {
             const std::string slotName = legacyXMLFormat ? ("_" + std::to_string(i)) : drawablePropSlotNames[i];
             auto nodeProp = nodePedProps.append_child(slotName.c_str());
-            nodeProp.text() = (std::to_string(GET_PED_PROP_INDEX(ep.Handle(), i, 0)) + "," + std::to_string(GET_PED_PROP_TEXTURE_INDEX(ep.Handle(), i))).c_str();
+            nodeProp.text() = (std::to_string(ep.GetPropDrawableIndex(i)) + "," + std::to_string(ep.GetPropTextureIndex(i))).c_str();
             if (!legacyXMLFormat)
-                AddCollectionAttributes(ep.Handle(), i, true, nodeProp);
+                AddPropCollectionAttributes(ep, i, nodeProp);
         }
         for (UINT8 i = 0; i <= drawableComponentSlotNames.size() - 1; i++)
         {
             const std::string slotName = legacyXMLFormat ? ("_" + std::to_string(i)) : drawableComponentSlotNames[i];
             auto nodeComp = nodePedComps.append_child(slotName.c_str());
-            nodeComp.text() = (std::to_string(GET_PED_DRAWABLE_VARIATION(ep.Handle(), i)) + "," + std::to_string(GET_PED_TEXTURE_VARIATION(ep.Handle(), i))).c_str();
+            nodeComp.text() = (std::to_string(ep.GetComponentDrawableIndex(i)) + "," + std::to_string(ep.GetComponentTextureIndex(i))).c_str();
             if (!legacyXMLFormat)
-                AddCollectionAttributes(ep.Handle(), i, false, nodeComp);
+                AddComponentCollectionAttributes(ep, i, nodeComp);
         }
 
         if (sub::PedHeadFeatures_catind::DoesPedModelSupportHeadFeatures(eModel))
         {
             auto nodePedHeadFeatures = nodePedStuff.append_child("HeadFeatures");
-
             auto nodePedHeadBlend = nodePedHeadFeatures.append_child("ShapeAndSkinTone");
-            const auto& headBlend = ep.GetHeadBlendData();
-            nodePedHeadBlend.append_child("ShapeFatherId").text() = headBlend.shapeFirstID;
-            nodePedHeadBlend.append_child("ShapeMotherId").text() = headBlend.shapeSecondID;
-            nodePedHeadBlend.append_child("ShapeOverrideId").text() = headBlend.shapeThirdID;
-            nodePedHeadBlend.append_child("ToneFatherId").text() = headBlend.skinFirstID;
-            nodePedHeadBlend.append_child("ToneMotherId").text() = headBlend.skinSecondID;
-            nodePedHeadBlend.append_child("ToneOverrideId").text() = headBlend.skinThirdID;
-            nodePedHeadBlend.append_child("ShapeVal").text() = headBlend.shapeMix;
-            nodePedHeadBlend.append_child("ToneVal").text() = headBlend.skinMix;
-            nodePedHeadBlend.append_child("OverrideVal").text() = headBlend.thirdMix;
-            nodePedHeadBlend.append_child("IsP").text() = headBlend.isParent;
-
-            if (sub::PedHeadFeatures_catind::vPedHeads.count(ep.Handle()))
+            PedHeadBlendData headBlend{};
+            const bool hasHeadBlendData = ep.GetHeadBlendData(headBlend);
+            if (hasHeadBlendData)
             {
-                nodePedHeadFeatures.append_attribute("WasInArray") = true;
-                auto& pedHead = sub::PedHeadFeatures_catind::vPedHeads[ep.Handle()];
-                nodePedHeadFeatures.append_child("HairColour").text() = pedHead.hairColour;
-                nodePedHeadFeatures.append_child("HairColourStreaks").text() = pedHead.hairColourStreaks;
-                nodePedHeadFeatures.append_child("EyeColour").text() = pedHead.eyeColour;
+                nodePedHeadBlend.append_child("ShapeFatherId").text() = headBlend.shapeFirstID;
+                nodePedHeadBlend.append_child("ShapeMotherId").text() = headBlend.shapeSecondID;
+                nodePedHeadBlend.append_child("ShapeOverrideId").text() = headBlend.shapeThirdID;
+                nodePedHeadBlend.append_child("ToneFatherId").text() = headBlend.skinFirstID;
+                nodePedHeadBlend.append_child("ToneMotherId").text() = headBlend.skinSecondID;
+                nodePedHeadBlend.append_child("ToneOverrideId").text() = headBlend.skinThirdID;
+                nodePedHeadBlend.append_child("ShapeVal").text() = headBlend.shapeMix;
+                nodePedHeadBlend.append_child("ToneVal").text() = headBlend.skinMix;
+                nodePedHeadBlend.append_child("OverrideVal").text() = headBlend.thirdMix;
+                nodePedHeadBlend.append_child("IsP").text() = headBlend.isParent;
+            }
 
-                auto nodePedFacialFeatures = nodePedHeadFeatures.append_child("FacialFeatures"); //currently returning 0 to xml file for all values
-                for (int i = 0; i < pedHead.facialFeatureData.size(); i++)
+            PedHeadFeatures_catind::PedHeadFeatureSelection pedHeadFeatures;
+            PedHeadOverlayData overlayDataByIndex[13];
+            bool hasPedHeadFeatures = hasHeadBlendData && ep.GetHairTint(pedHeadFeatures.hairColour, pedHeadFeatures.hairHighlightColour);
+            pedHeadFeatures.eyeColour = ep.GetEyeColour();
+            for (int featureIndex = 0; hasPedHeadFeatures && featureIndex < pedHeadFeatures.facialFeatures.size(); ++featureIndex)
+                hasPedHeadFeatures = ep.GetFaceFeatureValue(featureIndex, pedHeadFeatures.facialFeatures[featureIndex]);
+            for (int overlayIndex = 0; hasPedHeadFeatures && overlayIndex < pedHeadFeatures.overlays.size(); ++overlayIndex)
+            {
+                hasPedHeadFeatures = ep.GetHeadOverlayData(overlayIndex, overlayDataByIndex[overlayIndex]);
+                if (hasPedHeadFeatures)
                 {
-                    std::string facialFeatureName = legacyXMLFormat ? ("_" + std::to_string(i)) : facialFeatureSlotNames[i];
-                    addlog(ige::LogType::LOG_DEBUG, "Saving Facial feature " + facialFeatureName + " (index " + std::to_string(i) + ") as value " + std::to_string(pedHead.facialFeatureData[i]));
-                    nodePedFacialFeatures.append_child(facialFeatureName.c_str()).text() = std::to_string(pedHead.facialFeatureData[i]).c_str();
+                    pedHeadFeatures.overlays[overlayIndex].opacity = overlayDataByIndex[overlayIndex].opacity;
+                    pedHeadFeatures.overlays[overlayIndex].primaryColour = overlayDataByIndex[overlayIndex].primaryColour;
+                    pedHeadFeatures.overlays[overlayIndex].secondaryColour = overlayDataByIndex[overlayIndex].secondaryColour;
+                }
+            }
+
+            nodePedHeadFeatures.append_attribute("WasInArray") = hasPedHeadFeatures;
+            if (hasPedHeadFeatures)
+            {
+                nodePedHeadFeatures.append_child("HairColour").text() = pedHeadFeatures.hairColour;
+                nodePedHeadFeatures.append_child("HairColourStreaks").text() = pedHeadFeatures.hairHighlightColour;
+                nodePedHeadFeatures.append_child("EyeColour").text() = pedHeadFeatures.eyeColour;
+
+                auto nodePedFacialFeatures = nodePedHeadFeatures.append_child("FacialFeatures");
+                for (int i = 0; i < pedHeadFeatures.facialFeatures.size(); i++)
+                {
+                    const std::string facialFeatureName = legacyXMLFormat ? ("_" + std::to_string(i)) : facialFeatureSlotNames[i];
+                    nodePedFacialFeatures.append_child(facialFeatureName.c_str()).text() = std::to_string(pedHeadFeatures.facialFeatures[i]).c_str();
                 }
 
                 auto nodePedHeadOverlays = nodePedHeadFeatures.append_child("Overlays");
-                for (int i = 0; i < pedHead.overlayData.size(); i++)
+                for (int i = 0; i < pedHeadFeatures.overlays.size(); i++)
                 {
-                    std::string overlayName = legacyXMLFormat ? ("_" + std::to_string(i)) : overlaySlotNames[i];
+                    const std::string overlayName = legacyXMLFormat ? ("_" + std::to_string(i)) : overlaySlotNames[i];
                     auto nodePedHeadOverlay = nodePedHeadOverlays.append_child(overlayName.c_str());
-                    nodePedHeadOverlay.append_attribute("index") = GET_PED_HEAD_OVERLAY(ep.Handle(), i);
-                    nodePedHeadOverlay.append_attribute("colour") = pedHead.overlayData[i].colour;
-                    nodePedHeadOverlay.append_attribute("colourSecondary") = pedHead.overlayData[i].colourSecondary;
-                    nodePedHeadOverlay.append_attribute("opacity") = pedHead.overlayData[i].opacity;
+                    nodePedHeadOverlay.append_attribute("index") = overlayDataByIndex[i].drawableIndex;
+                    nodePedHeadOverlay.append_attribute("colour") = pedHeadFeatures.overlays[i].primaryColour;
+                    nodePedHeadOverlay.append_attribute("colourSecondary") = pedHeadFeatures.overlays[i].secondaryColour;
+                    nodePedHeadOverlay.append_attribute("opacity") = pedHeadFeatures.overlays[i].opacity;
                 }
             }
-            else
-            {
-                nodePedHeadFeatures.append_attribute("WasInArray") = false;
-            }
         }
-
-        if (sub::PedDecals::vPedsAndDecals.count(ep.Handle()))
+        if (const auto* appliedDecorations = ep.GetTrackedDecorations())
         {
             auto nodePedTattooLogoDecals = nodePedStuff.append_child("TattooLogoDecals");
-            auto& decalsApplied = sub::PedDecals::vPedsAndDecals[ep.Handle()];
-            for (auto& decal : decalsApplied)
+            for (const auto& decoration : *appliedDecorations)
             {
                 auto nodeDecal = nodePedTattooLogoDecals.append_child("Decal");
-                nodeDecal.append_attribute("collection") = IntToHexString(decal.collection, true).c_str();
-                nodeDecal.append_attribute("value") = IntToHexString(decal.value, true).c_str();
-                auto caption = sub::PedDecals::GetDecalCaption(decal.collection, decal.value);
+                nodeDecal.append_attribute("collection") = IntToHexString(decoration.collectionHash, true).c_str();
+                nodeDecal.append_attribute("value") = IntToHexString(decoration.overlayHash, true).c_str();
+                auto caption = sub::PedDecals::FindDecalCaption(decoration.collectionHash, decoration.overlayHash);
                 if (!caption.empty())
                     nodeDecal.append_attribute("name") = caption.c_str();
             }
         }
 
-        if (sub::PedDamageTextures::vPedsAndDamagePacks.count(ep.Handle()))
+        if (const auto* appliedDamagePacks = ep.GetTrackedDamagePacks())
         {
             auto nodePedDamagePacks = nodePedStuff.append_child("DamagePacks");
-            auto& dmgPacksApplied = sub::PedDamageTextures::vPedsAndDamagePacks[ep.Handle()];
-            for (auto& dpna : dmgPacksApplied)
+            for (const auto& damagePackName : *appliedDamagePacks)
             {
-                nodePedDamagePacks.append_child().text() = dpna.c_str();
+                nodePedDamagePacks.append_child().text() = damagePackName.c_str();
             }
         }
 
@@ -527,31 +550,35 @@ struct SlotResolveResult
     std::string detail;
 };
 
-SlotResolveResult ResolveSavedGlobalId(int pedHandle, int slotIndex, bool isPropSlot, const pugi::xml_node& nodeSlot)
+int GetSavedGlobalDrawableId(const pugi::xml_node& nodeSlot)
 {
     const std::string slotText = nodeSlot.text().as_string();
+    return stoi(slotText.substr(0, slotText.find(',')));
+}
 
-    int savedGlobalId = stoi(slotText.substr(0, slotText.find(",")));
-    // negative IDs are invalid
-    if (isPropSlot ? savedGlobalId < -1 : savedGlobalId < 0)
-        savedGlobalId = 0;
+bool HasSavedCollectionReference(int savedGlobalId, const pugi::xml_node& nodeSlot)
+{
+    if (g_isEnhanced || savedGlobalId < 0)
+        return false;
 
     const auto collectionAttr = nodeSlot.attribute("collection");
     const auto localIdAttr = nodeSlot.attribute("localId");
-    if (!collectionAttr || !localIdAttr || g_isEnhanced || savedGlobalId < 0)
-        return {savedGlobalId, SlotResolveStatus::Current, ""};
+    return collectionAttr && localIdAttr;
+}
 
+SlotResolveResult ResolveSavedCollectionReference(int savedGlobalId, const pugi::xml_node& nodeSlot, const GTAcollection::DrawableCollections& collections)
+{
+    const auto collectionAttr = nodeSlot.attribute("collection");
+    const auto localIdAttr = nodeSlot.attribute("localId");
     const std::string collectionName = collectionAttr.as_string();
     const int localId = localIdAttr.as_int(-1);
     const std::string slotName = nodeSlot.name();
     const std::string collectionRef = collectionName + ":" + std::to_string(localId);
 
-    const GTAmemory::DrawableCollectionData collectionData = isPropSlot ? GTAmemory::BuildPropCollectionData(pedHandle, slotIndex) : GTAmemory::BuildDrawableCollectionData(pedHandle, slotIndex);
-    const int resolvedGlobalId = GTAmemory::ResolveGlobalFromCollectionData(collectionData, collectionName, localId);
+    const int resolvedGlobalId = GTAcollection::FindGlobalDrawableIndex(collections, collectionName, localId);
     if (resolvedGlobalId < 0)
     {
-        const bool collectionExists =
-            std::any_of(collectionData.collections.begin(), collectionData.collections.end(), [&](const GTAmemory::CollectionEntry& collection) { return collection.name == collectionName; });
+        const bool collectionExists = std::any_of(collections.begin(), collections.end(), [&](const GTAcollection::DrawableCollection& collection) { return collection.name == collectionName; });
         std::string reason;
         if (collectionExists)
             reason = "localId " + std::to_string(localId) + " not in '" + collectionName + "'";
@@ -567,6 +594,32 @@ SlotResolveResult ResolveSavedGlobalId(int pedHandle, int slotIndex, bool isProp
     return {savedGlobalId, SlotResolveStatus::Current, ""};
 }
 
+SlotResolveResult ResolveSavedComponentDrawableId(const GTAped& ped, int componentIndex, const pugi::xml_node& nodeSlot)
+{
+    int savedGlobalId = GetSavedGlobalDrawableId(nodeSlot);
+    if (savedGlobalId < 0)
+        savedGlobalId = 0;
+
+    if (!HasSavedCollectionReference(savedGlobalId, nodeSlot))
+        return {savedGlobalId, SlotResolveStatus::Current, ""};
+
+    const auto collections = GTAcollection::GetComponentCollections(ped, componentIndex);
+    return ResolveSavedCollectionReference(savedGlobalId, nodeSlot, collections);
+}
+
+SlotResolveResult ResolveSavedPropDrawableId(const GTAped& ped, int propIndex, const pugi::xml_node& nodeSlot)
+{
+    int savedGlobalId = GetSavedGlobalDrawableId(nodeSlot);
+    if (savedGlobalId < -1)
+        savedGlobalId = 0;
+
+    if (!HasSavedCollectionReference(savedGlobalId, nodeSlot))
+        return {savedGlobalId, SlotResolveStatus::Current, ""};
+
+    const auto collections = GTAcollection::GetPropCollections(ped, propIndex);
+    return ResolveSavedCollectionReference(savedGlobalId, nodeSlot, collections);
+}
+
 void LoadPedCompsFromXml(GTAped ep, const pugi::xml_node& nodePedComps)
 {
     std::vector<std::string> collectionWarnings;
@@ -578,7 +631,7 @@ void LoadPedCompsFromXml(GTAped ep, const pugi::xml_node& nodePedComps)
         int texture = stoi(slotText.substr(slotText.find(",") + 1));
         if (texture < 0)
             texture = 0;
-        const SlotResolveResult resolved = ResolveSavedGlobalId(ep.Handle(), slot, false, node);
+        const SlotResolveResult resolved = ResolveSavedComponentDrawableId(ep, slot, node);
         if (resolved.status == SlotResolveStatus::Remapped)
         {
             collectionWarnings.push_back(resolved.detail);
@@ -590,9 +643,9 @@ void LoadPedCompsFromXml(GTAped ep, const pugi::xml_node& nodePedComps)
             addlog(ige::LogType::LOG_WARNING, resolved.detail);
         }
         const int drawable = resolved.globalId;
-        if (GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS(ep.Handle(), slot) > drawable && GET_NUMBER_OF_PED_TEXTURE_VARIATIONS(ep.Handle(), slot, drawable) > texture)
+        if (ep.IsComponentVariationValid(slot, drawable, texture))
         {
-            SET_PED_COMPONENT_VARIATION(ep.Handle(), slot, drawable, texture, 0);
+            ep.SetComponentVariation(slot, drawable, texture);
         }
     }
     std::string warningLines, errorLines;
@@ -619,7 +672,7 @@ void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNe
         int texture = stoi(slotText.substr(slotText.find(",") + 1));
         if (texture < 0)
             texture = 0;
-        const SlotResolveResult resolved = ResolveSavedGlobalId(ep.Handle(), slot, true, node);
+        const SlotResolveResult resolved = ResolveSavedPropDrawableId(ep, slot, node);
         if (resolved.status == SlotResolveStatus::Remapped)
         {
             collectionWarnings.push_back(resolved.detail);
@@ -631,7 +684,8 @@ void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNe
             addlog(ige::LogType::LOG_WARNING, resolved.detail);
         }
         const int drawable = resolved.globalId;
-        SET_PED_PROP_INDEX(ep.Handle(), slot, drawable, texture, bNetworkIsGameInProgress, 0);
+        if (drawable >= 0 && ep.IsPropVariationValid(slot, drawable, texture))
+            ep.SetPropVariation(slot, drawable, texture, bNetworkIsGameInProgress);
     }
     std::string warningLines, errorLines;
     for (auto& line : collectionWarnings)
@@ -676,40 +730,39 @@ void LoadPedHeadFeaturesFromXml(GTAped ep, const pugi::xml_node& nodePedHeadFeat
     if (!nodePedHeadFeatures.attribute("WasInArray").as_bool())
         return;
 
-    sub::PedHeadFeatures_catind::sPedHeadFeatures pedHead;
-    pedHead.hairColour = nodePedHeadFeatures.child("HairColour").text().as_int();
-    pedHead.hairColourStreaks = nodePedHeadFeatures.child("HairColourStreaks").text().as_int();
-    pedHead.eyeColour = nodePedHeadFeatures.child("EyeColour").text().as_int();
+    sub::PedHeadFeatures_catind::PedHeadFeatureSelection pedHeadFeatures;
+    pedHeadFeatures.hairColour = nodePedHeadFeatures.child("HairColour").text().as_int();
+    pedHeadFeatures.hairHighlightColour = nodePedHeadFeatures.child("HairColourStreaks").text().as_int();
+    pedHeadFeatures.eyeColour = nodePedHeadFeatures.child("EyeColour").text().as_int();
 
-    SET_PED_HAIR_TINT(ep.Handle(), pedHead.hairColour, pedHead.hairColourStreaks);
-    SET_HEAD_BLEND_EYE_COLOR(ep.Handle(), SYSTEM::ROUND((float)pedHead.eyeColour));
+    ep.SetHairTint(pedHeadFeatures.hairColour, pedHeadFeatures.hairHighlightColour);
+    ep.SetEyeColour(pedHeadFeatures.eyeColour);
 
     auto nodePedFacialFeatures = nodePedHeadFeatures.child("FacialFeatures");
     int facialFeatureSlot = 0;
     for (auto node = nodePedFacialFeatures.first_child(); node; node = node.next_sibling(), facialFeatureSlot++)
     {
-        pedHead.facialFeatureData[facialFeatureSlot] = node.text().as_float();
-        SET_PED_MICRO_MORPH(ep.Handle(), facialFeatureSlot, pedHead.facialFeatureData[facialFeatureSlot]);
+        pedHeadFeatures.facialFeatures[facialFeatureSlot] = node.text().as_float();
+        ep.SetFaceFeatureValue(facialFeatureSlot, pedHeadFeatures.facialFeatures[facialFeatureSlot]);
     }
 
     auto nodePedHeadOverlays = nodePedHeadFeatures.child("Overlays");
     int overlayIndex = 0;
     for (auto node = nodePedHeadOverlays.first_child(); node; node = node.next_sibling(), overlayIndex++)
     {
-        auto overlayData_index = node.attribute("index").as_int();
-        pedHead.overlayData[overlayIndex].colour = node.attribute("colour").as_int();
-        pedHead.overlayData[overlayIndex].colourSecondary = node.attribute("colourSecondary").as_int();
-        pedHead.overlayData[overlayIndex].opacity = node.attribute("opacity").as_float();
-        SET_PED_HEAD_OVERLAY(ep.Handle(), overlayIndex, overlayData_index, pedHead.overlayData[overlayIndex].opacity);
-        SET_PED_HEAD_OVERLAY_TINT(
-            ep.Handle(),
+        const auto overlayDrawableIndex = node.attribute("index").as_int();
+        pedHeadFeatures.overlays[overlayIndex].primaryColour = node.attribute("colour").as_int();
+        pedHeadFeatures.overlays[overlayIndex].secondaryColour = node.attribute("colourSecondary").as_int();
+        pedHeadFeatures.overlays[overlayIndex].opacity = node.attribute("opacity").as_float();
+        ep.SetHeadOverlay(overlayIndex, overlayDrawableIndex, pedHeadFeatures.overlays[overlayIndex].opacity);
+        ep.SetHeadOverlayTint(
             overlayIndex,
             sub::PedHeadFeatures_catind::GetPedHeadOverlayColourType((PedHeadOverlay)overlayIndex),
-            pedHead.overlayData[overlayIndex].colour,
-            pedHead.overlayData[overlayIndex].colourSecondary
+            pedHeadFeatures.overlays[overlayIndex].primaryColour,
+            pedHeadFeatures.overlays[overlayIndex].secondaryColour
         );
     }
-    sub::PedHeadFeatures_catind::vPedHeads[ep.Handle()] = pedHead;
+    sub::PedHeadFeatures_catind::pedHeadFeaturesByPed[ep.Handle()] = pedHeadFeatures;
 }
 
 void LoadPedDecalsFromXml(GTAped ep, const pugi::xml_node& nodePedDecals)
@@ -717,12 +770,11 @@ void LoadPedDecalsFromXml(GTAped ep, const pugi::xml_node& nodePedDecals)
     if (!nodePedDecals)
         return;
 
-    auto& decalsApplied = sub::PedDecals::vPedsAndDecals[ep.Handle()];
     for (auto node = nodePedDecals.first_child(); node; node = node.next_sibling())
     {
-        sub::PedDecals::PedDecalValue decal(node.attribute("collection").as_uint(), node.attribute("value").as_uint());
-        decalsApplied.push_back(decal);
-        ADD_PED_DECORATION_FROM_HASHES(ep.Handle(), decal.collection, decal.value);
+        const Hash collectionHash = node.attribute("collection").as_uint();
+        const Hash overlayHash = node.attribute("value").as_uint();
+        ep.ApplyDecoration(collectionHash, overlayHash);
     }
 }
 
@@ -731,12 +783,10 @@ void LoadPedDamagePacksFromXml(GTAped ep, const pugi::xml_node& nodePedDamagePac
     if (!nodePedDamagePacks)
         return;
 
-    auto& dmgPacksApplied = sub::PedDamageTextures::vPedsAndDamagePacks[ep.Handle()];
     for (auto node = nodePedDamagePacks.first_child(); node; node = node.next_sibling())
     {
-        const std::string dpnta = node.text().as_string();
-        ep.ApplyDamagePack(dpnta, 1.0f, 1.0f);
-        dmgPacksApplied.push_back(dpnta);
+        const std::string damagePackName = node.text().as_string();
+        ep.ApplyDamagePack(damagePackName, 1.0f, 1.0f);
     }
 }
 

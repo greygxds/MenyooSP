@@ -1876,6 +1876,21 @@ enum ePedVarComp
     PV_COMP_MAX
 };
 
+enum ePedVarProp
+{
+    PV_PROP_HEAD,
+    PV_PROP_EYES,
+    PV_PROP_EARS,
+    PV_PROP_MOUTH,
+    PV_PROP_LEFT_HAND,
+    PV_PROP_RIGHT_HAND,
+    PV_PROP_LEFT_WRIST,
+    PV_PROP_RIGHT_WRIST,
+    PV_PROP_HIP,
+    PV_PROP_LEFT_FOOT,
+    PV_PROP_MAX
+};
+
 //Source: https://natives.altv.mp/0x1913FE4CBF41C463
 namespace ePedConfigFlags
 {

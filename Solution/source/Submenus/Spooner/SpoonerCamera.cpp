@@ -5,7 +5,7 @@
 #include "MarkerManagement.h"
 #include "SpoonerMarker.h"
 #include "Submenus.h"
-#include "..\PedComponentChanger.h"
+#include "..\Wardrobe\WardrobeCamera.h"
 #include "..\..\Menu\Menu.h"
 #include "..\..\Menu\MenuConfig.h"
 #include "..\..\Menu\Keybinds.h"

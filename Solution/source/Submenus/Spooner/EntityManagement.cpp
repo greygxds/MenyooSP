@@ -31,7 +31,7 @@
 #include "..\..\Scripting\Camera.h"
 
 #include "..\PedAnimation.h"
-#include "..\PedComponentChanger.h"
+#include "..\Wardrobe\PedHeadFeatures.h"
 #include "..\PtfxSubs.h"
 #include "Databases.h"
 #include "SpoonerEntity.h"
@@ -729,9 +729,9 @@ SpoonerEntity CopyEntity(SpoonerEntity orig, bool isInDb, bool addToDb, UINT8 co
 
         ep.SetPosition(origPed.GetPosition());
         ep.SetRotation(origPed.GetRotation());
-        sub::PedHeadFeatures_catind::vPedHeads[ep.Handle()] = sub::PedHeadFeatures_catind::vPedHeads[origPed.Handle()];
-        sub::PedDamageTextures::vPedsAndDamagePacks[ep.Handle()] = sub::PedDamageTextures::vPedsAndDamagePacks[origPed.Handle()];
-        sub::PedDecals::vPedsAndDecals[ep.Handle()] = sub::PedDecals::vPedsAndDecals[origPed.Handle()];
+        sub::PedHeadFeatures_catind::pedHeadFeaturesByPed[ep.Handle()] = sub::PedHeadFeatures_catind::pedHeadFeaturesByPed[origPed.Handle()];
+        ep.CopyDamagePackTrackingFrom(origPed);
+        ep.CopyDecorationTrackingFrom(origPed);
         //GTAped(orig.handle).StoreWeaponsInArray(weaponsBackup);
         //GTAped(newEntity.handle).GiveWeaponsFromArray(weaponsBackup);
         SET_NETWORK_ID_CAN_MIGRATE(ep.NetID(), true);

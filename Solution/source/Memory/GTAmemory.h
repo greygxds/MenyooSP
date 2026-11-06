@@ -512,6 +512,8 @@ class BlipList
 }; //Size=0x2F18
 
 // ScriptHookVDotNet
+struct PedHeadOverlayData;
+
 class GTAmemory final
 {
   public:
@@ -684,6 +686,9 @@ class GTAmemory final
     }
 
     static UINT64 GetEntityAddress(int handle);
+    static bool GetPedFaceFeatureValue(int pedHandle, int featureIndex, float& featureValue);
+    static bool GetPedHeadOverlayData(int pedHandle, int overlayIndex, PedHeadOverlayData& overlayData);
+    static bool GetPedHairTint(int pedHandle, int& hairColour, int& highlightColour);
     static UINT64 GetPlayerAddress(int handle);
     static UINT64 GetCheckpointAddress(int handle);
     static UINT64 GetPtfxAddress(int handle);
@@ -744,33 +749,34 @@ class GTAmemory final
     static std::string GetVehicleModelName(Hash modelHash);
     static std::string GetVehicleMakeName(Hash modelHash);
 
-    // Ped Variation Collections (returns "collection:local_id" format, e.g., "mp_f_clothes_01:23")
+  private:
+    friend class GTAcollection;
+
     static std::string GetPedDrawableCollectionString(int pedHandle, int componentId);
     static std::string GetPedPropCollectionString(int pedHandle, int anchorPoint);
 
-    // Collection enumeration data
     struct CollectionEntry
     {
-        std::string name;               // e.g. "mp_f_clothes_01" or "basegame"
-        int maxLocalId;                 // highest local index in this collection
-        std::vector<int> localToGlobal; // maps localIdx -> global drawable index
+        std::string name;
+        int maxLocalId;
+        std::vector<int> localToGlobal;
     };
 
     struct DrawableCollectionData
     {
         std::vector<CollectionEntry> collections;
-        int currentCollectionIdx; // index into collections[]
-        int currentLocalIdx;      // local index within that collection
     };
 
-    // Build collection map for a ped's component slot (model-cached)
+    enum class PedVariationKind
+    {
+        Component,
+        Prop
+    };
+
+    static DrawableCollectionData BuildCollectionData(int pedHandle, int slotIndex, PedVariationKind kind);
     static DrawableCollectionData BuildDrawableCollectionData(int pedHandle, int componentId);
     static DrawableCollectionData BuildPropCollectionData(int pedHandle, int anchorPoint);
 
-    // returns -1 when the collection is missing or lacks the localId.
-    static int ResolveGlobalFromCollectionData(const DrawableCollectionData& collectionData, const std::string& collectionName, int localId);
-
-  private:
     static UINT64 modelHashTable, modelNum2, modelNum3, modelNum4;
     static int modelNum1;
     static unsigned short modelHashEntries;

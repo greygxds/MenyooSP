@@ -45,7 +45,6 @@
 #include "SpoonerLight.h"
 #include "EntityManagement.h"
 #include "Submenus.h"
-#include "..\..\Submenus\PedComponentChanger.h"
 #include "..\..\Submenus\Settings.h"
 #include "..\..\Submenus\PedAnimation.h"
 #include "..\..\Submenus\PedSpeech.h"

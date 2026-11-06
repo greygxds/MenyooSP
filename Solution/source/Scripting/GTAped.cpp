@@ -9,6 +9,7 @@
 */
 #include "GTAped.h"
 
+#include "..\Memory\GTAmemory.h"
 #include "..\macros.h"
 
 #include "..\Util\GTAmath.h"
@@ -20,8 +21,20 @@
 #include "GTAvehicle.h"
 #include "WeaponIndivs.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
+
+namespace
+{
+std::map<Ped, std::vector<PedDecoration>> trackedDecorationsByPed;
+std::map<Ped, std::vector<std::string>> trackedDamagePacksByPed;
+
+void ResetVisibleDamageNative(Ped ped)
+{
+    RESET_PED_VISIBLE_DAMAGE(ped);
+}
+} // namespace
 
 PedGroup::PedGroup() : _handle(0)
 {
@@ -349,9 +362,14 @@ bool GTAped::IsSubTaskActive(const PedSubTask& taskType)
 
 PedHeadBlendData GTAped::GetHeadBlendData() const
 {
-    PedHeadBlendData blendData;
-    GET_PED_HEAD_BLEND_DATA(this->mHandle, (Any*)&blendData);
+    PedHeadBlendData blendData{};
+    GetHeadBlendData(blendData);
     return blendData;
+}
+
+bool GTAped::GetHeadBlendData(PedHeadBlendData& blendData) const
+{
+    return GET_PED_HEAD_BLEND_DATA(this->mHandle, (Any*)&blendData) != 0;
 }
 
 void GTAped::SetHeadBlendData(const PedHeadBlendData& blendData)
@@ -369,6 +387,251 @@ void GTAped::SetHeadBlendData(const PedHeadBlendData& blendData)
         blendData.thirdMix,
         blendData.isParent
     );
+}
+
+bool GTAped::GetFaceFeatureValue(int featureIndex, float& featureValue) const
+{
+    return GTAmemory::GetPedFaceFeatureValue(this->mHandle, featureIndex, featureValue);
+}
+
+void GTAped::SetFaceFeatureValue(int featureIndex, float featureValue)
+{
+    if (featureIndex < 0 || featureIndex >= 20)
+        return;
+
+    SET_PED_MICRO_MORPH(this->mHandle, featureIndex, featureValue);
+}
+
+bool GTAped::GetHeadOverlayData(int overlayIndex, PedHeadOverlayData& overlayData) const
+{
+    return GTAmemory::GetPedHeadOverlayData(this->mHandle, overlayIndex, overlayData);
+}
+
+int GTAped::GetHeadOverlayDrawableCount(int overlayIndex) const
+{
+    if (overlayIndex < 0 || overlayIndex >= 13)
+        return 0;
+
+    return GET_PED_HEAD_OVERLAY_NUM(overlayIndex);
+}
+
+void GTAped::SetHeadOverlay(int overlayIndex, int drawableIndex, float opacity)
+{
+    if (overlayIndex < 0 || overlayIndex >= 13)
+        return;
+
+    SET_PED_HEAD_OVERLAY(this->mHandle, overlayIndex, drawableIndex, opacity);
+}
+
+void GTAped::SetHeadOverlayTint(int overlayIndex, int colourType, int primaryColour, int secondaryColour)
+{
+    if (overlayIndex < 0 || overlayIndex >= 13)
+        return;
+
+    SET_PED_HEAD_OVERLAY_TINT(this->mHandle, overlayIndex, colourType, primaryColour, secondaryColour);
+}
+
+bool GTAped::GetHairTint(int& hairColour, int& highlightColour) const
+{
+    return GTAmemory::GetPedHairTint(this->mHandle, hairColour, highlightColour);
+}
+
+void GTAped::SetHairTint(int hairColour, int highlightColour)
+{
+    SET_PED_HAIR_TINT(this->mHandle, hairColour, highlightColour);
+}
+
+int GTAped::GetEyeColour() const
+{
+    return GET_HEAD_BLEND_EYE_COLOR(this->mHandle);
+}
+
+void GTAped::SetEyeColour(int eyeColour)
+{
+    SET_HEAD_BLEND_EYE_COLOR(this->mHandle, eyeColour);
+}
+
+int GTAped::GetComponentDrawableIndex(int componentIndex) const
+{
+    return GET_PED_DRAWABLE_VARIATION(GetHandle(), componentIndex);
+}
+
+int GTAped::GetComponentTextureIndex(int componentIndex) const
+{
+    return GET_PED_TEXTURE_VARIATION(GetHandle(), componentIndex);
+}
+
+int GTAped::GetComponentDrawableCount(int componentIndex) const
+{
+    return GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS(GetHandle(), componentIndex);
+}
+
+int GTAped::GetComponentTextureCount(int componentIndex, int drawableIndex) const
+{
+    return GET_NUMBER_OF_PED_TEXTURE_VARIATIONS(GetHandle(), componentIndex, drawableIndex);
+}
+
+bool GTAped::IsComponentVariationValid(int componentIndex, int drawableId, int textureId) const
+{
+    return IS_PED_COMPONENT_VARIATION_VALID(GetHandle(), componentIndex, drawableId, textureId);
+}
+
+void GTAped::SetComponentVariation(int componentIndex, int drawableId, int textureId, int paletteId)
+{
+    SET_PED_COMPONENT_VARIATION(GetHandle(), componentIndex, drawableId, textureId, paletteId);
+}
+
+int GTAped::GetPropDrawableIndex(int propIndex) const
+{
+    return GET_PED_PROP_INDEX(GetHandle(), propIndex, 0);
+}
+
+int GTAped::GetPropTextureIndex(int propIndex) const
+{
+    return GET_PED_PROP_TEXTURE_INDEX(GetHandle(), propIndex);
+}
+
+int GTAped::GetPropDrawableCount(int propIndex) const
+{
+    return GET_NUMBER_OF_PED_PROP_DRAWABLE_VARIATIONS(GetHandle(), propIndex);
+}
+
+int GTAped::GetPropTextureCount(int propIndex, int drawableIndex) const
+{
+    return GET_NUMBER_OF_PED_PROP_TEXTURE_VARIATIONS(GetHandle(), propIndex, drawableIndex);
+}
+
+bool GTAped::IsPropVariationValid(int propIndex, int drawableId, int textureId) const
+{
+    if (drawableId == -1)
+        return textureId == 0;
+    if (drawableId < 0 || textureId < 0)
+        return false;
+    if (drawableId >= GetPropDrawableCount(propIndex))
+        return false;
+
+    return textureId < GetPropTextureCount(propIndex, drawableId);
+}
+
+void GTAped::SetPropVariation(int propIndex, int drawableId, int textureId, bool attach)
+{
+    if (drawableId == -1)
+    {
+        CLEAR_PED_PROP(GetHandle(), propIndex, 0);
+        return;
+    }
+
+    SET_PED_PROP_INDEX(GetHandle(), propIndex, drawableId, textureId, attach, 0);
+}
+
+bool GTAped::HasTrackedDecoration(Hash collectionHash, Hash overlayHash) const
+{
+    const auto* decorations = GetTrackedDecorations();
+    if (decorations == nullptr)
+        return false;
+
+    for (const auto& decoration : *decorations)
+    {
+        if (decoration.collectionHash == collectionHash && decoration.overlayHash == overlayHash)
+            return true;
+    }
+    return false;
+}
+
+const std::vector<PedDecoration>* GTAped::GetTrackedDecorations() const
+{
+    const auto it = trackedDecorationsByPed.find(GetHandle());
+    if (it == trackedDecorationsByPed.end())
+        return nullptr;
+
+    return &it->second;
+}
+
+void GTAped::ApplyDecoration(Hash collectionHash, Hash overlayHash)
+{
+    trackedDecorationsByPed[GetHandle()].push_back({collectionHash, overlayHash});
+    ADD_PED_DECORATION_FROM_HASHES(GetHandle(), collectionHash, overlayHash);
+}
+
+void GTAped::RemoveDecoration(Hash collectionHash, Hash overlayHash)
+{
+    if (!Exists())
+    {
+        ForgetTrackedDecorations();
+        return;
+    }
+
+    auto& trackedDecorations = trackedDecorationsByPed[GetHandle()];
+    for (auto it = trackedDecorations.begin(); it != trackedDecorations.end();)
+    {
+        if (it->collectionHash == collectionHash && it->overlayHash == overlayHash)
+            it = trackedDecorations.erase(it);
+        else
+            ++it;
+    }
+
+    CLEAR_PED_DECORATIONS(GetHandle());
+    for (const auto& decoration : trackedDecorations)
+        ADD_PED_DECORATION_FROM_HASHES(GetHandle(), decoration.collectionHash, decoration.overlayHash);
+}
+
+void GTAped::ClearDecorations()
+{
+    CLEAR_PED_DECORATIONS(GetHandle());
+    ForgetTrackedDecorations();
+}
+
+void GTAped::ClearTrackedDecorations()
+{
+    trackedDecorationsByPed[GetHandle()].clear();
+}
+
+void GTAped::ForgetTrackedDecorations()
+{
+    trackedDecorationsByPed.erase(GetHandle());
+}
+
+void GTAped::CopyDecorationTrackingFrom(const GTAped& sourcePed)
+{
+    trackedDecorationsByPed[GetHandle()] = trackedDecorationsByPed[sourcePed.GetHandle()];
+}
+
+bool GTAped::HasTrackedDamagePack(const std::string& damagePackName) const
+{
+    const auto* damagePacks = GetTrackedDamagePacks();
+    if (damagePacks == nullptr)
+        return false;
+
+    return std::find(damagePacks->begin(), damagePacks->end(), damagePackName) != damagePacks->end();
+}
+
+const std::vector<std::string>* GTAped::GetTrackedDamagePacks() const
+{
+    const auto it = trackedDamagePacksByPed.find(GetHandle());
+    if (it == trackedDamagePacksByPed.end())
+        return nullptr;
+
+    return &it->second;
+}
+
+void GTAped::EnsureDamagePackTracking()
+{
+    trackedDamagePacksByPed[GetHandle()];
+}
+
+void GTAped::ClearTrackedDamagePacks()
+{
+    trackedDamagePacksByPed[GetHandle()].clear();
+}
+
+void GTAped::ForgetTrackedDamagePacks()
+{
+    trackedDamagePacksByPed.erase(GetHandle());
+}
+
+void GTAped::CopyDamagePackTrackingFrom(const GTAped& sourcePed)
+{
+    trackedDamagePacksByPed[GetHandle()] = trackedDamagePacksByPed[sourcePed.GetHandle()];
 }
 
 void GTAped::SetVoiceName(const std::string& value)
@@ -841,9 +1104,24 @@ bool GTAped::WasKilledByTakedown() const
     return WAS_PED_KILLED_BY_TAKEDOWN(this->mHandle) != 0;
 }
 
-void GTAped::SetWetnessHeight(float value)
+void GTAped::SetSweat(float sweatLevel)
 {
-    SET_PED_WETNESS_HEIGHT(this->mHandle, value);
+    SET_PED_SWEAT(this->mHandle, sweatLevel);
+}
+
+void GTAped::SetWetnessHeight(float wetnessHeight)
+{
+    SET_PED_WETNESS_HEIGHT(this->mHandle, wetnessHeight);
+}
+
+void GTAped::EnableWetnessThisFrame()
+{
+    SET_PED_WETNESS_ENABLED_THIS_FRAME(this->mHandle);
+}
+
+void GTAped::ClearWetness()
+{
+    CLEAR_PED_WETNESS(this->mHandle);
 }
 
 bool GTAped::IsInVehicle() const
@@ -922,7 +1200,8 @@ void GTAped::ExplodeHead(Hash weaponHash)
 
 void GTAped::ResetVisibleDamage()
 {
-    RESET_PED_VISIBLE_DAMAGE(this->mHandle);
+    ResetVisibleDamageNative(this->mHandle);
+    ForgetTrackedDamagePacks();
 }
 
 void GTAped::ClearBloodDamage()
@@ -968,6 +1247,25 @@ void GTAped::ApplyDamageDecal(const std::string& damageDecalName, int boneID, co
 void GTAped::ApplyDamagePack(const std::string& damagePackName, float damageAmount, float multiplier)
 {
     APPLY_PED_DAMAGE_PACK(this->mHandle, (PCHAR)damagePackName.c_str(), damageAmount, multiplier);
+    trackedDamagePacksByPed[this->mHandle].push_back(damagePackName);
+}
+
+void GTAped::RemoveDamagePack(const std::string& damagePackName)
+{
+    auto& trackedDamagePacks = trackedDamagePacksByPed[this->mHandle];
+    ResetVisibleDamageNative(this->mHandle);
+
+    for (auto damagePack = trackedDamagePacks.begin(); damagePack != trackedDamagePacks.end();)
+    {
+        if (*damagePack == damagePackName)
+        {
+            damagePack = trackedDamagePacks.erase(damagePack);
+            continue;
+        }
+
+        APPLY_PED_DAMAGE_PACK(this->mHandle, (PCHAR)damagePack->c_str(), 1.0f, 1.0f);
+        ++damagePack;
+    }
 }
 
 void GTAped::StoreWeaponsInArray(std::vector<s_Weapon_Components_Tint>& result)

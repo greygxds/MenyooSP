@@ -28,7 +28,7 @@
 #include "..\Scripting\GTAped.h"
 #include "..\Scripting\GTAplayer.h"
 #include "..\Scripting\World.h"
-#include "..\Submenus\PedComponentChanger.h"
+#include "..\Submenus\Wardrobe\WardrobeCamera.h"
 #include "..\Submenus\Spooner\SpoonerMode.h"
 
 #include <algorithm>
