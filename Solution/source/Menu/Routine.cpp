@@ -53,6 +53,7 @@
 #include "..\Submenus\Wardrobe\PedDecals.h"
 #include "..\Submenus\Wardrobe\WardrobeCamera.h"
 #include "..\Submenus\VehicleSpawner.h"
+#include "..\Submenus\Previews\Preview3DManager.h"
 #include "..\Menu\FolderPreviewBmps.h"
 #include "..\Submenus\PedSpeech.h"
 #include "..\Submenus\Spooner\SpoonerMode.h"
@@ -1721,6 +1722,7 @@ static void TickSubsystems()
     g_spSnow.Tick();
     VehicleCruise::g_vehicleCruise.Tick();
     sub::WaterHack::Tick();
+    Previews::Tick();
     SetPTFXLopTick();
 }
 

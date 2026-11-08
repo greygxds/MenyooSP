@@ -620,7 +620,7 @@ SlotResolveResult ResolveSavedPropDrawableId(const GTAped& ped, int propIndex, c
     return ResolveSavedCollectionReference(savedGlobalId, nodeSlot, collections);
 }
 
-void LoadPedCompsFromXml(GTAped ep, const pugi::xml_node& nodePedComps)
+void LoadPedCompsFromXml(GTAped ep, const pugi::xml_node& nodePedComps, bool showNotifications)
 {
     std::vector<std::string> collectionWarnings;
     std::vector<std::string> collectionErrors;
@@ -653,13 +653,13 @@ void LoadPedCompsFromXml(GTAped ep, const pugi::xml_node& nodePedComps)
         warningLines += line + "\n";
     for (auto& line : collectionErrors)
         errorLines += line + "\n";
-    if (!collectionWarnings.empty())
+    if (showNotifications && !collectionWarnings.empty())
         Game::Print::ShowNotification(Language::Translate("spooner.files.warning"), Language::Format("spooner.files.itemsMoved", {{"items", warningLines}}));
-    if (!collectionErrors.empty())
+    if (showNotifications && !collectionErrors.empty())
         Game::Print::ShowNotification(Language::Translate("spooner.files.error"), Language::Format("spooner.files.itemsMissing", {{"items", errorLines}}));
 }
 
-void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNetworkIsGameInProgress)
+void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNetworkIsGameInProgress, bool showNotifications)
 {
     std::vector<std::string> collectionWarnings;
     std::vector<std::string> collectionErrors;
@@ -692,9 +692,9 @@ void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNe
         warningLines += line + "\n";
     for (auto& line : collectionErrors)
         errorLines += line + "\n";
-    if (!collectionWarnings.empty())
+    if (showNotifications && !collectionWarnings.empty())
         Game::Print::ShowNotification(Language::Translate("spooner.files.warning"), Language::Format("spooner.files.itemsMoved", {{"items", warningLines}}));
-    if (!collectionErrors.empty())
+    if (showNotifications && !collectionErrors.empty())
         Game::Print::ShowNotification(Language::Translate("spooner.files.error"), Language::Format("spooner.files.itemsMissing", {{"items", errorLines}}));
 }
 

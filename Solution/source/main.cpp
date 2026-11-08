@@ -14,6 +14,8 @@ http://dev-c.com
 
 #include "Util\keyboard.h"
 #include "Memory\GTAmemory.h"
+#include "Memory\UI3DScene.h"
+#include "Submenus\Previews\Preview3DManager.h"
 #include "Util\FileLogger.h"
 #include "Util\CrashHandler.h"
 #include "Menu\Routine.h"
@@ -61,6 +63,8 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
         }
         addlog(ige::LogType::LOG_TRACE, "Attempting to Setup Hooks");
         setupHooks();
+        addlog(ige::LogType::LOG_TRACE, "Attempting to Setup UI3DScene");
+        UI3DScene::Init();
         addlog(ige::LogType::LOG_TRACE, "Initialising GTAmemory");
         GTAmemory::Init();
 
@@ -76,11 +80,18 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
         break;
     }
     case DLL_PROCESS_DETACH:
+        if (lpReserved)
+        {
+            Previews::AbandonForProcessExit();
+            break;
+        }
         sub::Spooner::ImGuiSpooner::Shutdown();
         scriptUnregister(hInstance);
         keyboardHandlerUnregister(OnKeyboardMessage);
         ige::ShutdownCrashHandler();
         removeHooks();
+        Previews::Clear();
+        UI3DScene::Shutdown();
         break;
     }
     return TRUE;

@@ -17,6 +17,8 @@
 #include "..\Menu\MenuCategory.h"
 #include "..\Menu\submenu_enum.h"
 #include "..\Menu\Routine.h"
+#include "..\Menu\StatsPanel.h"
+#include "Previews\Preview3DManager.h"
 
 #include <iterator>
 
@@ -601,6 +603,27 @@ void AddAnimOption(const std::string& text, const std::string& animDict, std::st
 
     if (Menu::IsLastDrawnOptionSelected())
     {
+        GTAmodel::Model previewPedModel(PedHash::FreemodeFemale01);
+        int sourcePedHandle = 0;
+        if (IS_ENTITY_A_PED(g_activePedHandle))
+        {
+            sourcePedHandle = g_activePedHandle;
+            previewPedModel = GTAmodel::Model(GET_ENTITY_MODEL(sourcePedHandle));
+        }
+
+        Previews::PedPreview3D::Animation previewAnimation;
+        previewAnimation.dict = animDict;
+        previewAnimation.name = animName;
+        previewAnimation.speed = g_customAnimSettings.speed;
+        previewAnimation.speedMultiplier = g_customAnimSettings.speedMult;
+        previewAnimation.duration = g_customAnimSettings.duration;
+        previewAnimation.flag = g_customAnimSettings.flag;
+        previewAnimation.playbackRate = g_customAnimSettings.playbackRate;
+        previewAnimation.lockPos = g_customAnimSettings.lockPos;
+
+        std::vector<StatsPanel::Row> previewRows{Previews::CreatePedAnimationPreviewRow(previewPedModel, sourcePedHandle, previewAnimation)};
+        StatsPanel::DrawAtOption(currentOptionY + menuPos.y, 0.100f, previewRows);
+
         if (HasMultiSelectSelection())
         {
             std::string selectedCount = std::to_string(Spooner::Submenus::MultiSelect::g_selectedEntities.size());

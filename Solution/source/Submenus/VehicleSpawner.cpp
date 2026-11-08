@@ -13,6 +13,8 @@
 #include "..\Util\VehiclePrices.h"
 #include "..\Util\XmlDocumentCache.h"
 #include "..\Menu\Keybinds.h"
+#include "..\Menu\StatsPanel.h"
+#include "Previews\Preview3DManager.h"
 
 namespace sub
 {
@@ -1017,26 +1019,17 @@ void PopulateVehicleBmps()
     }
 }
 
-void DrawVehicleBmp(const GTAmodel::Model& vehModel)
+void DrawVehicleBmp(Hash vehicleModelHash, float centerX, float centerY)
 {
     Vector2 res = {0.1f, 0.0889f};
+    DRAW_RECT(centerX, centerY, res.x + 0.003f, res.y + 0.003f, 0, 0, 0, 212, false);
 
-    FLOAT x_coord = 0.324f + menuPos.x;
-    FLOAT y_coord = currentOptionY + 0.044f + menuPos.y;
-
-    if (menuPos.x > 0.45f)
-    {
-        x_coord = menuPos.x - 0.003f;
-    }
-
-    DRAW_RECT(x_coord, y_coord, res.x + 0.003f, res.y + 0.003f, 0, 0, 0, 212, false);
-
-    auto vit = std::find(vehicleBMPs.begin(), vehicleBMPs.end(), vehModel.hash);
+    auto vit = std::find(vehicleBMPs.begin(), vehicleBMPs.end(), vehicleModelHash);
     if (vit != vehicleBMPs.end()) //if found
     {
         if (vit->tid.Exists()) //if dxtexture png
         {
-            vit->tid.Draw(0, Vector2(x_coord, y_coord), Vector2(res.x, res.y / 2 + 0.005f), 0.0f, RGBA::AllWhite());
+            vit->tid.Draw(0, Vector2(centerX, centerY), Vector2(res.x, res.y / 2 + 0.005f), 0.0f, RGBA::AllWhite());
         }
         else //if in-game sprite
         {
@@ -1044,13 +1037,13 @@ void DrawVehicleBmp(const GTAmodel::Model& vehModel)
             {
                 REQUEST_STREAMED_TEXTURE_DICT(vit->dict.c_str(), false);
             }
-            DRAW_SPRITE(vit->dict.c_str(), vit->imgName.c_str(), x_coord, y_coord, res.x, res.y, 0.0f, 255, 255, 255, 255, false, 0);
+            DRAW_SPRITE(vit->dict.c_str(), vit->imgName.c_str(), centerX, centerY, res.x, res.y, 0.0f, 255, 255, 255, 255, false, 0);
         }
     }
     else
     {
         Game::Print::SetupDraw(0, Vector2(0, 0.185f), true, false, false);
-        Game::Print::drawstring(Language::Translate("vehicleSpawner.stats.noPreview"), x_coord, y_coord - 0.0043f);
+        Game::Print::drawstring(Language::Translate("vehicleSpawner.stats.noPreview"), centerX, centerY - 0.0043f);
     }
 }
 
@@ -1140,30 +1133,6 @@ float StatRatio(float val, float refMax)
     return (ratio > 1.0f) ? 1.0f : ratio;
 }
 
-void DrawStatBar(float x, float y, float width, float height, float fillRatio, const std::string& label, const std::string& valueText, RGBA barColor, RGBA bgBarColor)
-{
-    if (fillRatio < 0.0f)
-        fillRatio = 0.0f;
-    if (fillRatio > 1.0f)
-        fillRatio = 1.0f;
-
-    DRAW_RECT(x, y, width, height, bgBarColor.R, bgBarColor.G, bgBarColor.B, bgBarColor.A, false);
-
-    float fillWidth = width * fillRatio;
-    float fillX = x - (width / 2.0f) + (fillWidth / 2.0f);
-    if (fillWidth > 0.0001f)
-        DRAW_RECT(fillX, y, fillWidth, height, barColor.R, barColor.G, barColor.B, barColor.A, false);
-
-    float labelX = x - (width / 2.0f) + 0.003f;
-    float labelY = y - 0.0095f;
-    Game::Print::SetupDraw(0, Vector2(0.0f, 0.22f), false, false, true, RGBA(255, 255, 255, 255));
-    Game::Print::drawstring(label, labelX, labelY);
-
-    float valX = x + (width / 2.0f) - 0.003f;
-    Game::Print::SetupDraw(0, Vector2(0.0f, 0.22f), false, true, true, RGBA(255, 255, 255, 255), {0, valX});
-    Game::Print::drawstring(valueText, 0, labelY);
-}
-
 struct VehicleStatsCache
 {
     Hash hash = 0;
@@ -1181,6 +1150,15 @@ void DrawVehicleStats(const GTAmodel::Model& vehModel)
 {
     if (!vehModel.IsValid())
         return;
+
+    static int lastDrawFrame = -1;
+    static Hash lastDrawnModelHash = 0;
+    const int currentFrame = GET_FRAME_COUNT();
+    if (lastDrawFrame == currentFrame && lastDrawnModelHash == vehModel.hash)
+        return;
+    lastDrawFrame = currentFrame;
+    lastDrawnModelHash = vehModel.hash;
+
     Hash hash = vehModel.hash;
 
     if (statsCache.hash != hash)
@@ -1232,70 +1210,25 @@ void DrawVehicleStats(const GTAmodel::Model& vehModel)
     }
 
     auto& c = statsCache;
-
-    float panelX = 0.324f + menuPos.x;
-    if (menuPos.x > 0.45f)
-        panelX = menuPos.x - 0.003f;
-
-    float panelY = currentOptionY + 0.094f + menuPos.y;
-    float panelW = 0.100f;
-    float barH = 0.018f;
-    float barSpacing = 0.0195f;
-    float padding = 0.004f;
-    float lineH = 0.0155f;
-
-    int infoLineCount = 2 + 1 + (c.hasPrice ? 1 : 0);
-    float totalBarsH = 4 * barSpacing;
-    float infoH = infoLineCount * lineH + 0.015f;
-    float panelH = totalBarsH + infoH + padding * 2;
-
-    DRAW_RECT(panelX, panelY + panelH / 2.0f - padding, panelW + 0.003f, panelH, 0, 0, 0, 200, false);
-
-    RGBA barFillColor(93, 182, 229, 255);
-    RGBA barBgColor(0, 0, 0, 212);
-
-    float barW = panelW - 0.006f;
-    float barStartY = panelY + 0.012f;
-
-    std::string speedStr = std::to_string((int)c.speedMph) + " " + Language::Translate("vehicleSpawner.stats.mph");
-    DrawStatBar(panelX, barStartY, barW, barH, c.speedRatio, Language::Translate("vehicleSpawner.stats.speed"), speedStr, barFillColor, barBgColor);
-
-    barStartY += barSpacing;
-    std::string accelStr = std::to_string((int)(c.accelRatio * 100)) + "%";
-    DrawStatBar(panelX, barStartY, barW, barH, c.accelRatio, Language::Translate("vehicleSpawner.stats.acceleration"), accelStr, barFillColor, barBgColor);
-
-    barStartY += barSpacing;
-    std::string brakeStr = std::to_string((int)(c.brakingRatio * 100)) + "%";
-    DrawStatBar(panelX, barStartY, barW, barH, c.brakingRatio, Language::Translate("vehicleSpawner.stats.braking"), brakeStr, barFillColor, barBgColor);
-
-    barStartY += barSpacing;
-    std::string tractStr = std::to_string((int)(c.tractionRatio * 100)) + "%";
-    DrawStatBar(panelX, barStartY, barW, barH, c.tractionRatio, Language::Translate("vehicleSpawner.stats.traction"), tractStr, barFillColor, barBgColor);
-
-    float infoStartY = barStartY + barSpacing + 0.002f;
-    float infoLabelX = panelX - (barW / 2.0f) + 0.003f;
-    float infoValueX = panelX + (barW / 2.0f) - 0.003f;
-
-    auto drawInfoLine = [&](float y, const std::string& label, const std::string& val)
-    {
-        Game::Print::SetupDraw(0, Vector2(0.0f, 0.2f), false, false, false, RGBA(160, 160, 160, 255));
-        Game::Print::drawstring(label, infoLabelX, y);
-        Game::Print::SetupDraw(0, Vector2(0.0f, 0.2f), false, true, false, RGBA(255, 255, 255, 255), {0, infoValueX});
-        Game::Print::drawstring(val, 0, y);
-    };
-
-    DRAW_RECT(panelX, infoStartY - 0.003f, barW, 0.001f, 80, 80, 80, 200, false);
-
-    int curLine = 0;
-    drawInfoLine(infoStartY + lineH * curLine++, Language::Translate("vehicleSpawner.stats.class"), GetVehicleClassName(c.classId));
-    drawInfoLine(infoStartY + lineH * curLine++, Language::Translate("vehicleSpawner.stats.manufacturer"), c.makeName);
+    std::vector<StatsPanel::Row> rows;
+    const Hash vehicleModelHash = vehModel.hash;
+    rows.push_back(StatsPanel::ImageRow{[vehicleModelHash](float centerX, float centerY) { DrawVehicleBmp(vehicleModelHash, centerX, centerY); }});
+    rows.push_back(
+        StatsPanel::BarRow{Language::Translate("vehicleSpawner.stats.speed"), std::to_string(static_cast<int>(c.speedMph)) + " " + Language::Translate("vehicleSpawner.stats.mph"), c.speedRatio}
+    );
+    rows.push_back(StatsPanel::BarRow{Language::Translate("vehicleSpawner.stats.acceleration"), std::to_string(static_cast<int>(c.accelRatio * 100.0f)) + "%", c.accelRatio});
+    rows.push_back(StatsPanel::BarRow{Language::Translate("vehicleSpawner.stats.braking"), std::to_string(static_cast<int>(c.brakingRatio * 100.0f)) + "%", c.brakingRatio});
+    rows.push_back(StatsPanel::BarRow{Language::Translate("vehicleSpawner.stats.traction"), std::to_string(static_cast<int>(c.tractionRatio * 100.0f)) + "%", c.tractionRatio});
+    rows.push_back(StatsPanel::SeparatorRow{});
+    rows.push_back(StatsPanel::StatRow{Language::Translate("vehicleSpawner.stats.class"), GetVehicleClassName(c.classId)});
+    rows.push_back(StatsPanel::StatRow{Language::Translate("vehicleSpawner.stats.manufacturer"), c.makeName});
     std::string seats = Language::Format("vehicleSpawner.stats.seats", {{"count", static_cast<std::int64_t>(c.seats)}});
     std::string gears = Language::Format("vehicleSpawner.stats.gears", {{"count", static_cast<std::int64_t>(c.gears)}});
-    std::string seatsGears = seats + Language::Translate("vehicleSpawner.stats.layoutSeparator") + gears;
-    drawInfoLine(infoStartY + lineH * curLine++, Language::Translate("vehicleSpawner.stats.layout"), seatsGears);
-
+    rows.push_back(StatsPanel::StatRow{Language::Translate("vehicleSpawner.stats.layout"), seats + Language::Translate("vehicleSpawner.stats.layoutSeparator") + gears});
     if (c.hasPrice)
-        drawInfoLine(infoStartY + lineH * curLine++, Language::Translate("vehicleSpawner.stats.price"), c.priceStr);
+        rows.push_back(StatsPanel::StatRow{Language::Translate("vehicleSpawner.stats.price"), c.priceStr});
+
+    StatsPanel::DrawAtOption(currentOptionY + menuPos.y, 0.100f, rows);
 }
 
 void AddVehicleCategoryOption(const std::string& text, UINT8 index, bool* extra_option_code)
@@ -1765,7 +1698,6 @@ void SpawnVehicleSearchMenu()
         {
             if (g_spawnVehicleDrawBMPs)
             {
-                DrawVehicleBmp(vehModel);
                 DrawVehicleStats(vehModel);
             }
 
@@ -1831,6 +1763,8 @@ void SpawnVehicleOptions()
     AddBreak(Language::Translate("vehicleSpawner.settings.previewsBreak"));
     AddToggle(Language::Translate("vehicleSpawner.settings.enablePreviews"), g_spawnVehicleDrawBMPs);
     AddOptionDescription(Language::Translate("vehicleSpawner.settings.enablePreviews.description"));
+    AddToggle("Enable 3D Model Previews", Previews::g_enabled);
+    AddOptionDescription("Show a live vehicle model while browsing vehicle lists.");
     bool reloadPreviewsPressed = false;
     AddOption(Language::Translate("vehicleSpawner.settings.reloadPreviews"), reloadPreviewsPressed);
     AddOptionDescription(Language::Translate("vehicleSpawner.settings.reloadPreviews.description"));
@@ -2245,7 +2179,6 @@ void SpawnVehicleAllCategoriesMenu()
         {
             if (g_spawnVehicleDrawBMPs)
             {
-                DrawVehicleBmp(vehModel);
                 DrawVehicleStats(vehModel);
             }
 
@@ -2441,7 +2374,6 @@ void SpawnVehicleFavouritesMenu()
             {
                 if (g_spawnVehicleDrawBMPs)
                 {
-                    DrawVehicleBmp(vehicleModel);
                     DrawVehicleStats(vehicleModel);
                 }
 
@@ -3281,7 +3213,6 @@ void SpawnVehicleDLC()
 
             if (g_spawnVehicleDrawBMPs)
             {
-                VehicleSpawner::DrawVehicleBmp(selectedCategory.values[vehDlcIdToSpawn]);
                 VehicleSpawner::DrawVehicleStats(GTAmodel::Model(selectedCategory.values[vehDlcIdToSpawn]));
             }
 

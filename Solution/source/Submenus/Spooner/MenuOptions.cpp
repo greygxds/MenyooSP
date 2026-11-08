@@ -13,11 +13,13 @@
 #include "..\..\macros.h"
 
 #include "..\..\Menu\Menu.h"
-//#include "..\..\Menu\Routine.h"
+#include "..\..\Menu\Routine.h"
+#include "..\..\Menu\StatsPanel.h"
 
 #include "..\..\Natives\natives2.h"
 #include "..\..\Scripting\GTAentity.h"
 #include "..\..\Scripting\GTAped.h"
+#include "..\Previews\Preview3DManager.h"
 
 #include "SpoonerMode.h"
 #include "EntityManagement.h"
@@ -29,6 +31,19 @@ namespace sub::Spooner
 {
 namespace MenuOptions
 {
+namespace
+{
+void DrawPreviewPanel(EntityType entityType, const GTAmodel::Model& model)
+{
+    if (!Previews::g_enabled)
+        return;
+
+    const std::string previewKey = std::to_string(static_cast<int>(entityType)) + ":" + std::to_string(model.hash);
+    std::vector<StatsPanel::Row> rows{Previews::CreateModelPreviewRow(previewKey, entityType, model)};
+    StatsPanel::DrawAtOption(currentOptionY + menuPos.y, 0.100f, rows);
+}
+} // namespace
+
 void AddOption_AddProp(const std::string& text, const GTAmodel::Model& model)
 {
     bool pressed = false;
@@ -38,6 +53,7 @@ void AddOption_AddProp(const std::string& text, const GTAmodel::Model& model)
     {
         SpoonerMode::modelPreviewInfo.entityType = EntityType::PROP;
         SpoonerMode::modelPreviewInfo.model = model;
+        DrawPreviewPanel(EntityType::PROP, model);
     }
 
     if (pressed)
@@ -55,6 +71,7 @@ void AddOptionAddPed(const std::string& text, const GTAmodel::Model& model)
     {
         SpoonerMode::modelPreviewInfo.entityType = EntityType::PED;
         SpoonerMode::modelPreviewInfo.model = model;
+        DrawPreviewPanel(EntityType::PED, model);
     }
 
     if (pressed)

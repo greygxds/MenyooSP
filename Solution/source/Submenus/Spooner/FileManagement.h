@@ -50,8 +50,8 @@ void AddEntityToXmlNode(SpoonerEntity& e, pugi::xml_node& nodeEntity, bool legac
 SpoonerEntityWithInitHandle SpawnEntityFromXmlNode(pugi::xml_node& nodeEntity, std::unordered_set<Hash>& vModelHashes);
 
 // Shared ped sub-loaders (backward-compatible with old _N and new named format)
-void LoadPedCompsFromXml(GTAped ep, const pugi::xml_node& nodePedComps);
-void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNetworkIsGameInProgress);
+void LoadPedCompsFromXml(GTAped ep, const pugi::xml_node& nodePedComps, bool showNotifications = true);
+void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNetworkIsGameInProgress, bool showNotifications = true);
 void LoadPedHeadFeaturesFromXml(GTAped ep, const pugi::xml_node& nodePedHeadFeatures, const GTAmodel::Model& eModel);
 void LoadPedDecalsFromXml(GTAped ep, const pugi::xml_node& nodePedDecals);
 void LoadPedDamagePacksFromXml(GTAped ep, const pugi::xml_node& nodePedDamagePacks);

@@ -17,6 +17,7 @@
 #include "..\..\Util\StringManip.h"
 #include "..\..\Util\keyboard.h"
 #include "..\..\Menu\FolderPreviewBmps.h"
+#include "..\Previews\Preview3DManager.h"
 
 #include <Shlwapi.h>
 #pragma comment(lib, "Shlwapi.lib")
@@ -70,6 +71,7 @@ namespace
 {
 struct OutfitFileStats
 {
+    Hash modelHash = 0;
     std::string modelLabel = "---";
     int opacityLevel = 255;
     bool isVisible = true;
@@ -96,6 +98,7 @@ OutfitFileStats ReadOutfitFileStats(const std::string& filePath)
         return stats;
 
     const Model pedModel = outfitRoot.child("ModelHash").text().as_uint();
+    stats.modelHash = pedModel.hash;
     stats.modelLabel = GetPedModelLabel(pedModel, true);
     if (stats.modelLabel.empty())
         stats.modelLabel = IntToHexString(pedModel.hash, true);
@@ -210,13 +213,26 @@ void DrawOutfitFileStats(const std::string& filePath, float optionTextY)
     static std::string lastStatsPath;
     static std::string lastStatsLocale;
     static std::vector<StatsPanel::Row> statsRows;
+    static OutfitFileStats fileStats;
 
     const std::string locale = Language::GetSelectedLocale();
     if (lastStatsPath != filePath || lastStatsLocale != locale)
     {
         lastStatsPath = filePath;
         lastStatsLocale = locale;
-        statsRows = BuildOutfitFileStatsRows(filePath, ReadOutfitFileStats(filePath));
+        fileStats = ReadOutfitFileStats(filePath);
+        statsRows = BuildOutfitFileStatsRows(filePath, fileStats);
+    }
+
+    if (Previews::g_enabled && fileStats.modelHash != 0)
+    {
+        std::vector<StatsPanel::Row> rowsWithPreview;
+        const std::string previewKey = "ped-outfit:" + filePath;
+        const GTAmodel::Model pedModel(fileStats.modelHash);
+        rowsWithPreview.push_back(Previews::CreateModelPreviewRow(previewKey, EntityType::PED, pedModel, filePath));
+        rowsWithPreview.insert(rowsWithPreview.end(), statsRows.begin(), statsRows.end());
+        StatsPanel::DrawAtOption(optionTextY, 0.100f, rowsWithPreview);
+        return;
     }
 
     StatsPanel::DrawAtOption(optionTextY, 0.100f, statsRows);
