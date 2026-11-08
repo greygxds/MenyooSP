@@ -242,7 +242,7 @@ void ChangeModel(GTAmodel::Model model)
             playerPed = PLAYER_PED_ID();
             playerPed.SetIsCollisionEnabled(hasCollision);
 
-            SET_PED_DEFAULT_COMPONENT_VARIATION(playerPed.Handle());
+            playerPed.SetDefaultComponentVariation();
             model.Unload();
 
 
@@ -386,8 +386,9 @@ void ModelChangerMenu()
     if (modelChangerRandomPedVariation)
     {
         addlog(ige::LogType::LOG_TRACE, "Random Ped Selected");
-        SET_PED_RANDOM_COMPONENT_VARIATION(g_activePedHandle, 0);
-        SET_PED_RANDOM_PROPS(g_activePedHandle);
+        GTAped activePed = g_activePedHandle;
+        activePed.SetRandomComponentVariation();
+        activePed.SetRandomProps();
         return;
     }
 

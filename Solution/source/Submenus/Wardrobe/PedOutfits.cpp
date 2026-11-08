@@ -121,7 +121,7 @@ OutfitFileStats ReadOutfitFileStats(const std::string& filePath)
         {
             slotLabel = "Comp " + std::to_string(componentSlotIndex);
             if (componentSlotIndex < std::size(componentSlotNames))
-                slotLabel = Language::TranslateStable("components.stats.slot", componentSlotNames[componentSlotIndex], componentSlotNames[componentSlotIndex]);
+                slotLabel = componentSlotNames[componentSlotIndex];
         }
         stats.componentValues.push_back({slotLabel, componentNode.text().as_string()});
         componentSlotIndex++;
@@ -147,7 +147,7 @@ OutfitFileStats ReadOutfitFileStats(const std::string& filePath)
             {
                 slotLabel = "Prop " + std::to_string(propSlotIndex);
                 if (propSlotIndex < std::size(propSlotNames))
-                    slotLabel = Language::TranslateStable("components.stats.slot", propSlotNames[propSlotIndex], propSlotNames[propSlotIndex]);
+                    slotLabel = propSlotNames[propSlotIndex];
             }
             stats.propValues.push_back({slotLabel, propNode.text().as_string()});
         }
@@ -582,26 +582,12 @@ void PedOutfitsMenu()
     AddTitle(Language::Translate("components.outfits.title"));
     AddSaveFileSortOption();
 
-    bool attachmentsPlus = false, attachmentsMinus = false;
-    AddTexter(
+    attachmentModeIndex = static_cast<std::uint8_t>(AddTexterCycler(
         Language::Translate("components.outfits.attachments"),
         attachmentModeIndex,
-        std::vector<std::string>{Language::Translate("components.outfits.fileDecides"), Language::Translate("components.outfits.forceOff"), Language::Translate("components.outfits.forceOn")},
-        null,
-        attachmentsPlus,
-        attachmentsMinus
-    );
+        {Language::Translate("components.outfits.fileDecides"), Language::Translate("components.outfits.forceOff"), Language::Translate("components.outfits.forceOn")}
+    ));
     AddOptionDescription(Language::Translate("components.outfits.attachments.description"));
-    if (attachmentsPlus)
-    {
-        if (attachmentModeIndex < 2)
-            attachmentModeIndex++;
-    }
-    if (attachmentsMinus)
-    {
-        if (attachmentModeIndex > 0)
-            attachmentModeIndex--;
-    }
 
     AddOutfitXmlFormatOption();
 

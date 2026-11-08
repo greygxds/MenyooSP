@@ -289,7 +289,7 @@ void PedComponentsMenu()
         if (ConfirmOnSecondPress(randomComponentsConfirmationPending, Language::Translate("components.confirm.randomComponents")))
         {
             ped.RequestControlOnce();
-            SET_PED_RANDOM_COMPONENT_VARIATION(ped.GetHandle(), 0);
+            ped.SetRandomComponentVariation();
         }
         return;
     }
@@ -299,7 +299,7 @@ void PedComponentsMenu()
         if (ConfirmOnSecondPress(defaultComponentsConfirmationPending, Language::Translate("components.confirm.defaultComponents")))
         {
             ped.RequestControlOnce();
-            SET_PED_DEFAULT_COMPONENT_VARIATION(ped.GetHandle());
+            ped.SetDefaultComponentVariation();
         }
         return;
     }
@@ -309,8 +309,8 @@ void PedComponentsMenu()
         if (ConfirmOnSecondPress(defaultComponentsAndAccessoriesConfirmationPending, Language::Translate("components.confirm.defaultComponentsAndAccessories")))
         {
             ped.RequestControlOnce();
-            SET_PED_DEFAULT_COMPONENT_VARIATION(ped.GetHandle());
-            CLEAR_ALL_PED_PROPS(ped.Handle(), 0);
+            ped.SetDefaultComponentVariation();
+            ped.ClearAllProps();
         }
         return;
     }
@@ -412,7 +412,7 @@ void PedPropsMenu()
         if (ConfirmOnSecondPress(randomPropsConfirmationPending, Language::Translate("components.confirm.randomAccessories")))
         {
             ped.RequestControlOnce();
-            SET_PED_RANDOM_PROPS(ped.Handle());
+            ped.SetRandomProps();
         }
         return;
     }
@@ -422,7 +422,7 @@ void PedPropsMenu()
         if (ConfirmOnSecondPress(clearPropsConfirmationPending, Language::Translate("components.confirm.clearAccessories")))
         {
             ped.RequestControlOnce();
-            CLEAR_ALL_PED_PROPS(ped.Handle(), 0);
+            ped.ClearAllProps();
         }
         return;
     }

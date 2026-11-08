@@ -155,7 +155,7 @@ bool ApplyPedOutfit(GTAped ped, const std::string& filePath, const OutfitApplyOp
 
     if (options.applyProps)
     {
-        CLEAR_ALL_PED_PROPS(ped.Handle(), 0);
+        ped.ClearAllProps();
         Spooner::FileManagement::LoadPedPropsFromXml(ped, pedProperties.child("PedProps"), networkGameInProgress);
     }
 

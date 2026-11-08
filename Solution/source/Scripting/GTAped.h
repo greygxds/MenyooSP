@@ -264,6 +264,8 @@ class GTAped : public GTAentity
     int GetComponentTextureCount(int componentIndex, int drawableIndex) const;
     bool IsComponentVariationValid(int componentIndex, int drawableId, int textureId) const;
     void SetComponentVariation(int componentIndex, int drawableId, int textureId, int paletteId = 0);
+    void SetDefaultComponentVariation();
+    void SetRandomComponentVariation();
 
     int GetPropDrawableIndex(int propIndex) const;
     int GetPropTextureIndex(int propIndex) const;
@@ -271,6 +273,8 @@ class GTAped : public GTAentity
     int GetPropTextureCount(int propIndex, int drawableIndex) const;
     bool IsPropVariationValid(int propIndex, int drawableId, int textureId) const;
     void SetPropVariation(int propIndex, int drawableId, int textureId, bool attach);
+    void SetRandomProps();
+    void ClearAllProps();
 
     bool HasTrackedDecoration(Hash collectionHash, Hash overlayHash) const;
     const std::vector<PedDecoration>* GetTrackedDecorations() const;
