@@ -37,24 +37,6 @@ namespace sub
 {
 static int selectedOverlayIndex = 0;
 
-// Wraps an int value around [minVal, maxVal) on increment/decrement
-static int cycleInt(int current, bool increment, int minVal, int maxVal)
-{
-    if (increment)
-        return (current < maxVal) ? current + 1 : minVal;
-    else
-        return (current > minVal) ? current - 1 : maxVal;
-}
-
-// Wraps a float value around [minVal, maxVal] with a given step
-static float cycleFloat(float current, bool increment, float minVal, float maxVal, float step)
-{
-    if (increment)
-        return (current < maxVal) ? current + step : current;
-    else
-        return (current > minVal) ? current - step : current;
-}
-
 // Head features (freemode m/f)
 
 namespace PedHeadFeatures_catind
@@ -353,10 +335,6 @@ void Sub_Main()
     int maxHairColours = GET_NUM_PED_HAIR_TINTS() - 1;
     int maxEyeColours = 32;
 
-    bool hairColourPlus = false, hairColourMinus = false;
-    bool hairStreaksPlus = false, hairStreaksMinus = false;
-    bool eyeColourPlus = false, eyeColourMinus = false;
-
     AddTitle(Language::Translate("components.head.title"));
 
     DrawFaceStats(StatsPanel::MenuTopY());
@@ -367,31 +345,15 @@ void Sub_Main()
     AddOption(Language::Translate("components.head.faceGenerator"), null, nullFunc, SUB::PED_HEAD_FACE_GENERATOR);
 
     AddBreak(Language::Translate("components.head.hair"));
-    AddNumber(Language::Translate("components.head.hairColour"), selectedPedHeadFeatures->hairColour, 0, null, hairColourPlus, hairColourMinus);
-    AddNumber(Language::Translate("components.head.hairStreaksColour"), selectedPedHeadFeatures->hairHighlightColour, 0, null, hairStreaksPlus, hairStreaksMinus);
+    if (AddNumberStepper(Language::Translate("components.head.hairColour"), selectedPedHeadFeatures->hairColour, 0, 1.0, 0, maxHairColours))
+        ped.SetHairTint(selectedPedHeadFeatures->hairColour, selectedPedHeadFeatures->hairHighlightColour);
+    if (AddNumberStepper(Language::Translate("components.head.hairStreaksColour"), selectedPedHeadFeatures->hairHighlightColour, 0, 1.0, 0, maxHairColours))
+        ped.SetHairTint(selectedPedHeadFeatures->hairColour, selectedPedHeadFeatures->hairHighlightColour);
     AddOptionDescription(Language::Translate("components.head.hairHighlights.description"));
 
     AddBreak(Language::Translate("components.head.eyes"));
-    AddNumber(Game::GetGXTEntry("FACE_APP_EYE", "Eye Colour"), selectedPedHeadFeatures->eyeColour, 0, null, eyeColourPlus, eyeColourMinus);
-
-    if (hairColourPlus || hairColourMinus)
-    {
-        selectedPedHeadFeatures->hairColour = static_cast<int>(cycleFloat(static_cast<float>(selectedPedHeadFeatures->hairColour), hairColourPlus, 0.0f, static_cast<float>(maxHairColours), 1.0f));
-        ped.SetHairTint(selectedPedHeadFeatures->hairColour, selectedPedHeadFeatures->hairHighlightColour);
-    }
-
-    if (hairStreaksPlus || hairStreaksMinus)
-    {
-        selectedPedHeadFeatures->hairHighlightColour =
-            static_cast<int>(cycleFloat(static_cast<float>(selectedPedHeadFeatures->hairHighlightColour), hairStreaksPlus, 0.0f, static_cast<float>(maxHairColours), 1.0f));
-        ped.SetHairTint(selectedPedHeadFeatures->hairColour, selectedPedHeadFeatures->hairHighlightColour);
-    }
-
-    if (eyeColourPlus || eyeColourMinus)
-    {
-        selectedPedHeadFeatures->eyeColour = static_cast<int>(cycleFloat(static_cast<float>(selectedPedHeadFeatures->eyeColour), eyeColourPlus, 0.0f, static_cast<float>(maxEyeColours), 1.0f));
+    if (AddNumberStepper(Game::GetGXTEntry("FACE_APP_EYE", "Eye Colour"), selectedPedHeadFeatures->eyeColour, 0, 1.0, 0, maxEyeColours))
         ped.SetEyeColour(SYSTEM::ROUND((float)selectedPedHeadFeatures->eyeColour));
-    }
 }
 
 static void DrawOverlayStats(float topY, int focusSlot)
@@ -510,9 +472,7 @@ void Sub_HeadOverlays_InItem()
     int overlayValue = overlayData.drawableIndex;
     int maxOverlays = ped.GetHeadOverlayDrawableCount(overlayIndex) - 1;
     int maxColours = 64;
-
     bool overlayPlus = false, overlayMinus = false;
-    bool opacityPlus = false, opacityMinus = false;
 
     const auto& overlayCaptions = vCaptions_headOverlays[overlayIndex];
     AddTitle(TranslateOverlayTitle(overlayCaptions));
@@ -556,84 +516,20 @@ void Sub_HeadOverlays_InItem()
     }
 
     // OPACITY
-    AddNumber(Game::GetGXTEntry("FACE_OPAC", "Opacity"), currentOverlayData.opacity, 3, null, opacityPlus, opacityMinus);
-    if (opacityPlus)
-    {
-        if (currentOverlayData.opacity < 1.0f)
-        {
-            currentOverlayData.opacity += 0.01f;
-            ped.SetHeadOverlay(overlayIndex, overlayValue, currentOverlayData.opacity);
-        }
-    }
-
-    if (opacityMinus)
-    {
-        if (currentOverlayData.opacity > 0.0f)
-        {
-            currentOverlayData.opacity -= 0.01f;
-            ped.SetHeadOverlay(overlayIndex, overlayValue, currentOverlayData.opacity);
-        }
-    }
+    if (AddNumberStepper(Game::GetGXTEntry("FACE_OPAC", "Opacity"), currentOverlayData.opacity, 3, 0.01, 0.0, 1.0))
+        ped.SetHeadOverlay(overlayIndex, overlayValue, currentOverlayData.opacity);
 
     if (bColoursAvailable)
     {
-        bool colourPlus = false, colourMinus = false;
-        bool secondaryColourPlus = false, secondaryColourMinus = false;
-
         // PRIMARY COLOUR
-        AddNumber(Game::GetGXTEntry("CMOD_COL0_0", "Primary Colour"), currentOverlayData.primaryColour, 0, null, colourPlus, colourMinus);
-        if (colourPlus)
-        {
-            if (currentOverlayData.primaryColour < maxColours)
-            {
-                currentOverlayData.primaryColour++;
-            }
-            else
-            {
-                currentOverlayData.primaryColour = -1;
-            }
-
+        if (AddNumberStepper(Game::GetGXTEntry("CMOD_COL0_0", "Primary Colour"), currentOverlayData.primaryColour, 0, 1.0, -1, maxColours, false, true))
             ApplyHeadOverlayTint(ped, overlayIndex, colourType, currentOverlayData.primaryColour, currentOverlayData.secondaryColour);
-        }
-
-        if (colourMinus)
-        {
-            if (currentOverlayData.primaryColour > -1)
-            {
-                currentOverlayData.primaryColour--;
-            }
-            else
-            {
-                currentOverlayData.primaryColour = maxColours;
-            }
-
-            ApplyHeadOverlayTint(ped, overlayIndex, colourType, currentOverlayData.primaryColour, currentOverlayData.secondaryColour);
-        }
 
         // SECONDARY COLOUR
         if (currentOverlayData.primaryColour > -1)
         {
-            AddNumber(Game::GetGXTEntry("CMOD_COL0_1", "Secondary Colour"), currentOverlayData.secondaryColour, 0, null, secondaryColourPlus, secondaryColourMinus);
-        }
-
-        if (secondaryColourPlus)
-        {
-            if (currentOverlayData.secondaryColour < maxColours)
-            {
-                currentOverlayData.secondaryColour++;
-            }
-
-            ApplyHeadOverlayTint(ped, overlayIndex, colourType, currentOverlayData.primaryColour, currentOverlayData.secondaryColour);
-        }
-
-        if (secondaryColourMinus)
-        {
-            if (currentOverlayData.secondaryColour > -1)
-            {
-                currentOverlayData.secondaryColour--;
-            }
-
-            ApplyHeadOverlayTint(ped, overlayIndex, colourType, currentOverlayData.primaryColour, currentOverlayData.secondaryColour);
+            if (AddNumberStepper(Game::GetGXTEntry("CMOD_COL0_1", "Secondary Colour"), currentOverlayData.secondaryColour, 0, 1.0, -1, maxColours))
+                ApplyHeadOverlayTint(ped, overlayIndex, colourType, currentOverlayData.primaryColour, currentOverlayData.secondaryColour);
         }
     }
 }
@@ -758,25 +654,8 @@ void Sub_FaceFeatures()
     {
         auto& featureValue = selectedPedHeadFeatures->facialFeatures[i];
 
-        bool featurePlus = false, featureMinus = false;
-        AddNumber(TranslateFaceFeature(facialFeatureCaptions[i]), featureValue, 2, null, featurePlus, featureMinus);
-        if (featurePlus)
-        {
-            if (featureValue < 1.0f)
-            {
-                featureValue += 0.05f;
-            }
+        if (AddNumberStepper(TranslateFaceFeature(facialFeatureCaptions[i]), featureValue, 2, 0.05, -1.0, 1.0))
             ped.SetFaceFeatureValue(i, featureValue);
-        }
-
-        if (featureMinus)
-        {
-            if (featureValue > -1.0f)
-            {
-                featureValue -= 0.05f;
-            }
-            ped.SetFaceFeatureValue(i, featureValue);
-        }
     }
 }
 
@@ -787,7 +666,6 @@ void Sub_SkinTone() // HEAD_BLEND
     PedHeadBlendData blendData;
     if (!ped.GetHeadBlendData(blendData))
         return;
-    std::vector<std::string> idNames;
     float maxMix = 1.0f;
     float minMix = 0.0f;
     float mixStep = 0.01f;
@@ -800,40 +678,29 @@ void Sub_SkinTone() // HEAD_BLEND
 
     int maxIds = getMaxShapeAndSkinIds();
 
-    // add a texter for a blend ID, handle cycling, and update if changed
-    auto addBlendIdTexter = [&](const std::string& label, int& idValue)
+    auto addBlendIdStepper = [&](const std::string& label, int& idValue)
     {
-        bool plus = false, minus = false;
-        AddTexter(label, idValue, idNames, null, plus, minus);
-        if (plus || minus)
-        {
-            idValue = cycleInt(idValue, plus, 0, maxIds);
+        if (AddNumberStepper(label, idValue, 0, 1.0, 0, maxIds, false, true))
             ped.SetHeadBlendData(blendData);
-        }
     };
 
     // Shape IDs
-    addBlendIdTexter(Language::Translate("components.face.shapeFather"), blendData.shapeFirstID);
-    addBlendIdTexter(Language::Translate("components.face.shapeMother"), blendData.shapeSecondID);
-    addBlendIdTexter(Language::Translate("components.face.shapeAncestor"), blendData.shapeThirdID);
+    addBlendIdStepper(Language::Translate("components.face.shapeFather"), blendData.shapeFirstID);
+    addBlendIdStepper(Language::Translate("components.face.shapeMother"), blendData.shapeSecondID);
+    addBlendIdStepper(Language::Translate("components.face.shapeAncestor"), blendData.shapeThirdID);
 
     // Skin IDs
-    addBlendIdTexter(Language::Translate("components.face.toneFather"), blendData.skinFirstID);
-    addBlendIdTexter(Language::Translate("components.face.toneMother"), blendData.skinSecondID);
-    addBlendIdTexter(Language::Translate("components.face.toneAncestor"), blendData.skinThirdID);
+    addBlendIdStepper(Language::Translate("components.face.toneFather"), blendData.skinFirstID);
+    addBlendIdStepper(Language::Translate("components.face.toneMother"), blendData.skinSecondID);
+    addBlendIdStepper(Language::Translate("components.face.toneAncestor"), blendData.skinThirdID);
 
     // Mixes
     AddBreak(Language::Translate("components.face.adjustmentBreak"));
 
     auto addMixSlider = [&](const std::string& label, float& mixValue)
     {
-        bool plus = false, minus = false;
-        AddNumber(label, mixValue, 2, null, plus, minus);
-        if (plus || minus)
-        {
-            mixValue = cycleFloat(mixValue, plus, minMix, maxMix, mixStep);
+        if (AddNumberStepper(label, mixValue, 2, mixStep, minMix, maxMix))
             ped.SetHeadBlendData(blendData);
-        }
     };
 
     addMixSlider(Language::Translate("components.face.shape"), blendData.shapeMix);

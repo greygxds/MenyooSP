@@ -481,6 +481,16 @@ void GTAped::SetComponentVariation(int componentIndex, int drawableId, int textu
     SET_PED_COMPONENT_VARIATION(GetHandle(), componentIndex, drawableId, textureId, paletteId);
 }
 
+void GTAped::SetDefaultComponentVariation()
+{
+    SET_PED_DEFAULT_COMPONENT_VARIATION(GetHandle());
+}
+
+void GTAped::SetRandomComponentVariation()
+{
+    SET_PED_RANDOM_COMPONENT_VARIATION(GetHandle(), 0);
+}
+
 int GTAped::GetPropDrawableIndex(int propIndex) const
 {
     return GET_PED_PROP_INDEX(GetHandle(), propIndex, 0);
@@ -522,6 +532,16 @@ void GTAped::SetPropVariation(int propIndex, int drawableId, int textureId, bool
     }
 
     SET_PED_PROP_INDEX(GetHandle(), propIndex, drawableId, textureId, attach, 0);
+}
+
+void GTAped::SetRandomProps()
+{
+    SET_PED_RANDOM_PROPS(GetHandle());
+}
+
+void GTAped::ClearAllProps()
+{
+    CLEAR_ALL_PED_PROPS(GetHandle(), 0);
 }
 
 bool GTAped::HasTrackedDecoration(Hash collectionHash, Hash overlayHash) const

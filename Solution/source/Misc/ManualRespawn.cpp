@@ -151,7 +151,7 @@ void CheckSelfDealthModel()
         orig_model = PedHash::Michael;
         orig_model.LoadAndWait();
         SET_PLAYER_MODEL(PLAYER_ID(), orig_model.hash);
-        SET_PED_DEFAULT_COMPONENT_VARIATION(PLAYER_PED_ID());
+        GTAped(PLAYER_PED_ID()).SetDefaultComponentVariation();
         orig_model.Unload();
 
         // wait until player has resurrected

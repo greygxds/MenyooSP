@@ -133,7 +133,7 @@ bool MatchesOutfitSearch(const DefaultPedOutfit& outfit)
 
 void ClearOutfitVariations(GTAped ped)
 {
-    SET_PED_DEFAULT_COMPONENT_VARIATION(ped.Handle());
+    ped.SetDefaultComponentVariation();
 
     for (int propIndex = 0; propIndex < PV_PROP_MAX; ++propIndex)
         ped.SetPropVariation(propIndex, -1, 0, false);
