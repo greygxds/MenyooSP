@@ -99,7 +99,15 @@ struct ImageRow
     float height = 0.0889f;
 };
 
-using Row = std::variant<StatRow, DoubleStatRow, StackedStatRow, TitleRow, TextRow, SeparatorRow, SpacerRow, BarRow, ColorRow, DoubleColorRow, ImageRow>;
+struct Preview3DRow
+{
+    std::function<bool(float centerX, float centerY, float width, float height)> draw;
+    float width = 0.1f;
+    float height = 0.0889f;
+    float paddingBelow = 0.0f;
+};
+
+using Row = std::variant<StatRow, DoubleStatRow, StackedStatRow, TitleRow, TextRow, SeparatorRow, SpacerRow, BarRow, ColorRow, DoubleColorRow, ImageRow, Preview3DRow>;
 
 // Top edge all side panels align to: the menu title banner's top edge. Keeps panels static while hovering/scrolling.
 float MenuTopY();

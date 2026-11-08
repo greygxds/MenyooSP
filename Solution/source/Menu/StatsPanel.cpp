@@ -59,7 +59,8 @@ float RowHeight(const Row& row)
             [](const BarRow&) { return barSpacing; },
             [](const ColorRow&) { return lineH; },
             [](const DoubleColorRow&) { return lineH; },
-            [](const ImageRow& imageRow) { return imageRow.height; }
+            [](const ImageRow& imageRow) { return imageRow.height; },
+            [](const Preview3DRow& previewRow) { return previewRow.height + previewRow.paddingBelow; }
         },
         row
     );
@@ -218,7 +219,17 @@ void Draw(float topY, float width, const std::vector<Row>& rows)
                     Game::Print::drawstring(colorRow.valueText, 0, y);
                     DRAW_RECT(swatchRight - swatchW / 2.0f, y + lineH / 2.0f, swatchW, swatchH, colorRow.color.R, colorRow.color.G, colorRow.color.B, 255, false);
                 },
-                [&](const ImageRow& imageRow) { imageRow.draw(panelX, y + imageRow.height / 2.0f); }
+                [&](const ImageRow& imageRow) { imageRow.draw(panelX, y + imageRow.height / 2.0f); },
+                [&](const Preview3DRow& previewRow)
+                {
+                    const float centerY = y + previewRow.height / 2.0f;
+                    DRAW_RECT(panelX, centerY, previewRow.width + 0.003f, previewRow.height + 0.003f, 0, 0, 0, 212, false);
+                    if (previewRow.draw && previewRow.draw(panelX, centerY, previewRow.width, previewRow.height))
+                        return;
+
+                    Game::Print::SetupDraw(0, Vector2(0.0f, 0.185f), true, false, false);
+                    Game::Print::drawstring("Preparing 3D preview...", panelX, centerY - 0.0043f);
+                }
             },
             row
         );

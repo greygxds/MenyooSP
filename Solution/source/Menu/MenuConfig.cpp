@@ -32,6 +32,7 @@
 #include "..\Submenus\WeaponOptions.h"
 #include "..\Submenus\TimeOptions.h"
 #include "..\Submenus\VehicleOptions.h"
+#include "..\Submenus\Previews\Preview3DManager.h"
 
 #include <Windows.h>
 #include <simpleini\SimpleIni.h>
@@ -263,6 +264,7 @@ void MenuConfig::ConfigRead()
     g_addBlip = ini.GetBoolValue(section_haxValues.c_str(), "add_blip_to_vehicle", g_addBlip);
     g_warpNear = ini.GetBoolValue(section_haxValues.c_str(), "warp_vehicle_nearby", g_warpNear);
     g_spawnVehicleDrawBMPs = ini.GetBoolValue(section_haxValues.c_str(), "vehicle_spawner_enable_previews", g_spawnVehicleDrawBMPs);
+    Previews::g_enabled = ini.GetBoolValue(section_haxValues.c_str(), "ui3d_model_previews", Previews::g_enabled);
     g_spawnVehiclePlateText = ini.GetValue(section_haxValues.c_str(), "vehicle_spawner_plate_text", g_spawnVehiclePlateText.c_str());
     g_spawnVehiclePlateTexterValue = ini.GetLongValue(section_haxValues.c_str(), "vehicle_spawner_plate_text_texter_value", g_spawnVehiclePlateTexterValue);
     g_spawnVehiclePlateType = ini.GetLongValue(section_haxValues.c_str(), "vehicle_spawner_plate_type", g_spawnVehiclePlateType);
@@ -477,6 +479,7 @@ void MenuConfig::SaveConfig()
     ini.SetBoolValue(section_haxValues.c_str(), "add_blip_to_vehicle", g_addBlip);
     ini.SetBoolValue(section_haxValues.c_str(), "warp_vehicle_nearby", g_warpNear);
     ini.SetBoolValue(section_haxValues.c_str(), "vehicle_spawner_enable_previews", g_spawnVehicleDrawBMPs);
+    ini.SetBoolValue(section_haxValues.c_str(), "ui3d_model_previews", Previews::g_enabled);
     ini.SetValue(section_haxValues.c_str(), "vehicle_spawner_plate_text", g_spawnVehiclePlateText.c_str());
     ini.SetLongValue(section_haxValues.c_str(), "vehicle_spawner_plate_text_texter_value", g_spawnVehiclePlateTexterValue);
     ini.SetLongValue(section_haxValues.c_str(), "vehicle_spawner_plate_type", g_spawnVehiclePlateType);

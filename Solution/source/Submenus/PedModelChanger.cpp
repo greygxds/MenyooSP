@@ -15,6 +15,7 @@
 #include "..\Menu\Menu.h"
 #include "..\Menu\Keybinds.h"
 #include "..\Menu\Routine.h"
+#include "..\Menu\StatsPanel.h"
 
 #include "..\Natives\natives2.h"
 #include "..\Scripting\Model.h"
@@ -35,6 +36,7 @@
 #include "..\Submenus\Spooner\Databases.h"
 #include "..\Submenus\Spooner\EntityManagement.h"
 #include "..\Submenus\Spooner\MenuOptions.h"
+#include "Previews\Preview3DManager.h"
 
 #include <string>
 #include <vector>
@@ -330,6 +332,12 @@ void AddModelOption(const std::string& text, const GTAmodel::Model& model, bool*
         if (Menu::IsLastDrawnOptionSelected())
         {
             PedFavourites::ShowInstructionalButton(model);
+            if (!isSpoonerSpawn && Previews::g_enabled)
+            {
+                const std::string previewKey = "ped-model:" + std::to_string(model.hash);
+                std::vector<StatsPanel::Row> previewRows{Previews::CreateModelPreviewRow(previewKey, EntityType::PED, model)};
+                StatsPanel::DrawAtOption(currentOptionY + menuPos.y, 0.100f, previewRows);
+            }
         }
     }
 }

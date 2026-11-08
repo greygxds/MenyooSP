@@ -38,6 +38,7 @@
 #include "..\..\Scripting\Camera.h"
 #include "..\..\Util\keyboard.h"
 #include "..\..\Scripting\WeaponIndivs.h"
+#include "..\Previews\Preview3DManager.h"
 
 #include "STSTask.h"
 #include "STSTasks.h"
@@ -529,15 +530,20 @@ static void DrawSaveFileStats(const std::string& filePath, float optionTextY)
             statsRows.push_back(StatsPanel::TextRow{noteLine});
     }
 
-    if (hoveredXmlTexture.Exists())
+    if (Previews::g_enabled || hoveredXmlTexture.Exists())
     {
         std::vector<StatsPanel::Row> rowsWithImage;
         rowsWithImage.push_back(
-            StatsPanel::ImageRow{
-                [&](float centerX, float centerY)
+            StatsPanel::Preview3DRow{
+                [&, filePath](float centerX, float centerY, float width, float height)
                 {
-                    DRAW_RECT(centerX, centerY, 0.1f + 0.003f, 0.0889f + 0.003f, 0, 0, 0, 212, false);
-                    hoveredXmlTexture.Draw(0, Vector2(centerX, centerY), Vector2(0.1f, 0.0889f / 2 + 0.005f), 0.0f, RGBA::AllWhite());
+                    const bool previewDrawn = Previews::g_enabled && Previews::DrawSpoonerScenePreview(filePath, centerX, centerY, width, height);
+                    if (previewDrawn)
+                        return true;
+                    if (!hoveredXmlTexture.Exists())
+                        return false;
+                    hoveredXmlTexture.Draw(0, Vector2(centerX, centerY), Vector2(width, height / 2.0f + 0.005f), 0.0f, RGBA::AllWhite());
+                    return true;
                 },
                 0.1f,
                 0.0889f
