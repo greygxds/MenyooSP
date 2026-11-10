@@ -17,6 +17,12 @@
 
 namespace Previews
 {
+namespace
+{
+// Match GTA's offscreen headshot LOD multiplier.
+constexpr float kPreviewPedLodMultiplier = 1000.0f;
+} // namespace
+
 PedPreview3D::PedPreview3D(const GTAmodel::Model& model, std::string outfitFilePath, int sourcePedHandle)
     : ModelPreview3D(EntityType::PED, model), outfitFilePath(std::move(outfitFilePath)), sourcePedHandle(sourcePedHandle)
 {
@@ -96,6 +102,7 @@ int PedPreview3D::CreateEntity(Hash modelHash, const Vector3& spawnPosition, flo
 
 void PedPreview3D::ConfigureEntity(int entityHandle)
 {
+    SET_PED_LOD_MULTIPLIER(entityHandle, kPreviewPedLodMultiplier);
     SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(entityHandle, true);
     SET_PED_CAN_RAGDOLL(entityHandle, false);
     CLEAR_PED_TASKS_IMMEDIATELY(entityHandle);
