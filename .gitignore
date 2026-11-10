@@ -350,3 +350,4 @@ ASALocalRun/
 healthchecksdb
 /Solution/source/_Build/bin/Release/moveasi.bat
 /Solution/source/build_version.h
+/Solution/source/Generated/EnglishLanguage.h
