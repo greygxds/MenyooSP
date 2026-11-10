@@ -3,6 +3,7 @@
 * Copyright (C) 2019  MAFINS
 */
 #include "Language.h"
+#include "..\Generated\EnglishLanguage.h"
 
 #include "..\Util\ExePath.h"
 #include "..\Util\FileLogger.h"
@@ -138,6 +139,30 @@ bool ReadEntry(const std::string& key, const Json& value, Entry& entry)
     return entry.forms.find("other") != entry.forms.end();
 }
 
+bool ReadCatalog(const Json& document, const std::string& source, Catalog& result, std::string& displayName)
+{
+    if (!document.is_object())
+        return false;
+
+    displayName.clear();
+    if (document.contains("_meta") && document["_meta"].is_object() && document["_meta"].contains("displayName") && document["_meta"]["displayName"].is_string())
+        displayName = document["_meta"]["displayName"].get<std::string>();
+
+    for (const auto& [key, value] : document.items())
+    {
+        if (key == "_meta")
+            continue;
+        Entry entry;
+        if (!ReadEntry(key, value, entry))
+        {
+            ReportOnce("Invalid localization entry: " + key + " in " + source);
+            continue;
+        }
+        result[key] = std::move(entry);
+    }
+    return true;
+}
+
 bool LoadCatalog(const std::string& path, Catalog& result, std::string& displayName)
 {
     std::ifstream stream(path, std::ios::binary);
@@ -146,26 +171,7 @@ bool LoadCatalog(const std::string& path, Catalog& result, std::string& displayN
 
     try
     {
-        Json document = Json::parse(stream);
-        if (!document.is_object())
-            return false;
-
-        displayName.clear();
-        if (document.contains("_meta") && document["_meta"].is_object() && document["_meta"].contains("displayName") && document["_meta"]["displayName"].is_string())
-            displayName = document["_meta"]["displayName"].get<std::string>();
-
-        for (const auto& [key, value] : document.items())
-        {
-            if (key == "_meta")
-                continue;
-            Entry entry;
-            if (!ReadEntry(key, value, entry))
-            {
-                ReportOnce("Invalid localization entry: " + key + " in " + path);
-                continue;
-            }
-            result[key] = std::move(entry);
-        }
+        return ReadCatalog(Json::parse(stream), path, result, displayName);
     }
     catch (const std::exception& exception)
     {
@@ -173,6 +179,20 @@ bool LoadCatalog(const std::string& path, Catalog& result, std::string& displayN
         return false;
     }
     return true;
+}
+
+bool LoadEmbeddedEnglishCatalog(Catalog& result, std::string& displayName)
+{
+    try
+    {
+        const char* json = reinterpret_cast<const char*>(Embedded::EnglishCatalogJson);
+        return ReadCatalog(Json::parse(json), "embedded en-US catalog", result, displayName);
+    }
+    catch (const std::exception& exception)
+    {
+        ReportOnce("Unable to load embedded en-US language catalog: " + std::string(exception.what()));
+        return false;
+    }
 }
 
 std::string PluralCategory(const std::string& locale, std::uint64_t value)
@@ -402,6 +422,17 @@ int Init()
 
     std::map<std::string, Catalog> loadedCatalogs;
     std::vector<LocaleInfo> loadedLocales;
+    Catalog englishCatalog;
+    std::string englishDisplayName;
+    if (!LoadEmbeddedEnglishCatalog(englishCatalog, englishDisplayName))
+    {
+        catalogs.clear();
+        allLangs.clear();
+        selectedLocale = "en-US";
+        configLangName.clear();
+        return -1;
+    }
+
     for (const std::string& file : files)
     {
         const std::string locale = NormalizeLocale(file);
@@ -411,19 +442,22 @@ int Init()
         std::string displayName;
         if (!LoadCatalog(directory + "\\" + file + ".json", catalog, displayName))
             continue;
+
+        if (locale == "en-US")
+        {
+            for (auto& [key, entry] : catalog)
+                englishCatalog.insert_or_assign(key, std::move(entry));
+            if (!displayName.empty())
+                englishDisplayName = std::move(displayName);
+            continue;
+        }
+
         loadedCatalogs.emplace(locale, std::move(catalog));
         loadedLocales.push_back({locale, displayName.empty() ? locale : displayName});
     }
 
-    if (loadedCatalogs.find("en-US") == loadedCatalogs.end())
-    {
-        ReportOnce("Missing required en-US localization catalog");
-        catalogs.clear();
-        allLangs.clear();
-        selectedLocale = "en-US";
-        configLangName.clear();
-        return -1;
-    }
+    loadedCatalogs.emplace("en-US", std::move(englishCatalog));
+    loadedLocales.push_back({"en-US", englishDisplayName.empty() ? "en-US" : englishDisplayName});
 
     catalogs = std::move(loadedCatalogs);
     allLangs = std::move(loadedLocales);

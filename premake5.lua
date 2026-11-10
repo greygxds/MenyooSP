@@ -14,6 +14,10 @@ project "Menyoo"
     targetdir "Solution/source/_Build/bin/%{cfg.buildcfg}"
     objdir    "Solution/source/_Build/tmp/%{cfg.buildcfg}"
 
+    prebuildcommands {
+        'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(ProjectDir)..\\tools\\GenerateEmbeddedLanguage.ps1" -InputPath "$(ProjectDir)source\\_Build\\bin\\Release\\menyooStuff\\Language\\en-US.json" -OutputPath "$(ProjectDir)source\\Generated\\EnglishLanguage.h"'
+    }
+
     files {
         "Solution/source/**.h",
         "Solution/source/**.cpp",
