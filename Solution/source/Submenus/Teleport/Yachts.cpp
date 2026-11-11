@@ -229,7 +229,7 @@ void CreateYacht(YachtBuildInfoStructure& yachtInfo)
 {
     if (worldObjects.size() > 2000) //GTA_MAX_ENTITIES - 48)
     {
-        Game::Print::ShowNotification(Language::Translate("teleport.error"), Language::Translate("teleport.yacht.tooManyEntities"));
+        Game::Print::ShowNotification(Language::Translate("message.teleport.error.title"), Language::Translate("message.teleport.yacht.too_many_entities.message"));
         return;
     }
     if (yachtInfo.location == nullptr || yachtInfo.option == nullptr)
@@ -275,7 +275,7 @@ void CreateYacht(YachtBuildInfoStructure& yachtInfo)
     if (!propYacht.Exists())
     {
         yachtInfo.vMarkerPositions.clear();
-        Game::Print::PrintBottomLeft(Language::Translate("teleport.yacht.buildFailed"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.teleport.yacht.build_failed.message"));
         return;
     }
 
@@ -465,7 +465,7 @@ void TeleportPedToYacht(const GTAentity ped, YachtBuildInfoStructure& yachtInfo)
 
 void Sub_Yachts()
 {
-    AddTitle(Language::Translate("teleport.yacht.title"));
+    AddTitle(Language::Translate("menu.teleport.yacht.title"));
 
     for (auto& otherTele : vOtherYachtRelatedTeleports)
     {
@@ -477,7 +477,7 @@ void Sub_Yachts()
         }
     }
 
-    AddBreak(Language::Translate("teleport.yacht.buildSection"));
+    AddBreak(Language::Translate("menu.teleport.yacht.section.build_section.label"));
 
     if (oldYachtInfo != nullptr)
     {
@@ -520,8 +520,8 @@ void Sub_Yachts_InGrp()
     AddTitle(currentYachtInfo.location->second.name);
 
     bool bInternalLoc_plus = false, bInternalLoc_minus = false;
-    AddTexter(Language::Translate("teleport.yacht.positionIndex"), currentYachtInfo.internalLocationIndex, std::vector<std::string>{}, null, bInternalLoc_plus, bInternalLoc_minus);
-    AddOptionDescription(Language::Translate("teleport.yacht.positionIndex.description"));
+    AddTexter(Language::Translate("menu.teleport.yacht.option.position_index.label"), currentYachtInfo.internalLocationIndex, std::vector<std::string>{}, null, bInternalLoc_plus, bInternalLoc_minus);
+    AddOptionDescription(Language::Translate("menu.teleport.yacht.option.position_index.description"));
     if (bInternalLoc_plus)
     {
         if (currentYachtInfo.internalLocationIndex < 3)
@@ -538,7 +538,7 @@ void Sub_Yachts_InGrp()
     }
 
     bool bYachtType_plus = false, bYachtType_minus = false;
-    AddTexter(Language::Translate("teleport.yacht.type"), 0, std::vector<std::string>{currentYachtInfo.option->second.title}, null, bYachtType_plus, bYachtType_minus);
+    AddTexter(Language::Translate("menu.teleport.yacht.option.type.label"), 0, std::vector<std::string>{currentYachtInfo.option->second.title}, null, bYachtType_plus, bYachtType_minus);
     if (Menu::IsLastDrawnOptionSelected())
         DrawYachtBmpPreview(currentYachtInfo.option->first);
     if (bYachtType_plus)
@@ -557,7 +557,7 @@ void Sub_Yachts_InGrp()
     }
 
     bool bYachtPaint_plus = false, bYachtPaint_minus = false;
-    AddTexter(Language::Translate("teleport.yacht.paint"), currentYachtInfo.yachtPropTextureVariation, YachtPropPaintVariation::vNames, null, bYachtPaint_plus, bYachtPaint_minus);
+    AddTexter(Language::Translate("menu.teleport.yacht.option.paint.label"), currentYachtInfo.yachtPropTextureVariation, YachtPropPaintVariation::vNames, null, bYachtPaint_plus, bYachtPaint_minus);
     if (bYachtPaint_plus)
     {
         if (currentYachtInfo.yachtPropTextureVariation < YachtPropPaintVariation::vNames.size() - 1)
@@ -575,9 +575,9 @@ void Sub_Yachts_InGrp()
 
     bool bRailings_plus = false, bRailings_minus = false;
     AddTexter(
-        Language::Translate("teleport.yacht.railings"),
+        Language::Translate("menu.teleport.yacht.option.railings.label"),
         currentYachtInfo.railingColour - 'a',
-        std::vector<std::string>{Language::Translate("teleport.yacht.chrome"), Language::Translate("teleport.yacht.gold")},
+        std::vector<std::string>{Language::Translate("menu.teleport.option.yacht.value.chrome"), Language::Translate("menu.teleport.option.yacht.value.gold")},
         null,
         bRailings_plus,
         bRailings_minus
@@ -599,9 +599,9 @@ void Sub_Yachts_InGrp()
 
     bool bLightingType_plus = false, bLightingType_minus = false;
     AddTexter(
-        Language::Translate("teleport.yacht.lighting"),
+        Language::Translate("menu.teleport.yacht.option.lighting.label"),
         currentYachtInfo.lightingType - 1,
-        std::vector<std::string>{Language::Translate("teleport.yacht.presidential"), Language::Translate("teleport.yacht.vivacious")},
+        std::vector<std::string>{Language::Translate("menu.teleport.option.yacht.value.presidential"), Language::Translate("menu.teleport.option.yacht.value.vivacious")},
         null,
         bLightingType_plus,
         bLightingType_minus
@@ -623,10 +623,13 @@ void Sub_Yachts_InGrp()
 
     bool bLightingColour_plus = false, bLightingColour_minus = false;
     AddTexter(
-        Language::Translate("teleport.yacht.lightingColour"),
+        Language::Translate("menu.teleport.yacht.option.lighting_colour.label"),
         currentYachtInfo.lightingColour - 'a',
         std::vector<std::string>{
-            Language::Translate("teleport.yacht.gold"), Language::Translate("teleport.yacht.blue"), Language::Translate("teleport.yacht.pink"), Language::Translate("teleport.yacht.green")
+            Language::Translate("menu.teleport.option.yacht.value.gold"),
+            Language::Translate("menu.teleport.option.yacht.value.blue"),
+            Language::Translate("menu.teleport.option.yacht.value.pink"),
+            Language::Translate("menu.teleport.option.yacht.value.green")
         },
         null,
         bLightingColour_plus,
@@ -649,9 +652,9 @@ void Sub_Yachts_InGrp()
 
     bool bDoorColour_plus = false, bDoorColour_minus = false;
     AddTexter(
-        Language::Translate("teleport.yacht.doors"),
+        Language::Translate("menu.teleport.yacht.option.doors.label"),
         0,
-        std::vector<std::string>{currentYachtInfo.doorColour == '\0' ? Language::Translate("teleport.yacht.chrome") : Language::Translate("teleport.yacht.gold")},
+        std::vector<std::string>{currentYachtInfo.doorColour == '\0' ? Language::Translate("menu.teleport.option.yacht.value.chrome") : Language::Translate("menu.teleport.option.yacht.value.gold")},
         null,
         bDoorColour_plus,
         bDoorColour_minus
@@ -672,7 +675,7 @@ void Sub_Yachts_InGrp()
     }
 
     bool bFlagIndex_plus = false, bFlagIndex_minus = false;
-    AddTexter(Language::Translate("teleport.yacht.flag"), currentYachtInfo.flagIndex, vFlagSuffixes, null, bFlagIndex_plus, bFlagIndex_minus);
+    AddTexter(Language::Translate("menu.teleport.yacht.option.flag.label"), currentYachtInfo.flagIndex, vFlagSuffixes, null, bFlagIndex_plus, bFlagIndex_minus);
     if (bFlagIndex_plus)
     {
         if (currentYachtInfo.flagIndex < vFlagSuffixes.size() - 1)
@@ -688,11 +691,11 @@ void Sub_Yachts_InGrp()
         }
     }
 
-    AddsettingscolOption(Language::Translate("teleport.yacht.markerColour"), currentYachtInfo.markerColour);
+    AddsettingscolOption(Language::Translate("menu.teleport.yacht.option.marker_colour.label"), currentYachtInfo.markerColour);
 
     bool bCreateYachtPressed = false;
-    AddOption(Language::Translate("teleport.yacht.build"), bCreateYachtPressed);
-    AddOptionDescription(Language::Translate("teleport.yacht.build.description"));
+    AddOption(Language::Translate("menu.teleport.yacht.option.build.label"), bCreateYachtPressed);
+    AddOptionDescription(Language::Translate("menu.teleport.yacht.option.build.description"));
     if (bCreateYachtPressed)
     {
         DO_SCREEN_FADE_OUT(50);

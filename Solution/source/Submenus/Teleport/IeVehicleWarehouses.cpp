@@ -127,7 +127,7 @@ void TeleportPedToWarehouse(GTAentity ped, IeWarehouseInfoStructure& info)
 
 void Sub_IeVehicleWarehouses()
 {
-    AddTitle(Language::Translate("teleport.ieWarehouses.title"));
+    AddTitle(Language::Translate("menu.teleport.ie_warehouses.title"));
 
     for (auto& loc : vLocations)
     {
@@ -171,8 +171,8 @@ void Sub_IeVehicleWarehouses_InLoc()
     }
 
     bool bCreateWarehousePressed = false;
-    AddOption(Language::Translate("teleport.ieWarehouses.build"), bCreateWarehousePressed);
-    AddOptionDescription(Language::Translate("teleport.ieWarehouses.build.description"));
+    AddOption(Language::Translate("menu.teleport.ie_warehouses.option.build.label"), bCreateWarehousePressed);
+    AddOptionDescription(Language::Translate("menu.teleport.ie_warehouses.option.build.description"));
     if (bCreateWarehousePressed)
     {
         DO_SCREEN_FADE_OUT(50);

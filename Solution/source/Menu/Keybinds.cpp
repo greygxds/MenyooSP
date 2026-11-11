@@ -202,16 +202,12 @@ const std::string& KeybindEntry::Id() const
 
 std::string KeybindEntry::Label() const
 {
-    const std::string key = "keybinds." + m_id + ".label";
-    const std::string translated = Language::TranslateToSelected(key);
-    return translated == key ? m_label : translated;
+    return Language::TranslateStable("keybind", m_id, "label", m_label);
 }
 
 std::string KeybindEntry::Description() const
 {
-    const std::string key = "keybinds." + m_id + ".description";
-    const std::string translated = Language::TranslateToSelected(key);
-    return translated == key ? m_description : translated;
+    return Language::TranslateStable("keybind", m_id, "description", m_description);
 }
 
 const std::string& KeybindEntry::Category() const

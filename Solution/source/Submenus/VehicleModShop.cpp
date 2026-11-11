@@ -11,6 +11,7 @@
 #include "..\Menu\MenuCategory.h"
 #include "..\Menu\Language.h"
 
+#include <cctype>
 #include <unordered_set>
 
 namespace sub
@@ -60,11 +61,49 @@ struct NamedVehiclePaint
     INT16 pearl;
 };
 
-std::string GetPaintLabel(std::string_view category, size_t index, const NamedVehiclePaint& paint)
+std::unordered_set<std::string> ambiguousPaintLocalizationIds;
+
+std::string EncodeStableIdentifierPart(std::string_view value)
 {
-    const std::string key = "vehicle.modShop.paint." + std::string(category) + "." + std::to_string(index);
-    const std::string translated = Language::Translate(key);
-    return translated == key ? paint.name : translated;
+    std::string normalized;
+    normalized.reserve(value.size());
+    for (const unsigned char character : value)
+    {
+        if (std::isalnum(character))
+            normalized.push_back(static_cast<char>(std::tolower(character)));
+        else
+            normalized.push_back('_');
+    }
+
+    return std::to_string(normalized.size()) + "_" + normalized;
+}
+
+std::string BuildPaintLocalizationIdentifier(std::string_view category, const NamedVehiclePaint& paint)
+{
+    return "tuple_" + EncodeStableIdentifierPart(category) + "_" + EncodeStableIdentifierPart(std::to_string(paint.paint)) + "_" + EncodeStableIdentifierPart(std::to_string(paint.pearl));
+}
+
+void CheckUniquePaintLocalizationIds(std::string_view category, const std::vector<NamedVehiclePaint>& paints)
+{
+    std::unordered_set<std::string> seenIds;
+    for (const NamedVehiclePaint& paint : paints)
+    {
+        const std::string identifier = BuildPaintLocalizationIdentifier(category, paint);
+        if (seenIds.insert(identifier).second)
+            continue;
+
+        ambiguousPaintLocalizationIds.insert(identifier);
+        addlog(ige::LogType::LOG_WARNING, "Duplicate paint localization ID: " + std::string(category) + " " + identifier);
+    }
+}
+
+std::string GetPaintLabel(std::string_view category, const NamedVehiclePaint& paint)
+{
+    const std::string identifier = BuildPaintLocalizationIdentifier(category, paint);
+    if (ambiguousPaintLocalizationIds.find(identifier) != ambiguousPaintLocalizationIds.end())
+        return paint.name;
+
+    return Language::TranslateStable("menu.vehicle.mod_shop.option.paint.value", identifier, paint.name);
 }
 
 #pragma region paintvectors
@@ -392,6 +431,20 @@ void PopulateAllPaintIDs()
             }
         }
     }
+
+    CheckUniquePaintLocalizationIds("metallic", PAINTS_METALLIC);
+    CheckUniquePaintLocalizationIds("normal", PAINTS_NORMAL);
+    CheckUniquePaintLocalizationIds("pearlescent", PAINTS_PEARL);
+    CheckUniquePaintLocalizationIds("matte", PAINTS_MATTE);
+    CheckUniquePaintLocalizationIds("metal", PAINTS_METAL);
+    CheckUniquePaintLocalizationIds("chrome", PAINTS_CHROME);
+    CheckUniquePaintLocalizationIds("chameleon", PAINTS_CHAMELEON);
+    CheckUniquePaintLocalizationIds("wheels", PAINTS_WHEELS);
+    CheckUniquePaintLocalizationIds("interior", PAINTS_INTERIOR);
+    CheckUniquePaintLocalizationIds("dashboard", PAINTS_DASHBOARD);
+    CheckUniquePaintLocalizationIds("utility", PAINTS_UTIL);
+    CheckUniquePaintLocalizationIds("worn", PAINTS_WORN);
+
     //unloading test vehicle from memory
     ENTITY::SET_VEHICLE_AS_NO_LONGER_NEEDED(&veh);
     VEHICLE::DELETE_VEHICLE(&veh);
@@ -563,22 +616,22 @@ void MSPaints_()
          carvarcol_plus = 0, carvarcol_minus = 0, carvarcol_input = 0;
     getpaint = true;
 
-    AddTitle(Language::Translate("vehicle.modShop.paints.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.title"));
     AddMSPaintsPointOption_(Game::GetGXTEntry("CMOD_COL0_0", "Primary"), 1);                                                       // Primary CMOD_COL0_0
                                                                                                                                    //if (_DOES_VEHICLE_HAVE_SECONDARY_COLOUR(Static_12))
     AddMSPaintsPointOption_(Game::GetGXTEntry("CMOD_COL0_1", "Secondary"), 2);                                                     // Secondary CMOD_COL0_1
     AddOption(Game::GetGXTEntry("CMOD_COL1_6", "Pearlescent"), set_mspaints_index_3, nullFunc, SUB::MSPAINTS2_PEARL, true, false); // Pearlescent CMOD_COL1_6
     AddOption(Game::GetGXTEntry("CMOD_MOD_WHEM", "Wheels"), set_mspaints_index_4, nullFunc, -1, true);
-    AddOption(Language::Translate("vehicle.modShop.paints.interiorColour.label"), set_mspaints_index_5, nullFunc, SUB::MSPAINTS2_SHARED, true);
-    AddOption(Language::Translate("vehicle.modShop.paints.dashboardColour.label"), set_mspaints_index_6, nullFunc, SUB::MSPAINTS2_SHARED, true);
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.interior_colour.label"), set_mspaints_index_5, nullFunc, SUB::MSPAINTS2_SHARED, true);
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.dashboard_colour.label"), set_mspaints_index_6, nullFunc, SUB::MSPAINTS2_SHARED, true);
 
 
-    AddBreak(Language::Translate("vehicle.modShop.paints.collateral.break"));
-    AddNumber(Language::Translate("vehicle.modShop.paints.paintFade.label"), paintFade, 2, null, paintFade_plus, paintFade_minus);
-    AddOptionDescription(Language::Translate("vehicle.modShop.paints.paintFade.description"));
-    AddNumber(Language::Translate("vehicle.modShop.paints.dirtLevel.label"), dirtLevel, 2, null, dirtLevel_plus, dirtLevel_minus);
-    AddNumber(Language::Translate("vehicle.modShop.paints.carVariationColours.label"), carvarcol, 0, carvarcol_input, carvarcol_plus, carvarcol_minus);
-    AddOptionDescription(Language::Translate("vehicle.modShop.paints.carVariationColours.description"));
+    AddBreak(Language::Translate("menu.vehicle.mod_shop.paints.collateral.section.main.label"));
+    AddNumber(Language::Translate("menu.vehicle.mod_shop.paints.option.paint_fade.label"), paintFade, 2, null, paintFade_plus, paintFade_minus);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.paints.option.paint_fade.description"));
+    AddNumber(Language::Translate("menu.vehicle.mod_shop.paints.option.dirt_level.label"), dirtLevel, 2, null, dirtLevel_plus, dirtLevel_minus);
+    AddNumber(Language::Translate("menu.vehicle.mod_shop.paints.option.car_variation_colours.label"), carvarcol, 0, carvarcol_input, carvarcol_plus, carvarcol_minus);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.paints.option.car_variation_colours.description"));
 
 
     if (set_mspaints_index_3)
@@ -591,7 +644,7 @@ void MSPaints_()
     {
         s_selectedPaintPart = 4;
         if (GET_VEHICLE_MOD(s_selectedVehicleHandle, VehicleMod::FrontWheels) < 0)
-            Game::Print::ShowNotification(Language::Translate("vehicle.modShop.notifications.note.title"), Language::Translate("vehicle.modShop.notifications.stockWheelColours"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.mod_shop.note.title"), Language::Translate("message.vehicle.mod_shop.stock_wheel_colours.message"));
         Menu::NewSetMenu(SUB::MSPAINTS2_SHARED);
         return;
     }
@@ -640,7 +693,7 @@ void MSPaints_()
 
     if (carvarcol_input)
     {
-        std::string inputStr = Game::InputBox("", 4, Language::Translate("vehicle.modShop.paints.carVariationColours.prompt"), std::to_string(carvarcol));
+        std::string inputStr = Game::InputBox("", 4, Language::Translate("menu.vehicle.mod_shop.paints.option.car_variation_colours.prompt"), std::to_string(carvarcol));
         if (inputStr.length() > 0)
         {
             try
@@ -746,10 +799,10 @@ void MSPaints2_()
         AddTitle(Game::GetGXTEntry("CMOD_COL1_6", "Pearlescent"));
         break;
     case 5:
-        AddTitle(Language::Translate("vehicle.modShop.paints.interior.title"));
+        AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.interior.title"));
         break;
     case 6:
-        AddTitle(Language::Translate("vehicle.modShop.paints.dashboard.title"));
+        AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.dashboard.title"));
         break;
     case 4:
     default:
@@ -762,44 +815,44 @@ void MSPaints2_()
     case SUB::SPAWNVEHICLE_OPTIONS:
         INT16* carColSettingPtr = (s_selectedPaintPart == 10 ? &g_spawnVehiclePrimaryColor : &g_spawnVehicleSecondaryColor);
         bool bCarColSettingToNullPressed = false;
-        AddTickol(Language::Translate("vehicle.modShop.paints.noneDefault.label"), *carColSettingPtr == -3, bCarColSettingToNullPressed, bCarColSettingToNullPressed);
+        AddTickol(Language::Translate("menu.vehicle.mod_shop.paints.option.none_default.label"), *carColSettingPtr == -3, bCarColSettingToNullPressed, bCarColSettingToNullPressed);
         if (bCarColSettingToNullPressed)
             *carColSettingPtr = -3;
         break;
     }
 
-    AddOption(Language::Translate("vehicle.modShop.paints.chrome.label"), null, nullFunc, SUB::MSPAINTS2_CHROME, true, true);     // CMOD_COL1_0
-    AddOption(Language::Translate("vehicle.modShop.paints.classic.label"), null, nullFunc, SUB::MSPAINTS2_NORMAL, true, true);    // CMOD_COL1_1
-    AddOption(Language::Translate("vehicle.modShop.paints.matte.label"), null, nullFunc, SUB::MSPAINTS2_MATTE, true, true);       // CMOD_COL1_5
-    AddOption(Language::Translate("vehicle.modShop.paints.metallic.label"), null, nullFunc, SUB::MSPAINTS2_METALLIC, true, true); // CMOD_COL1_3
-    AddOptionDescription(Language::Translate("vehicle.modShop.paints.metallic.description"));
-    AddOption(Language::Translate("vehicle.modShop.paints.metal.label"), null, nullFunc, SUB::MSPAINTS2_METAL, true, true); // CMOD_COL1_4
-    AddOptionDescription(Language::Translate("vehicle.modShop.paints.metal.description"));
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.chrome.label"), null, nullFunc, SUB::MSPAINTS2_CHROME, true, true);     // CMOD_COL1_0
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.classic.label"), null, nullFunc, SUB::MSPAINTS2_NORMAL, true, true);    // CMOD_COL1_1
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.matte.label"), null, nullFunc, SUB::MSPAINTS2_MATTE, true, true);       // CMOD_COL1_5
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.metallic.label"), null, nullFunc, SUB::MSPAINTS2_METALLIC, true, true); // CMOD_COL1_3
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.paints.option.metallic.description"));
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.metal.label"), null, nullFunc, SUB::MSPAINTS2_METAL, true, true); // CMOD_COL1_4
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.paints.option.metal.description"));
     if (g_isEnhanced || IS_DLC_PRESENT(GET_HASH_KEY("spchameleon")))
-        AddOption(Language::Translate("vehicle.modShop.paints.chameleon.label"), null, nullFunc, SUB::MSPAINTS2_CHAMELEON, true, true); // CMOD_COL1_4
-    AddOption(Language::Translate("vehicle.modShop.paints.utility.label"), null, nullFunc, SUB::MSPAINTS2_UTIL);
-    AddOptionDescription(Language::Translate("vehicle.modShop.paints.utility.description"));
-    AddOption(Language::Translate("vehicle.modShop.paints.worn.label"), null, nullFunc, SUB::MSPAINTS2_WORN);
-    AddOptionDescription(Language::Translate("vehicle.modShop.paints.worn.description"));
+        AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.chameleon.label"), null, nullFunc, SUB::MSPAINTS2_CHAMELEON, true, true); // CMOD_COL1_4
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.utility.label"), null, nullFunc, SUB::MSPAINTS2_UTIL);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.paints.option.utility.description"));
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.worn.label"), null, nullFunc, SUB::MSPAINTS2_WORN);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.paints.option.worn.description"));
 
     if (s_selectedPaintPart < 10)
     {
-        AddNumber(Language::Translate("vehicle.modShop.paints.paintIndex.label"), paintIndex, 0, paintIndex_input, paintIndex_plus, paintIndex_minus);
+        AddNumber(Language::Translate("menu.vehicle.mod_shop.paints.option.paint_index.label"), paintIndex, 0, paintIndex_input, paintIndex_plus, paintIndex_minus);
     }
 
-    AddOption(Language::Translate("vehicle.modShop.paints.randomIndex.label"), MSPaints_RIndex);
-    AddOptionDescription(Language::Translate("vehicle.modShop.paints.randomIndex.description"));
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.random_index.label"), MSPaints_RIndex);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.paints.option.random_index.description"));
 
     std::string painttypeswitch;
     if (s_selectedPaintPart == 1 || s_selectedPaintPart == 2)
     {
-        AddOption(Language::Translate("vehicle.modShop.paints.randomRgb.label"), MSPaints_RColour);
-        AddOption(Language::Translate("vehicle.modShop.paints.setRgb.label"), MSPaints_primRGB, nullFunc, SUB::MSPAINTS_RGB);
+        AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.random_rgb.label"), MSPaints_RColour);
+        AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.set_rgb.label"), MSPaints_primRGB, nullFunc, SUB::MSPAINTS_RGB);
         if (Menu::IsLastDrawnOptionSelected())
             AddPresetColourOptionsPreview(s_selectedPaintPart == 1 ? vehicle.GetCustomPrimaryColour() : s_selectedPaintPart == 2 ? vehicle.GetCustomSecondaryColour() : RgbS(0, 0, 0));
         s_selectedPaintPart == 1 ? painttypeswitch = "Secondary" : painttypeswitch = "Primary";
-        AddOption(Language::Format("vehicle.modShop.paints.copyTo.label", {{"layer", painttypeswitch}}), copypaint);
-        AddOptionDescription(Language::Translate("vehicle.modShop.paints.copyTo.description"));
+        AddOption(Language::Format("menu.vehicle.mod_shop.paints.option.copy_to.label", {{"layer", painttypeswitch}}), copypaint);
+        AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.paints.option.copy_to.description"));
     }
 
     if (MSPaints_RIndex)
@@ -879,7 +932,7 @@ void MSPaints2_()
     }
     if (paintIndex_input)
     {
-        std::string inputStr = Game::InputBox("", 4U, Language::Translate("vehicle.modShop.paints.paintIndex.prompt"), std::to_string(paintIndex));
+        std::string inputStr = Game::InputBox("", 4U, Language::Translate("menu.vehicle.mod_shop.paints.option.paint_index.prompt"), std::to_string(paintIndex));
         if (inputStr.length() > 0)
         {
             try
@@ -941,7 +994,7 @@ void _AddPaintIndexSlider()
     int extrapaints = totalpaints - 232;
 
     bool paintIndex_plus = 0, paintIndex_minus = 0, paintIndex_input = 0;
-    AddNumber(Language::Translate("vehicle.modShop.paints.paintIndex.label"), paintIndex, 0, paintIndex_input, paintIndex_plus, paintIndex_minus);
+    AddNumber(Language::Translate("menu.vehicle.mod_shop.paints.option.paint_index.label"), paintIndex, 0, paintIndex_input, paintIndex_plus, paintIndex_minus);
     const INT paintIndex_maxValue = 160 + extrapaints;
     if (paintIndex_plus)
     {
@@ -975,7 +1028,7 @@ void _AddPaintIndexSlider()
     }
     if (paintIndex_input)
     {
-        std::string inputStr = Game::InputBox("", 4U, Language::Translate("vehicle.modShop.paints.paintIndex.prompt"), std::to_string(paintIndex));
+        std::string inputStr = Game::InputBox("", 4U, Language::Translate("menu.vehicle.mod_shop.paints.option.paint_index.prompt"), std::to_string(paintIndex));
         if (inputStr.length() > 0)
         {
             try
@@ -1020,11 +1073,11 @@ void Sub_Shared()
         pPaints = &PAINTS_PEARL;
         break;
     case 5:
-        AddTitle(Language::Translate("vehicle.modShop.paints.interior.title"));
+        AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.interior.title"));
         pPaints = &PAINTS_INTERIOR;
         break;
     case 6:
-        AddTitle(Language::Translate("vehicle.modShop.paints.dashboard.title"));
+        AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.dashboard.title"));
         pPaints = &PAINTS_DASHBOARD;
         break;
     case 4:
@@ -1046,7 +1099,7 @@ void Sub_Shared()
     for (size_t index = 0; index < pPaints->size(); ++index)
     {
         const auto& paint = pPaints->at(index);
-        AddcarcolOption_(GetPaintLabel(category, index, paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
+        AddcarcolOption_(GetPaintLabel(category, paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
     }
 
     _AddPaintIndexSlider();
@@ -1054,92 +1107,92 @@ void Sub_Shared()
 
 void Sub_Chrome()
 {
-    AddTitle(Language::Translate("vehicle.modShop.paints.chrome.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.chrome.title"));
 
     auto& vPaints = PAINTS_CHROME;
 
     for (size_t index = 0; index < vPaints.size(); ++index)
     {
         const auto& paint = vPaints[index];
-        AddcarcolOption_(GetPaintLabel("chrome", index, paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
+        AddcarcolOption_(GetPaintLabel("chrome", paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
     }
 }
 
 void Sub_Normal()
 {
-    AddTitle(Language::Translate("vehicle.modShop.paints.classic.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.classic.title"));
 
     auto& vPaints = PAINTS_NORMAL;
 
     for (size_t index = 0; index < vPaints.size(); ++index)
     {
         const auto& paint = vPaints[index];
-        AddcarcolOption_(GetPaintLabel("normal", index, paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
+        AddcarcolOption_(GetPaintLabel("normal", paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
     }
 }
 
 void Sub_Matte()
 {
-    AddTitle(Language::Translate("vehicle.modShop.paints.matte.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.matte.title"));
 
     auto& vPaints = PAINTS_MATTE;
 
     for (size_t index = 0; index < vPaints.size(); ++index)
     {
         const auto& paint = vPaints[index];
-        AddcarcolOption_(GetPaintLabel("matte", index, paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
+        AddcarcolOption_(GetPaintLabel("matte", paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
     }
 }
 
 void Sub_Metallic()
 {
-    AddTitle(Language::Translate("vehicle.modShop.paints.metallic.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.metallic.title"));
 
     auto& vPaints = PAINTS_METALLIC;
 
     for (size_t index = 0; index < vPaints.size(); ++index)
     {
         const auto& paint = vPaints[index];
-        AddcarcolOption_(GetPaintLabel("metallic", index, paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
+        AddcarcolOption_(GetPaintLabel("metallic", paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
     }
 }
 
 void Sub_Metal()
 {
-    AddTitle(Language::Translate("vehicle.modShop.paints.metal.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.metal.title"));
 
     auto& vPaints = PAINTS_METAL;
 
     for (size_t index = 0; index < vPaints.size(); ++index)
     {
         const auto& paint = vPaints[index];
-        AddcarcolOption_(GetPaintLabel("metal", index, paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
+        AddcarcolOption_(GetPaintLabel("metal", paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
     }
 }
 
 void Sub_Chameleon()
 {
-    AddTitle(Language::Translate("vehicle.modShop.paints.chameleon.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.chameleon.title"));
 
     auto& vPaints = PAINTS_CHAMELEON;
 
     for (size_t index = 0; index < vPaints.size(); ++index)
     {
         const auto& paint = vPaints[index];
-        AddcarcolOption_(GetPaintLabel("chameleon", index, paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
+        AddcarcolOption_(GetPaintLabel("chameleon", paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
     }
 }
 
 void Sub_Pearl()
 {
-    AddTitle(Language::Translate("vehicle.modShop.paints.pearlescent.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.pearlescent.title"));
 
     auto& vPaints = PAINTS_PEARL;
 
     for (size_t index = 0; index < vPaints.size(); ++index)
     {
         const auto& paint = vPaints[index];
-        AddcarcolOption_(GetPaintLabel("pearlescent", index, paint), s_selectedVehicleHandle, paint.pearl, paint.pearl);
+        AddcarcolOption_(GetPaintLabel("pearlescent", paint), s_selectedVehicleHandle, paint.pearl, paint.pearl);
     }
 
     _AddPaintIndexSlider();
@@ -1147,27 +1200,27 @@ void Sub_Pearl()
 
 void Sub_Util()
 {
-    AddTitle(Language::Translate("vehicle.modShop.paints.utility.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.utility.title"));
 
     auto& vPaints = PAINTS_UTIL;
 
     for (size_t index = 0; index < vPaints.size(); ++index)
     {
         const auto& paint = vPaints[index];
-        AddcarcolOption_(GetPaintLabel("utility", index, paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
+        AddcarcolOption_(GetPaintLabel("utility", paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
     }
 }
 
 void Sub_Worn()
 {
-    AddTitle(Language::Translate("vehicle.modShop.paints.worn.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.paints.worn.title"));
 
     auto& vPaints = PAINTS_WORN;
 
     for (size_t index = 0; index < vPaints.size(); ++index)
     {
         const auto& paint = vPaints[index];
-        AddcarcolOption_(GetPaintLabel("worn", index, paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
+        AddcarcolOption_(GetPaintLabel("worn", paint), s_selectedVehicleHandle, paint.paint, paint.pearl);
     }
 }
 } // namespace MSPaints_catind
@@ -1243,16 +1296,16 @@ void MSPaints_RGB()
     };
 
     const std::vector<std::string> PAINTS_FINISH_NAMES{
-        Language::Translate("vehicle.modShop.rgb.paintFinish.standardMetallic"),
-        Language::Translate("vehicle.modShop.rgb.paintFinish.darkMetallic"),
-        Language::Translate("vehicle.modShop.rgb.paintFinish.brightMetallic"),
-        Language::Translate("vehicle.modShop.rgb.paintFinish.matte"),
-        Language::Translate("vehicle.modShop.rgb.paintFinish.util"),
-        Language::Translate("vehicle.modShop.rgb.paintFinish.worn"),
-        Language::Translate("vehicle.modShop.rgb.paintFinish.brushedMetal"),
-        Language::Translate("vehicle.modShop.rgb.paintFinish.pureChrome"),
-        Language::Translate("vehicle.modShop.rgb.paintFinish.colouredChrome"),
-        Language::Translate("vehicle.modShop.rgb.paintFinish.satin"),
+        Language::Translate("menu.vehicle.mod_shop.rgb.paint_finish.option.standard_metallic.label"),
+        Language::Translate("menu.vehicle.mod_shop.rgb.paint_finish.option.dark_metallic.label"),
+        Language::Translate("menu.vehicle.mod_shop.rgb.paint_finish.option.bright_metallic.label"),
+        Language::Translate("menu.vehicle.mod_shop.rgb.paint_finish.option.matte.label"),
+        Language::Translate("menu.vehicle.mod_shop.rgb.paint_finish.option.util.label"),
+        Language::Translate("menu.vehicle.mod_shop.rgb.paint_finish.option.worn.label"),
+        Language::Translate("menu.vehicle.mod_shop.rgb.paint_finish.option.brushed_metal.label"),
+        Language::Translate("menu.vehicle.mod_shop.rgb.paint_finish.option.pure_chrome.label"),
+        Language::Translate("menu.vehicle.mod_shop.rgb.paint_finish.option.coloured_chrome.label"),
+        Language::Translate("menu.vehicle.mod_shop.rgb.paint_finish.option.satin.label"),
     };
 
     if (bitMSPaintsRGBMode == 0 || bitMSPaintsRGBMode == 1)
@@ -1326,10 +1379,10 @@ void MSPaints_RGB()
         GET_HUD_COLOUR(s_selectedVehicleHandle, &ms_paints_rgb_r, &ms_paints_rgb_g, &ms_paints_rgb_b, &ms_paints_rgb_a);
         break;
     }
-    AddTitle(Language::Translate("vehicle.modShop.rgb.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.rgb.title"));
     if (bitMSPaintsRGBMode == 0 || bitMSPaintsRGBMode == 1)
-        AddTexter(Language::Translate("vehicle.modShop.rgb.paintFinish.label"), ms_paints_finish, PAINTS_FINISH_NAMES, null, ms_paints_finish_plus, ms_paints_finish_minus);
-    AddNumber(Language::Translate("vehicle.modShop.rgb.red.label"), ms_paints_rgb_r, 0, ms_paints_rgb_r_custom, ms_paints_rgb_r_plus, ms_paints_rgb_r_minus);
+        AddTexter(Language::Translate("menu.vehicle.mod_shop.rgb.option.paint_finish.label"), ms_paints_finish, PAINTS_FINISH_NAMES, null, ms_paints_finish_plus, ms_paints_finish_minus);
+    AddNumber(Language::Translate("menu.vehicle.mod_shop.rgb.option.red.label"), ms_paints_rgb_r, 0, ms_paints_rgb_r_custom, ms_paints_rgb_r_plus, ms_paints_rgb_r_minus);
 
     switch (*Menu::activeOptionIndex)
     {
@@ -1340,15 +1393,15 @@ void MSPaints_RGB()
         break;
     }
 
-    AddNumber(Language::Translate("vehicle.modShop.rgb.green.label"), ms_paints_rgb_g, 0, ms_paints_rgb_g_custom, ms_paints_rgb_g_plus, ms_paints_rgb_g_minus);
-    AddNumber(Language::Translate("vehicle.modShop.rgb.blue.label"), ms_paints_rgb_b, 0, ms_paints_rgb_b_custom, ms_paints_rgb_b_plus, ms_paints_rgb_b_minus);
+    AddNumber(Language::Translate("menu.vehicle.mod_shop.rgb.option.green.label"), ms_paints_rgb_g, 0, ms_paints_rgb_g_custom, ms_paints_rgb_g_plus, ms_paints_rgb_g_minus);
+    AddNumber(Language::Translate("menu.vehicle.mod_shop.rgb.option.blue.label"), ms_paints_rgb_b, 0, ms_paints_rgb_b_custom, ms_paints_rgb_b_plus, ms_paints_rgb_b_minus);
     if (ms_paints_rgb_a != -1)
-        AddNumber(Language::Translate("vehicle.modShop.rgb.opacity.label"), ms_paints_rgb_a, 0, ms_paints_rgb_a_custom, ms_paints_rgb_a_plus, ms_paints_rgb_a_minus);
-    AddTexter(Language::Translate("vehicle.modShop.rgb.hudColour.label"), settingsHUDColor, HudColour::vHudColours, settings_hud_c_custom, settings_hud_c_plus, settings_hud_c_minus);
-    AddOptionDescription(Language::Translate("vehicle.modShop.rgb.hudColour.description"));
-    AddOption(Language::Translate("vehicle.modShop.rgb.inputHex.label"), ms_paints_hexinput);
+        AddNumber(Language::Translate("menu.vehicle.mod_shop.rgb.option.opacity.label"), ms_paints_rgb_a, 0, ms_paints_rgb_a_custom, ms_paints_rgb_a_plus, ms_paints_rgb_a_minus);
+    AddTexter(Language::Translate("menu.vehicle.mod_shop.rgb.option.hud_colour.label"), settingsHUDColor, HudColour::vHudColours, settings_hud_c_custom, settings_hud_c_plus, settings_hud_c_minus);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.rgb.option.hud_colour.description"));
+    AddOption(Language::Translate("menu.vehicle.mod_shop.rgb.option.input_hex.label"), ms_paints_hexinput);
 
-    AddBreak(Language::Translate("vehicle.modShop.rgb.presets.break"));
+    AddBreak(Language::Translate("menu.vehicle.mod_shop.rgb.presets.section.main.label"));
     if (AddPresetColourOptions(ms_paints_rgb_r, ms_paints_rgb_g, ms_paints_rgb_b))
         rgb_mode_set_carcol(s_selectedVehicleHandle, ms_paints_rgb_r, ms_paints_rgb_g, ms_paints_rgb_b, ms_paints_rgb_a);
 
@@ -1818,7 +1871,7 @@ void ModShop_()
 
     FLOAT ms_dirtLevel = GET_VEHICLE_DIRT_LEVEL(s_selectedVehicleHandle);
 
-    AddTitle(Language::Translate("vehicle.modShop.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.title"));
 
     if (true) // Display Benny's sub ptr if veh is supported Static_12_veh_model.IsBennySupportedVehicle()
     {
@@ -1869,7 +1922,7 @@ void ModShop_()
     //if (!(Static_12_veh_model == VehicleHashes::Police || Static_12_veh_model == VehicleHashes::Police2 || Static_12_veh_model == VehicleHashes::Police3 || Static_12_veh_model == VehicleHashes::Police4 || Static_12_veh_model == VehicleHashes::Policeb || Static_12_veh_model == VehicleHashes::PoliceOld1 || Static_12_veh_model == VehicleHashes::PoliceOld2 || Static_12_veh_model == VehicleHashes::PoliceT))
     //if (Static_12_veh_model != VehicleHashes::Policeb && Static_12_veh_model != VehicleHashes::Riot && Static_12_veh_model != VehicleHashes::PoliceOld1 && Static_12_veh_model != VehicleHashes::PoliceOld2)
     //AddOption("Horns", null, nullFunc, SUB::MSHORNS);
-    AddOption(Language::Translate("vehicle.modShop.paints.label"), null, nullFunc, SUB::MSPAINTS, true, false);
+    AddOption(Language::Translate("menu.vehicle.mod_shop.option.paints.label"), null, nullFunc, SUB::MSPAINTS, true, false);
     if (!Static_12_is_bike)
     {
         AddOption(Game::GetGXTEntry("PIM_PVEO_004", "Neons Lights"), null, nullFunc, SUB::MSNEONS);
@@ -1877,8 +1930,8 @@ void ModShop_()
         AddOption(Game::GetGXTEntry("CMOD_MOD_WIN", "Windows"), null, nullFunc, SUB::MSWINDOWS, true, false); // Windows CMOD_MOD_WIN
     }
     AddOption(Game::GetGXTEntry("CMOD_COL0_3", "Emblem"), null, nullFunc, SUB::MS_EMBLEM, true, false); // Crew Emblems CMOD_COL0_3
-    AddOption(Language::Translate("vehicle.modShop.removableComponents.label"), null, nullFunc, SUB::MSREMOVABLECOMPONENTS, true);
-    AddOptionDescription(Language::Translate("vehicle.modShop.removableComponents.description"));
+    AddOption(Language::Translate("menu.vehicle.mod_shop.option.removable_components.label"), null, nullFunc, SUB::MSREMOVABLECOMPONENTS, true);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.option.removable_components.description"));
     //AddOption(Game::GetGXTEntry("CMOD_MOD_GLD2", "Extras"), SubMS_Extra, nullFunc, -1, true, false); // Extras CMOD_MOD_GLD2  //Removed to make way for Remove Vehicle Components
     if (GET_VEHICLE_LIVERY_COUNT(s_selectedVehicleHandle) > 0)
         AddNumber(Game::GetGXTEntry("CMOD_COL0_4", "Livery"), ms_livery, 0, null, ms_livery_plus, ms_livery_minus);
@@ -1886,34 +1939,34 @@ void ModShop_()
         AddNumber(Game::GetGXTEntry("Roof Livery", "Roof Livery"), ms_livery2, 0, null, ms_livery2_plus, ms_livery2_minus);
     AddLocal(Game::GetGXTEntry("CMOD_MOD_TUR", "Turbo"), IS_TOGGLE_MOD_ON(s_selectedVehicleHandle, VehicleMod::Turbo), ms_turbo_toggle, ms_turbo_toggle);                  // Turbo
     AddLocal(Game::GetGXTEntry("CMOD_LGT_1", "Xenon Lights"), IS_TOGGLE_MOD_ON(s_selectedVehicleHandle, VehicleMod::XenonHeadlights), ms_lights_toggle, ms_lights_toggle); // Xenon lights
-    AddLocal(Language::Translate("vehicle.modShop.lowerSuspension.label"), lowersuspension, MSLowerSuspension_, MSLowerSuspension_);                                       // Tuners Lower Suspension
-    AddOptionDescription(Language::Translate("vehicle.modShop.lowerSuspension.description"));
+    AddLocal(Language::Translate("menu.vehicle.mod_shop.option.lower_suspension.label"), lowersuspension, MSLowerSuspension_, MSLowerSuspension_);                         // Tuners Lower Suspension
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.option.lower_suspension.description"));
 
     if (GTAmemory::GetGameVersion() >= eGameVersion::VER_1_0_1604_0_STEAM && vehicle.IsToggleModOn(VehicleMod::XenonHeadlights))
     { // Xenon Headlight Colours
         std::vector<std::string> vHlColours{
-            Language::Translate("vehicle.modShop.xenon.white"), //0
-            Language::Translate("vehicle.modShop.xenon.blue"),
-            Language::Translate("vehicle.modShop.xenon.lightBlue"),
-            Language::Translate("vehicle.modShop.xenon.green"),
-            Language::Translate("vehicle.modShop.xenon.lightGreen"),
-            Language::Translate("vehicle.modShop.xenon.lightYellow"),
-            Language::Translate("vehicle.modShop.xenon.yellow"),
-            Language::Translate("vehicle.modShop.xenon.orange"),
-            Language::Translate("vehicle.modShop.xenon.red"),
-            Language::Translate("vehicle.modShop.xenon.lightPink"),
-            Language::Translate("vehicle.modShop.xenon.pink"),
-            Language::Translate("vehicle.modShop.xenon.purple"),
-            Language::Translate("vehicle.modShop.xenon.lightPurple")
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.white.label"), //0
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.blue.label"),
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.light_blue.label"),
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.green.label"),
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.light_green.label"),
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.light_yellow.label"),
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.yellow.label"),
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.orange.label"),
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.red.label"),
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.light_pink.label"),
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.pink.label"),
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.purple.label"),
+            Language::Translate("menu.vehicle.mod_shop.xenon.option.light_purple.label")
         };
 
         int hlColour = vehicle.GetHeadlightColour();
 
         bool bHlColourPlus = false, bHlColourMinus = false;
         AddTexter(
-            Game::GetGXTEntry("CMOD_LGT_1", "Xenon Lights") + " " + Language::Translate("vehicle.modShop.xenon.colourSuffix"),
+            Language::Format("menu.vehicle.mod_shop.option.xenon_lights.label", {{"lightName", Game::GetGXTEntry("CMOD_LGT_1", "Xenon Lights")}}),
             hlColour == 255 ? 0 : hlColour,
-            hlColour == 255 ? std::vector<std::string>{Language::Translate("vehicle.modShop.xenon.stock")} : vHlColours,
+            hlColour == 255 ? std::vector<std::string>{Language::Translate("menu.vehicle.mod_shop.option.xenon.value.stock")} : vHlColours,
             null,
             bHlColourPlus,
             bHlColourMinus
@@ -1937,16 +1990,16 @@ void ModShop_()
     }
 
     AddNumber(Game::GetGXTEntry("CMOD_MOD_LGT_H", "Headlights") + " Intensity", headLightsMultVal, 2, ms_light_int_1, ms_light_int_plus, ms_light_int_minus);
-    AddOptionDescription(Language::Translate("vehicle.modShop.headlights.description"));
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.option.headlights.description"));
     AddTexter(Game::GetGXTEntry("CMOD_MOD_PLA", "Plate") + " " + Game::GetGXTEntry("FMMC_MTYPE", "Type"), veh_plate_current, ms_vPlateTypeNames, null, veh_plate_plus, veh_plate_minus);
     AddTexter(Game::GetGXTEntry("CMOD_MOD_18_D", "Plate Text"), 0, std::vector<std::string>{ms_plateText}, veh_plate_text_set);
     AddOption(Game::GetGXTEntry("CMM_MOD_G3", "Engine") + " " + Game::GetGXTEntry("VEUI_AUD_TIT", "Sound"), null, nullFunc, SUB::MSENGINESOUND);
-    AddNumber(Language::Translate("vehicle.modShop.horsePowerMultiplier.label"), rpmMultVal, 2, rpm_input, rpm_plus, rpm_minus);
-    AddOptionDescription(Language::Translate("vehicle.modShop.horsePowerMultiplier.description"));
-    AddNumber(Language::Translate("vehicle.modShop.torqueMultiplier.label"), torqueMultVal, 2, torque_input, torque_plus, torque_minus);
-    AddOptionDescription(Language::Translate("vehicle.modShop.torqueMultiplier.description"));
+    AddNumber(Language::Translate("menu.vehicle.mod_shop.option.horse_power_multiplier.label"), rpmMultVal, 2, rpm_input, rpm_plus, rpm_minus);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.option.horse_power_multiplier.description"));
+    AddNumber(Language::Translate("menu.vehicle.mod_shop.option.torque_multiplier.label"), torqueMultVal, 2, torque_input, torque_plus, torque_minus);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.option.torque_multiplier.description"));
     AddNumber(Game::GetGXTEntry("FMMC_VEHST_0", "Top Speed") + " (Kmph)", maxSpeedMultVal * 3.6f, 0, maxSpeed_input, maxSpeed_plus, maxSpeed_minus);
-    AddOptionDescription(Language::Translate("vehicle.modShop.topSpeed.description"));
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.option.top_speed.description"));
     AddOption(Game::GetGXTEntry("CMOD_MOD_LGT", "Lights"), null, nullFunc, SUB::MSLIGHTS);
     bool bEngineOnTogglePressed = false;
     AddTickol(Game::GetGXTEntry("CMM_MOD_G3", "Engine"), vehicle.GetEngineRunning(), bEngineOnTogglePressed, bEngineOnTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
@@ -1955,24 +2008,24 @@ void ModShop_()
 
     if (Static_12_veh_model.IsPlane())
     {
-        AddOption(Language::Translate("vehicle.modShop.planeAileron.on.label"), aileron_on);
-        AddOptionDescription(Language::Translate("vehicle.modShop.planeAileron.on.description"));
-        AddOption(Language::Translate("vehicle.modShop.planeAileron.off.label"), aileron_off);
-        AddOptionDescription(Language::Translate("vehicle.modShop.planeAileron.off.description"));
+        AddOption(Language::Translate("menu.vehicle.mod_shop.plane_aileron.option.on.label"), aileron_on);
+        AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.plane_aileron.option.on.description"));
+        AddOption(Language::Translate("menu.vehicle.mod_shop.plane_aileron.option.off.label"), aileron_off);
+        AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.plane_aileron.option.off.description"));
     }
 
     if (vehicle.GetHasSiren())
     {
         bool bSirenOnTogglePressed = false;
-        AddTickol(Language::Translate("vehicle.modShop.sirens.label"), vehicle.GetSirenActive(), bSirenOnTogglePressed, bSirenOnTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        AddTickol(Language::Translate("menu.vehicle.mod_shop.option.sirens.label"), vehicle.GetSirenActive(), bSirenOnTogglePressed, bSirenOnTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
         if (bSirenOnTogglePressed)
             vehicle.SetSirenActive(!vehicle.GetSirenActive());
     }
 
-    AddOption(Language::Translate("vehicle.modShop.randomUpgrades.label"), veh_static12_autoUpgrade);
-    AddOptionDescription(Language::Translate("vehicle.modShop.randomUpgrades.description"));
-    AddOption(Language::Translate("vehicle.modShop.returnToStock.label"), veh_static12_stockParts);
-    AddOptionDescription(Language::Translate("vehicle.modShop.returnToStock.description"));
+    AddOption(Language::Translate("menu.vehicle.mod_shop.option.random_upgrades.label"), veh_static12_autoUpgrade);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.option.random_upgrades.description"));
+    AddOption(Language::Translate("menu.vehicle.mod_shop.option.return_to_stock.label"), veh_static12_stockParts);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.option.return_to_stock.description"));
 
     if (GET_VEHICLE_MOD_KIT != 0)
     {
@@ -2217,7 +2270,7 @@ void ModShop_()
                 break;
             }
         if (Menu::activeSubmenu != SUB::MSEXTRA)
-            Game::Print::ShowNotification(Language::Translate("vehicle.modShop.notifications.error.title"), Language::Translate("vehicle.modShop.notifications.noExtras"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.mod_shop.error.title"), Language::Translate("message.vehicle.mod_shop.no_extras.message"));
         return;
     }
 
@@ -2521,14 +2574,14 @@ void Sub_BennysMain()
     AddTitle(Game::GetGXTEntry("S_MO_09", "Benny's Lowrider Mods"));
 
     bool goToInteriorColour = 0;
-    AddOption(Language::Translate("vehicle.modShop.paints.interiorColour.label"), goToInteriorColour, nullFunc, SUB::MSPAINTS2_SHARED);
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.interior_colour.label"), goToInteriorColour, nullFunc, SUB::MSPAINTS2_SHARED);
     if (goToInteriorColour)
     {
         s_selectedPaintPart = 5;
     }
 
     bool goToDashboardColour = 0;
-    AddOption(Language::Translate("vehicle.modShop.paints.dashboardColour.label"), goToDashboardColour, nullFunc, SUB::MSPAINTS2_SHARED);
+    AddOption(Language::Translate("menu.vehicle.mod_shop.paints.option.dashboard_colour.label"), goToDashboardColour, nullFunc, SUB::MSPAINTS2_SHARED);
     if (goToDashboardColour)
     {
         s_selectedPaintPart = 6;
@@ -2836,10 +2889,12 @@ void MSWheels_()
     }
 
     AddLocal("CMOD_TYR_1", ms_custom_tyres, MSWheelsCustomTyres_, MSWheelsCustomTyres_, true); // Custom Tyres
-    AddOptionDescription(Language::Translate("vehicle.modShop.wheels.customTyres.description"));
-    AddLocal("CMOD_TYR_2", GET_VEHICLE_TYRES_CAN_BURST(s_selectedVehicleHandle) == FALSE, MSWheelsBPTyresOn_, MSWheelsBPTyresOn_, true);                                        // Bulletproof Tyres
-    AddLocal(Language::Translate("vehicle.modShop.wheels.driftTyres.label"), GET_DRIFT_TYRES_SET(s_selectedVehicleHandle), MSWheelsDriftTyresOn_, MSWheelsDriftTyresOn_, true); // Drift Tyres
-    AddOptionDescription(Language::Translate("vehicle.modShop.wheels.driftTyres.description"));
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.wheels.option.custom_tyres.description"));
+    AddLocal("CMOD_TYR_2", GET_VEHICLE_TYRES_CAN_BURST(s_selectedVehicleHandle) == FALSE, MSWheelsBPTyresOn_, MSWheelsBPTyresOn_, true); // Bulletproof Tyres
+    AddLocal(
+        Language::Translate("menu.vehicle.mod_shop.wheels.option.drift_tyres.label"), GET_DRIFT_TYRES_SET(s_selectedVehicleHandle), MSWheelsDriftTyresOn_, MSWheelsDriftTyresOn_, true
+    ); // Drift Tyres
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.wheels.option.drift_tyres.description"));
 
     AddOption(Game::GetGXTEntry("CMOD_MOD_TYR3", "Tire Smoke Colour"), set_msrgb_index_4, nullFunc, SUB::MSPAINTS_RGB);
     if (Menu::IsLastDrawnOptionSelected())
@@ -2852,7 +2907,7 @@ void MSWheels_()
         //if (GET_VEHICLE_MOD(Static_12, 23) > -1) Menu::SetSub_new(SUB::MSPAINTS2_SHARED);
         //else Game::Print::PrintBottomCentre("~r~Error:~s~ Colours cannot be applied to stock wheels.");
         if (GET_VEHICLE_MOD(s_selectedVehicleHandle, VehicleMod::FrontWheels) < 0)
-            Game::Print::ShowNotification(Language::Translate("vehicle.modShop.notifications.note.title"), Language::Translate("vehicle.modShop.notifications.stockWheelColours"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.mod_shop.note.title"), Language::Translate("message.vehicle.mod_shop.stock_wheel_colours.message"));
         Menu::NewSetMenu(SUB::MSPAINTS2_SHARED);
         return;
     }
@@ -2926,14 +2981,14 @@ void MSWheels2_()
     //if (ms_bit_bike_back) // Can probably remove this whole if statement with this exclusively working for bike wheels now - ijc
     //{
     bool bFrontPressed = false, bBackPressed = false;
-    AddOption(Language::Translate("vehicle.modShop.wheels.front.label"), bFrontPressed, nullFunc, SUB::MSWHEELS3);
+    AddOption(Language::Translate("menu.vehicle.mod_shop.wheels.option.front.label"), bFrontPressed, nullFunc, SUB::MSWHEELS3);
     if (bFrontPressed)
     {
         chrtype = 0;
         SET_VEHICLE_WHEEL_TYPE(s_selectedVehicleHandle, wtype);
         ms_max_windices = GET_NUM_VEHICLE_MODS(s_selectedVehicleHandle, VehicleMod::FrontWheels);
     }
-    AddOption(Language::Translate("vehicle.modShop.wheels.rear.label"), bBackPressed, nullFunc, SUB::MSWHEELS3);
+    AddOption(Language::Translate("menu.vehicle.mod_shop.wheels.option.rear.label"), bBackPressed, nullFunc, SUB::MSWHEELS3);
     if (bBackPressed)
     {
         chrtype = 2;
@@ -2944,7 +2999,7 @@ void MSWheels2_()
     /*else // Not a bike.
 		{
 			bool bFrontPressed = false;
-			AddOption(Language::Translate("vehicle.modShop.wheels.frontRear.label"), bFrontPressed, nullFunc, SUB::MSWHEELS3); if (true) //bypass this menu for all but bikes
+			AddOption(Language::Translate("menu.vehicle.mod_shop.wheels.option.front_rear.label"), bFrontPressed, nullFunc, SUB::MSWHEELS3); if (true) //bypass this menu for all but bikes
 			{
 				chrtype = 0;
 				SET_VEHICLE_WHEEL_TYPE(Static_12, wtype);
@@ -2961,12 +3016,12 @@ void MSWheels2_()
 				bool front_normal = 0, front_chrome = 0, back_normal = 0, back_chrome = 0;
 
 				AddBreak("CMOD_WHE0_0"); // Front Wheel
-				AddOption(Language::Translate("vehicle.modShop.wheels.stock.label"), front_normal, nullFunc, SUB::MSWHEELS3);
-				AddOption(Language::Translate("vehicle.modShop.wheels.chrome.label"), front_chrome, nullFunc, SUB::MSWHEELS3);
+				AddOption(Language::Translate("menu.vehicle.mod_shop.wheels.option.stock.label"), front_normal, nullFunc, SUB::MSWHEELS3);
+				AddOption(Language::Translate("menu.vehicle.mod_shop.wheels.option.chrome.label"), front_chrome, nullFunc, SUB::MSWHEELS3);
 
 				AddBreak("CMOD_WHE0_1"); // Rear Wheel
-				AddOption(Language::Translate("vehicle.modShop.wheels.stock.label"), back_normal, nullFunc, SUB::MSWHEELS3);
-				AddOption(Language::Translate("vehicle.modShop.wheels.chrome.label"), back_chrome, nullFunc, SUB::MSWHEELS3);
+				AddOption(Language::Translate("menu.vehicle.mod_shop.wheels.option.stock.label"), back_normal, nullFunc, SUB::MSWHEELS3);
+				AddOption(Language::Translate("menu.vehicle.mod_shop.wheels.option.chrome.label"), back_chrome, nullFunc, SUB::MSWHEELS3);
 
 				if (front_normal) {
 					chrtype = 0;
@@ -2993,8 +3048,8 @@ void MSWheels2_()
 			{
 				bool type_normal = 0, type_chrome = 0;
 
-				AddOption(Language::Translate("vehicle.modShop.wheels.stockRims.label"), type_normal, nullFunc, SUB::MSWHEELS3);
-				AddOption(Language::Translate("vehicle.modShop.wheels.chromeRims.label"), type_chrome, nullFunc, SUB::MSWHEELS3);
+				AddOption(Language::Translate("menu.vehicle.mod_shop.wheels.option.stock_rims.label"), type_normal, nullFunc, SUB::MSWHEELS3);
+				AddOption(Language::Translate("menu.vehicle.mod_shop.wheels.option.chrome_rims.label"), type_chrome, nullFunc, SUB::MSWHEELS3);
 
 				if (type_normal) {
 					chrtype = 0;
@@ -3044,7 +3099,7 @@ void MSWheels3_()
         addlog(ige::LogType::LOG_TRACE, "Entering Bike Wheels section MSWheels3_ with vehicle handle: {}" + std::to_string(s_selectedVehicleHandle));
         bool bIsChromeSelected = chrtype == 1 || chrtype == 3;
 
-        AddTitle(Language::Translate(bIsChromeSelected ? "vehicle.modShop.wheels.chromeWheels.title" : "vehicle.modShop.wheels.bikeWheels.title"));
+        AddTitle(Language::Translate(bIsChromeSelected ? "menu.vehicle.mod_shop.wheels.chrome_wheels.title" : "menu.vehicle.mod_shop.wheels.bike_wheels.title"));
 
         std::array<int, 5> ids{0, 13, 26, 48, ms_max_windices};
         addlog(ige::LogType::LOG_TRACE, "Adding " + std::to_string(ms_max_windices) + " Wheel Options");
@@ -3083,7 +3138,7 @@ void MSWheels3_()
 			i = ms_max_windices / 2;
 		}*/
     bool bIsChromeSelected = chrtype == 1 || chrtype == 3;
-    AddTitle(Language::Translate(bIsChromeSelected ? "vehicle.modShop.wheels.chromeWheels.title" : "vehicle.modShop.wheels.normalWheels.title"));
+    AddTitle(Language::Translate(bIsChromeSelected ? "menu.vehicle.mod_shop.wheels.chrome_wheels.title" : "menu.vehicle.mod_shop.wheels.normal_wheels.title"));
     for (; i < windices2; i++)
     {
         __AddOption(GetModTextLabel(s_selectedVehicleHandle, VehicleMod::FrontWheels, i, false), s_selectedVehicleHandle, wtype, i, chrtype == 2);
@@ -3229,14 +3284,16 @@ static void AddTyreOptions(GTAvehicle vehicle)
 
     const bool hidden = AreVehicleWheelsInvisible(vehicle);
     const int visibility = AddTexterCycler(
-        Language::Translate("vehicle.modShop.wheels.allWheels.label"), hidden ? 1 : 0, {Language::Translate("vehicle.modShop.wheels.visible"), Language::Translate("vehicle.modShop.wheels.hidden")}
+        Language::Translate("menu.vehicle.mod_shop.wheels.option.all_wheels.label"),
+        hidden ? 1 : 0,
+        {Language::Translate("menu.vehicle.mod_shop.option.wheels.value.visible"), Language::Translate("menu.vehicle.mod_shop.option.wheels.value.hidden")}
     );
     if (visibility != (hidden ? 1 : 0))
     {
         vehicle.RequestControl(600);
         SetVehicleWheelsInvisible(vehicle, visibility == 1);
         if (visibility == 0)
-            Game::Print::ShowNotification(Language::Translate("vehicle.modShop.notifications.note.title"), Language::Translate("vehicle.modShop.notifications.wheelsReturnDelay"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.mod_shop.note.title"), Language::Translate("message.vehicle.mod_shop.wheels_return_delay.message"));
     }
 }
 
@@ -3248,7 +3305,7 @@ static void AddExtraOptions(GTAvehicle vehicle)
             continue;
 
         bool pressed = false;
-        AddTickol(Language::Format("vehicle.modShop.extra.label", {{"id", static_cast<int>(id)}}), vehicle.GetExtraOn(id), pressed, pressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        AddTickol(Language::Format("menu.vehicle.mod_shop.option.extra.label", {{"id", static_cast<int>(id)}}), vehicle.GetExtraOn(id), pressed, pressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
         if (pressed)
         {
             vehicle.RequestControl(800);
@@ -3269,7 +3326,7 @@ void Menu()
 {
     if (vehicleFixLoop)
     {
-        Game::Print::PrintBottomLeft(Language::Translate("vehicle.modShop.notifications.removableUnavailable"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.mod_shop.removable_unavailable.message"));
         Menu::SetPreviousMenu();
         return;
     }
@@ -3281,7 +3338,7 @@ void Menu()
         return;
     }
 
-    AddTitle(Language::Translate("vehicle.modShop.removableComponents.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.removable_components.title"));
     auto& cache = GetCache(vehicle);
     ReapplyCachedParts(vehicle, cache);
     const bool hasDoors = !vehicle.Doors_get().empty();
@@ -3293,7 +3350,7 @@ void Menu()
     if (vehicle.Model().IsHeli() && MenuCategory::AddCategory("— ~b~Helicopter Parts~s~"))
     {
         bool pressed = false;
-        AddTickol(Language::Translate("vehicle.modShop.removableComponents.breakRudder.label"), false, pressed, pressed, TICKOL::CROSS);
+        AddTickol(Language::Translate("menu.vehicle.mod_shop.removable_components.option.break_rudder.label"), false, pressed, pressed, TICKOL::CROSS);
         if (pressed)
         {
             vehicle.RequestControl(800);
@@ -3354,26 +3411,26 @@ void MSWindows_()
     }
 
     const std::vector<std::string> msWindowsModeNames{
-        Language::Translate("vehicle.modShop.windows.action.open"),
-        Language::Translate("vehicle.modShop.windows.action.close"),
-        Language::Translate("vehicle.modShop.windows.action.break"),
-        Language::Translate("vehicle.modShop.windows.action.fix"),
-        Language::Translate("vehicle.modShop.windows.action.remove")
+        Language::Translate("menu.vehicle.mod_shop.windows.action.option.open.label"),
+        Language::Translate("menu.vehicle.mod_shop.windows.action.option.close.label"),
+        Language::Translate("menu.vehicle.mod_shop.windows.action.section.main.label"),
+        Language::Translate("menu.vehicle.mod_shop.windows.action.option.fix.label"),
+        Language::Translate("menu.vehicle.mod_shop.windows.action.option.remove.label")
     };
     const std::vector<std::string> msWindowsWindowNames{
-        Language::Translate("vehicle.modShop.windows.frontLeft"),
-        Language::Translate("vehicle.modShop.windows.frontRight"),
-        Language::Translate("vehicle.modShop.windows.backLeft"),
-        Language::Translate("vehicle.modShop.windows.backRight")
+        Language::Translate("menu.vehicle.mod_shop.windows.option.front_left.label"),
+        Language::Translate("menu.vehicle.mod_shop.windows.option.front_right.label"),
+        Language::Translate("menu.vehicle.mod_shop.windows.option.back_left.label"),
+        Language::Translate("menu.vehicle.mod_shop.windows.option.back_right.label")
     };
     const std::vector<std::string> msWindowsTintNames{
-        Language::Translate("vehicle.modShop.windows.tint.none"),
-        Language::Translate("vehicle.modShop.windows.tint.black"),
+        Language::Translate("menu.vehicle.mod_shop.windows.tint.option.none.label"),
+        Language::Translate("menu.vehicle.mod_shop.windows.tint.option.black.label"),
         "CMOD_WIN_2",
         "CMOD_WIN_1",
-        Language::Translate("vehicle.modShop.windows.tint.stock"),
+        Language::Translate("menu.vehicle.mod_shop.windows.tint.option.stock.label"),
         "CMOD_WIN_3",
-        Language::Translate("vehicle.modShop.windows.tint.green")
+        Language::Translate("menu.vehicle.mod_shop.windows.tint.option.green.label")
     };
 
     int ms_wintint = vehicle.GetWindowTint();
@@ -3381,7 +3438,7 @@ void MSWindows_()
         ms_wintint = 0;
     //vehicle.RequestControlOnce();
 
-    AddTitle(Language::Translate("vehicle.modShop.windows.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.windows.title"));
 
     bool ms_wintint_plus = false, ms_wintint_minus = false;
     AddTexter("CMOD_GLD2_2", ms_wintint, msWindowsTintNames, null, ms_wintint_plus, ms_wintint_minus, true); // Window Tint
@@ -3398,11 +3455,11 @@ void MSWindows_()
         vehicle.SetWindowTint(ms_wintint);
     }
 
-    AddBreak(Language::Translate("vehicle.modShop.windows.status.break"));
+    AddBreak(Language::Translate("menu.vehicle.mod_shop.windows.status.section.main.label"));
 
     bool msWindows_mode_plus = false, msWindows_mode_minus = false;
-    AddTexter(Language::Translate("vehicle.modShop.windows.action.label"), msWindows_mode, msWindowsModeNames, null, msWindows_mode_plus, msWindows_mode_minus);
-    AddOptionDescription(Language::Translate("vehicle.modShop.windows.action.description"));
+    AddTexter(Language::Translate("menu.vehicle.mod_shop.windows.option.action.label"), msWindows_mode, msWindowsModeNames, null, msWindows_mode_plus, msWindows_mode_minus);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.windows.option.action.description"));
     if (msWindows_mode_plus)
     {
         if (msWindows_mode < msWindowsModeNames.size() - 1)
@@ -3425,7 +3482,7 @@ void MSWindows_()
     }
 
     bool bAllWindowsPressed = false;
-    AddOption(Language::Translate("vehicle.modShop.windows.all.label"), bAllWindowsPressed);
+    AddOption(Language::Translate("menu.vehicle.mod_shop.windows.option.all.label"), bAllWindowsPressed);
     if (bAllWindowsPressed)
     {
         for (UINT8 i = 0; i < msWindowsWindowNames.size(); i++)
@@ -3515,24 +3572,24 @@ void MSDoors_()
 
     GTAvehicle vehicle = s_selectedVehicleHandle;
 
-    AddTitle(Language::Translate("vehicle.modShop.doors.title"));
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.doors.title"));
 
     std::vector<std::string> vDoorLockNames{
-        Language::Translate("vehicle.modShop.doors.lock.none"),
-        Language::Translate("vehicle.modShop.doors.lock.unlocked"),
-        Language::Translate("vehicle.modShop.doors.lock.locked"),
-        Language::Translate("vehicle.modShop.doors.lock.lockedForPlayer"),
-        Language::Translate("vehicle.modShop.doors.lock.childLock"),
-        Language::Translate("vehicle.modShop.doors.lock.unknown5"),
-        Language::Translate("vehicle.modShop.doors.lock.unknown6"),
-        Language::Translate("vehicle.modShop.doors.lock.canBeBrokenInto"),
-        Language::Translate("vehicle.modShop.doors.lock.canBeBrokenIntoPersist"),
-        Language::Translate("vehicle.modShop.doors.lock.unknown9"),
-        Language::Translate("vehicle.modShop.doors.lock.cannotBeEntered")
+        Language::Translate("menu.vehicle.mod_shop.doors.lock.option.none.label"),
+        Language::Translate("menu.vehicle.mod_shop.doors.lock.option.unlocked.label"),
+        Language::Translate("menu.vehicle.mod_shop.doors.lock.option.locked.label"),
+        Language::Translate("menu.vehicle.mod_shop.doors.lock.option.locked_for_player.label"),
+        Language::Translate("menu.vehicle.mod_shop.doors.lock.option.child_lock.label"),
+        Language::Translate("menu.vehicle.mod_shop.doors.lock.option.unknown5.label"),
+        Language::Translate("menu.vehicle.mod_shop.doors.lock.option.unknown6.label"),
+        Language::Translate("menu.vehicle.mod_shop.doors.lock.option.can_be_broken_into.label"),
+        Language::Translate("menu.vehicle.mod_shop.doors.lock.option.can_be_broken_into_persist.label"),
+        Language::Translate("menu.vehicle.mod_shop.doors.lock.option.unknown9.label"),
+        Language::Translate("menu.vehicle.mod_shop.doors.lock.option.cannot_be_entered.label")
     };
     int lockStatus = static_cast<int>(vehicle.GetLockStatus());
     bool bLockStatus_plus = false, bLockStatus_minus = false;
-    AddTexter(Language::Translate("vehicle.modShop.doors.lockStatus.label"), lockStatus, vDoorLockNames, null, bLockStatus_plus, bLockStatus_minus);
+    AddTexter(Language::Translate("menu.vehicle.mod_shop.doors.option.lock_status.label"), lockStatus, vDoorLockNames, null, bLockStatus_plus, bLockStatus_minus);
     if (bLockStatus_plus)
     {
         if (lockStatus < vDoorLockNames.size() - 1)
@@ -3554,18 +3611,18 @@ void MSDoors_()
     auto& action = ____ms_doors_action_index;
 
     std::vector<std::string> vActionNames{
-        Language::Translate("vehicle.modShop.doors.action.openClose"),
+        Language::Translate("menu.vehicle.mod_shop.doors.action.option.open_close.label"),
         "",
-        Language::Translate("vehicle.modShop.doors.action.close"),
+        Language::Translate("menu.vehicle.mod_shop.doors.action.option.close.label"),
         "",
-        Language::Translate("vehicle.modShop.doors.action.remove"),
+        Language::Translate("menu.vehicle.mod_shop.doors.action.option.remove.label"),
         "",
-        Language::Translate("vehicle.modShop.doors.action.fix"),
+        Language::Translate("menu.vehicle.mod_shop.doors.action.option.fix.label"),
         ""
     };
     bool bAction_plus = false, bAction_minus = false;
-    AddTexter(Language::Translate("vehicle.modShop.doors.action.label"), action, vActionNames, null, bAction_plus, bAction_minus);
-    AddOptionDescription(Language::Translate("vehicle.modShop.doors.action.description"));
+    AddTexter(Language::Translate("menu.vehicle.mod_shop.doors.option.action.label"), action, vActionNames, null, bAction_plus, bAction_minus);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.doors.option.action.description"));
     if (bAction_plus)
     {
         if (action < vActionNames.size() - 1)
@@ -3599,14 +3656,14 @@ void MSDoors_()
     case 2: // Close
     case 4: // Remove
     case 6: // Fix
-        AddmsdoorsOption_(Language::Translate("vehicle.doors.driver"), vehicle, VehicleDoor::FrontLeftDoor, action, action == 4, false);
-        AddmsdoorsOption_(Language::Translate("vehicle.doors.passenger"), vehicle, VehicleDoor::FrontRightDoor, action, action == 4, false);
-        AddmsdoorsOption_(Language::Translate("vehicle.doors.rearLeft"), vehicle, VehicleDoor::BackLeftDoor, action, action == 4, false);
-        AddmsdoorsOption_(Language::Translate("vehicle.doors.rearRight"), vehicle, VehicleDoor::BackRightDoor, action, action == 4, false);
-        AddmsdoorsOption_(Language::Translate("vehicle.doors.hood"), vehicle, VehicleDoor::Hood, action, action == 4, false);
-        AddmsdoorsOption_(Language::Translate("vehicle.doors.trunk"), vehicle, VehicleDoor::Trunk, action, action == 4, false);
+        AddmsdoorsOption_(Language::Translate("menu.vehicle.doors.option.driver.label"), vehicle, VehicleDoor::FrontLeftDoor, action, action == 4, false);
+        AddmsdoorsOption_(Language::Translate("menu.vehicle.doors.option.passenger.label"), vehicle, VehicleDoor::FrontRightDoor, action, action == 4, false);
+        AddmsdoorsOption_(Language::Translate("menu.vehicle.doors.option.rear_left.label"), vehicle, VehicleDoor::BackLeftDoor, action, action == 4, false);
+        AddmsdoorsOption_(Language::Translate("menu.vehicle.doors.option.rear_right.label"), vehicle, VehicleDoor::BackRightDoor, action, action == 4, false);
+        AddmsdoorsOption_(Language::Translate("menu.vehicle.doors.option.hood.label"), vehicle, VehicleDoor::Hood, action, action == 4, false);
+        AddmsdoorsOption_(Language::Translate("menu.vehicle.doors.option.trunk.label"), vehicle, VehicleDoor::Trunk, action, action == 4, false);
         //case 6: // Fix
-        AddmsdoorsOption_(Language::Translate("vehicle.doors.all"), vehicle, VehicleDoor::Hood, action + 1, action == 4, false);
+        AddmsdoorsOption_(Language::Translate("menu.vehicle.doors.option.all.label"), vehicle, VehicleDoor::Hood, action + 1, action == 4, false);
         break;
     }
 }
@@ -3621,11 +3678,11 @@ void MSLights_()
 {
     GTAvehicle vehicle = s_selectedVehicleHandle;
     bool bHLightsOnTogglePressed = false;
-    AddTickol(Language::Translate("vehicle.modShop.lights.headlights.label"), vehicle.GetLightsOn(), bHLightsOnTogglePressed, bHLightsOnTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddTickol(Language::Translate("menu.vehicle.mod_shop.lights.option.headlights.label"), vehicle.GetLightsOn(), bHLightsOnTogglePressed, bHLightsOnTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
     if (bHLightsOnTogglePressed)
         vehicle.SetLightsOn(!vehicle.GetLightsOn());
     bool bLindOnTogglePressed = false;
-    AddTickol(Language::Translate("vehicle.modShop.lights.leftIndicator.label"), leftind, bLindOnTogglePressed, bLindOnTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddTickol(Language::Translate("menu.vehicle.mod_shop.lights.option.left_indicator.label"), leftind, bLindOnTogglePressed, bLindOnTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
     if (bLindOnTogglePressed)
     {
         rightind = false;
@@ -3635,7 +3692,7 @@ void MSLights_()
         leftind = !leftind;
     }
     bool bRindOnTogglePressed = false;
-    AddTickol(Language::Translate("vehicle.modShop.lights.rightIndicator.label"), rightind, bRindOnTogglePressed, bRindOnTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddTickol(Language::Translate("menu.vehicle.mod_shop.lights.option.right_indicator.label"), rightind, bRindOnTogglePressed, bRindOnTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
     if (bRindOnTogglePressed)
     {
         leftind = false;
@@ -3645,7 +3702,7 @@ void MSLights_()
         rightind = !rightind;
     }
     bool bHzdOnTogglePressed = false;
-    AddTickol(Language::Translate("vehicle.modShop.lights.hazardLights.label"), hazard, bHzdOnTogglePressed, bHzdOnTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddTickol(Language::Translate("menu.vehicle.mod_shop.lights.option.hazard_lights.label"), hazard, bHzdOnTogglePressed, bHzdOnTogglePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
     if (bHzdOnTogglePressed)
     {
         if (rightind == leftind)
@@ -3679,13 +3736,13 @@ void MSExtra_()
 
     GTAvehicle thisVehicle = s_selectedVehicleHandle;
 
-    AddTitle(Language::Translate("vehicle.modShop.extras.title")); // CMOD_MOD_GLD2
+    AddTitle(Language::Translate("menu.vehicle.mod_shop.extras.title")); // CMOD_MOD_GLD2
     for (UINT8 i = 0; i <= 60; i++)
     {
         if (!thisVehicle.DoesExtraExist(i))
             continue;
         bool bExtraPressed = false;
-        AddTickol(Language::Format("vehicle.modShop.extras.extra.label", {{"id", static_cast<int>(i)}}), thisVehicle.GetExtraOn(i), bExtraPressed, bExtraPressed, TICKOL::CARTHING);
+        AddTickol(Language::Format("menu.vehicle.mod_shop.extras.option.extra.label", {{"id", static_cast<int>(i)}}), thisVehicle.GetExtraOn(i), bExtraPressed, bExtraPressed, TICKOL::CARTHING);
         if (bExtraPressed)
         {
             thisVehicle.SetExtraOn(i, !thisVehicle.GetExtraOn(i));
@@ -3705,18 +3762,18 @@ void MSNeons_()
 
     GTAvehicle vehicle = s_selectedVehicleHandle;
     std::vector<std::string> NEON_FLASH{
-        Language::Translate("vehicle.modShop.neons.pattern.none"),
-        Language::Translate("vehicle.modShop.neons.pattern.simple"),
-        Language::Translate("vehicle.modShop.neons.pattern.spin"),
-        Language::Translate("vehicle.modShop.neons.pattern.spinBack"),
-        Language::Translate("vehicle.modShop.neons.pattern.firework")
+        Language::Translate("menu.vehicle.mod_shop.neons.pattern.option.none.label"),
+        Language::Translate("menu.vehicle.mod_shop.neons.pattern.option.simple.label"),
+        Language::Translate("menu.vehicle.mod_shop.neons.pattern.option.spin.label"),
+        Language::Translate("menu.vehicle.mod_shop.neons.pattern.option.spin_back.label"),
+        Language::Translate("menu.vehicle.mod_shop.neons.pattern.option.firework.label")
     };
     std::vector<std::string> NEON_FADE{
-        Language::Translate("vehicle.modShop.neons.pattern.none"),
-        Language::Translate("vehicle.modShop.neons.pattern.simple"),
-        Language::Translate("vehicle.modShop.neons.pattern.heartbeat"),
-        Language::Translate("vehicle.modShop.neons.pattern.shift"),
-        Language::Translate("vehicle.modShop.neons.pattern.slide")
+        Language::Translate("menu.vehicle.mod_shop.neons.pattern.option.none.label"),
+        Language::Translate("menu.vehicle.mod_shop.neons.pattern.option.simple.label"),
+        Language::Translate("menu.vehicle.mod_shop.neons.pattern.option.heartbeat.label"),
+        Language::Translate("menu.vehicle.mod_shop.neons.pattern.option.shift.label"),
+        Language::Translate("menu.vehicle.mod_shop.neons.pattern.option.slide.label")
     };
 
     AddTitle(Game::GetGXTEntry("PIM_PVEO_004", "Neons Lights"));
@@ -3724,10 +3781,10 @@ void MSNeons_()
     bool neon_delay_plus = 0, neon_delay_minus = 0, neon_delay_input = 0, neon_flash_plus = 0, neon_flash_minus = 0, neon_fade_plus = 0, neon_fade_minus = 0, neon_rgb_toggle = 0;
 
     for (auto& i : std::map<VehicleNeonLight, std::pair<Hash, std::string>>{
-             {VehicleNeonLight::Left, {0xCE8DADF3, Language::Translate("vehicle.modShop.neons.left")}},
-             {VehicleNeonLight::Right, {0x92E936A7, Language::Translate("vehicle.modShop.neons.right")}},
-             {VehicleNeonLight::Front, {0x79ABE687, Language::Translate("vehicle.modShop.neons.front")}},
-             {VehicleNeonLight::Back, {0x6BECCB09, Language::Translate("vehicle.modShop.neons.back")}}
+             {VehicleNeonLight::Left, {0xCE8DADF3, Language::Translate("menu.vehicle.mod_shop.neons.option.left.label")}},
+             {VehicleNeonLight::Right, {0x92E936A7, Language::Translate("menu.vehicle.mod_shop.neons.option.right.label")}},
+             {VehicleNeonLight::Front, {0x79ABE687, Language::Translate("menu.vehicle.mod_shop.neons.option.front.label")}},
+             {VehicleNeonLight::Back, {0x6BECCB09, Language::Translate("menu.vehicle.mod_shop.neons.option.back.label")}}
          })
     {
         bool bPressed_on = false, bPressed_off = false;
@@ -3741,7 +3798,7 @@ void MSNeons_()
     }
 
     bool rgbmode2 = false;
-    AddOption(Language::Translate("vehicle.modShop.neons.setColour.label"), rgbmode2, nullFunc, SUB::MSPAINTS_RGB);
+    AddOption(Language::Translate("menu.vehicle.mod_shop.neons.option.set_colour.label"), rgbmode2, nullFunc, SUB::MSPAINTS_RGB);
     if (rgbmode2)
     {
         bitMSPaintsRGBMode = 2;
@@ -3750,13 +3807,13 @@ void MSNeons_()
         AddPresetColourOptionsPreview(vehicle.GetNeonLightsColour());
 
 
-    AddToggle(Language::Translate("vehicle.modShop.neons.rgb.label"), loop_neon_rgb);
-    AddOptionDescription(Language::Translate("vehicle.modShop.neons.rgb.description"));
+    AddToggle(Language::Translate("menu.vehicle.mod_shop.neons.option.rgb.label"), loop_neon_rgb);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.neons.option.rgb.description"));
 
-    AddTexter(Language::Translate("vehicle.modShop.neons.fade.label"), loop_neon_fade, NEON_FADE, null, neon_fade_plus, neon_fade_minus);
-    AddOptionDescription(Language::Translate("vehicle.modShop.neons.fade.description"));
-    AddTexter(Language::Translate("vehicle.modShop.neons.flash.label"), loop_neon_flash, NEON_FLASH, null, neon_flash_plus, neon_flash_minus);
-    AddOptionDescription(Language::Translate("vehicle.modShop.neons.flash.description"));
+    AddTexter(Language::Translate("menu.vehicle.mod_shop.neons.option.fade.label"), loop_neon_fade, NEON_FADE, null, neon_fade_plus, neon_fade_minus);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.neons.option.fade.description"));
+    AddTexter(Language::Translate("menu.vehicle.mod_shop.neons.option.flash.label"), loop_neon_flash, NEON_FLASH, null, neon_flash_plus, neon_flash_minus);
+    AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.neons.option.flash.description"));
 
 
     if (neon_fade_plus)
@@ -3791,8 +3848,8 @@ void MSNeons_()
 
     if (loop_neon_flash > 0 || loop_neon_fade > 0)
     {
-        AddNumber(Language::Translate("vehicle.modShop.neons.animationSpeed.label"), loop_neon_delay, 0, neon_delay_input, neon_delay_plus, neon_delay_minus);
-        AddOptionDescription(Language::Translate("vehicle.modShop.neons.animationSpeed.description"));
+        AddNumber(Language::Translate("menu.vehicle.mod_shop.neons.option.animation_speed.label"), loop_neon_delay, 0, neon_delay_input, neon_delay_plus, neon_delay_minus);
+        AddOptionDescription(Language::Translate("menu.vehicle.mod_shop.neons.option.animation_speed.description"));
     }
 
     if (neon_delay_plus && loop_neon_delay < 10000)
@@ -3826,13 +3883,13 @@ void MSEngineSound_()
         return;
     }
 
-    AddOption(Language::Translate("vehicle.modShop.selectVehicle.label"), null, nullFunc, SUB::LIST_VEHICLECATS);
+    AddOption(Language::Translate("menu.vehicle.mod_shop.option.select_vehicle.label"), null, nullFunc, SUB::LIST_VEHICLECATS);
 
     bool bInputModelPressed = false;
-    AddOption(Language::Translate("vehicle.modShop.inputModel.label"), bInputModelPressed);
+    AddOption(Language::Translate("menu.vehicle.mod_shop.option.input_model.label"), bInputModelPressed);
     if (bInputModelPressed)
     {
-        std::string inputStr = (Game::InputBox("", 28U, Language::Translate("vehicle.modShop.inputModel.prompt")));
+        std::string inputStr = (Game::InputBox("", 28U, Language::Translate("menu.vehicle.mod_shop.option.input_model.prompt")));
         if (inputStr.length())
         {
             if (!Model(inputStr).IsVehicle())

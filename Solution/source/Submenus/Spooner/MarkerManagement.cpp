@@ -217,7 +217,7 @@ SpoonerMarker* AddMarker(const std::string& name, const Vector3& position, const
 
 SpoonerMarker* AddMarker(const Vector3& position, const Vector3& rotation)
 {
-    std::string inputStr = Game::InputBox("~`", 26U, Language::Translate("spooner.marker.customName").c_str());
+    std::string inputStr = Game::InputBox("~`", 26U, Language::Translate("menu.spooner.marker.option.custom_name.prompt").c_str());
     if (inputStr.compare("~`") != 0)
     {
         Databases::MarkerDb.reserve(Databases::MarkerDb.size() + 1);

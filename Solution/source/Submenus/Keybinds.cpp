@@ -8,8 +8,6 @@
 #include "..\Menu\submenu_enum.h"
 #include "..\Menu\MenuCategory.h"
 
-#include <cctype>
-
 namespace sub
 {
 namespace
@@ -22,10 +20,7 @@ void DrawBindCategories(Keybinds::Context context)
         for (const auto& entry : Keybinds::Registry())
             if (entry.Category() == category)
                 count++;
-        std::string categoryKey = "keybinds.category.";
-        for (const unsigned char character : category)
-            categoryKey.push_back(static_cast<char>(std::tolower(character)));
-        const std::string categoryLabel = Language::Translate(categoryKey);
+        const std::string categoryLabel = Language::TranslateStable("keybind.category", category, "label", category);
         std::string catLabel = std::string("— ~b~") + categoryLabel + "~s~ ~c~(" + std::to_string(count) + " binds)~s~";
 
         if (!MenuCategory::AddCategory(catLabel))
@@ -46,12 +41,15 @@ void DrawBindCategories(Keybinds::Context context)
 
 void KeybindsMenu()
 {
-    AddTitle(Language::Translate("keybinds.title"));
-    AddOption(Language::Translate("keybinds.keyboard"), null, nullFunc, SUB::SETTINGS_KEYBINDS_KEYBOARD);
-    AddOption(Language::Translate("keybinds.controller"), null, nullFunc, SUB::SETTINGS_KEYBINDS_GAMEPAD);
-    AddOptionDescription(Language::Translate("keybinds.description"));
-    int styleIdx =
-        AddTexterCycler(Language::Translate("keybinds.gamepadLabels"), (int)Keybinds::gamepadLabelStyle, {Language::Translate("keybinds.xbox"), Language::Translate("keybinds.playstation")});
+    AddTitle(Language::Translate("menu.settings.keybinds.title"));
+    AddOption(Language::Translate("menu.settings.keybinds.option.keyboard.label"), null, nullFunc, SUB::SETTINGS_KEYBINDS_KEYBOARD);
+    AddOption(Language::Translate("menu.settings.keybinds.option.controller.label"), null, nullFunc, SUB::SETTINGS_KEYBINDS_GAMEPAD);
+    AddOptionDescription(Language::Translate("menu.settings.keybinds.option.controls.description"));
+    int styleIdx = AddTexterCycler(
+        Language::Translate("menu.settings.keybinds.option.gamepad_labels.label"),
+        (int)Keybinds::gamepadLabelStyle,
+        {Language::Translate("menu.settings.keybinds.option.gamepad_labels.value.xbox"), Language::Translate("menu.settings.keybinds.option.gamepad_labels.value.playstation")}
+    );
     if (styleIdx != (int)Keybinds::gamepadLabelStyle)
     {
         Keybinds::gamepadLabelStyle = (Keybinds::GamepadLabelStyle)styleIdx;
@@ -61,13 +59,13 @@ void KeybindsMenu()
 
 void KeybindsKeyboard()
 {
-    AddTitle(Language::Translate("keybinds.keyboard.title"));
+    AddTitle(Language::Translate("menu.settings.keybinds.keyboard.title"));
     DrawBindCategories(Keybinds::Context::Keyboard);
 }
 
 void KeybindsGamepad()
 {
-    AddTitle(Language::Translate("keybinds.controller.title"));
+    AddTitle(Language::Translate("menu.settings.keybinds.controller.title"));
     DrawBindCategories(Keybinds::Context::Gamepad);
 }
 } // namespace sub

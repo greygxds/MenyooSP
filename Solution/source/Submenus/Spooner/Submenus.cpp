@@ -315,56 +315,56 @@ void Sub_SpoonerMain()
     _searchStr.clear(); // Sub_SaveFiles _searchStr
     dict3.clear();      // Sub_SaveFiles _dir
 
-    AddTitle(Language::Translate("spooner.main.title"));
+    AddTitle(Language::Translate("menu.spooner.main.title"));
 
-    AddLocal(Language::Translate("spooner.main.mode"), SpoonerMode::bEnabled, SpoonerMode::Toggle, SpoonerMode::Toggle);
-    AddOptionDescription(Language::Translate("spooner.main.mode.description"));
-    AddOption(Language::Translate("spooner.main.spawn"), null, nullFunc, SUB::SPOONER_SPAWN_CATEGORIES);
-    AddOption(Language::Translate("spooner.main.database"), null, nullFunc, SUB::SPOONER_MANAGEDB);
-    AddOption(Language::Translate("spooner.main.multiple"), null, nullFunc, SUB::SPOONER_MULTISELECT);
-    AddOptionDescription(Language::Translate("spooner.main.multiple.description"));
-    AddOption(Language::Translate("spooner.main.markers"), null, nullFunc, SUB::SPOONER_MANAGEMARKERS);
-    AddOption(Language::Translate("spooner.main.lights"), null, nullFunc, SUB::SPOONER_MANAGELIGHTS);
-    AddOption(Language::Translate("spooner.main.blips"), null, nullFunc, SUB::SPOONER_BLIPS);
-    AddOption(Language::Translate("spooner.main.markers"), null, nullFunc, SUB::SPOONER_MANAGEMARKERS);
-    AddOption(Language::Translate("spooner.main.savedFiles"), null, nullFunc, SUB::SPOONER_SAVEFILES);
-    AddOption(Language::Translate("spooner.main.jobs"), null, nullFunc, SUB::SPOONER_JOBIMPORTER);
-    AddOption(Language::Translate("spooner.main.settings"), null, nullFunc, SUB::SPOONER_SETTINGS);
+    AddLocal(Language::Translate("menu.spooner.main.option.mode.label"), SpoonerMode::bEnabled, SpoonerMode::Toggle, SpoonerMode::Toggle);
+    AddOptionDescription(Language::Translate("menu.spooner.main.option.mode.description"));
+    AddOption(Language::Translate("menu.spooner.main.option.spawn.label"), null, nullFunc, SUB::SPOONER_SPAWN_CATEGORIES);
+    AddOption(Language::Translate("menu.spooner.main.option.database.label"), null, nullFunc, SUB::SPOONER_MANAGEDB);
+    AddOption(Language::Translate("menu.spooner.main.option.multiple.label"), null, nullFunc, SUB::SPOONER_MULTISELECT);
+    AddOptionDescription(Language::Translate("menu.spooner.main.option.multiple.description"));
+    AddOption(Language::Translate("menu.spooner.main.option.markers.label"), null, nullFunc, SUB::SPOONER_MANAGEMARKERS);
+    AddOption(Language::Translate("menu.spooner.main.option.lights.label"), null, nullFunc, SUB::SPOONER_MANAGELIGHTS);
+    AddOption(Language::Translate("menu.spooner.main.option.blips.label"), null, nullFunc, SUB::SPOONER_BLIPS);
+    AddOption(Language::Translate("menu.spooner.main.option.markers.label"), null, nullFunc, SUB::SPOONER_MANAGEMARKERS);
+    AddOption(Language::Translate("menu.spooner.main.option.saved_files.label"), null, nullFunc, SUB::SPOONER_SAVEFILES);
+    AddOption(Language::Translate("menu.spooner.main.option.jobs.label"), null, nullFunc, SUB::SPOONER_JOBIMPORTER);
+    AddOption(Language::Translate("menu.spooner.main.option.settings.label"), null, nullFunc, SUB::SPOONER_SETTINGS);
 }
 
 void Sub_Settings()
 {
-    AddTitle(Language::Translate("spooner.settings.title"));
-    AddToggle(Language::Translate("spooner.settings.previews"), Settings::bShowModelPreviews);
-    AddOptionDescription(Language::Translate("spooner.settings.previews.description"));
-    AddNumberStepper(Language::Translate("spooner.settings.rotationStep"), Settings::previewRotateStepDegrees, 1, 0.5, 0.5, 45.0);
-    AddOptionDescription(Language::Translate("spooner.settings.rotationStep.description"));
-    AddToggle(Language::Translate("spooner.settings.info"), Settings::bDisplaySpoonerInfo);
-    AddOptionDescription(Language::Translate("spooner.settings.info.description"));
-    AddToggle(Language::Translate("spooner.settings.box"), Settings::bShowBoxAroundSelectedEntity);
-    AddOptionDescription(Language::Translate("spooner.settings.box.description"));
-    AddToggle(Language::Translate("spooner.settings.dynamicObjects"), Settings::bSpawnDynamicProps);
-    AddOptionDescription(Language::Translate("spooner.settings.dynamicObjects.description"));
-    AddToggle(Language::Translate("spooner.settings.dynamicPeds"), Settings::bSpawnDynamicPeds);
-    AddOptionDescription(Language::Translate("spooner.settings.dynamicPeds.description"));
-    AddToggle(Language::Translate("spooner.settings.dynamicVehicles"), Settings::bSpawnDynamicVehicles);
-    AddOptionDescription(Language::Translate("spooner.settings.dynamicVehicles.description"));
-    AddToggle(Language::Translate("spooner.settings.freezeMoving"), Settings::bFreezeEntityWhenMovingIt);
-    AddOptionDescription(Language::Translate("spooner.settings.freezeMoving.description"));
-    AddToggle(Language::Translate("spooner.settings.invincible"), Settings::bSpawnInvincibleEntities);
-    AddToggle(Language::Translate("spooner.settings.stillPeds"), Settings::bSpawnStillPeds);
-    AddOptionDescription(Language::Translate("spooner.settings.stillPeds.description"));
-    AddToggle(Language::Translate("spooner.settings.persistent"), Settings::bAddToDbAsMissionEntities);
-    AddOptionDescription(Language::Translate("spooner.settings.persistent.description"));
-    AddToggle(Language::Translate("spooner.settings.teleportReference"), Settings::bTeleportToReferenceWhenLoadingFile);
-    AddOptionDescription(Language::Translate("spooner.settings.teleportReference.description"));
-    AddToggle(Language::Translate("spooner.settings.invertScroll"), Settings::bInvertScrollSensitivity);
-    AddOptionDescription(Language::Translate("spooner.settings.invertScroll.description"));
+    AddTitle(Language::Translate("menu.spooner.settings.title"));
+    AddToggle(Language::Translate("menu.spooner.settings.option.previews.label"), Settings::bShowModelPreviews);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.previews.description"));
+    AddNumberStepper(Language::Translate("menu.spooner.settings.option.rotation_step.label"), Settings::previewRotateStepDegrees, 1, 0.5, 0.5, 45.0);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.rotation_step.description"));
+    AddToggle(Language::Translate("menu.spooner.settings.option.info.label"), Settings::bDisplaySpoonerInfo);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.info.description"));
+    AddToggle(Language::Translate("menu.spooner.settings.option.box.label"), Settings::bShowBoxAroundSelectedEntity);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.box.description"));
+    AddToggle(Language::Translate("menu.spooner.settings.option.dynamic_objects.label"), Settings::bSpawnDynamicProps);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.dynamic_objects.description"));
+    AddToggle(Language::Translate("menu.spooner.settings.option.dynamic_peds.label"), Settings::bSpawnDynamicPeds);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.dynamic_peds.description"));
+    AddToggle(Language::Translate("menu.spooner.settings.option.dynamic_vehicles.label"), Settings::bSpawnDynamicVehicles);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.dynamic_vehicles.description"));
+    AddToggle(Language::Translate("menu.spooner.settings.option.freeze_moving.label"), Settings::bFreezeEntityWhenMovingIt);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.freeze_moving.description"));
+    AddToggle(Language::Translate("menu.spooner.settings.option.invincible.label"), Settings::bSpawnInvincibleEntities);
+    AddToggle(Language::Translate("menu.spooner.settings.option.still_peds.label"), Settings::bSpawnStillPeds);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.still_peds.description"));
+    AddToggle(Language::Translate("menu.spooner.settings.option.persistent.label"), Settings::bAddToDbAsMissionEntities);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.persistent.description"));
+    AddToggle(Language::Translate("menu.spooner.settings.option.teleport_reference.label"), Settings::bTeleportToReferenceWhenLoadingFile);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.teleport_reference.description"));
+    AddToggle(Language::Translate("menu.spooner.settings.option.invert_scroll.label"), Settings::bInvertScrollSensitivity);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.invert_scroll.description"));
 
-    AddOption(Language::Translate("spooner.settings.reloadModels"), null, PopulateGlobalEntityModelsArrays);
-    AddOptionDescription(Language::Translate("spooner.settings.reloadModels.description"));
+    AddOption(Language::Translate("menu.spooner.settings.option.reload_models.label"), null, PopulateGlobalEntityModelsArrays);
+    AddOptionDescription(Language::Translate("menu.spooner.settings.option.reload_models.description"));
 
-    AddOption(Language::Translate("spooner.settings.gridSnap"), null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
+    AddOption(Language::Translate("menu.spooner.settings.option.grid_snap.label"), null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
 }
 
 static void DrawSaveFileStats(const std::string& filePath, float optionTextY)
@@ -484,48 +484,60 @@ static void DrawSaveFileStats(const std::string& filePath, float optionTextY)
         {
             std::string zoneName = World::GetZoneName(locationPos, true);
             if (!zoneName.empty())
-                statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.location"), zoneName});
+                statsRows.push_back(StatsPanel::StatRow{Language::Translate("component.spooner_file_preview.location.label"), zoneName});
             else
                 statsRows.push_back(
                     StatsPanel::StatRow{
-                        Language::Translate("spooner.filePreview.location"),
+                        Language::Translate("component.spooner_file_preview.location.label"),
                         std::to_string((int)std::round(locationPos.x)) + ", " + std::to_string((int)std::round(locationPos.y)) + ", " + std::to_string((int)std::round(locationPos.z))
                     }
                 );
         }
 
-        statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.entities", {{"count", static_cast<std::uint64_t>(entityCount)}}), std::to_string(entityCount)});
+        statsRows.push_back(
+            StatsPanel::StatRow{Language::Format("component.spooner_file_preview.count.entities.label", {{"count", static_cast<std::uint64_t>(entityCount)}}), std::to_string(entityCount)}
+        );
         if (pedCount)
-            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.peds", {{"count", static_cast<std::uint64_t>(pedCount)}}), std::to_string(pedCount)});
+            statsRows.push_back(StatsPanel::StatRow{Language::Format("component.spooner_file_preview.count.peds.label", {{"count", static_cast<std::uint64_t>(pedCount)}}), std::to_string(pedCount)});
         if (vehCount)
-            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.vehicles", {{"count", static_cast<std::uint64_t>(vehCount)}}), std::to_string(vehCount)});
+            statsRows.push_back(
+                StatsPanel::StatRow{Language::Format("component.spooner_file_preview.count.vehicles.label", {{"count", static_cast<std::uint64_t>(vehCount)}}), std::to_string(vehCount)}
+            );
         if (propCount)
-            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.objects", {{"count", static_cast<std::uint64_t>(propCount)}}), std::to_string(propCount)});
+            statsRows.push_back(
+                StatsPanel::StatRow{Language::Format("component.spooner_file_preview.count.objects.label", {{"count", static_cast<std::uint64_t>(propCount)}}), std::to_string(propCount)}
+            );
         if (markerCount)
-            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.markers", {{"count", static_cast<std::uint64_t>(markerCount)}}), std::to_string(markerCount)});
+            statsRows.push_back(
+                StatsPanel::StatRow{Language::Format("component.spooner_file_preview.count.markers.label", {{"count", static_cast<std::uint64_t>(markerCount)}}), std::to_string(markerCount)}
+            );
         if (blipCount)
-            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.blips", {{"count", static_cast<std::uint64_t>(blipCount)}}), std::to_string(blipCount)});
+            statsRows.push_back(
+                StatsPanel::StatRow{Language::Format("component.spooner_file_preview.count.blips.label", {{"count", static_cast<std::uint64_t>(blipCount)}}), std::to_string(blipCount)}
+            );
         if (lightCount)
-            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.lights", {{"count", static_cast<std::uint64_t>(lightCount)}}), std::to_string(lightCount)});
+            statsRows.push_back(
+                StatsPanel::StatRow{Language::Format("component.spooner_file_preview.count.lights.label", {{"count", static_cast<std::uint64_t>(lightCount)}}), std::to_string(lightCount)}
+            );
         if (iplCount)
-            statsRows.push_back(StatsPanel::StatRow{Language::Format("spooner.filePreview.count.ipls", {{"count", static_cast<std::uint64_t>(iplCount)}}), std::to_string(iplCount)});
+            statsRows.push_back(StatsPanel::StatRow{Language::Format("component.spooner_file_preview.count.ipls.label", {{"count", static_cast<std::uint64_t>(iplCount)}}), std::to_string(iplCount)});
         if (!audioFile.empty())
-            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.audio"), audioFile});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("component.spooner_file_preview.audio.label"), audioFile});
         if (!weatherToSet.empty())
-            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.weather"), weatherToSet});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("component.spooner_file_preview.weather.label"), weatherToSet});
         if (!timecycleMod.empty())
-            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.timecycle"), timecycleMod});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("component.spooner_file_preview.timecycle.label"), timecycleMod});
         if (clearDatabase)
-            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.clearDatabase"), Language::Translate("statsPanel.yes")});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("component.spooner_file_preview.clear_database.label"), Language::Translate("menu.stats_panel.option.yes.label")});
         if (clearMarkers)
-            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.clearMarkers"), Language::Translate("statsPanel.yes")});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("component.spooner_file_preview.clear_markers.label"), Language::Translate("menu.stats_panel.option.yes.label")});
         if (clearWorldRadius > 0.0f)
-            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.clearArea"), std::to_string((int)clearWorldRadius) + "m"});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("component.spooner_file_preview.clear_area.label"), std::to_string((int)clearWorldRadius) + "m"});
         if (!startTaskSeqs)
-            statsRows.push_back(StatsPanel::StatRow{Language::Translate("spooner.filePreview.taskSequences"), Language::Translate("statsPanel.off")});
+            statsRows.push_back(StatsPanel::StatRow{Language::Translate("component.spooner_file_preview.task_sequences.label"), Language::Translate("menu.stats_panel.option.off.label")});
         statsRows.push_back(StatsPanel::SeparatorRow{});
-        statsRows.push_back(StatsPanel::StatRow{Language::Translate("statsPanel.size"), GetFileSizeStr(filePath)});
-        statsRows.push_back(StatsPanel::StatRow{Language::Translate("statsPanel.modified"), GetFileLastWriteDateStr(filePath)});
+        statsRows.push_back(StatsPanel::StatRow{Language::Translate("menu.stats_panel.option.size.label"), GetFileSizeStr(filePath)});
+        statsRows.push_back(StatsPanel::StatRow{Language::Translate("menu.stats_panel.option.modified.label"), GetFileLastWriteDateStr(filePath)});
         for (auto& noteLine : StatsPanel::WrapText(saveNote, 24))
             statsRows.push_back(StatsPanel::TextRow{noteLine});
     }
@@ -566,28 +578,28 @@ void Sub_SaveFiles()
     const Vector3& myPos = myPed.GetPosition();
     auto& fSaveRangeRadius = _fSaveRangeRadius;
 
-    AddTitle(Language::Translate("spooner.files.title"));
+    AddTitle(Language::Translate("menu.spooner.files.title"));
     AddSaveFileSortOption();
 
     bool bSaveDb = false;
-    AddOption(Language::Format("spooner.files.saveDatabase", {{"count", Databases::EntityDb.size() + Databases::MarkerDb.size() + Databases::LightDb.size()}}), bSaveDb);
-    AddOptionDescription(Language::Translate("spooner.files.saveDatabase.description"));
+    AddOption(Language::Format("menu.spooner.files.option.save_database.label", {{"count", Databases::EntityDb.size() + Databases::MarkerDb.size() + Databases::LightDb.size()}}), bSaveDb);
+    AddOptionDescription(Language::Translate("menu.spooner.files.option.save_database.description"));
     if (bSaveDb)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("spooner.files.fileNamePrompt").c_str());
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.spooner.files.option.file_name_prompt.prompt").c_str());
         if (inputStr.length() > 0)
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.invalid_name.message"));
             }
             else if (FileManagement::SaveDbToFile(_dir + "\\" + inputStr + ".xml", true))
             {
-                Game::Print::PrintBottomLeft(Language::Translate("spooner.files.saved"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.spooner.files.saved.message"));
             }
             else
             {
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.saveFailed"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.save_failed.message"));
                 addlog(ige::LogType::LOG_ERROR, "Attempt to save Database file " + inputStr + ".xml failed");
             }
         }
@@ -596,24 +608,24 @@ void Sub_SaveFiles()
     }
 
     bool bSaveWorld = false;
-    AddOption(Language::Format("spooner.files.saveWorld", {{"count", worldEntities.size()}}), bSaveWorld);
-    AddOptionDescription(Language::Translate("spooner.files.saveWorld.description"));
+    AddOption(Language::Format("menu.spooner.files.option.save_world.label", {{"count", worldEntities.size()}}), bSaveWorld);
+    AddOptionDescription(Language::Translate("menu.spooner.files.option.save_world.description"));
     if (bSaveWorld)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("spooner.files.fileNamePrompt").c_str());
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.spooner.files.option.file_name_prompt.prompt").c_str());
         if (inputStr.length() > 0)
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.invalid_name.message"));
             }
             else if (FileManagement::SaveWorldToFile(_dir + "\\" + inputStr + ".xml", worldEntities, Databases::MarkerDb))
             {
-                Game::Print::PrintBottomLeft(Language::Translate("spooner.files.saved"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.spooner.files.saved.message"));
             }
             else
             {
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.saveFailed"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.save_failed.message"));
                 addlog(ige::LogType::LOG_ERROR, "Attempt to save World file " + inputStr + ".xml failed");
             }
         }
@@ -622,8 +634,8 @@ void Sub_SaveFiles()
     std::vector<Entity> vSaveRangeEntities;
     GTAmemory::GetEntityHandles(vSaveRangeEntities, myPos, fSaveRangeRadius);
     bool bSaveRange_plus = false, bSaveRange_minus = false, bSaveRange_save = false;
-    AddNumber(Language::Format("spooner.files.saveRange", {{"count", vSaveRangeEntities.size()}}), fSaveRangeRadius, 0, bSaveRange_save, bSaveRange_plus, bSaveRange_minus);
-    AddOptionDescription(Language::Translate("spooner.files.saveRange.description"));
+    AddNumber(Language::Format("menu.spooner.files.option.save_range.label", {{"count", vSaveRangeEntities.size()}}), fSaveRangeRadius, 0, bSaveRange_save, bSaveRange_plus, bSaveRange_minus);
+    AddOptionDescription(Language::Translate("menu.spooner.files.option.save_range.description"));
     if (Menu::IsLastDrawnOptionSelected())
         EntityManagement::DrawRadiusDisplayingMarker(myPos, fSaveRangeRadius);
     if (bSaveRange_plus)
@@ -638,12 +650,12 @@ void Sub_SaveFiles()
     }
     if (bSaveRange_save)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("spooner.files.fileNamePrompt").c_str());
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.spooner.files.option.file_name_prompt.prompt").c_str());
         if (inputStr.length() > 0)
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.invalid_name.message"));
             }
             else
             {
@@ -652,19 +664,19 @@ void Sub_SaveFiles()
 
                 if (FileManagement::SaveWorldToFile(_dir + "\\" + inputStr + ".xml", vSaveRangeEntities, vSaveRangeMarkers))
                 {
-                    Game::Print::PrintBottomLeft(Language::Translate("spooner.files.saved"));
+                    Game::Print::PrintBottomLeft(Language::Translate("message.spooner.files.saved.message"));
                 }
                 else
                 {
-                    Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.saveFailed"));
+                    Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.save_failed.message"));
                     addlog(ige::LogType::LOG_ERROR, "Attempt to save Range Markers file " + inputStr + ".xml failed");
                 }
             }
         }
     }
-    AddOption(Language::Translate("spooner.files.autoSave"), null, nullFunc, SUB::SPOONER_AUTOSAVE);
+    AddOption(Language::Translate("menu.spooner.files.option.auto_save.label"), null, nullFunc, SUB::SPOONER_AUTOSAVE);
     /*bool bLoadFromFile = false;
-			AddOption(Language::Translate("spooner.files.loadFromFile"), bLoadFromFile); if (bLoadFromFile)
+			AddOption(Language::Translate("menu.spooner.files.option.load_from_file.label"), bLoadFromFile); if (bLoadFromFile)
 			{
 			std::string inputStr = Game::InputBox("", 28U, "Enter file name:");
 			if (inputStr.length() > 0)
@@ -699,25 +711,25 @@ void Sub_SaveFiles()
     SortSaveFileEntries(vfilnames, _dir);
 
     bool bCreateFolderPressed = false;
-    AddOption(Language::Translate("spooner.files.createFolder"), bCreateFolderPressed);
+    AddOption(Language::Translate("menu.spooner.files.option.create_folder.label"), bCreateFolderPressed);
     if (bCreateFolderPressed)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("spooner.files.folderPrompt").c_str());
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.spooner.files.option.folder_prompt.prompt").c_str());
         if (inputStr.length() > 0)
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.invalid_name.message"));
             }
             else if (CreateDirectoryA((_dir + "\\" + inputStr).c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
             {
                 _dir = _dir + "\\" + inputStr;
                 Menu::selectedOptionIndex = 7;
-                Game::Print::PrintBottomLeft(Language::Translate("spooner.files.folderCreated"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.spooner.files.folder_created.message"));
             }
             else
             {
-                Game::Print::ShowNotification(Language::Translate("components.failed"), Language::Translate("components.notifications.createFolderFailed"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.failed.title"), Language::Translate("message.player.wardrobe.create_folder_failed.message"));
                 addlog(ige::LogType::LOG_ERROR, "Attempt to create new folder " + inputStr + " failed");
             }
         }
@@ -727,7 +739,7 @@ void Sub_SaveFiles()
         // No OnscreenKeyboard!
     }
 
-    AddBreak(Language::Translate("spooner.files.foundFiles"));
+    AddBreak(Language::Translate("menu.spooner.files.section.found_files.label"));
 
     bool bFolderBackPressed = false;
     AddOption("..", bFolderBackPressed);
@@ -748,10 +760,10 @@ void Sub_SaveFiles()
     if (!vfilnames.empty())
     {
         bool bSearchPressed = false;
-        AddOption(_searchStr.empty() ? Language::Translate("spooner.search") : _searchStr, bSearchPressed, nullFunc, -1, true);
+        AddOption(_searchStr.empty() ? Language::Translate("menu.spooner.files.option.search.label") : _searchStr, bSearchPressed, nullFunc, -1, true);
         if (bSearchPressed)
         {
-            _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("menu.search").c_str(), boost::to_lower_copy(_searchStr));
+            _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("common.search").c_str(), boost::to_lower_copy(_searchStr));
             boost::to_upper(_searchStr);
             //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SearchToUpper, _searchStr, 126U, std::string(), _searchStr);
             //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_searchStr);
@@ -821,14 +833,14 @@ void Sub_SaveFiles()
 			get_all_filenames_with_extension(GetPathffA(Pathff::Spooner, false), ".SP00N", vfilnames, false);
 			if (!vfilnames.empty())
 			{
-			AddBreak("---Legacy SP00N Files---");
+			AddBreak(Language::Translate("menu.spooner.files.section.legacy_sp00n_files.label"));
 
 			for (auto& filname : vfilnames)
 			{
 			bool bSearchPressed = false;
-			AddOption(_searchStr.empty() ? Language::Translate("spooner.search") : _searchStr, bSearchPressed, nullFunc, -1, true); if (bSearchPressed)
+			AddOption(_searchStr.empty() ? Language::Translate("menu.spooner.files.option.search.label") : _searchStr, bSearchPressed, nullFunc, -1, true); if (bSearchPressed)
 			{
-			_searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("spooner.search").c_str(), boost::to_lower_copy(_searchStr));
+			_searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("menu.spooner.files.option.search.prompt").c_str(), boost::to_lower_copy(_searchStr));
 			boost::to_upper(_searchStr);
 			//OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SearchToUpper, _searchStr, 126U, std::string(), _searchStr);
 			//OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_searchStr);
@@ -856,9 +868,9 @@ void Sub_AutoSave()
     static const std::vector<std::string> maxFileNames = {"5", "10", "25", "50"};
     static const int maxFileValues[] = {5, 10, 25, 50};
 
-    AddTitle(Language::Translate("spooner.autoSave.title"));
+    AddTitle(Language::Translate("menu.spooner.auto_save.title"));
 
-    AddToggle(Language::Translate("spooner.autoSave.enable"), Settings::bAutoSaveDb);
+    AddToggle(Language::Translate("menu.spooner.auto_save.option.enable.label"), Settings::bAutoSaveDb);
 
     int intervalIdx = 0;
     for (int i = 0; i < 4; i++)
@@ -869,8 +881,8 @@ void Sub_AutoSave()
             break;
         }
     }
-    intervalIdx = AddTexterCycler(Language::Translate("spooner.autoSave.interval"), intervalIdx, intervalNames);
-    AddOptionDescription(Language::Translate("spooner.autoSave.interval.description"));
+    intervalIdx = AddTexterCycler(Language::Translate("menu.spooner.auto_save.option.interval.label"), intervalIdx, intervalNames);
+    AddOptionDescription(Language::Translate("menu.spooner.auto_save.option.interval.description"));
     if (intervalIdx >= 0 && intervalIdx < 4)
         Settings::autoSaveIntervalMs = intervalValues[intervalIdx];
 
@@ -883,8 +895,8 @@ void Sub_AutoSave()
             break;
         }
     }
-    maxIdx = AddTexterCycler(Language::Translate("spooner.autoSave.maxFiles"), maxIdx, maxFileNames);
-    AddOptionDescription(Language::Translate("spooner.autoSave.maxFiles.description"));
+    maxIdx = AddTexterCycler(Language::Translate("menu.spooner.auto_save.option.max_files.label"), maxIdx, maxFileNames);
+    AddOptionDescription(Language::Translate("menu.spooner.auto_save.option.max_files.description"));
     if (maxIdx >= 0 && maxIdx < 4)
         Settings::autoSaveMaxFiles = maxFileValues[maxIdx];
 }
@@ -898,8 +910,8 @@ void Sub_SaveFiles_Load()
     AddTitle(_name);
 
     bool bTeleToRef = false;
-    AddOption(Language::Translate("spooner.autoSave.teleportReference"), bTeleToRef);
-    AddOptionDescription(Language::Translate("spooner.autoSave.teleportReference.description"));
+    AddOption(Language::Translate("menu.spooner.auto_save.option.teleport_reference.label"), bTeleToRef);
+    AddOptionDescription(Language::Translate("menu.spooner.auto_save.option.teleport_reference.description"));
     if (bTeleToRef)
     {
         FileManagement::TeleportToReference(filePath);
@@ -930,40 +942,40 @@ void Sub_SaveFiles_Load()
     }
 
     bool bLoadPlacements = false;
-    AddOption(Language::Translate("spooner.autoSave.loadPlacements"), bLoadPlacements);
-    AddOptionDescription(Language::Translate("spooner.autoSave.loadPlacements.description"));
+    AddOption(Language::Translate("menu.spooner.auto_save.option.load_placements.label"), bLoadPlacements);
+    AddOptionDescription(Language::Translate("menu.spooner.auto_save.option.load_placements.description"));
     if (bLoadPlacements)
     {
         if (FileManagement::LoadPlacementsFromFile(filePath))
         {
-            Game::Print::PrintBottomLeft(Language::Translate("spooner.files.loaded"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.spooner.files.loaded.message"));
         }
         else
         {
-            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.loadFailed"));
+            Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.load_failed.message"));
             addlog(ige::LogType::LOG_ERROR, "Attempt to load placements from " + filePath + ".xml failed");
         }
     }
 
     bool bRenameFile = false;
-    AddOption(Language::Translate("spooner.files.rename"), bRenameFile);
+    AddOption(Language::Translate("menu.spooner.files.option.rename.label"), bRenameFile);
     if (bRenameFile)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("spooner.files.newNamePrompt").c_str(), _name);
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.spooner.files.option.new_name_prompt.prompt").c_str(), _name);
         if (inputStr.length() > 0)
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.invalid_name.message"));
             }
             else if (rename(filePath.c_str(), (_dir + "\\" + inputStr + ".xml").c_str()) == 0)
             {
                 _name = inputStr;
-                Game::Print::PrintBottomLeft(Language::Translate("spooner.files.renamed"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.spooner.files.renamed.message"));
             }
             else
             {
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.renameFailed"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.rename_failed.message"));
                 addlog(ige::LogType::LOG_ERROR, "Attempt to rename file " + _name + ".xml to " + inputStr + " failed");
             }
         }
@@ -973,32 +985,32 @@ void Sub_SaveFiles_Load()
     }
 
     bool vOverwriteFile = false;
-    AddOption(Language::Translate("spooner.files.overwrite"), vOverwriteFile);
-    AddOptionDescription(Language::Translate("spooner.files.overwrite.description"));
+    AddOption(Language::Translate("menu.spooner.files.option.overwrite.label"), vOverwriteFile);
+    AddOptionDescription(Language::Translate("menu.spooner.files.option.overwrite.description"));
     if (vOverwriteFile)
     {
         if (FileManagement::SaveDbToFile(filePath, false))
         {
-            Game::Print::PrintBottomLeft(Language::Translate("spooner.files.overwritten"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.spooner.files.overwritten.message"));
         }
         else
         {
-            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.overwriteFailed"));
+            Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.overwrite_failed.message"));
             addlog(ige::LogType::LOG_ERROR, "Attempt to overwrite " + filePath + " failed");
         }
     }
 
     bool bDeleteFile = false;
-    AddOption(Language::Translate("spooner.files.delete"), bDeleteFile);
+    AddOption(Language::Translate("menu.spooner.files.option.delete.label"), bDeleteFile);
     if (bDeleteFile)
     {
         if (remove(filePath.c_str()) == 0)
         {
-            Game::Print::PrintBottomLeft(Language::Translate("spooner.files.deleted"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.spooner.files.deleted.message"));
         }
         else
         {
-            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.deleteFailed"));
+            Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.delete_failed.message"));
             addlog(ige::LogType::LOG_ERROR, "Attempt to delete file " + filePath + " failed");
         }
         Menu::SetPreviousMenu();
@@ -1010,7 +1022,7 @@ void Sub_SaveFiles_Load()
     pugi::xml_document doc;
     if (doc.load_file((const char*)filePath.c_str()).status == pugi::status_ok)
     {
-        AddBreak(Language::Translate("spooner.files.attributes"));
+        AddBreak(Language::Translate("menu.spooner.files.section.attributes.label"));
         auto nodeRoot = doc.child("SpoonerPlacements"); // Root
 
         auto nodeNote = nodeRoot.child("Note");
@@ -1019,15 +1031,15 @@ void Sub_SaveFiles_Load()
             std::string noteStr = nodeNote.text().as_string();
             bool bEditNotePressed = false;
             AddTexter(
-                Language::Translate("spooner.files.note"),
+                Language::Translate("menu.spooner.files.option.note.label"),
                 0,
-                std::vector<std::string>{noteStr.length() > 0 ? (noteStr.length() < 10 ? noteStr : noteStr.substr(0, 10) + "...") : Language::Translate("spooner.files.none")},
+                std::vector<std::string>{noteStr.length() > 0 ? (noteStr.length() < 10 ? noteStr : noteStr.substr(0, 10) + "...") : Language::Translate("menu.spooner.option.files.value.none")},
                 bEditNotePressed
             );
-            AddOptionDescription(Language::Translate("spooner.files.note.description"));
+            AddOptionDescription(Language::Translate("menu.spooner.files.option.note.description"));
             if (bEditNotePressed)
             {
-                std::string inputStr = Game::InputBox("~`", 300U, Language::Translate("spooner.files.notePrompt").c_str(), noteStr);
+                std::string inputStr = Game::InputBox("~`", 300U, Language::Translate("menu.spooner.files.option.note_prompt.prompt").c_str(), noteStr);
                 if (inputStr.compare("~`") != 0)
                 {
                     noteStr = inputStr;
@@ -1045,15 +1057,15 @@ void Sub_SaveFiles_Load()
             std::string audioFileName = nodeAudioFile.text().as_string();
             bool bEditAudioFileNamePressed = false;
             AddTexter(
-                Language::Translate("spooner.files.audio"),
+                Language::Translate("menu.spooner.files.option.audio.label"),
                 0,
-                std::vector<std::string>{audioFileName.length() > 0 ? audioFileName : Language::Translate("spooner.files.none")},
+                std::vector<std::string>{audioFileName.length() > 0 ? audioFileName : Language::Translate("menu.spooner.option.files.value.none")},
                 bEditAudioFileNamePressed
             );
-            AddOptionDescription(Language::Translate("spooner.files.audio.description"));
+            AddOptionDescription(Language::Translate("menu.spooner.files.option.audio.description"));
             if (bEditAudioFileNamePressed)
             {
-                std::string inputStr = Game::InputBox("~`", 64U, Language::Translate("spooner.files.audioPrompt").c_str(), audioFileName);
+                std::string inputStr = Game::InputBox("~`", 64U, Language::Translate("menu.spooner.files.option.audio_prompt.prompt").c_str(), audioFileName);
                 if (inputStr.compare("~`") != 0)
                 {
                     audioFileName = inputStr;
@@ -1070,14 +1082,14 @@ void Sub_SaveFiles_Load()
         {
             bool bToggleStartTaskSeqOnLoadPressed = false;
             AddTickol(
-                Language::Translate("spooner.files.startTaskSequences"),
+                Language::Translate("menu.spooner.files.option.start_task_sequences.label"),
                 nodeStartTaskSeqOnLoad.text().as_bool(),
                 bToggleStartTaskSeqOnLoadPressed,
                 bToggleStartTaskSeqOnLoadPressed,
                 TICKOL::BOXTICK,
                 TICKOL::BOXBLANK
             );
-            AddOptionDescription(Language::Translate("spooner.files.startTaskSequences.description"));
+            AddOptionDescription(Language::Translate("menu.spooner.files.option.start_task_sequences.description"));
             if (bToggleStartTaskSeqOnLoadPressed)
             {
                 nodeStartTaskSeqOnLoad.text() = !nodeStartTaskSeqOnLoad.text().as_bool();
@@ -1090,9 +1102,14 @@ void Sub_SaveFiles_Load()
         {
             bool bToggleClearDatabasePressed = false;
             AddTickol(
-                Language::Translate("spooner.files.clearDatabase"), nodeClearDatabase.text().as_bool(), bToggleClearDatabasePressed, bToggleClearDatabasePressed, TICKOL::BOXTICK, TICKOL::BOXBLANK
+                Language::Translate("menu.spooner.files.option.clear_database.label"),
+                nodeClearDatabase.text().as_bool(),
+                bToggleClearDatabasePressed,
+                bToggleClearDatabasePressed,
+                TICKOL::BOXTICK,
+                TICKOL::BOXBLANK
             );
-            AddOptionDescription(Language::Translate("spooner.files.clearDatabase.description"));
+            AddOptionDescription(Language::Translate("menu.spooner.files.option.clear_database.description"));
             if (bToggleClearDatabasePressed)
             {
                 nodeClearDatabase.text() = !nodeClearDatabase.text().as_bool();
@@ -1104,8 +1121,15 @@ void Sub_SaveFiles_Load()
         if (nodeClearMarkers)
         {
             bool bToggleClearMarkersPressed = false;
-            AddTickol(Language::Translate("spooner.files.clearMarkers"), nodeClearMarkers.text().as_bool(), bToggleClearMarkersPressed, bToggleClearMarkersPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-            AddOptionDescription(Language::Translate("spooner.files.clearMarkers.description"));
+            AddTickol(
+                Language::Translate("menu.spooner.files.option.clear_markers.label"),
+                nodeClearMarkers.text().as_bool(),
+                bToggleClearMarkersPressed,
+                bToggleClearMarkersPressed,
+                TICKOL::BOXTICK,
+                TICKOL::BOXBLANK
+            );
+            AddOptionDescription(Language::Translate("menu.spooner.files.option.clear_markers.description"));
             if (bToggleClearMarkersPressed)
             {
                 nodeClearMarkers.text() = !nodeClearMarkers.text().as_bool();
@@ -1139,8 +1163,8 @@ void Sub_SaveFiles_Load()
         {
             float clearWorldRadius = nodeClearWorld.text().as_float();
             bool clearWorld_plus = false, clearWorld_minus = false;
-            AddNumber(Language::Translate("spooner.files.clearWorld"), clearWorldRadius, 0, null, clearWorld_plus, clearWorld_minus);
-            AddOptionDescription(Language::Translate("spooner.files.clearWorld.description"));
+            AddNumber(Language::Translate("menu.spooner.files.option.clear_world.label"), clearWorldRadius, 0, null, clearWorld_plus, clearWorld_minus);
+            AddOptionDescription(Language::Translate("menu.spooner.files.option.clear_world.description"));
             if (Menu::IsLastDrawnOptionSelected())
                 EntityManagement::DrawRadiusDisplayingMarker(refCoords, clearWorldRadius, RGBA(255, 0, 0, 130));
             if (clearWorld_plus)
@@ -1169,14 +1193,16 @@ void Sub_SaveFiles_Load()
              })
         {
             auto& xNode = *std::get<2>(nas);
-            AddBreak(Language::Translate(std::get<3>(nas) == "ReferenceCoords" ? "spooner.files.referenceCoordinates" : "spooner.files.imageLoadingCoordinates"));
-            AddOption("~italic~" + (xNode ? std::get<1>(nas)->ToString() : Language::Translate("spooner.files.notSet")), null);
+            AddBreak(
+                Language::Translate(std::get<3>(nas) == "ReferenceCoords" ? "menu.spooner.files.section.reference_coordinates.label" : "menu.spooner.files.section.image_loading_coordinates.label")
+            );
+            AddOption("~italic~" + (xNode ? std::get<1>(nas)->ToString() : Language::Translate("menu.spooner.files.option.not_set.label")), null);
 
             auto& spoocam = SpoonerCamera::camera;
             if (!spoocam.IsActive())
             {
                 bool bSetPosToMe = false;
-                AddOption(Language::Translate("spooner.files.setToPlayerPosition"), bSetPosToMe);
+                AddOption(Language::Translate("menu.spooner.files.option.set_to_player_position.label"), bSetPosToMe);
                 if (bSetPosToMe)
                 {
                     Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
@@ -1197,8 +1223,8 @@ void Sub_SaveFiles_Load()
             else
             {
                 bool bSetPosToHitCoords = false;
-                AddOption(Language::Translate("spooner.files.setToCameraTarget"), bSetPosToHitCoords);
-                AddOptionDescription(Language::Translate("spooner.files.setToCameraTarget.description"));
+                AddOption(Language::Translate("menu.spooner.files.option.set_to_camera_target.label"), bSetPosToHitCoords);
+                AddOptionDescription(Language::Translate("menu.spooner.files.option.set_to_camera_target.description"));
                 if (bSetPosToHitCoords)
                 {
                     Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
@@ -1219,7 +1245,7 @@ void Sub_SaveFiles_Load()
             if (IS_WAYPOINT_ACTIVE())
             {
                 bool bSetPosToWp = false;
-                AddOption(Language::Translate("spooner.files.setToWaypoint"), bSetPosToWp);
+                AddOption(Language::Translate("menu.spooner.files.option.set_to_waypoint.label"), bSetPosToWp);
                 if (bSetPosToWp)
                 {
                     GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
@@ -1244,19 +1270,19 @@ void Sub_SaveFiles_Load()
         auto nodeTimecycMod = nodeRoot.child("TimecycleModifier");
         if (nodeTimecycMod)
         {
-            AddBreak(Language::Translate("spooner.files.visionHax"));
+            AddBreak(Language::Translate("menu.spooner.files.section.vision_hax.label"));
 
             std::string timecycModStr = nodeTimecycMod.text().as_string();
             bool bTimecycMod_pressed = false, bTimecycMod_plus = false, bTimecycMod_minus = false;
             AddTexter(
-                Language::Translate("spooner.files.timecycleMod"),
+                Language::Translate("menu.spooner.files.option.timecycle_mod.label"),
                 0,
-                std::vector<std::string>{timecycModStr.length() ? timecycModStr : Language::Translate("spooner.files.none")},
+                std::vector<std::string>{timecycModStr.length() ? timecycModStr : Language::Translate("menu.spooner.option.files.value.none")},
                 bTimecycMod_pressed,
                 bTimecycMod_plus,
                 bTimecycMod_minus
             );
-            AddOptionDescription(Language::Translate("spooner.files.timecycleMod.description"));
+            AddOptionDescription(Language::Translate("menu.spooner.files.option.timecycle_mod.description"));
             if (bTimecycMod_plus)
             {
                 auto tit = std::find_if(
@@ -1304,7 +1330,7 @@ void Sub_SaveFiles_Load()
             }
             else if (bTimecycMod_pressed)
             {
-                std::string inputStr = Game::InputBox(timecycModStr, 28U, Language::Translate("spooner.files.timecycleModPrompt").c_str(), timecycModStr);
+                std::string inputStr = Game::InputBox(timecycModStr, 28U, Language::Translate("menu.spooner.files.option.timecycle_mod_prompt.prompt").c_str(), timecycModStr);
                 if (inputStr.compare(timecycModStr) != 0)
                 {
                     timecycModStr = inputStr;
@@ -1316,8 +1342,8 @@ void Sub_SaveFiles_Load()
 
             float timecycModStrength = nodeTimecycMod.attribute("strength").as_float(1.0f);
             bool bTimecycModStrength_plus = false, bTimecycModStrength_minus = false;
-            AddNumber(Language::Translate("spooner.files.strength"), timecycModStrength, 2, null, bTimecycModStrength_plus, bTimecycModStrength_minus);
-            AddOptionDescription(Language::Translate("spooner.files.strength.description"));
+            AddNumber(Language::Translate("menu.spooner.files.option.strength.label"), timecycModStrength, 2, null, bTimecycModStrength_plus, bTimecycModStrength_minus);
+            AddOptionDescription(Language::Translate("menu.spooner.files.option.strength.description"));
             if (bTimecycModStrength_plus)
             {
                 if (timecycModStrength < 3.0f)
@@ -1341,7 +1367,7 @@ void Sub_SaveFiles_Load()
         auto nodeWeatherToSet = nodeRoot.child("WeatherToSet");
         if (nodeWeatherToSet)
         {
-            AddBreak(Language::Translate("spooner.files.weatherToSet"));
+            AddBreak(Language::Translate("menu.spooner.files.section.weather_to_set.label"));
             std::string weatherToSetStr = nodeWeatherToSet.text().as_string();
             int weatherToSetInt = static_cast<int>(World::GetWeather(weatherToSetStr));
             //bool weatherToSet_plus = false, weatherToSet_minus = false;
@@ -1350,7 +1376,7 @@ void Sub_SaveFiles_Load()
             //if (weatherToSet_minus){ if (weatherToSetInt > -1){ weatherToSetInt--; nodeWeatherToSet.text() = World::WeatherName_get(static_cast<WeatherType>(weatherToSetInt)).c_str(); doc.save_file((const char*)filePath.c_str()); } }
 
             bool bWeatherNonePressed = false;
-            AddTickol(Language::Translate("spooner.files.none"), weatherToSetInt == -1, bWeatherNonePressed, bWeatherNonePressed);
+            AddTickol(Language::Translate("menu.spooner.files.option.none.label"), weatherToSetInt == -1, bWeatherNonePressed, bWeatherNonePressed);
             if (bWeatherNonePressed)
             {
                 nodeWeatherToSet.text() = "";
@@ -1379,36 +1405,36 @@ void Sub_SaveFiles_Load_LegacySP00N()
     AddTitle(_name);
 
     bool bLoadPlacements = false;
-    AddOption(Language::Translate("spooner.files.loadPlacements"), bLoadPlacements);
-    AddOptionDescription(Language::Translate("spooner.files.loadPlacements.description"));
+    AddOption(Language::Translate("menu.spooner.files.option.load_placements.label"), bLoadPlacements);
+    AddOptionDescription(Language::Translate("menu.spooner.files.option.load_placements.description"));
     if (bLoadPlacements)
     {
         if (FileManagement::LoadPlacementsFromSP00NFile(filePath))
         {
-            Game::Print::PrintBottomLeft(Language::Translate("spooner.files.loaded"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.spooner.files.loaded.message"));
         }
         else
         {
-            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.loadFailed"));
+            Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.load_failed.message"));
             addlog(ige::LogType::LOG_ERROR, "Attempt to load Placements file from" + filePath + " failed");
         }
     }
 
     bool bRenameFile = false;
-    AddOption(Language::Translate("spooner.files.rename"), bRenameFile);
+    AddOption(Language::Translate("menu.spooner.files.option.rename.label"), bRenameFile);
     if (bRenameFile)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("spooner.files.newNamePrompt").c_str(), _name);
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.spooner.files.option.new_name_prompt.prompt").c_str(), _name);
         if (inputStr.length() > 0)
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.invalid_name.message"));
             }
             else if (rename(filePath.c_str(), (_dir + "\\" + inputStr + ".SP00N").c_str()) == 0)
             {
                 _name = inputStr;
-                Game::Print::PrintBottomLeft(Language::Translate("spooner.files.renamed"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.spooner.files.renamed.message"));
             }
             else
             {
@@ -1421,16 +1447,16 @@ void Sub_SaveFiles_Load_LegacySP00N()
     }
 
     bool bDeleteFile = false;
-    AddOption(Language::Translate("spooner.files.delete"), bDeleteFile);
+    AddOption(Language::Translate("menu.spooner.files.option.delete.label"), bDeleteFile);
     if (bDeleteFile)
     {
         if (remove(filePath.c_str()) == 0)
         {
-            Game::Print::PrintBottomLeft(Language::Translate("spooner.files.deleted"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.spooner.files.deleted.message"));
         }
         else
         {
-            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.deleteFailed"));
+            Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.delete_failed.message"));
             addlog(ige::LogType::LOG_ERROR, "Attempt to delete file" + filePath + " failed");
         }
         Menu::SetPreviousMenu();
@@ -1448,14 +1474,20 @@ void Sub_ManageEntities()
     auto myIndexInDb = EntityManagement::GetEntityIndexInDb(myPed);
     bool bIsSelfInDb = myIndexInDb >= 0;
 
-    AddTitle(Language::Translate("spooner.manage.title"));
+    AddTitle(Language::Translate("menu.spooner.manage.title"));
 
-    AddOption(Language::Translate("spooner.manage.removal"), null, nullFunc, SUB::SPOONER_MANAGEDB_REMOVAL);
-    AddOptionDescription(Language::Translate("spooner.manage.removal.description"));
+    AddOption(Language::Translate("menu.spooner.manage.option.removal.label"), null, nullFunc, SUB::SPOONER_MANAGEDB_REMOVAL);
+    AddOptionDescription(Language::Translate("menu.spooner.manage.option.removal.description"));
 
     bool bPressedSelf = false;
-    AddOption(Language::Format("spooner.manage.self", {{"state", Language::Translate(bIsSelfInDb ? "spooner.manage.self.inDatabase" : "spooner.manage.self.notInDatabase")}}), bPressedSelf);
-    AddOptionDescription(Language::Translate("spooner.manage.self.description"));
+    AddOption(
+        Language::Format(
+            "menu.spooner.manage.option.self.label",
+            {{"state", Language::Translate(bIsSelfInDb ? "menu.spooner.manage.self.option.in_database.label" : "menu.spooner.manage.self.option.not_in_database.label")}}
+        ),
+        bPressedSelf
+    );
+    AddOptionDescription(Language::Translate("menu.spooner.manage.option.self.description"));
     if (bPressedSelf)
     {
         if (bIsSelfInDb)
@@ -1477,14 +1509,17 @@ void Sub_ManageEntities()
 
     if (!Databases::EntityDb.empty())
     {
-        AddBreak(Language::Translate("spooner.manage.databaseBreak"));
+        AddBreak(Language::Translate("menu.spooner.manage.section.database.label"));
 
         bool bEntTypeToShow_plus = false, bEntTypeToShow_minus = false;
         AddTexter(
-            Language::Translate("spooner.manage.show"),
+            Language::Translate("menu.spooner.manage.option.show.label"),
             _entTypeToShowTexterValue,
             std::vector<std::string>{
-                Language::Translate("spooner.manage.all"), Language::Translate("spooner.manage.peds"), Language::Translate("spooner.manage.vehicles"), Language::Translate("spooner.manage.objects")
+                Language::Translate("menu.spooner.option.manage.value.all"),
+                Language::Translate("menu.spooner.option.manage.value.peds"),
+                Language::Translate("menu.spooner.option.manage.value.vehicles"),
+                Language::Translate("menu.spooner.option.manage.value.objects")
             },
             null,
             bEntTypeToShow_plus,
@@ -1526,7 +1561,12 @@ void Sub_ManageEntities()
                 EntityManagement::ShowArrowAboveEntity(e.handle);
 
                 bool bShortcutDeletePressed;
-                Keybinds::AddBindIB("menu_action", bEntityExists, Language::Translate("spooner.manage.deleteEntity").c_str(), Language::Translate("spooner.manage.removeInvalid").c_str());
+                Keybinds::AddBindIB(
+                    "menu_action",
+                    bEntityExists,
+                    Language::Translate("menu.spooner.manage.option.delete_entity.label").c_str(),
+                    Language::Translate("menu.spooner.manage.option.remove_invalid.label").c_str()
+                );
                 bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
                 if (bShortcutDeletePressed)
@@ -1559,40 +1599,40 @@ void Sub_ManageEntities()
 
 void Sub_ManageEntities_Removal()
 {
-    AddTitle(Language::Translate("spooner.manage.removal.title"));
+    AddTitle(Language::Translate("menu.spooner.manage.removal.title"));
 
     //AddOption("Select DB Entities To Delete", null, nullFunc, SUB::SPOONER_MANAGEDB_REMOVAL_FROMDB);
 
-    AddBreak(Language::Translate("spooner.manage.databaseBreak"));
-    AddOption(Language::Format("spooner.manage.deleteMarkers", {{"count", Databases::MarkerDb.size()}}), null, MarkerManagement::RemoveAllMarkers);
-    AddOption(Language::Format("spooner.manage.deleteLights", {{"count", Databases::LightDb.size()}}), null, LightManagement::RemoveAll);
-    AddOption(Language::Format("spooner.manage.deleteEntitiesDb", {{"count", Databases::EntityDb.size()}}), null, EntityManagement::DeleteAllEntitiesInDb);
-    AddOption(Language::Translate("spooner.manage.deleteObjectsDb"), null, EntityManagement::DeleteAllPropsInDb);
-    AddOption(Language::Translate("spooner.manage.deletePedsDb"), null, EntityManagement::DeleteAllPedsInDb);
-    AddOption(Language::Translate("spooner.manage.deleteVehiclesDb"), null, EntityManagement::DeleteAllVehiclesInDb);
-    AddOption(Language::Translate("spooner.manage.deleteInvalidDb"), null, EntityManagement::DeleteInvalidEntitiesInDb);
-    AddOptionDescription(Language::Translate("spooner.manage.deleteInvalidDb.description"));
+    AddBreak(Language::Translate("menu.spooner.manage.section.database.label"));
+    AddOption(Language::Format("menu.spooner.manage.option.delete_markers.label", {{"count", Databases::MarkerDb.size()}}), null, MarkerManagement::RemoveAllMarkers);
+    AddOption(Language::Format("menu.spooner.manage.option.delete_lights.label", {{"count", Databases::LightDb.size()}}), null, LightManagement::RemoveAll);
+    AddOption(Language::Format("menu.spooner.manage.option.delete_entities_db.label", {{"count", Databases::EntityDb.size()}}), null, EntityManagement::DeleteAllEntitiesInDb);
+    AddOption(Language::Translate("menu.spooner.manage.option.delete_objects_db.label"), null, EntityManagement::DeleteAllPropsInDb);
+    AddOption(Language::Translate("menu.spooner.manage.option.delete_peds_db.label"), null, EntityManagement::DeleteAllPedsInDb);
+    AddOption(Language::Translate("menu.spooner.manage.option.delete_vehicles_db.label"), null, EntityManagement::DeleteAllVehiclesInDb);
+    AddOption(Language::Translate("menu.spooner.manage.option.delete_invalid_db.label"), null, EntityManagement::DeleteInvalidEntitiesInDb);
+    AddOptionDescription(Language::Translate("menu.spooner.manage.option.delete_invalid_db.description"));
 
-    AddBreak(Language::Translate("spooner.manage.worldBreak"));
-    AddOption(Language::Format("spooner.manage.deleteEntitiesWorld", {{"count", worldEntities.size()}}), null, EntityManagement::DeleteAllEntitiesInWorld);
-    AddOption(Language::Format("spooner.manage.deleteObjectsWorld", {{"count", worldObjects.size()}}), null, EntityManagement::DeleteAllPropsInWorld);
-    AddOption(Language::Format("spooner.manage.deletePedsWorld", {{"count", worldPeds.size()}}), null, EntityManagement::DeleteAllPedsInWorld);
-    AddOption(Language::Format("spooner.manage.deleteVehiclesWorld", {{"count", worldVehicles.size()}}), null, EntityManagement::DeleteAllVehiclesInWorld);
+    AddBreak(Language::Translate("menu.spooner.manage.section.world.label"));
+    AddOption(Language::Format("menu.spooner.manage.option.delete_entities_world.label", {{"count", worldEntities.size()}}), null, EntityManagement::DeleteAllEntitiesInWorld);
+    AddOption(Language::Format("menu.spooner.manage.option.delete_objects_world.label", {{"count", worldObjects.size()}}), null, EntityManagement::DeleteAllPropsInWorld);
+    AddOption(Language::Format("menu.spooner.manage.option.delete_peds_world.label", {{"count", worldPeds.size()}}), null, EntityManagement::DeleteAllPedsInWorld);
+    AddOption(Language::Format("menu.spooner.manage.option.delete_vehicles_world.label", {{"count", worldVehicles.size()}}), null, EntityManagement::DeleteAllVehiclesInWorld);
 
-    AddOption(Language::Translate("spooner.manage.clearDb"), null, EntityManagement::ClearDb);
-    AddOptionDescription(Language::Translate("spooner.manage.clearDb.description"));
+    AddOption(Language::Translate("menu.spooner.manage.option.clear_db.label"), null, EntityManagement::ClearDb);
+    AddOptionDescription(Language::Translate("menu.spooner.manage.option.clear_db.description"));
 }
 
 /*void Sub_ManageEntities_Removal_FromDb()
 		{
 			if (Databases::EntityDb.empty())
 			{
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.entity.databaseEmpty"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.entity.database_empty.message"));
 				Menu::SetPreviousMenu();
 				return;
 			}
 
-			AddTitle(Language::Translate("spooner.manage.deleteEntities"));
+			AddTitle(Language::Translate("menu.spooner.manage.delete_entities.title"));
 
 			for (auto& e : Databases::EntityDb)
 			{
@@ -1642,7 +1682,7 @@ void Sub_SelectedEntityOps()
     {
         bool bIsAFav = FavouritesManagement::IsPropAFavourite(selectedEntity.hashName, selectedEntityModel.hash);
         bool bAddToFav = false, bRemoveFromFav = false;
-        AddTickol(Language::Translate("spooner.entity.modelFavourite"), bIsAFav, bAddToFav, bRemoveFromFav, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        AddTickol(Language::Translate("menu.spooner.entity.option.model_favourite.label"), bIsAFav, bAddToFav, bRemoveFromFav, TICKOL::BOXTICK, TICKOL::BOXBLANK);
         if (bAddToFav)
         {
             FavouritesManagement::AddPropToFavourites(selectedEntity.hashName, selectedEntityModel.hash);
@@ -1657,10 +1697,10 @@ void Sub_SelectedEntityOps()
     {
         bool bIsAFav = FavouritesManagement::IsVehicleAFavourite(selectedEntityModel);
         bool bAddToFav = false, bRemoveFromFav = false;
-        AddTickol(Language::Translate("spooner.entity.modelFavourite"), bIsAFav, bAddToFav, bRemoveFromFav, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        AddTickol(Language::Translate("menu.spooner.entity.option.model_favourite.label"), bIsAFav, bAddToFav, bRemoveFromFav, TICKOL::BOXTICK, TICKOL::BOXBLANK);
         if (bAddToFav)
         {
-            std::string inputStr = Game::InputBox("", 28U, Language::Translate("spooner.entity.customNamePrompt").c_str(), selectedEntityModel.VehicleDisplayName(true));
+            std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.spooner.entity.option.custom_name_prompt.prompt").c_str(), selectedEntityModel.VehicleDisplayName(true));
             if (inputStr.length() > 0)
             {
                 FavouritesManagement::AddVehicleToFavourites(selectedEntityModel, inputStr);
@@ -1677,17 +1717,17 @@ void Sub_SelectedEntityOps()
     }
 
     bool bAddToOrDb = false, bRemoveFromDb = false;
-    AddTickol(Language::Translate("spooner.entity.inDatabase"), isThisEntityInDb, bAddToOrDb, bRemoveFromDb, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription(Language::Translate("spooner.entity.inDatabase.description"));
+    AddTickol(Language::Translate("menu.spooner.entity.option.in_database.label"), isThisEntityInDb, bAddToOrDb, bRemoveFromDb, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("menu.spooner.entity.option.in_database.description"));
     if (bAddToOrDb)
     {
         EntityManagement::AddEntityToDb(selectedEntity);
-        Game::Print::PrintBottomLeft(Language::Format("spooner.entity.addedToDatabase", {{"entity", selectedEntity.hashName}}));
+        Game::Print::PrintBottomLeft(Language::Format("message.spooner.entity.added_to_database.message", {{"entity", selectedEntity.hashName}}));
     }
     else if (bRemoveFromDb)
     {
         EntityManagement::RemoveEntityFromDb(selectedEntity);
-        Game::Print::PrintBottomLeft(Language::Format("spooner.entity.removedFromDatabase", {{"entity", selectedEntity.hashName}}));
+        Game::Print::PrintBottomLeft(Language::Format("message.spooner.entity.removed_from_database.message", {{"entity", selectedEntity.hashName}}));
         if (Menu::submenuHistory[Menu::menuHistoryIndex] == SUB::SPOONER_MANAGEDB)
         {
             Menu::optionSelectionHistory[Menu::menuHistoryIndex] -= 1;
@@ -1696,14 +1736,14 @@ void Sub_SelectedEntityOps()
 
     bool bCopyPressed = false, bCopy_plus = false, bCopy_minus = false;
     AddTexter(
-        Language::Translate("spooner.entity.copy"),
+        Language::Translate("menu.spooner.entity.option.copy.label"),
         _copyEntTexterValue,
-        std::vector<std::string>{Language::Translate("spooner.entity.copy.entityOnly"), Language::Translate("spooner.entity.copy.withAttachments")},
+        std::vector<std::string>{Language::Translate("menu.spooner.entity.option.copy.value.entity_only"), Language::Translate("menu.spooner.entity.option.copy.value.with_attachments")},
         bCopyPressed,
         bCopy_plus,
         bCopy_minus
     );
-    AddOptionDescription(Language::Translate("spooner.entity.copy.description"));
+    AddOptionDescription(Language::Translate("menu.spooner.entity.option.copy.description"));
     if (bCopy_plus)
     {
         if (_copyEntTexterValue < 1U)
@@ -1722,7 +1762,7 @@ void Sub_SelectedEntityOps()
     }
 
     bool bDeletePressed = false;
-    AddOption(Language::Translate("spooner.entity.delete"), bDeletePressed);
+    AddOption(Language::Translate("menu.spooner.entity.option.delete.label"), bDeletePressed);
     if (bDeletePressed)
     {
         selectedEntity.handle.RequestControl(600);
@@ -1748,7 +1788,7 @@ void Sub_SelectedEntityOps()
     if (existingBlip)
     {
         bool bDeleteBlipPressed = false;
-        AddOption(Language::Translate("spooner.entity.deleteBlip"), bDeleteBlipPressed);
+        AddOption(Language::Translate("menu.spooner.entity.option.delete_blip.label"), bDeleteBlipPressed);
         if (bDeleteBlipPressed)
         {
             BlipCustoms::RemoveBlip(*existingBlip);
@@ -1757,7 +1797,7 @@ void Sub_SelectedEntityOps()
     else
     {
         bool bAddEntityBlipPressed = false;
-        AddOption(Language::Translate("spooner.entity.addBlip"), bAddEntityBlipPressed);
+        AddOption(Language::Translate("menu.spooner.entity.option.add_blip.label"), bAddEntityBlipPressed);
         if (bAddEntityBlipPressed)
         {
             sub::Spooner::SelectedBlip = sub::Spooner::BlipCustoms::AddBlip(SpoonerBlip::Type::Entity, selectedEntity.hashName);
@@ -1775,8 +1815,8 @@ void Sub_SelectedEntityOps()
     }
 
     bool bDynamicPressed = false;
-    AddLocal(Language::Translate("spooner.entity.dynamic"), selectedEntity.dynamic, bDynamicPressed, bDynamicPressed);
-    AddOptionDescription(Language::Translate("spooner.entity.dynamic.description"));
+    AddLocal(Language::Translate("menu.spooner.entity.option.dynamic.label"), selectedEntity.dynamic, bDynamicPressed, bDynamicPressed);
+    AddOptionDescription(Language::Translate("menu.spooner.entity.option.dynamic.description"));
     if (bDynamicPressed)
     {
         selectedEntity.dynamic = !selectedEntity.dynamic;
@@ -1785,7 +1825,7 @@ void Sub_SelectedEntityOps()
     }
 
     bool bFreezePosPressed = false;
-    AddLocal(Language::Translate("spooner.entity.frozen"), selectedEntity.handle.IsPositionFrozen(), bFreezePosPressed, bFreezePosPressed);
+    AddLocal(Language::Translate("menu.spooner.entity.option.frozen.label"), selectedEntity.handle.IsPositionFrozen(), bFreezePosPressed, bFreezePosPressed);
     if (bFreezePosPressed)
     {
         selectedEntity.handle.FreezePosition(!selectedEntity.handle.IsPositionFrozen());
@@ -1795,7 +1835,7 @@ void Sub_SelectedEntityOps()
         bool bLandingGearDown = (selectedEntity.handle.GetLandingGearState() == 0); // 0 = Deployed
         bool oldValue = bLandingGearDown;
 
-        AddToggle(Language::Translate("spooner.entity.landingGear"), bLandingGearDown);
+        AddToggle(Language::Translate("menu.spooner.entity.option.landing_gear.label"), bLandingGearDown);
 
         if (bLandingGearDown != oldValue)
         {
@@ -1807,8 +1847,8 @@ void Sub_SelectedEntityOps()
     {
         auto& thisTextureVariation = selectedEntity.textureVariation;
         bool bTextureVariation_plus = false, bTextureVariation_minus = false;
-        AddNumber(Language::Translate("spooner.entity.textureVariation"), thisTextureVariation, 0, null, bTextureVariation_plus, bTextureVariation_minus);
-        AddOptionDescription(Language::Translate("spooner.entity.textureVariation.description"));
+        AddNumber(Language::Translate("menu.spooner.entity.option.texture_variation.label"), thisTextureVariation, 0, null, bTextureVariation_plus, bTextureVariation_minus);
+        AddOptionDescription(Language::Translate("menu.spooner.entity.option.texture_variation.description"));
         if (bTextureVariation_plus)
         {
             if (thisTextureVariation < UINT8_MAX)
@@ -1829,7 +1869,7 @@ void Sub_SelectedEntityOps()
 
     int thisHealth = selectedEntity.handle.GetHealth();
     bool bHealth_plus = false, bHealth_minus = false, bHealth_input = false;
-    AddNumber(Language::Translate("spooner.entity.health"), thisHealth, 0, bHealth_input, bHealth_plus, bHealth_minus);
+    AddNumber(Language::Translate("menu.spooner.entity.option.health.label"), thisHealth, 0, bHealth_input, bHealth_plus, bHealth_minus);
     if (bHealth_plus)
     {
         if (thisHealth < INT_MAX)
@@ -1879,7 +1919,7 @@ void Sub_SelectedEntityOps()
     }
 
     bool bInvinciblePressed = false;
-    AddLocal(Language::Translate("spooner.entity.invincible"), selectedEntity.handle.IsInvincible(), bInvinciblePressed, bInvinciblePressed);
+    AddLocal(Language::Translate("menu.spooner.entity.option.invincible.label"), selectedEntity.handle.IsInvincible(), bInvinciblePressed, bInvinciblePressed);
     if (bInvinciblePressed)
     {
         bool bEnable = !selectedEntity.handle.IsInvincible();
@@ -1889,14 +1929,14 @@ void Sub_SelectedEntityOps()
     }
 
     bool bFireProofPressed = false;
-    AddLocal(Language::Translate("spooner.entity.fireproof"), selectedEntity.handle.IsFireProof(), bFireProofPressed, bFireProofPressed);
+    AddLocal(Language::Translate("menu.spooner.entity.option.fireproof.label"), selectedEntity.handle.IsFireProof(), bFireProofPressed, bFireProofPressed);
     if (bFireProofPressed)
     {
         bool bEnable = !selectedEntity.handle.IsFireProof();
         selectedEntity.handle.SetFireProof(bEnable);
     }
     bool bOnFirePressed = false;
-    AddLocal(Language::Translate("spooner.entity.onFire"), selectedEntity.handle.IsOnFire(), bOnFirePressed, bOnFirePressed);
+    AddLocal(Language::Translate("menu.spooner.entity.option.on_fire.label"), selectedEntity.handle.IsOnFire(), bOnFirePressed, bOnFirePressed);
     if (bOnFirePressed)
     {
         bool bEnable = !selectedEntity.handle.IsOnFire();
@@ -1904,17 +1944,17 @@ void Sub_SelectedEntityOps()
     }
 
     bool bVisiblePressed = false;
-    AddLocal(Language::Translate("spooner.entity.visible"), selectedEntity.handle.IsVisible(), bVisiblePressed, bVisiblePressed);
+    AddLocal(Language::Translate("menu.spooner.entity.option.visible.label"), selectedEntity.handle.IsVisible(), bVisiblePressed, bVisiblePressed);
     if (bVisiblePressed)
     {
         selectedEntity.handle.SetVisible(!selectedEntity.handle.IsVisible());
     }
 
-    AddOption(Language::Translate("spooner.entity.opacity"), null, SetSelectedEntityAsVehicleTarget, SUB::ENTITYALPHALEVEL);
-    AddOptionDescription(Language::Translate("spooner.entity.opacity.description"));
+    AddOption(Language::Translate("menu.spooner.entity.option.opacity.label"), null, SetSelectedEntityAsVehicleTarget, SUB::ENTITYALPHALEVEL);
+    AddOptionDescription(Language::Translate("menu.spooner.entity.option.opacity.description"));
 
     bool bCollisionPressed = false;
-    AddLocal(Language::Translate("spooner.entity.collision"), selectedEntity.handle.GetIsCollisionEnabled(), bCollisionPressed, bCollisionPressed);
+    AddLocal(Language::Translate("menu.spooner.entity.option.collision.label"), selectedEntity.handle.GetIsCollisionEnabled(), bCollisionPressed, bCollisionPressed);
     if (bCollisionPressed)
     {
         GTAentity attBaseEnt;
@@ -1928,8 +1968,8 @@ void Sub_SelectedEntityOps()
 
     bool bHasGravity = selectedEntity.handle.GetHasGravity();
     bool bGravityTogglePressed = false;
-    AddLocal(Language::Translate("spooner.entity.gravity"), bHasGravity, bGravityTogglePressed, bGravityTogglePressed);
-    AddOptionDescription(Language::Translate("spooner.entity.gravity.description"));
+    AddLocal(Language::Translate("menu.spooner.entity.option.gravity.label"), bHasGravity, bGravityTogglePressed, bGravityTogglePressed);
+    AddOptionDescription(Language::Translate("menu.spooner.entity.option.gravity.description"));
     if (bGravityTogglePressed)
     {
         switch (selectedEntity.type)
@@ -1951,7 +1991,7 @@ void Sub_SelectedEntityOps()
     }
 
     bool bGoToEntityPressed = false;
-    AddOption(Language::Translate("spooner.entity.goTo"), bGoToEntityPressed);
+    AddOption(Language::Translate("menu.spooner.entity.option.go_to.label"), bGoToEntityPressed);
     if (bGoToEntityPressed)
     {
         if (SpoonerCamera::camera.IsActive())
@@ -1967,9 +2007,9 @@ void Sub_SelectedEntityOps()
     }
 
     bool bBringEntityToSelfPressed = false;
-    AddOption(
-        Language::Translate("spooner.entity.bringToSelf") + (selectedEntity.handle.IsAttached() ? Language::Translate("spooner.entity.bringToSelf.detachSuffix") : ""), bBringEntityToSelfPressed
-    );
+    AddOption(Language::Translate("menu.spooner.entity.option.bring_to_self.label"), bBringEntityToSelfPressed);
+    if (selectedEntity.handle.IsAttached())
+        AddOptionDescription(Language::Translate("menu.spooner.entity.option.bring_to_self.description"));
     if (bBringEntityToSelfPressed)
     {
         //GTAentity entityToTele = selectedEntity.handle;
@@ -1992,30 +2032,30 @@ void Sub_SelectedEntityOps()
     }
 
     bool bPlaceOnGround = false;
-    AddOption(Language::Translate("spooner.entity.placeOnGround"), bPlaceOnGround);
-    AddOptionDescription(Language::Translate("spooner.entity.placeOnGround.description"));
+    AddOption(Language::Translate("menu.spooner.entity.option.place_on_ground.label"), bPlaceOnGround);
+    AddOptionDescription(Language::Translate("menu.spooner.entity.option.place_on_ground.description"));
     if (bPlaceOnGround)
     {
         selectedEntity.handle.PlaceOnGround();
     }
 
     bool bResetRotation = false;
-    AddOption(Language::Translate("spooner.entity.resetRotation"), bResetRotation);
+    AddOption(Language::Translate("menu.spooner.entity.option.reset_rotation.label"), bResetRotation);
     if (bResetRotation)
     {
         selectedEntity.handle.SetRotation(Vector3::Zero());
     }
 
-    AddOption(Language::Translate("spooner.entity.triggerFx"), null, SetSelectedEntityAsActivePed, SUB::PTFXSUB);
+    AddOption(Language::Translate("menu.spooner.entity.option.trigger_fx.label"), null, SetSelectedEntityAsActivePed, SUB::PTFXSUB);
 
     bool bGoToTaskSeqMenu = false;
     AddTexter(
-        Language::Translate("spooner.entity.taskSequence"),
+        Language::Translate("menu.spooner.entity.option.task_sequence.label"),
         selectedEntity.taskSequence.IsActive() ? 1 : 0,
-        std::vector<std::string>{Language::Translate("spooner.entity.taskSequence.inactive"), Language::Translate("spooner.entity.taskSequence.active")},
+        std::vector<std::string>{Language::Translate("menu.spooner.entity.option.task_sequence.value.inactive"), Language::Translate("menu.spooner.entity.option.task_sequence.value.active")},
         bGoToTaskSeqMenu
     );
-    AddOptionDescription(Language::Translate("spooner.entity.taskSequence.description"));
+    AddOptionDescription(Language::Translate("menu.spooner.entity.option.task_sequence.description"));
     if (bGoToTaskSeqMenu)
     {
         Menu::pendingSubmenu = SUB::SPOONER_TASKSEQUENCE_TASKLIST;
@@ -2024,20 +2064,20 @@ void Sub_SelectedEntityOps()
     // peds can access anims from ped options menu
     if (selectedEntity.handle.IsVehicle() || selectedEntity.handle.IsProp())
     {
-        AddOption(Language::Translate("spooner.entity.animations"), null, SetSelectedEntityAsActivePed, SUB::ANIMATIONSUB);
+        AddOption(Language::Translate("menu.spooner.entity.option.animations.label"), null, SetSelectedEntityAsActivePed, SUB::ANIMATIONSUB);
     }
 
     if (selectedEntity.type == EntityType::PED)
     {
-        AddOption(Language::Translate("spooner.entity.pedOptions"), null, nullFunc, SUB::SPOONER_PEDOPS);
+        AddOption(Language::Translate("menu.spooner.entity.option.ped_options.label"), null, nullFunc, SUB::SPOONER_PEDOPS);
     }
     else if (selectedEntity.type == EntityType::VEHICLE)
     {
-        AddOption(Language::Translate("spooner.entity.menyooCustoms"), null, SetSelectedEntityAsVehicleTarget, SUB::MODSHOP);
+        AddOption(Language::Translate("menu.spooner.entity.option.menyoo_customs.label"), null, SetSelectedEntityAsVehicleTarget, SUB::MODSHOP);
     }
 
-    AddOption(Language::Translate("spooner.entity.attachmentOptions"), null, nullFunc, SUB::SPOONER_ATTACHMENTOPS);
-    AddOption(Language::Translate("spooner.entity.manualEditing"), null, nullFunc, SUB::SPOONER_MANUALEDITING);
+    AddOption(Language::Translate("menu.spooner.entity.option.attachment_options.label"), null, nullFunc, SUB::SPOONER_ATTACHMENTOPS);
+    AddOption(Language::Translate("menu.spooner.entity.option.manual_editing.label"), null, nullFunc, SUB::SPOONER_MANUALEDITING);
 }
 
 void Sub_AttachmentOps()
@@ -2060,16 +2100,16 @@ void Sub_AttachmentOps()
     bool seIsAttached = EntityManagement::GetEntityThisEntityIsAttachedTo(selectedEntity.handle, parentEntity);
     EntityType parentEntityType = (EntityType)parentEntity.Type();
 
-    AddTitle(Language::Translate("spooner.attachment.title"));
+    AddTitle(Language::Translate("menu.spooner.attachment.title"));
 
     if (!seIsAttached)
     {
-        AddOption(Language::Translate("spooner.attachment.attachTo"), null, nullFunc, SUB::SPOONER_ATTACHMENTOPS_ATTACHTO);
+        AddOption(Language::Translate("menu.spooner.attachment.option.attach_to.label"), null, nullFunc, SUB::SPOONER_ATTACHMENTOPS_ATTACHTO);
     }
     else
     {
         bool bDetachPressed = false;
-        AddOption(Language::Translate("spooner.attachment.detach"), bDetachPressed);
+        AddOption(Language::Translate("menu.spooner.attachment.option.detach.label"), bDetachPressed);
         if (bDetachPressed)
         {
             EntityManagement::DetachEntity(selectedEntity);
@@ -2085,11 +2125,11 @@ void Sub_AttachmentOps()
         SpoonerMode::UpdateEntityEditingState(nextOffset, nextRot);
 
         SpoonerMode::editingState.transformMode = static_cast<SpoonerMode::eTransformMode>(AddTexterCycler(
-            Language::Translate("spooner.editing.mode"),
+            Language::Translate("menu.spooner.editing.option.mode.label"),
             (int)SpoonerMode::editingState.transformMode > 1 ? 0 : (int)SpoonerMode::editingState.transformMode,
-            {Language::Translate("spooner.editing.position"), Language::Translate("spooner.editing.rotation")}
+            {Language::Translate("menu.spooner.option.editing.value.position"), Language::Translate("menu.spooner.option.editing.value.rotation")}
         ));
-        AddOptionDescription(Language::Translate("spooner.editing.positionRotation.description"));
+        AddOptionDescription(Language::Translate("menu.spooner.editing.option.position_rotation.description"));
 
         // Bone text scroller if type is PED or VEHICLE
         if (parentEntityType == EntityType::PED)
@@ -2106,7 +2146,7 @@ void Sub_AttachmentOps()
             std::vector<std::string> vCurrentPedBoneNameStr{Bone::vBoneNames[obj_currentPedBoneArrayIndex].name};
 
             bool pbone_plus = 0, pbone_minus = 0, pbone_input = 0;
-            AddTexter(Language::Translate("spooner.attachment.bone"), 0, vCurrentPedBoneNameStr, pbone_input, pbone_plus, pbone_minus);
+            AddTexter(Language::Translate("menu.spooner.attachment.option.bone.label"), 0, vCurrentPedBoneNameStr, pbone_input, pbone_plus, pbone_minus);
             if (pbone_plus)
             {
                 if (obj_currentPedBoneArrayIndex < Bone::vBoneNames.size() - 1)
@@ -2142,7 +2182,7 @@ void Sub_AttachmentOps()
             std::vector<std::string> vCurrentVehBoneNameStr{VBone::vNames[obj_currentVehBoneArrayIndex]};
 
             bool vbone_plus = 0, vbone_minus = 0, vbone_input = 0;
-            AddTexter(Language::Translate("spooner.attachment.bone"), 0, vCurrentVehBoneNameStr, vbone_input, vbone_plus, vbone_minus);
+            AddTexter(Language::Translate("menu.spooner.attachment.option.bone.label"), 0, vCurrentVehBoneNameStr, vbone_input, vbone_plus, vbone_minus);
             if (vbone_plus)
             {
                 if (obj_currentVehBoneArrayIndex < VBone::vNames.size() - 1)
@@ -2165,12 +2205,12 @@ void Sub_AttachmentOps()
             }
         }
 
-        AddBreak(Language::Translate("spooner.editing.values"));
+        AddBreak(Language::Translate("menu.spooner.editing.section.values.label"));
 
         auto& precision = SpoonerMode::editingState.transformMode == SpoonerMode::eTransformMode::Position ? SpoonerMode::editingState.precisionPos : SpoonerMode::editingState.precisionRot;
 
-        AddNumberMultiplier(Language::Translate("spooner.editing.scrollSensitivity"), precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-        AddOptionDescription(Language::Translate("spooner.editing.scrollSensitivity.description"));
+        AddNumberMultiplier(Language::Translate("menu.spooner.editing.option.scroll_sensitivity.label"), precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+        AddOptionDescription(Language::Translate("menu.spooner.editing.option.scroll_sensitivity.description"));
 
         switch (SpoonerMode::editingState.transformMode)
         {
@@ -2184,10 +2224,10 @@ void Sub_AttachmentOps()
         case SpoonerMode::eTransformMode::Rotation:
         {
             bool bResetRot = false;
-            AddNumberStepper(Language::Translate("spooner.editing.pitch"), nextRot.x, 4, (double)precision);
-            AddNumberStepper(Language::Translate("spooner.editing.roll"), nextRot.y, 4, (double)precision);
-            AddNumberStepper(Language::Translate("spooner.editing.yaw"), nextRot.z, 4, (double)precision);
-            AddOption(Language::Translate("spooner.editing.resetRotation"), bResetRot);
+            AddNumberStepper(Language::Translate("menu.spooner.editing.option.pitch.label"), nextRot.x, 4, (double)precision);
+            AddNumberStepper(Language::Translate("menu.spooner.editing.option.roll.label"), nextRot.y, 4, (double)precision);
+            AddNumberStepper(Language::Translate("menu.spooner.editing.option.yaw.label"), nextRot.z, 4, (double)precision);
+            AddOption(Language::Translate("menu.spooner.editing.option.reset_rotation.label"), bResetRot);
             if (bResetRot)
                 nextRot = Vector3();
             break;
@@ -2204,21 +2244,23 @@ void Sub_AttachmentOps()
             EntityManagement::AttachEntity(selectedEntity, parentEntity, nextBoneIndex, nextOffset, nextRot);
         }
 
-        AddBreak(Language::Translate("spooner.editing.options"));
-        AddOption(Language::Translate("spooner.editing.snapping"), null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
+        AddBreak(Language::Translate("menu.spooner.editing.section.options.label"));
+        AddOption(Language::Translate("menu.spooner.editing.option.snapping.label"), null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
 
         SpoonerMode::editingState.SetMode(
             static_cast<SpoonerMode::eEditMode>(AddTexterCycler(
-                Language::Translate("spooner.editing.manipulationMode"),
+                Language::Translate("menu.spooner.editing.option.manipulation_mode.label"),
                 (int)SpoonerMode::editingState.mode,
-                {Language::Translate("spooner.editing.none"), Language::Translate("spooner.editing.keyboard"), Language::Translate("spooner.editing.gizmo")}
+                {Language::Translate("menu.spooner.option.editing.value.none"),
+                 Language::Translate("menu.spooner.option.editing.value.keyboard"),
+                 Language::Translate("menu.spooner.option.editing.value.gizmo")}
             ))
         );
-        AddOptionDescription(Language::Translate("spooner.editing.manipulationMode.description"));
+        AddOptionDescription(Language::Translate("menu.spooner.editing.option.manipulation_mode.description"));
         if (SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled && SpoonerMode::editingState.transformMode != SpoonerMode::eTransformMode::Scale)
         {
-            AddToggle(Language::Translate("spooner.editing.localSpace"), SpoonerMode::editingState.localSpace);
-            AddOptionDescription(Language::Translate("spooner.editing.localSpace.description"));
+            AddToggle(Language::Translate("menu.spooner.editing.option.local_space.label"), SpoonerMode::editingState.localSpace);
+            AddOptionDescription(Language::Translate("menu.spooner.editing.option.local_space.description"));
         }
     }
 }
@@ -2233,20 +2275,25 @@ void Sub_AttachmentOps_AttachTo()
     GTAped myPed = PLAYER_PED_ID();
     GTAvehicle myVehicle = g_myVeh;
 
-    AddTitle(Language::Translate("spooner.attachment.attachTo"));
+    AddTitle(Language::Translate("menu.spooner.attachment.attach_to.title"));
 
     bool bToggleKeepPosWhenAttaching = false;
     AddTickol(
-        Language::Translate("spooner.attachment.keepWorldPosition"), Settings::bKeepPositionWhenAttaching, bToggleKeepPosWhenAttaching, bToggleKeepPosWhenAttaching, TICKOL::BOXTICK, TICKOL::BOXBLANK
+        Language::Translate("menu.spooner.attachment.option.keep_world_position.label"),
+        Settings::bKeepPositionWhenAttaching,
+        bToggleKeepPosWhenAttaching,
+        bToggleKeepPosWhenAttaching,
+        TICKOL::BOXTICK,
+        TICKOL::BOXBLANK
     );
-    AddOptionDescription(Language::Translate("spooner.attachment.keepWorldPosition.description"));
+    AddOptionDescription(Language::Translate("menu.spooner.attachment.option.keep_world_position.description"));
     if (bToggleKeepPosWhenAttaching)
         Settings::bKeepPositionWhenAttaching = !Settings::bKeepPositionWhenAttaching;
 
-    AddBreak(Language::Translate("spooner.attachment.availableEntities"));
+    AddBreak(Language::Translate("menu.spooner.attachment.section.available_entities.label"));
 
     bool bSelf = false;
-    AddOption(Language::Translate("spooner.attachment.self"), bSelf);
+    AddOption(Language::Translate("menu.spooner.attachment.option.self.label"), bSelf);
     if (bSelf)
     {
         EntityManagement::AttachEntityInit(selectedEntity, myPed, Settings::bKeepPositionWhenAttaching);
@@ -2257,7 +2304,7 @@ void Sub_AttachmentOps_AttachTo()
     if (myVehicle.Exists())
     {
         bool bSelfVeh = false;
-        AddOption(Language::Translate(myPed.IsInVehicle() ? "spooner.attachment.currentVehicle" : "spooner.attachment.lastSeatedVehicle"), bSelfVeh);
+        AddOption(Language::Translate(myPed.IsInVehicle() ? "menu.spooner.attachment.option.current_vehicle.label" : "menu.spooner.attachment.option.last_seated_vehicle.label"), bSelfVeh);
         if (bSelfVeh)
         {
             EntityManagement::AttachEntityInit(selectedEntity, myVehicle, Settings::bKeepPositionWhenAttaching);
@@ -2270,7 +2317,7 @@ void Sub_AttachmentOps_AttachTo()
     {
         if (Databases::EntityDb.size() > 1 || Databases::EntityDb.front().handle != selectedEntity.handle)
         {
-            AddBreak(Language::Translate("spooner.attachment.database"));
+            AddBreak(Language::Translate("menu.spooner.attachment.section.database.label"));
             for (auto& e : Databases::EntityDb)
             {
                 if (e.handle != selectedEntity.handle)
@@ -2341,7 +2388,7 @@ void Sub_AttachmentOps_SelectBone()
     bool bSelectedBoneIndexExists = false; // Idek what this is doing here
     int defaultBone;
 
-    AddTitle(Language::Translate("spooner.attachment.bone"));
+    AddTitle(Language::Translate("menu.spooner.attachment.bone.title"));
 
     // Bone text scroller if type is PED or VEHICLE. Reattach and reset args on bone change.
     if (parentEntityType == EntityType::PED)
@@ -2401,17 +2448,17 @@ void Sub_AttachmentOps_SelectBone()
 
 void Sub_Snapping()
 {
-    AddTitle(Language::Translate("spooner.snapping.title"));
+    AddTitle(Language::Translate("menu.spooner.snapping.title"));
 
-    AddToggle(Language::Translate("spooner.snapping.gridSnap.label"), Settings::bGridSnapEnabled);
-    AddOptionDescription(Language::Translate("spooner.snapping.gridSnap.description"));
-    AddNumberStepper(Language::Translate("spooner.snapping.gridSize.label"), Settings::gridSnapSize, 2, 0.25, 0.01);
-    AddOptionDescription(Language::Translate("spooner.snapping.gridSize.description"));
-    AddNumberStepper(Language::Translate("spooner.snapping.rotationSnap.label"), Settings::rotationSnapDegrees, 1, 5.0, 0.0);
-    AddOptionDescription(Language::Translate("spooner.snapping.rotationSnap.description"));
-    AddToggle(Language::Translate("spooner.snapping.ground.label"), Settings::bSnapToGround);
-    AddOptionDescription(Language::Translate("spooner.snapping.ground.description"));
-    AddToggle(Language::Translate("spooner.snapping.drawGrid.label"), Settings::bDrawGrid);
+    AddToggle(Language::Translate("menu.spooner.snapping.option.grid_snap.label"), Settings::bGridSnapEnabled);
+    AddOptionDescription(Language::Translate("menu.spooner.snapping.option.grid_snap.description"));
+    AddNumberStepper(Language::Translate("menu.spooner.snapping.option.grid_size.label"), Settings::gridSnapSize, 2, 0.25, 0.01);
+    AddOptionDescription(Language::Translate("menu.spooner.snapping.option.grid_size.description"));
+    AddNumberStepper(Language::Translate("menu.spooner.snapping.option.rotation_snap.label"), Settings::rotationSnapDegrees, 1, 5.0, 0.0);
+    AddOptionDescription(Language::Translate("menu.spooner.snapping.option.rotation_snap.description"));
+    AddToggle(Language::Translate("menu.spooner.snapping.option.ground.label"), Settings::bSnapToGround);
+    AddOptionDescription(Language::Translate("menu.spooner.snapping.option.ground.description"));
+    AddToggle(Language::Translate("menu.spooner.snapping.option.draw_grid.label"), Settings::bDrawGrid);
 }
 
 void Sub_ManualEditing()
@@ -2423,13 +2470,13 @@ void Sub_ManualEditing()
     }
     if (selectedEntity.handle.IsAttached())
     {
-        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.editing.attachedEntityError"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.editing.attached_entity_error.message"));
         Menu::SetPreviousMenu();
         return;
     }
     selectedEntity.handle.RequestControlOnce();
 
-    AddTitle(Language::Translate("spooner.editing.title"));
+    AddTitle(Language::Translate("menu.spooner.editing.title"));
 
     Vector3 currPos = selectedEntity.handle.GetPosition();
     Vector3 currRot = selectedEntity.handle.GetRotation();
@@ -2444,20 +2491,22 @@ void Sub_ManualEditing()
     SpoonerMode::UpdateEntityEditingState(nextPos, nextRot);
     // Mode selector
     SpoonerMode::editingState.transformMode = static_cast<SpoonerMode::eTransformMode>(AddTexterCycler(
-        Language::Translate("spooner.editing.mode"),
+        Language::Translate("menu.spooner.editing.option.mode.label"),
         static_cast<int>(SpoonerMode::editingState.transformMode),
-        {Language::Translate("spooner.editing.position"), Language::Translate("spooner.editing.rotation"), Language::Translate("spooner.editing.scale")}
+        {Language::Translate("menu.spooner.option.editing.value.position"),
+         Language::Translate("menu.spooner.option.editing.value.rotation"),
+         Language::Translate("menu.spooner.option.editing.value.scale")}
     ));
-    AddOptionDescription(Language::Translate("spooner.editing.positionRotationScale.description"));
+    AddOptionDescription(Language::Translate("menu.spooner.editing.option.position_rotation_scale.description"));
 
-    AddBreak(Language::Translate("spooner.editing.values"));
+    AddBreak(Language::Translate("menu.spooner.editing.section.values.label"));
 
     float& precision = SpoonerMode::editingState.transformMode == SpoonerMode::eTransformMode::Position   ? SpoonerMode::editingState.precisionPos
                        : SpoonerMode::editingState.transformMode == SpoonerMode::eTransformMode::Rotation ? SpoonerMode::editingState.precisionRot
                                                                                                           : SpoonerMode::editingState.precisionScale;
 
-    AddNumberMultiplier(Language::Translate("spooner.editing.scrollSensitivity"), precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-    AddOptionDescription(Language::Translate("spooner.editing.scrollSensitivity.description"));
+    AddNumberMultiplier(Language::Translate("menu.spooner.editing.option.scroll_sensitivity.label"), precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+    AddOptionDescription(Language::Translate("menu.spooner.editing.option.scroll_sensitivity.description"));
 
     switch (SpoonerMode::editingState.transformMode)
     {
@@ -2471,10 +2520,10 @@ void Sub_ManualEditing()
     case SpoonerMode::eTransformMode::Rotation:
     {
         bool bResetRot = false;
-        AddNumberStepper(Language::Translate("spooner.editing.pitch"), nextRot.x, 4, (double)precision);
-        AddNumberStepper(Language::Translate("spooner.editing.roll"), nextRot.y, 4, (double)precision);
-        AddNumberStepper(Language::Translate("spooner.editing.yaw"), nextRot.z, 4, (double)precision);
-        AddOption(Language::Translate("spooner.editing.resetRotation"), bResetRot);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.pitch.label"), nextRot.x, 4, (double)precision);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.roll.label"), nextRot.y, 4, (double)precision);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.yaw.label"), nextRot.z, 4, (double)precision);
+        AddOption(Language::Translate("menu.spooner.editing.option.reset_rotation.label"), bResetRot);
         if (bResetRot)
             nextRot = Vector3();
         break;
@@ -2482,34 +2531,36 @@ void Sub_ManualEditing()
     case SpoonerMode::eTransformMode::Scale:
     {
         bool bResetScale = false;
-        AddNumberStepper(Language::Translate("spooner.editing.width"), nextScale.x, 4, (double)precision, 0.01);
-        AddNumberStepper(Language::Translate("spooner.editing.length"), nextScale.y, 4, (double)precision, 0.01);
-        AddNumberStepper(Language::Translate("spooner.editing.height"), nextScale.z, 4, (double)precision, 0.01);
-        AddOption(Language::Translate("spooner.editing.resetScale"), bResetScale);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.width.label"), nextScale.x, 4, (double)precision, 0.01);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.length.label"), nextScale.y, 4, (double)precision, 0.01);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.height.label"), nextScale.z, 4, (double)precision, 0.01);
+        AddOption(Language::Translate("menu.spooner.editing.option.reset_scale.label"), bResetScale);
         if (bResetScale)
             nextScale = Vector3(1.0f, 1.0f, 1.0f);
         break;
     }
     }
 
-    AddBreak(Language::Translate("spooner.editing.options"));
-    AddOption(Language::Translate("spooner.editing.snapping"), null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
+    AddBreak(Language::Translate("menu.spooner.editing.section.options.label"));
+    AddOption(Language::Translate("menu.spooner.editing.option.snapping.label"), null, nullFunc, SUB::SPOONER_MANUALEDITING_SNAP);
 
 
     SpoonerMode::editingState.SetMode(
         static_cast<SpoonerMode::eEditMode>(AddTexterCycler(
-            Language::Translate("spooner.editing.manipulationMode"),
+            Language::Translate("menu.spooner.editing.option.manipulation_mode.label"),
             (int)SpoonerMode::editingState.mode,
-            {Language::Translate("spooner.editing.none"), Language::Translate("spooner.editing.keyboard"), Language::Translate("spooner.editing.gizmo")}
+            {Language::Translate("menu.spooner.option.editing.value.none"),
+             Language::Translate("menu.spooner.option.editing.value.keyboard"),
+             Language::Translate("menu.spooner.option.editing.value.gizmo")}
         ))
     );
-    AddOptionDescription(Language::Translate("spooner.editing.manipulationMode.description"));
+    AddOptionDescription(Language::Translate("menu.spooner.editing.option.manipulation_mode.description"));
 
     // don't show if not in editing mode or if in scale mode (because scaling is always local-space)
     if (SpoonerMode::editingState.mode != SpoonerMode::eEditMode::Disabled && SpoonerMode::editingState.transformMode != SpoonerMode::eTransformMode::Scale)
     {
-        AddToggle(Language::Translate("spooner.editing.localSpace"), SpoonerMode::editingState.localSpace);
-        AddOptionDescription(Language::Translate("spooner.editing.localSpace.description"));
+        AddToggle(Language::Translate("menu.spooner.editing.option.local_space.label"), SpoonerMode::editingState.localSpace);
+        AddOptionDescription(Language::Translate("menu.spooner.editing.option.local_space.description"));
     }
 
 
@@ -2573,7 +2624,7 @@ void Sub_Vector3_ManualEditing()
         World::DrawMarker(MarkerType::DebugSphere, markerPos, Vector3(), Vector3(), Vector3(0.1f, 0.1f, 0.1f), g_fadedRGB.ToRGBA(190));
     }
 
-    AddTitle(Language::Translate("spooner.editing.vectorTitle"));
+    AddTitle(Language::Translate("menu.spooner.editing.vector_title.title"));
 
     // Clamp editing mode to available ptrs
     auto& editMode = SpoonerMode::editingState.transformMode;
@@ -2586,22 +2637,22 @@ void Sub_Vector3_ManualEditing()
     {
         std::vector<std::string> modeNames;
         if (hasPos)
-            modeNames.push_back(Language::Translate("spooner.editing.position"));
+            modeNames.push_back(Language::Translate("menu.spooner.editing.option.position.label"));
         if (hasRot)
-            modeNames.push_back(Language::Translate("spooner.editing.rotation"));
+            modeNames.push_back(Language::Translate("menu.spooner.editing.option.rotation.label"));
         if (modeNames.size() > 1)
         {
-            editMode = static_cast<SpoonerMode::eTransformMode>(AddTexterCycler(Language::Translate("spooner.editing.mode"), static_cast<int>(editMode), modeNames));
-            AddOptionDescription(Language::Translate("spooner.editing.positionRotation.description"));
+            editMode = static_cast<SpoonerMode::eTransformMode>(AddTexterCycler(Language::Translate("menu.spooner.editing.option.mode.label"), static_cast<int>(editMode), modeNames));
+            AddOptionDescription(Language::Translate("menu.spooner.editing.option.position_rotation.description"));
         }
     }
 
-    AddBreak(Language::Translate("spooner.editing.values"));
+    AddBreak(Language::Translate("menu.spooner.editing.section.values.label"));
 
     float& precision = editMode == SpoonerMode::eTransformMode::Position ? SpoonerMode::editingState.precisionPos : SpoonerMode::editingState.precisionRot;
 
-    AddNumberMultiplier(Language::Translate("spooner.editing.scrollSensitivity"), precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-    AddOptionDescription(Language::Translate("spooner.editing.scrollSensitivity.description"));
+    AddNumberMultiplier(Language::Translate("menu.spooner.editing.option.scroll_sensitivity.label"), precision, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+    AddOptionDescription(Language::Translate("menu.spooner.editing.option.scroll_sensitivity.description"));
 
     if (editMode == SpoonerMode::eTransformMode::Position)
     {
@@ -2614,10 +2665,10 @@ void Sub_Vector3_ManualEditing()
     {
         Vector3& rot = *std::get<2>(ptrs);
         bool bResetRot = false;
-        AddNumberStepper(Language::Translate("spooner.editing.pitch"), rot.x, 4, (double)precision);
-        AddNumberStepper(Language::Translate("spooner.editing.roll"), rot.y, 4, (double)precision);
-        AddNumberStepper(Language::Translate("spooner.editing.yaw"), rot.z, 4, (double)precision);
-        AddOption(Language::Translate("spooner.editing.resetRotation"), bResetRot);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.pitch.label"), rot.x, 4, (double)precision);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.roll.label"), rot.y, 4, (double)precision);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.yaw.label"), rot.z, 4, (double)precision);
+        AddOption(Language::Translate("menu.spooner.editing.option.reset_rotation.label"), bResetRot);
         if (bResetRot)
             rot = Vector3();
 
@@ -2667,13 +2718,15 @@ void Sub_MultiSelect()
         };
     }
 
-    AddTitle(Language::Translate("spooner.multiSelect.title"));
+    AddTitle(Language::Translate("menu.spooner.multi_select.title"));
 
     bool bSelectAll = false, bClearAll = false;
-    static const std::vector<std::string> copyModeOptions = {Language::Translate("spooner.multiSelect.selectedOnly"), Language::Translate("spooner.multiSelect.copyWithAttachments")};
+    static const std::vector<std::string> copyModeOptions = {
+        Language::Translate("menu.spooner.multi_select.option.selected_only.label"), Language::Translate("menu.spooner.multi_select.option.copy_with_attachments.label")
+    };
     std::string graySelectAllPrefix = MultiSelect::g_selectedEntities.size() < Databases::EntityDb.size() ? "" : "~c~";
     std::string dbEntityCount = std::to_string(Databases::EntityDb.size());
-    AddOption(graySelectAllPrefix + Language::Format("spooner.multiSelect.selectAll", {{"count", dbEntityCount}}), bSelectAll);
+    AddOption(graySelectAllPrefix + Language::Format("menu.spooner.multi_select.option.select_all.label", {{"count", dbEntityCount}}), bSelectAll);
     if (bSelectAll && MultiSelect::g_selectedEntities.size() < Databases::EntityDb.size())
     {
         MultiSelect::DestroyPivot();
@@ -2689,7 +2742,7 @@ void Sub_MultiSelect()
 
     std::string grayClearPrefix = MultiSelect::g_selectedEntities.empty() ? "~c~" : "";
     std::string selectedEntityCount = std::to_string(MultiSelect::g_selectedEntities.size());
-    AddOption(grayClearPrefix + Language::Format("spooner.multiSelect.clearSelection", {{"count", selectedEntityCount}}), bClearAll);
+    AddOption(grayClearPrefix + Language::Format("menu.spooner.multi_select.option.clear_selection.label", {{"count", selectedEntityCount}}), bClearAll);
     if (bClearAll && !MultiSelect::g_selectedEntities.empty())
     {
         MultiSelect::DestroyPivot();
@@ -2704,12 +2757,12 @@ void Sub_MultiSelect()
     }
     bool bCopyPressed = false;
     _copyEntTexterValue = (UINT8)AddTexterCycler(
-        (MultiSelect::g_selectedEntities.empty() ? "~c~" + Language::Translate("spooner.entity.copy") + "~s~" : Language::Translate("spooner.entity.copy")),
+        (MultiSelect::g_selectedEntities.empty() ? "~c~" + Language::Translate("menu.spooner.entity.option.copy.label") + "~s~" : Language::Translate("menu.spooner.entity.option.copy.label")),
         _copyEntTexterValue,
         copyModeOptions,
         bCopyPressed
     );
-    AddOptionDescription(Language::Translate("spooner.entity.copy.description"));
+    AddOptionDescription(Language::Translate("menu.spooner.entity.option.copy.description"));
     if (bCopyPressed)
     {
         for (auto& e : MultiSelect::g_selectedEntities)
@@ -2721,13 +2774,13 @@ void Sub_MultiSelect()
 
     if (!Databases::EntityDb.empty())
     {
-        AddBreak(Language::Translate("spooner.multiSelect.entities"));
+        AddBreak(Language::Translate("menu.spooner.multi_select.section.entities.label"));
 
         for (auto& e : Databases::EntityDb)
         {
             if (!e.handle.Exists())
             {
-                AddOption(e.hashName + " " + Language::Translate("spooner.multiSelect.invalidSuffix"), null);
+                AddOption(Language::Format("menu.spooner.multi_select.option.invalid_entity.label", {{"name", e.hashName}}), null);
                 continue;
             }
 
@@ -2735,11 +2788,10 @@ void Sub_MultiSelect()
             // selected entities are being attached to the pivot, so only unselected ones can be genuinely attached
             bool bBlocked = !bInMultiSelect && e.handle.IsAttached();
             bool bEntityPressed = false;
-            AddTickol(
-                e.hashName + (bBlocked ? " ~r~" + Language::Translate("spooner.multiSelect.attachedSuffix") : ""), bInMultiSelect, bEntityPressed, bEntityPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK
-            );
+            const std::string entityLabel = bBlocked ? Language::Format("menu.spooner.multi_select.option.attached_entity.label", {{"name", e.hashName}}) : e.hashName;
+            AddTickol(entityLabel, bInMultiSelect, bEntityPressed, bEntityPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
             if (bBlocked)
-                AddOptionDescription(Language::Translate("spooner.multiSelect.attachedDescription"));
+                AddOptionDescription(Language::Translate("menu.spooner.multi_select.option.attached_description.description"));
             if (Menu::IsLastDrawnOptionSelected())
                 EntityManagement::ShowArrowAboveEntity(e.handle, RGBA(127, 0, 255, 200));
 
@@ -2771,22 +2823,22 @@ void Sub_MultiSelect()
 
         SpoonerMode::UpdateEntityEditingState(pivotPos, pivotRot);
 
-        AddBreak(Language::Translate("spooner.multiSelect.bulkEdit"));
+        AddBreak(Language::Translate("menu.spooner.multi_select.section.bulk_edit.label"));
 
-        AddOption(Language::Translate("spooner.entity.delete"), bDelete);
-        AddNumberMultiplier(Language::Translate("spooner.multiSelect.scrollPosition"), precisionPos, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-        AddOptionDescription(Language::Translate("spooner.multiSelect.scrollPosition.description"));
-        AddNumberMultiplier(Language::Translate("spooner.multiSelect.scrollRotation"), precisionRot, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
-        AddOptionDescription(Language::Translate("spooner.multiSelect.scrollRotation.description"));
+        AddOption(Language::Translate("menu.spooner.entity.option.delete.label"), bDelete);
+        AddNumberMultiplier(Language::Translate("menu.spooner.multi_select.option.scroll_position.label"), precisionPos, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+        AddOptionDescription(Language::Translate("menu.spooner.multi_select.option.scroll_position.description"));
+        AddNumberMultiplier(Language::Translate("menu.spooner.multi_select.option.scroll_rotation.label"), precisionRot, 4, 10.0, 0.0001, 10.0, !Settings::bInvertScrollSensitivity);
+        AddOptionDescription(Language::Translate("menu.spooner.multi_select.option.scroll_rotation.description"));
 
-        AddNumberStepper(Language::Translate("spooner.multiSelect.posX"), pivotPos.x, 4, (double)precisionPos);
-        AddNumberStepper(Language::Translate("spooner.multiSelect.posY"), pivotPos.y, 4, (double)precisionPos);
-        AddNumberStepper(Language::Translate("spooner.multiSelect.posZ"), pivotPos.z, 4, (double)precisionPos);
-        AddNumberStepper(Language::Translate("spooner.editing.pitch"), pivotRot.x, 4, (double)precisionRot);
-        AddNumberStepper(Language::Translate("spooner.editing.roll"), pivotRot.y, 4, (double)precisionRot);
-        AddNumberStepper(Language::Translate("spooner.editing.yaw"), pivotRot.z, 4, (double)precisionRot);
-        AddNumberStepper(Language::Translate("spooner.entity.opacity"), opacityDelta, 0, 1.0);
-        AddOptionDescription(Language::Translate("spooner.multiSelect.opacity.description"));
+        AddNumberStepper(Language::Translate("menu.spooner.multi_select.option.pos_x.label"), pivotPos.x, 4, (double)precisionPos);
+        AddNumberStepper(Language::Translate("menu.spooner.multi_select.option.pos_y.label"), pivotPos.y, 4, (double)precisionPos);
+        AddNumberStepper(Language::Translate("menu.spooner.multi_select.option.pos_z.label"), pivotPos.z, 4, (double)precisionPos);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.pitch.label"), pivotRot.x, 4, (double)precisionRot);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.roll.label"), pivotRot.y, 4, (double)precisionRot);
+        AddNumberStepper(Language::Translate("menu.spooner.editing.option.yaw.label"), pivotRot.z, 4, (double)precisionRot);
+        AddNumberStepper(Language::Translate("menu.spooner.entity.option.opacity.label"), opacityDelta, 0, 1.0);
+        AddOptionDescription(Language::Translate("menu.spooner.multi_select.option.opacity.description"));
 
         if (bDelete)
         {
@@ -2832,10 +2884,10 @@ void Sub_MultiSelect()
             }
         }
 
-        AddBreak(Language::Translate("spooner.multiSelect.taskSequences"));
+        AddBreak(Language::Translate("menu.spooner.multi_select.section.task_sequences.label"));
 
         bool bStartTaskSequences = false;
-        AddOption(Language::Translate("spooner.multiSelect.startTaskSequences"), bStartTaskSequences);
+        AddOption(Language::Translate("menu.spooner.multi_select.option.start_task_sequences.label"), bStartTaskSequences);
         if (bStartTaskSequences)
         {
             for (auto& e : MultiSelect::g_selectedEntities)
@@ -2851,7 +2903,7 @@ void Sub_MultiSelect()
         }
 
         bool bStopTaskSequences = false;
-        AddOption(Language::Translate("spooner.multiSelect.stopTaskSequences"), bStopTaskSequences);
+        AddOption(Language::Translate("menu.spooner.multi_select.option.stop_task_sequences.label"), bStopTaskSequences);
         if (bStopTaskSequences)
         {
             for (auto& e : MultiSelect::g_selectedEntities)
@@ -2901,25 +2953,25 @@ void Sub_PedOps()
     bool pedops_isStill_toggle = false, pedops_canRagdoll_toggle = false, pedops_shortHeighted_toggle = false, pedops_friend = false, pedops_burn = false, pedops_piggyback = false,
          pedops_shoulderRide = false, pedops_warp_nearest = false, pedops_wp_walk = false, pedops_become_ped = false;
 
-    AddTitle(Language::Translate("spooner.ped.title"));
+    AddTitle(Language::Translate("menu.spooner.ped.title"));
 
     if (!isPedMyPed)
         MenuOptions::AddOption_RelationshipTextScroller();
-    AddToggle(Language::Translate("spooner.ped.still"), selectedEntity.isStill, pedops_isStill_toggle, pedops_isStill_toggle);
-    AddOptionDescription(Language::Translate("spooner.ped.still.description"));
+    AddToggle(Language::Translate("menu.spooner.ped.option.still.label"), selectedEntity.isStill, pedops_isStill_toggle, pedops_isStill_toggle);
+    AddOptionDescription(Language::Translate("menu.spooner.ped.option.still.description"));
     if (pedops_isStill_toggle)
     {
         thisPed.SetBlockPermanentEvent(selectedEntity.isStill);
     }
-    AddLocal(Language::Translate("spooner.ped.canRagdoll"), thisPed.GetCanRagdoll(), pedops_canRagdoll_toggle, pedops_canRagdoll_toggle);
+    AddLocal(Language::Translate("menu.spooner.ped.option.can_ragdoll.label"), thisPed.GetCanRagdoll(), pedops_canRagdoll_toggle, pedops_canRagdoll_toggle);
     if (pedops_canRagdoll_toggle)
     {
         bool ns = !thisPed.GetCanRagdoll();
         thisPed.SetCanRagdoll(ns);
         SET_PED_RAGDOLL_ON_COLLISION(thisPed.Handle(), ns);
     }
-    AddLocal(Language::Translate("spooner.ped.shortHeight"), bIsPedShortHeighted, pedops_shortHeighted_toggle, pedops_shortHeighted_toggle);
-    AddOptionDescription(Language::Translate("spooner.ped.shortHeight.description"));
+    AddLocal(Language::Translate("menu.spooner.ped.option.short_height.label"), bIsPedShortHeighted, pedops_shortHeighted_toggle, pedops_shortHeighted_toggle);
+    AddOptionDescription(Language::Translate("menu.spooner.ped.option.short_height.description"));
     if (pedops_shortHeighted_toggle)
     {
         SET_PED_CONFIG_FLAG(selectedEntity.handle.Handle(), ePedConfigFlags::_Shrink, bIsPedShortHeighted ? 0 : 1);
@@ -2927,7 +2979,7 @@ void Sub_PedOps()
 
     int thisArmour = thisPed.GetArmour();
     bool bArmour_plus = false, bArmour_minus = false, bArmour_input = false;
-    AddNumber(Language::Translate("spooner.ped.armour"), thisArmour, 0, bArmour_input, bArmour_plus, bArmour_minus);
+    AddNumber(Language::Translate("menu.spooner.ped.option.armour.label"), thisArmour, 0, bArmour_input, bArmour_plus, bArmour_minus);
     if (bArmour_plus)
     {
         if (thisArmour < INT_MAX)
@@ -2963,40 +3015,40 @@ void Sub_PedOps()
         //OnscreenKeyboard::State::arg1._int = ent.GetHandle();
     }
 
-    AddOption(Language::Translate("spooner.ped.wardrobe"), null, SetSelectedEntityAsActivePed, SUB::PED_WARDROBE);
+    AddOption(Language::Translate("menu.spooner.ped.option.wardrobe.label"), null, SetSelectedEntityAsActivePed, SUB::PED_WARDROBE);
 
-    AddOption(Language::Translate("spooner.ped.animations"), null, SetSelectedEntityAsActivePed, SUB::ANIMATIONSUB);
-    AddOption(Language::Translate("spooner.ped.scenarioActions"), null, SetSelectedEntityAsActivePed, SUB::AnimationTaskScenarios);
-    AddOption(Language::Translate("spooner.ped.moods"), null, SetSelectedEntityAsActivePed, SUB::FACIALMOOD);
-    AddOption(Language::Translate("spooner.ped.movementStyles"), null, SetSelectedEntityAsActivePed, SUB::MOVEMENTGROUP);
-    AddOption(Language::Translate("spooner.ped.weapon"), null, nullFunc, SUB::SPOONER_PEDOPS_WEAPON);
-    AddOption(Language::Translate("spooner.ped.speech"), null, SetSelectedEntityAsActivePed, SUB::SPEECHPLAYER);
-    AddOption(Language::Translate("spooner.ped.voiceChanger"), null, SetSelectedEntityAsActivePed, SUB::VOICECHANGER);
+    AddOption(Language::Translate("menu.spooner.ped.option.animations.label"), null, SetSelectedEntityAsActivePed, SUB::ANIMATIONSUB);
+    AddOption(Language::Translate("menu.spooner.ped.option.scenario_actions.label"), null, SetSelectedEntityAsActivePed, SUB::AnimationTaskScenarios);
+    AddOption(Language::Translate("menu.spooner.ped.option.moods.label"), null, SetSelectedEntityAsActivePed, SUB::FACIALMOOD);
+    AddOption(Language::Translate("menu.spooner.ped.option.movement_styles.label"), null, SetSelectedEntityAsActivePed, SUB::MOVEMENTGROUP);
+    AddOption(Language::Translate("menu.spooner.ped.option.weapon.label"), null, nullFunc, SUB::SPOONER_PEDOPS_WEAPON);
+    AddOption(Language::Translate("menu.spooner.ped.option.speech.label"), null, SetSelectedEntityAsActivePed, SUB::SPEECHPLAYER);
+    AddOption(Language::Translate("menu.spooner.ped.option.voice_changer.label"), null, SetSelectedEntityAsActivePed, SUB::VOICECHANGER);
     //AddOption("Ped Flags (Doesn't Save)", null, SetSelectedEntityAsActivePed, SUB::PEDFLAGMANAGER_NAMEDLIST);
     //AddOption("Give Vehicle", null, SetSelectedEntityAsActivePed, SUB::SPAWNVEHICLE);
-    AddLocal(Language::Translate("spooner.ped.companion"), myPedGroup.Contains(thisPed), pedops_friend, pedops_friend);
-    AddOptionDescription(Language::Translate("spooner.ped.companion.description"));
-    AddLocal(Language::Translate("spooner.ped.burn"), thisPed.IsOnFire(), pedops_burn, pedops_burn);
+    AddLocal(Language::Translate("menu.spooner.ped.option.companion.label"), myPedGroup.Contains(thisPed), pedops_friend, pedops_friend);
+    AddOptionDescription(Language::Translate("menu.spooner.ped.option.companion.description"));
+    AddLocal(Language::Translate("menu.spooner.ped.option.burn.label"), thisPed.IsOnFire(), pedops_burn, pedops_burn);
     if (!isPedMyPed)
         AddLocal(
-            Language::Translate("spooner.ped.piggyback"),
+            Language::Translate("menu.spooner.ped.option.piggyback.label"),
             (GET_ENTITY_ATTACHED_TO(myPed.Handle() == thisPed.Handle()) && IS_ENTITY_PLAYING_ANIM(myPed.Handle(), "mini@prostitutes@sexnorm_veh", "bj_loop_male", 3)),
             pedops_piggyback,
             pedops_piggyback
         );
     if (!isPedMyPed)
         AddLocal(
-            Language::Translate("spooner.ped.shoulderRide"),
+            Language::Translate("menu.spooner.ped.option.shoulder_ride.label"),
             (GET_ENTITY_ATTACHED_TO(myPed.Handle() == thisPed.Handle()) && IS_ENTITY_PLAYING_ANIM(myPed.Handle(), "amb@prop_human_seat_chair@male@elbows_on_knees@idle_a", "idle_a", 3)),
             pedops_shoulderRide,
             pedops_shoulderRide
         );
     //AddOption("Warp Into Nearest Car", pedops_warp_nearest);
-    AddOption(Language::Translate("spooner.ped.travelToWaypoint"), pedops_wp_walk);
+    AddOption(Language::Translate("menu.spooner.ped.option.travel_to_waypoint.label"), pedops_wp_walk);
     if (!isPedMyPed)
     {
-        AddOption(Language::Translate("spooner.ped.become"), butAmIOnline ? null : pedops_become_ped);
-        AddOptionDescription(Language::Translate("spooner.ped.become.description"));
+        AddOption(Language::Translate("menu.spooner.ped.option.become.label"), butAmIOnline ? null : pedops_become_ped);
+        AddOptionDescription(Language::Translate("menu.spooner.ped.option.become.description"));
     }
 
 
@@ -3034,7 +3086,7 @@ void Sub_PedOps()
     if (pedops_piggyback)
     {
         if (thisPed == myPed)
-            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.ped.cannotTargetSelf"));
+            Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.ped.cannot_target_self.message"));
         else
         {
             if (GET_ENTITY_ATTACHED_TO(myPed.Handle()) != thisPed.Handle())
@@ -3054,7 +3106,7 @@ void Sub_PedOps()
     if (pedops_shoulderRide)
     {
         if (thisPed == myPed)
-            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.ped.cannotTargetSelf"));
+            Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.ped.cannot_target_self.message"));
         else
         {
             if (GET_ENTITY_ATTACHED_TO(myPed.Handle()) != thisPed.Handle())
@@ -3078,13 +3130,13 @@ void Sub_PedOps()
         if (closestVeh.Exists())
             thisPed.SetIntoVehicle(closestVeh, closestVeh.FirstFreeSeat(SEAT_DRIVER));
         else
-            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.ped.vehicleNotFound"));
+            Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.ped.vehicle_not_found.message"));
     }
 
     if (pedops_wp_walk)
     {
         if (!IS_WAYPOINT_ACTIVE())
-            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.ped.noWaypoint"));
+            Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.ped.no_waypoint.message"));
         else
         {
             Vector3 coord = GET_BLIP_INFO_ID_COORD(GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint));
@@ -3108,10 +3160,10 @@ void Sub_PedOps_Weapon()
     Hash pedCurrWeapon = thisPed.GetWeapon();
     bool isPedMyPed = thisPed.Handle() == myPed.Handle();
 
-    AddTitle(Language::Translate("spooner.weapon.title"));
+    AddTitle(Language::Translate("menu.spooner.weapon.title"));
 
     bool bSetToNonePressed = false;
-    AddTickol(Language::Translate("spooner.weapon.none"), pedCurrWeapon == WEAPON_UNARMED, bSetToNonePressed, bSetToNonePressed);
+    AddTickol(Language::Translate("menu.spooner.weapon.option.none.label"), pedCurrWeapon == WEAPON_UNARMED, bSetToNonePressed, bSetToNonePressed);
     if (bSetToNonePressed)
     {
         pedCurrWeapon = WEAPON_UNARMED;
@@ -3120,7 +3172,7 @@ void Sub_PedOps_Weapon()
 
     bool bMyCurrWeapon = false;
     if (!isPedMyPed)
-        AddOption(Language::Translate("spooner.weapon.current"), bMyCurrWeapon);
+        AddOption(Language::Translate("menu.spooner.weapon.option.current.label"), bMyCurrWeapon);
     if (bMyCurrWeapon)
     {
         //std::vector<s_Weapon_Components_Tint> weaponsBackup;
@@ -3176,11 +3228,11 @@ void Sub_ManageMarkers()
 {
     int markerIndexInDbToDelete = -1;
 
-    AddTitle(Language::Translate("spooner.marker.title"));
+    AddTitle(Language::Translate("menu.spooner.marker.title"));
 
-    AddOption(Language::Translate("spooner.marker.removal"), null, nullFunc, SUB::SPOONER_MANAGEMARKERS_REMOVAL);
+    AddOption(Language::Translate("menu.spooner.marker.option.removal.label"), null, nullFunc, SUB::SPOONER_MANAGEMARKERS_REMOVAL);
 
-    AddBreak(Language::Translate("spooner.marker.database"));
+    AddBreak(Language::Translate("menu.spooner.marker.section.database.label"));
     for (UINT i = 0; i < Databases::MarkerDb.size(); i++)
     {
         auto& m = Databases::MarkerDb[i];
@@ -3199,7 +3251,7 @@ void Sub_ManageMarkers()
             m.m_selectedInSub = true;
 
             bool bShortcutDeletePressed;
-            Keybinds::AddBindIB("menu_action", Language::Translate("spooner.marker.delete"));
+            Keybinds::AddBindIB("menu_action", Language::Translate("menu.spooner.marker.option.delete.label"));
             bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
             if (bShortcutDeletePressed)
@@ -3210,7 +3262,7 @@ void Sub_ManageMarkers()
     }
 
     bool bAddNewMarkerPressed = false;
-    AddTickol(Language::Translate("spooner.marker.addNew"), true, bAddNewMarkerPressed, bAddNewMarkerPressed, TICKOL::SMALLNEWSTAR);
+    AddTickol(Language::Translate("menu.spooner.marker.option.add_new.label"), true, bAddNewMarkerPressed, bAddNewMarkerPressed, TICKOL::SMALLNEWSTAR);
     if (bAddNewMarkerPressed)
     {
         auto& spoocam = SpoonerCamera::camera;
@@ -3245,11 +3297,11 @@ void Sub_ManageMarkers_Removal()
     GTAentity myPed = PLAYER_PED_ID();
     const Vector3& myPos = myPed.GetPosition();
 
-    AddTitle(Language::Translate("spooner.marker.removal"));
+    AddTitle(Language::Translate("menu.spooner.marker.removal.title"));
 
     bool bInRange_plus = false, bInRange_minus = false, bInRange_execute = false;
-    AddNumber(Language::Translate("spooner.marker.deleteInRange"), fMarkerRemovalRadius, 0, bInRange_execute, bInRange_plus, bInRange_minus);
-    AddOptionDescription(Language::Translate("spooner.marker.deleteInRange.description"));
+    AddNumber(Language::Translate("menu.spooner.marker.option.delete_in_range.label"), fMarkerRemovalRadius, 0, bInRange_execute, bInRange_plus, bInRange_minus);
+    AddOptionDescription(Language::Translate("menu.spooner.marker.option.delete_in_range.description"));
     if (Menu::IsLastDrawnOptionSelected())
         EntityManagement::DrawRadiusDisplayingMarker(myPos, fMarkerRemovalRadius);
     if (bInRange_plus)
@@ -3267,7 +3319,7 @@ void Sub_ManageMarkers_Removal()
         MarkerManagement::RemoveAllMarkersInRange(myPos, fMarkerRemovalRadius);
     }
 
-    AddOption(Language::Format("spooner.marker.deleteAll", {{"count", Databases::MarkerDb.size()}}), null, MarkerManagement::RemoveAllMarkers);
+    AddOption(Language::Format("menu.spooner.marker.option.delete_all.label", {{"count", Databases::MarkerDb.size()}}), null, MarkerManagement::RemoveAllMarkers);
 }
 
 void Sub_ManageMarkers_InMarker()
@@ -3319,16 +3371,16 @@ void Sub_ManageMarkers_InMarker()
     auto& spoocam = SpoonerCamera::camera;
 
     bool bEditNamePressed = false;
-    AddTexter(Language::Translate("spooner.marker.name"), 0, std::vector<std::string>{SelectedMarker->m_name}, bEditNamePressed);
+    AddTexter(Language::Translate("menu.spooner.marker.option.name.label"), 0, std::vector<std::string>{SelectedMarker->m_name}, bEditNamePressed);
     if (bEditNamePressed)
     {
-        SelectedMarker->m_name = Game::InputBox(SelectedMarker->m_name, 26U, Language::Translate("spooner.marker.namePrompt").c_str(), SelectedMarker->m_name);
+        SelectedMarker->m_name = Game::InputBox(SelectedMarker->m_name, 26U, Language::Translate("menu.spooner.marker.option.name_prompt.prompt").c_str(), SelectedMarker->m_name);
         //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SetArg1String, SelectedMarker->m_name, 26U, "Enter custom marker name:", SelectedMarker->m_name);
         //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&SelectedMarker->m_name);
     }
 
     bool bType_plus = false, bType_minus = false;
-    AddTexter(Language::Translate("spooner.marker.type"), SelectedMarker->m_type, MarkerType::vNames, null, bType_plus, bType_minus);
+    AddTexter(Language::Translate("menu.spooner.marker.option.type.label"), SelectedMarker->m_type, MarkerType::vNames, null, bType_plus, bType_minus);
     if (bType_plus)
     {
         if (SelectedMarker->m_type < MarkerType::vNames.size() - 1)
@@ -3341,7 +3393,7 @@ void Sub_ManageMarkers_InMarker()
     }
 
     bool bScale_plus = false, bScale_minus = false;
-    AddNumber(Language::Translate("spooner.marker.size"), SelectedMarker->m_scale, 2, null, bScale_plus, bScale_minus);
+    AddNumber(Language::Translate("menu.spooner.marker.option.size.label"), SelectedMarker->m_scale, 2, null, bScale_plus, bScale_minus);
     if (bScale_plus)
     {
         if (SelectedMarker->m_scale < 10.0f)
@@ -3354,32 +3406,39 @@ void Sub_ManageMarkers_InMarker()
     }
 
     bool bShowNameToggle = false;
-    AddTickol(Language::Translate("spooner.marker.showName"), SelectedMarker->m_showName, bShowNameToggle, bShowNameToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription(Language::Translate("spooner.marker.showName.description"));
+    AddTickol(Language::Translate("menu.spooner.marker.option.show_name.label"), SelectedMarker->m_showName, bShowNameToggle, bShowNameToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("menu.spooner.marker.option.show_name.description"));
     if (bShowNameToggle)
         SelectedMarker->m_showName = !SelectedMarker->m_showName;
 
     bool bRotateContinuouslyToggle = false;
-    AddTickol(Language::Translate("spooner.marker.rotateContinuously"), SelectedMarker->m_rotateContinuously, bRotateContinuouslyToggle, bRotateContinuouslyToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddTickol(
+        Language::Translate("menu.spooner.marker.option.rotate_continuously.label"),
+        SelectedMarker->m_rotateContinuously,
+        bRotateContinuouslyToggle,
+        bRotateContinuouslyToggle,
+        TICKOL::BOXTICK,
+        TICKOL::BOXBLANK
+    );
     if (bRotateContinuouslyToggle)
         SelectedMarker->m_rotateContinuously = !SelectedMarker->m_rotateContinuously;
 
     bool bAllowVehiclesToggle = false;
-    AddTickol(Language::Translate("spooner.marker.allowVehicles"), SelectedMarker->m_allowVehicles, bAllowVehiclesToggle, bAllowVehiclesToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription(Language::Translate("spooner.marker.allowVehicles.description"));
+    AddTickol(Language::Translate("menu.spooner.marker.option.allow_vehicles.label"), SelectedMarker->m_allowVehicles, bAllowVehiclesToggle, bAllowVehiclesToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("menu.spooner.marker.option.allow_vehicles.description"));
     if (bAllowVehiclesToggle)
         SelectedMarker->m_allowVehicles = !SelectedMarker->m_allowVehicles;
 
-    AddsettingscolOption(Language::Translate("spooner.marker.colour"), SelectedMarker->m_colour);
+    AddsettingscolOption(Language::Translate("menu.spooner.marker.option.colour.label"), SelectedMarker->m_colour);
 
-    AddBreak(Language::Translate("spooner.marker.position"));
+    AddBreak(Language::Translate("menu.spooner.marker.section.position.label"));
     {
         AddOption("~italic~" + finalPosition.ToString(), null);
 
         if (!spoocam.IsActive())
         {
             bool bSetPosToMe = false;
-            AddOption(Language::Translate("spooner.marker.setToPlayerPosition"), bSetPosToMe);
+            AddOption(Language::Translate("menu.spooner.marker.option.set_to_player_position.label"), bSetPosToMe);
             if (bSetPosToMe)
             {
                 Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
@@ -3390,8 +3449,8 @@ void Sub_ManageMarkers_InMarker()
         else
         {
             bool bSetPosToHitCoords = false;
-            AddOption(Language::Translate("spooner.marker.setToCameraTarget"), bSetPosToHitCoords);
-            AddOptionDescription(Language::Translate("spooner.marker.setToCameraTarget.description"));
+            AddOption(Language::Translate("menu.spooner.marker.option.set_to_camera_target.label"), bSetPosToHitCoords);
+            AddOptionDescription(Language::Translate("menu.spooner.marker.option.set_to_camera_target.description"));
             if (bSetPosToHitCoords)
             {
                 Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
@@ -3402,7 +3461,7 @@ void Sub_ManageMarkers_InMarker()
         if (IS_WAYPOINT_ACTIVE())
         {
             bool bSetPosToWp = false;
-            AddOption(Language::Translate("spooner.marker.setToWaypoint"), bSetPosToWp);
+            AddOption(Language::Translate("menu.spooner.marker.option.set_to_waypoint.label"), bSetPosToWp);
             if (bSetPosToWp)
             {
                 GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
@@ -3415,13 +3474,13 @@ void Sub_ManageMarkers_InMarker()
 
         if (!Databases::EntityDb.empty())
         {
-            AddOption(Language::Translate("spooner.marker.attachToEntity"), null, nullFunc, SUB::SPOONER_MANAGEMARKERS_INMARKER_ATTACH);
+            AddOption(Language::Translate("menu.spooner.marker.option.attach_to_entity.label"), null, nullFunc, SUB::SPOONER_MANAGEMARKERS_INMARKER_ATTACH);
         }
 
         if (SelectedMarker->m_attachmentArgs.attachedTo.Exists())
         {
             bool bAdjustAttachmentForPosPressed = false;
-            AddOption(Language::Translate("spooner.marker.adjustAttachment"), bAdjustAttachmentForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+            AddOption(Language::Translate("menu.spooner.marker.option.adjust_attachment.label"), bAdjustAttachmentForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
             if (bAdjustAttachmentForPosPressed)
             {
                 SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_attachmentArgs.offset, &SelectedMarker->m_attachmentArgs.rotation);
@@ -3430,7 +3489,7 @@ void Sub_ManageMarkers_InMarker()
         else
         {
             bool bManualEditingForPosPressed = false;
-            AddOption(Language::Translate("spooner.editing.title"), bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+            AddOption(Language::Translate("menu.spooner.option.editing.label"), bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
             if (bManualEditingForPosPressed)
             {
                 SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_position, &SelectedMarker->m_rotation);
@@ -3438,13 +3497,13 @@ void Sub_ManageMarkers_InMarker()
         }
     }
 
-    AddBreak(Language::Translate("spooner.marker.destination"));
+    AddBreak(Language::Translate("menu.spooner.marker.section.destination.label"));
     {
         AddOption("~italic~" + finalDest.ToString(), null);
 
         bool bSetPosToNull = false;
-        AddTickol(Language::Translate("spooner.marker.noDestination"), SelectedMarker->m_destinationVal.m_position.IsZero(), bSetPosToNull, bSetPosToNull);
-        AddOptionDescription(Language::Translate("spooner.marker.noDestination.description"));
+        AddTickol(Language::Translate("menu.spooner.marker.option.no_destination.label"), SelectedMarker->m_destinationVal.m_position.IsZero(), bSetPosToNull, bSetPosToNull);
+        AddOptionDescription(Language::Translate("menu.spooner.marker.option.no_destination.description"));
         if (bSetPosToNull)
         {
             SelectedMarker->m_destinationVal.m_position.clear();
@@ -3455,7 +3514,7 @@ void Sub_ManageMarkers_InMarker()
         if (!spoocam.IsActive())
         {
             bool bSetPosToMe = false;
-            AddOption(Language::Translate("spooner.marker.setToPlayerPosition"), bSetPosToMe);
+            AddOption(Language::Translate("menu.spooner.marker.option.set_to_player_position.label"), bSetPosToMe);
             if (bSetPosToMe)
             {
                 Vector3 myPos = GTAentity(PLAYER_PED_ID()).GetPosition();
@@ -3467,8 +3526,8 @@ void Sub_ManageMarkers_InMarker()
         else
         {
             bool bSetPosToHitCoords = false;
-            AddOption(Language::Translate("spooner.marker.setToCameraTarget"), bSetPosToHitCoords);
-            AddOptionDescription(Language::Translate("spooner.marker.setToCameraTarget.description"));
+            AddOption(Language::Translate("menu.spooner.marker.option.set_to_camera_target.label"), bSetPosToHitCoords);
+            AddOptionDescription(Language::Translate("menu.spooner.marker.option.set_to_camera_target.description"));
             if (bSetPosToHitCoords)
             {
                 Vector3 hitCoords = spoocam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
@@ -3480,7 +3539,7 @@ void Sub_ManageMarkers_InMarker()
         if (IS_WAYPOINT_ACTIVE())
         {
             bool bSetPosToWp = false;
-            AddOption(Language::Translate("spooner.marker.setToWaypoint"), bSetPosToWp);
+            AddOption(Language::Translate("menu.spooner.marker.option.set_to_waypoint.label"), bSetPosToWp);
             if (bSetPosToWp)
             {
                 GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
@@ -3494,13 +3553,11 @@ void Sub_ManageMarkers_InMarker()
 
         if (Databases::MarkerDb.size() > 1)
         {
-            AddOption(
-                Language::Translate("spooner.marker.linkWithMarker") + (SelectedMarker->m_destinationPtr == nullptr ? "" : " ('" + SelectedMarker->m_destinationPtr->m_name + "')"),
-                null,
-                nullFunc,
-                SUB::SPOONER_MANAGEMARKERS_INMARKER_DEST2MARKER
-            );
-            AddOptionDescription(Language::Translate("spooner.marker.linkWithMarker.description"));
+            AddOption(Language::Translate("menu.spooner.marker.option.link_with_marker.label"), null, nullFunc, SUB::SPOONER_MANAGEMARKERS_INMARKER_DEST2MARKER);
+            if (SelectedMarker->m_destinationPtr != nullptr)
+                AddOptionDescription(Language::Format("menu.spooner.markers.option.link_with_marker.description", {{"name", SelectedMarker->m_destinationPtr->m_name}}));
+            else
+                AddOptionDescription(Language::Translate("menu.spooner.marker.option.link_with_marker.description"));
         }
 
         if (SelectedMarker->m_destinationPtr == nullptr)
@@ -3508,7 +3565,7 @@ void Sub_ManageMarkers_InMarker()
             if (SelectedMarker->m_destinationVal.m_attachmentArgs.attachedTo.Exists())
             {
                 bool bAdjustAttachmentForPosPressed = false;
-                AddOption(Language::Translate("spooner.marker.adjustAttachment"), bAdjustAttachmentForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+                AddOption(Language::Translate("menu.spooner.marker.option.adjust_attachment.label"), bAdjustAttachmentForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
                 if (bAdjustAttachmentForPosPressed)
                 {
                     SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_destinationVal.m_attachmentArgs.offset, nullptr);
@@ -3517,7 +3574,7 @@ void Sub_ManageMarkers_InMarker()
             else
             {
                 bool bManualEditingForPosPressed = false;
-                AddOption(Language::Translate("spooner.editing.title"), bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+                AddOption(Language::Translate("menu.spooner.option.editing.label"), bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
                 if (bManualEditingForPosPressed)
                 {
                     SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedMarker->m_destinationVal.m_position, nullptr);
@@ -3526,8 +3583,8 @@ void Sub_ManageMarkers_InMarker()
         }
 
         bool bDestHeading_plus = false, bDestHeading_minus = false;
-        AddNumber(Language::Translate("spooner.marker.destinationHeading"), SelectedMarker->m_destinationHeading, 1, null, bDestHeading_plus, bDestHeading_minus);
-        AddOptionDescription(Language::Translate("spooner.marker.destinationHeading.description"));
+        AddNumber(Language::Translate("menu.spooner.marker.option.destination_heading.label"), SelectedMarker->m_destinationHeading, 1, null, bDestHeading_plus, bDestHeading_minus);
+        AddOptionDescription(Language::Translate("menu.spooner.marker.option.destination_heading.description"));
         if (bDestHeading_plus)
         {
             SelectedMarker->m_destinationHeading += 1.0f;
@@ -3538,14 +3595,14 @@ void Sub_ManageMarkers_InMarker()
         }
     }
 
-    AddBreak(Language::Translate("spooner.marker.other"));
+    AddBreak(Language::Translate("menu.spooner.marker.section.other.label"));
 
     bool bCopyMarkerPressed = false;
-    AddOption(Language::Translate("spooner.marker.copy"), bCopyMarkerPressed);
+    AddOption(Language::Translate("menu.spooner.marker.option.copy.label"), bCopyMarkerPressed);
     if (bCopyMarkerPressed)
     {
         SelectedMarker = MarkerManagement::CopyMarker(*SelectedMarker); // std::vector array location may change
-        SelectedMarker->m_name = Game::InputBox(SelectedMarker->m_name, 26U, Language::Translate("spooner.marker.namePrompt").c_str(), SelectedMarker->m_name);
+        SelectedMarker->m_name = Game::InputBox(SelectedMarker->m_name, 26U, Language::Translate("menu.spooner.marker.option.name_prompt.prompt").c_str(), SelectedMarker->m_name);
         //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SetArg1String, SelectedMarker->m_name, 26U, "Enter custom marker name:", SelectedMarker->m_name);
         //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&SelectedMarker->m_name);
         Menu::optionSelectionHistory[Menu::menuHistoryIndex]++;
@@ -3560,7 +3617,7 @@ void Sub_ManageMarkers_InMarker_Dest2Marker()
         return;
     }
 
-    AddTitle(Language::Translate("spooner.marker.select"));
+    AddTitle(Language::Translate("menu.spooner.marker.select.title"));
 
     for (UINT i = 0; i < Databases::MarkerDb.size(); i++)
     {
@@ -3622,18 +3679,23 @@ void Sub_ManageMarkers_InMarker_Attach()
         return;
     }
 
-    AddTitle(Language::Translate("spooner.attachment.attachTo"));
+    AddTitle(Language::Translate("menu.spooner.attachment.attach_to.title"));
 
     bool bToggleKeepPosWhenAttaching = false;
     AddTickol(
-        Language::Translate("spooner.attachment.keepWorldPosition"), Settings::bKeepPositionWhenAttaching, bToggleKeepPosWhenAttaching, bToggleKeepPosWhenAttaching, TICKOL::BOXTICK, TICKOL::BOXBLANK
+        Language::Translate("menu.spooner.attachment.option.keep_world_position.label"),
+        Settings::bKeepPositionWhenAttaching,
+        bToggleKeepPosWhenAttaching,
+        bToggleKeepPosWhenAttaching,
+        TICKOL::BOXTICK,
+        TICKOL::BOXBLANK
     );
-    AddOptionDescription(Language::Translate("spooner.attachment.keepWorldPosition.description"));
+    AddOptionDescription(Language::Translate("menu.spooner.attachment.option.keep_world_position.description"));
     if (bToggleKeepPosWhenAttaching)
         Settings::bKeepPositionWhenAttaching = !Settings::bKeepPositionWhenAttaching;
 
     bool bDetachPressed = false;
-    AddTickol(Language::Translate("spooner.attachment.detach"), !SelectedMarker->m_attachmentArgs.attachedTo.GetHandle(), bDetachPressed, bDetachPressed, TICKOL::TICK2);
+    AddTickol(Language::Translate("menu.spooner.attachment.option.detach.label"), !SelectedMarker->m_attachmentArgs.attachedTo.GetHandle(), bDetachPressed, bDetachPressed, TICKOL::TICK2);
     if (bDetachPressed)
     {
         if (SelectedMarker->m_attachmentArgs.attachedTo.Exists())
@@ -3648,7 +3710,7 @@ void Sub_ManageMarkers_InMarker_Attach()
 
     if (!Databases::EntityDb.empty())
     {
-        AddBreak(Language::Translate("spooner.attachment.database"));
+        AddBreak(Language::Translate("menu.spooner.attachment.section.database.label"));
         for (auto& e : Databases::EntityDb)
         {
             if (e.handle.Exists())
@@ -3689,12 +3751,12 @@ void Sub_ManageLights()
 
     LightManagement::DrawPreviewMarkers();
 
-    AddTitle(Language::Translate("spooner.light.title"));
+    AddTitle(Language::Translate("menu.spooner.light.title"));
 
-    AddOption(Language::Translate("spooner.light.removal"), null, nullFunc, SUB::SPOONER_MANAGELIGHTS_REMOVAL);
-    AddOption(Language::Translate("spooner.light.managePresets"), null, nullFunc, SUB::SPOONER_MANAGELIGHTS_PRESETS);
+    AddOption(Language::Translate("menu.spooner.light.option.removal.label"), null, nullFunc, SUB::SPOONER_MANAGELIGHTS_REMOVAL);
+    AddOption(Language::Translate("menu.spooner.light.option.manage_presets.label"), null, nullFunc, SUB::SPOONER_MANAGELIGHTS_PRESETS);
 
-    AddBreak(Language::Translate("spooner.light.database"));
+    AddBreak(Language::Translate("menu.spooner.light.section.database.label"));
     for (UINT i = 0; i < Databases::LightDb.size(); i++)
     {
         auto& l = Databases::LightDb[i];
@@ -3712,7 +3774,7 @@ void Sub_ManageLights()
             l.m_selectedInSub = true;
 
             bool bShortcutDeletePressed;
-            Keybinds::AddBindIB("menu_action", Language::Translate("spooner.light.delete"));
+            Keybinds::AddBindIB("menu_action", Language::Translate("menu.spooner.light.option.delete.label"));
             bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
             if (bShortcutDeletePressed)
@@ -3723,7 +3785,7 @@ void Sub_ManageLights()
     }
 
     bool bAddNewLightPressed = false;
-    AddTickol(Language::Translate("spooner.light.addNew"), true, bAddNewLightPressed, bAddNewLightPressed, TICKOL::SMALLNEWSTAR);
+    AddTickol(Language::Translate("menu.spooner.light.option.add_new.label"), true, bAddNewLightPressed, bAddNewLightPressed, TICKOL::SMALLNEWSTAR);
     if (bAddNewLightPressed)
     {
         auto& spoonerCam = SpoonerCamera::camera;
@@ -3747,7 +3809,7 @@ void Sub_ManageLights()
 
     if (!LightManagement::PresetDb.empty())
     {
-        AddBreak(Language::Translate("spooner.light.presets"));
+        AddBreak(Language::Translate("menu.spooner.light.section.presets.label"));
         for (auto& p : LightManagement::PresetDb)
         {
             bool bPresetPressed = false;
@@ -3792,11 +3854,11 @@ void Sub_ManageLights_Removal()
     GTAentity myPed = PLAYER_PED_ID();
     const Vector3& myPos = myPed.GetPosition();
 
-    AddTitle(Language::Translate("spooner.light.removal"));
+    AddTitle(Language::Translate("menu.spooner.light.removal.title"));
 
     bool bInRange_plus = false, bInRange_minus = false, bInRange_execute = false;
-    AddNumber(Language::Translate("spooner.light.deleteInRange"), fLightRemovalRadius, 0, bInRange_execute, bInRange_plus, bInRange_minus);
-    AddOptionDescription(Language::Translate("spooner.light.deleteInRange.description"));
+    AddNumber(Language::Translate("menu.spooner.light.option.delete_in_range.label"), fLightRemovalRadius, 0, bInRange_execute, bInRange_plus, bInRange_minus);
+    AddOptionDescription(Language::Translate("menu.spooner.light.option.delete_in_range.description"));
     if (Menu::IsLastDrawnOptionSelected())
         EntityManagement::DrawRadiusDisplayingMarker(myPos, fLightRemovalRadius);
     if (bInRange_plus)
@@ -3818,7 +3880,7 @@ void Sub_ManageLights_Removal()
         }
     }
 
-    AddOption(Language::Format("spooner.light.deleteAll", {{"count", Databases::LightDb.size()}}), null, LightManagement::RemoveAll);
+    AddOption(Language::Format("menu.spooner.light.option.delete_all.label", {{"count", Databases::LightDb.size()}}), null, LightManagement::RemoveAll);
 }
 
 void Sub_ManageLights_InLight()
@@ -3836,64 +3898,66 @@ void Sub_ManageLights_InLight()
     AddTitle(SelectedLight->m_name);
 
     bool bEditNamePressed = false;
-    AddTexter(Language::Translate("spooner.light.name"), 0, std::vector<std::string>{SelectedLight->m_name}, bEditNamePressed);
+    AddTexter(Language::Translate("menu.spooner.light.option.name.label"), 0, std::vector<std::string>{SelectedLight->m_name}, bEditNamePressed);
     if (bEditNamePressed)
     {
-        SelectedLight->m_name = Game::InputBox(SelectedLight->m_name, 26U, Language::Translate("spooner.light.namePrompt").c_str(), SelectedLight->m_name);
+        SelectedLight->m_name = Game::InputBox(SelectedLight->m_name, 26U, Language::Translate("menu.spooner.light.option.name_prompt.prompt").c_str(), SelectedLight->m_name);
     }
 
     SelectedLight->m_lightType = static_cast<SpoonerLight::LightType>(AddTexterCycler(
-        Language::Translate("spooner.light.type"), static_cast<int>(SelectedLight->m_lightType), {Language::Translate("spooner.light.omnidirectional"), Language::Translate("spooner.light.spot")}
+        Language::Translate("menu.spooner.light.option.type.label"),
+        static_cast<int>(SelectedLight->m_lightType),
+        {Language::Translate("menu.spooner.option.light.value.omnidirectional"), Language::Translate("menu.spooner.option.light.value.spot")}
     ));
 
     bool bActiveToggle = false;
-    AddTickol(Language::Translate("spooner.light.active"), SelectedLight->m_active, bActiveToggle, bActiveToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddTickol(Language::Translate("menu.spooner.light.option.active.label"), SelectedLight->m_active, bActiveToggle, bActiveToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
     if (bActiveToggle)
         SelectedLight->m_active = !SelectedLight->m_active;
 
-    AddBreak(Language::Translate("spooner.light.colour"));
+    AddBreak(Language::Translate("menu.spooner.light.section.colour.label"));
     {
         bool bColourPressed = false;
-        AddOption(Language::Translate("spooner.light.colour"), bColourPressed, nullFunc, SUB::SPOONER_MANAGELIGHTS_COLOUR);
+        AddOption(Language::Translate("menu.spooner.light.option.colour.label"), bColourPressed, nullFunc, SUB::SPOONER_MANAGELIGHTS_COLOUR);
     }
 
     if (SelectedLight->m_lightType == SpoonerLight::LightType::Omni)
     {
-        AddBreak(Language::Translate("spooner.light.omniProperties"));
+        AddBreak(Language::Translate("menu.spooner.light.section.omni_properties.label"));
 
-        AddNumberStepper(Language::Translate("spooner.light.range"), SelectedLight->m_range, 1, 0.5, 0.0, 1000.0);
-        AddOptionDescription(Language::Translate("spooner.light.range.description"));
-        AddNumberStepper(Language::Translate("spooner.light.intensity"), SelectedLight->m_intensity, 2, 0.1, 0.0, 100.0);
+        AddNumberStepper(Language::Translate("menu.spooner.light.option.range.label"), SelectedLight->m_range, 1, 0.5, 0.0, 1000.0);
+        AddOptionDescription(Language::Translate("menu.spooner.light.option.range.description"));
+        AddNumberStepper(Language::Translate("menu.spooner.light.option.intensity.label"), SelectedLight->m_intensity, 2, 0.1, 0.0, 100.0);
     }
     else
     {
-        AddBreak(Language::Translate("spooner.light.spotProperties"));
+        AddBreak(Language::Translate("menu.spooner.light.section.spot_properties.label"));
 
-        AddNumberStepper(Language::Translate("spooner.light.distance"), SelectedLight->m_spotDistance, 1, 0.5, 0.0, 1000.0);
-        AddOptionDescription(Language::Translate("spooner.light.distance.description"));
-        AddNumberStepper(Language::Translate("spooner.light.brightness"), SelectedLight->m_spotBrightness, 2, 0.1, 0.0, 100.0);
-        AddNumberStepper(Language::Translate("spooner.light.roundness"), SelectedLight->m_spotRoundness, 2, 0.1, 0.0, 10.0);
-        AddOptionDescription(Language::Translate("spooner.light.roundness.description"));
-        AddNumberStepper(Language::Translate("spooner.light.radius"), SelectedLight->m_spotRadius, 2, 0.1, 0.0, 100.0);
-        AddOptionDescription(Language::Translate("spooner.light.radius.description"));
-        AddNumberStepper(Language::Translate("spooner.light.falloff"), SelectedLight->m_spotFalloff, 2, 0.1, 0.0, 100.0);
-        AddOptionDescription(Language::Translate("spooner.light.falloff.description"));
+        AddNumberStepper(Language::Translate("menu.spooner.light.option.distance.label"), SelectedLight->m_spotDistance, 1, 0.5, 0.0, 1000.0);
+        AddOptionDescription(Language::Translate("menu.spooner.light.option.distance.description"));
+        AddNumberStepper(Language::Translate("menu.spooner.light.option.brightness.label"), SelectedLight->m_spotBrightness, 2, 0.1, 0.0, 100.0);
+        AddNumberStepper(Language::Translate("menu.spooner.light.option.roundness.label"), SelectedLight->m_spotRoundness, 2, 0.1, 0.0, 10.0);
+        AddOptionDescription(Language::Translate("menu.spooner.light.option.roundness.description"));
+        AddNumberStepper(Language::Translate("menu.spooner.light.option.radius.label"), SelectedLight->m_spotRadius, 2, 0.1, 0.0, 100.0);
+        AddOptionDescription(Language::Translate("menu.spooner.light.option.radius.description"));
+        AddNumberStepper(Language::Translate("menu.spooner.light.option.falloff.label"), SelectedLight->m_spotFalloff, 2, 0.1, 0.0, 100.0);
+        AddOptionDescription(Language::Translate("menu.spooner.light.option.falloff.description"));
 
         bool bShadowToggle = false;
-        AddTickol(Language::Translate("spooner.light.shadows"), SelectedLight->m_useShadow, bShadowToggle, bShadowToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-        AddOptionDescription(Language::Translate("spooner.light.shadows.description"));
+        AddTickol(Language::Translate("menu.spooner.light.option.shadows.label"), SelectedLight->m_useShadow, bShadowToggle, bShadowToggle, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        AddOptionDescription(Language::Translate("menu.spooner.light.option.shadows.description"));
         if (bShadowToggle)
             SelectedLight->m_useShadow = !SelectedLight->m_useShadow;
     }
 
-    AddBreak(Language::Translate("spooner.light.position"));
+    AddBreak(Language::Translate("menu.spooner.light.section.position.label"));
     {
         AddOption("~italic~" + SelectedLight->m_position.ToString(), null);
 
         if (!spoonerCam.IsActive())
         {
             bool bSetPosToMe = false;
-            AddOption(Language::Translate("spooner.marker.setToPlayerPosition"), bSetPosToMe);
+            AddOption(Language::Translate("menu.spooner.marker.option.set_to_player_position.label"), bSetPosToMe);
             if (bSetPosToMe)
             {
                 SelectedLight->m_position = GTAentity(PLAYER_PED_ID()).GetPosition();
@@ -3902,8 +3966,8 @@ void Sub_ManageLights_InLight()
         else
         {
             bool bSetPosToHitCoords = false;
-            AddOption(Language::Translate("spooner.marker.setToCameraTarget"), bSetPosToHitCoords);
-            AddOptionDescription(Language::Translate("spooner.marker.setToCameraTarget.description"));
+            AddOption(Language::Translate("menu.spooner.marker.option.set_to_camera_target.label"), bSetPosToHitCoords);
+            AddOptionDescription(Language::Translate("menu.spooner.marker.option.set_to_camera_target.description"));
             if (bSetPosToHitCoords)
             {
                 Vector3 hitCoords = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
@@ -3913,8 +3977,8 @@ void Sub_ManageLights_InLight()
         if (spoonerCam.IsActive())
         {
             bool bSetPosToCam = false;
-            AddOption(Language::Translate("spooner.light.setToCameraPosition"), bSetPosToCam);
-            AddOptionDescription(Language::Translate("spooner.light.setToCameraPosition.description"));
+            AddOption(Language::Translate("menu.spooner.light.option.set_to_camera_position.label"), bSetPosToCam);
+            AddOptionDescription(Language::Translate("menu.spooner.light.option.set_to_camera_position.description"));
             if (bSetPosToCam)
             {
                 SelectedLight->m_position = spoonerCam.GetPosition();
@@ -3924,7 +3988,7 @@ void Sub_ManageLights_InLight()
         if (IS_WAYPOINT_ACTIVE())
         {
             bool bSetPosToWp = false;
-            AddOption(Language::Translate("spooner.marker.setToWaypoint"), bSetPosToWp);
+            AddOption(Language::Translate("menu.spooner.marker.option.set_to_waypoint.label"), bSetPosToWp);
             if (bSetPosToWp)
             {
                 GTAblip wpBlip = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
@@ -3935,7 +3999,7 @@ void Sub_ManageLights_InLight()
         }
 
         bool bManualEditingForPosPressed = false;
-        AddOption(Language::Translate("spooner.editing.title"), bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+        AddOption(Language::Translate("menu.spooner.option.editing.label"), bManualEditingForPosPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
         if (bManualEditingForPosPressed)
         {
             SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedLight->m_position, nullptr);
@@ -3944,15 +4008,15 @@ void Sub_ManageLights_InLight()
 
     if (SelectedLight->m_lightType == SpoonerLight::LightType::Spot)
     {
-        AddBreak(Language::Translate("spooner.light.direction"));
+        AddBreak(Language::Translate("menu.spooner.light.section.direction.label"));
         {
             AddOption("~italic~" + SelectedLight->m_direction.ToString(), null);
 
             if (spoonerCam.IsActive())
             {
                 bool bPointAtCursor = false;
-                AddOption(Language::Translate("spooner.light.pointAtCursor"), bPointAtCursor);
-                AddOptionDescription(Language::Translate("spooner.light.pointAtCursor.description"));
+                AddOption(Language::Translate("menu.spooner.light.option.point_at_cursor.label"), bPointAtCursor);
+                AddOptionDescription(Language::Translate("menu.spooner.light.option.point_at_cursor.description"));
                 if (bPointAtCursor)
                 {
                     Vector3 target = spoonerCam.RaycastForCoord(Vector2(0.0f, 0.0f), 0, 160.0f, 3.0f);
@@ -3962,7 +4026,7 @@ void Sub_ManageLights_InLight()
             }
 
             bool bManualEditingForDirPressed = false;
-            AddOption(Language::Translate("spooner.editing.title"), bManualEditingForDirPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
+            AddOption(Language::Translate("menu.spooner.option.editing.label"), bManualEditingForDirPressed, nullFunc, SUB::SPOONER_VECTOR3_MANUALEDITING);
             if (bManualEditingForDirPressed)
             {
                 SpoonerVector3ManualEditingPtrs = std::make_tuple<GTAentity, Vector3*, Vector3*>(0, &SelectedLight->m_direction, nullptr);
@@ -3970,10 +4034,10 @@ void Sub_ManageLights_InLight()
         }
     }
 
-    AddBreak(Language::Translate("spooner.light.other"));
+    AddBreak(Language::Translate("menu.spooner.light.section.other.label"));
 
     bool bCopyLightPressed = false;
-    AddOption(Language::Translate("spooner.light.copy"), bCopyLightPressed);
+    AddOption(Language::Translate("menu.spooner.light.option.copy.label"), bCopyLightPressed);
     if (bCopyLightPressed)
     {
         SelectedLight = LightManagement::Copy(*SelectedLight);
@@ -3981,10 +4045,10 @@ void Sub_ManageLights_InLight()
     }
 
     bool bSavePresetPressed = false;
-    AddOption(Language::Translate("spooner.light.saveAsPreset"), bSavePresetPressed);
+    AddOption(Language::Translate("menu.spooner.light.option.save_as_preset.label"), bSavePresetPressed);
     if (bSavePresetPressed)
     {
-        std::string presetName = Game::InputBox(SelectedLight->m_name, 26U, Language::Translate("spooner.light.presetNamePrompt").c_str(), SelectedLight->m_name);
+        std::string presetName = Game::InputBox(SelectedLight->m_name, 26U, Language::Translate("menu.spooner.light.option.preset_name_prompt.prompt").c_str(), SelectedLight->m_name);
         if (presetName.length() > 0)
         {
             SpoonerLight copy = *SelectedLight;
@@ -3996,15 +4060,15 @@ void Sub_ManageLights_InLight()
 
 void Sub_ManageLights_Presets()
 {
-    AddTitle(Language::Translate("spooner.light.presets"));
+    AddTitle(Language::Translate("menu.spooner.light.presets.title"));
 
     if (SelectedLight != nullptr)
     {
         bool bSaveCurrentPressed = false;
-        AddOption(Language::Translate("spooner.light.saveCurrentAsPreset"), bSaveCurrentPressed);
+        AddOption(Language::Translate("menu.spooner.light.option.save_current_as_preset.label"), bSaveCurrentPressed);
         if (bSaveCurrentPressed)
         {
-            std::string presetName = Game::InputBox(SelectedLight->m_name, 26U, Language::Translate("spooner.light.presetNamePrompt").c_str(), SelectedLight->m_name);
+            std::string presetName = Game::InputBox(SelectedLight->m_name, 26U, Language::Translate("menu.spooner.light.option.preset_name_prompt.prompt").c_str(), SelectedLight->m_name);
             if (presetName.length() > 0)
             {
                 SpoonerLight copy = *SelectedLight;
@@ -4019,7 +4083,7 @@ void Sub_ManageLights_Presets()
 
     if (!LightManagement::PresetDb.empty())
     {
-        AddBreak(Language::Translate("spooner.light.savedPresets"));
+        AddBreak(Language::Translate("menu.spooner.light.section.saved_presets.label"));
         for (size_t i = 0; i < LightManagement::PresetDb.size(); i++)
         {
             auto& p = LightManagement::PresetDb[i];
@@ -4043,13 +4107,13 @@ void Sub_ManageLights_Presets()
                     copy.m_direction = myPed.ForwardVector();
                 }
                 LightManagement::Add(copy);
-                Game::Print::ShowNotification(Language::Translate("spooner.light.addedFromPreset"));
+                Game::Print::ShowNotification(Language::Translate("message.spooner.light.added_from_preset.title"));
             }
 
             if (Menu::IsLastDrawnOptionSelected())
             {
                 bool bDeletePressed;
-                Keybinds::AddBindIB("menu_action", Language::Translate("spooner.light.deletePreset"));
+                Keybinds::AddBindIB("menu_action", Language::Translate("menu.spooner.light.option.delete_preset.label"));
                 bDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
                 if (bDeletePressed)
                 {
@@ -4063,7 +4127,7 @@ void Sub_ManageLights_Presets()
     }
     else
     {
-        AddOption(Language::Translate("spooner.light.noPresets"), null);
+        AddOption(Language::Translate("menu.spooner.light.option.no_presets.label"), null);
     }
 }
 
@@ -4079,10 +4143,10 @@ void Sub_ManageLights_Colour()
 
     RGBA* colour = &SelectedLight->m_colour;
 
-    AddTitle(Language::Translate("spooner.light.colourTitle"));
-    AddNumberStepper(Language::Translate("spooner.light.red"), colour->R, 0, 1.0, 0, 255);
-    AddNumberStepper(Language::Translate("spooner.light.green"), colour->G, 0, 1.0, 0, 255);
-    AddNumberStepper(Language::Translate("spooner.light.blue"), colour->B, 0, 1.0, 0, 255);
+    AddTitle(Language::Translate("menu.spooner.light.colour_title.title"));
+    AddNumberStepper(Language::Translate("menu.spooner.light.option.red.label"), colour->R, 0, 1.0, 0, 255);
+    AddNumberStepper(Language::Translate("menu.spooner.light.option.green.label"), colour->G, 0, 1.0, 0, 255);
+    AddNumberStepper(Language::Translate("menu.spooner.light.option.blue.label"), colour->B, 0, 1.0, 0, 255);
 
     switch (*Menu::activeOptionIndex)
     {
@@ -4095,12 +4159,12 @@ void Sub_ManageLights_Colour()
 
     {
         bool bHexInputPressed = false;
-        AddOption(Language::Translate("spooner.light.inputHex"), bHexInputPressed);
+        AddOption(Language::Translate("menu.spooner.light.option.input_hex.label"), bHexInputPressed);
         if (bHexInputPressed)
         {
-            std::string input = Game::InputBox("", 10U, Language::Translate("spooner.light.hexPrompt").c_str(), "#");
+            std::string input = Game::InputBox("", 10U, Language::Translate("menu.spooner.light.option.hex_prompt.prompt").c_str(), "#");
             if (!HexToRGBA(input, *colour))
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.light.invalidHex"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.light.invalid_hex.message"));
         }
     }
 }
@@ -4108,21 +4172,21 @@ void Sub_ManageLights_Colour()
 void Sub_Blip_Management()
 {
     int blipIndexInDbToDelete = -1;
-    AddTitle(Language::Translate("spooner.blip.management"));
+    AddTitle(Language::Translate("menu.spooner.blip.management.title"));
 
     //AddOption("Add Blip", null, nullFunc, SUB::SPOONER_BLIPS_ADD_SELECT);
 
     bool bAttachBlipToEntityPressed = false;
-    AddTickol(Language::Translate("spooner.blip.createEntity"), true, bAttachBlipToEntityPressed, bAttachBlipToEntityPressed, TICKOL::SMALLNEWSTAR);
-    AddOptionDescription(Language::Translate("spooner.blip.createEntity.description"));
+    AddTickol(Language::Translate("menu.spooner.blip.option.create_entity.label"), true, bAttachBlipToEntityPressed, bAttachBlipToEntityPressed, TICKOL::SMALLNEWSTAR);
+    AddOptionDescription(Language::Translate("menu.spooner.blip.option.create_entity.description"));
     if (bAttachBlipToEntityPressed)
     {
         Menu::pendingSubmenu = SUB::SPOONER_BLIPS_ENTITY_SELECT;
     }
 
     bool bAddNewCoordBlipPressed = false;
-    AddTickol(Language::Translate("spooner.blip.createCoord"), true, bAddNewCoordBlipPressed, bAddNewCoordBlipPressed, TICKOL::SMALLNEWSTAR);
-    AddOptionDescription(Language::Translate("spooner.blip.createCoord.description"));
+    AddTickol(Language::Translate("menu.spooner.blip.option.create_coord.label"), true, bAddNewCoordBlipPressed, bAddNewCoordBlipPressed, TICKOL::SMALLNEWSTAR);
+    AddOptionDescription(Language::Translate("menu.spooner.blip.option.create_coord.description"));
     if (bAddNewCoordBlipPressed)
     {
         auto& spoocam = SpoonerCamera::camera;
@@ -4149,8 +4213,8 @@ void Sub_Blip_Management()
     }
 
     bool bAddNewRadialBlipPressed = false;
-    AddTickol(Language::Translate("spooner.blip.createRadial"), true, bAddNewRadialBlipPressed, bAddNewRadialBlipPressed, TICKOL::SMALLNEWSTAR);
-    AddOptionDescription(Language::Translate("spooner.blip.createRadial.description"));
+    AddTickol(Language::Translate("menu.spooner.blip.option.create_radial.label"), true, bAddNewRadialBlipPressed, bAddNewRadialBlipPressed, TICKOL::SMALLNEWSTAR);
+    AddOptionDescription(Language::Translate("menu.spooner.blip.option.create_radial.description"));
     if (bAddNewRadialBlipPressed)
     {
         auto& spoocam = SpoonerCamera::camera;
@@ -4176,7 +4240,7 @@ void Sub_Blip_Management()
         Menu::pendingSubmenu = SUB::SPOONER_BLIPS_RADIALINBLIP;
     }
 
-    AddBreak(Language::Translate("spooner.blip.entitySection"));
+    AddBreak(Language::Translate("menu.spooner.blip.section.entity_section.label"));
     bool bHasEntity = false;
     for (auto& b : Databases::BlipDb)
         if (b.BlipType == SpoonerBlip::Type::Entity)
@@ -4187,7 +4251,7 @@ void Sub_Blip_Management()
     if (!bHasEntity)
     {
         bool bAddEntity = false;
-        AddOption(Language::Translate("spooner.blip.addEntity"), bAddEntity);
+        AddOption(Language::Translate("menu.spooner.blip.option.add_entity.label"), bAddEntity);
         if (bAddEntity)
             Menu::pendingSubmenu = SUB::SPOONER_BLIPS_ENTITY_SELECT;
     }
@@ -4215,7 +4279,7 @@ void Sub_Blip_Management()
             EntityManagement::ShowArrowAboveEntity(ent, RGBA(0, 255, 255, 200));
 
             bool bShortcutDeletePressed;
-            Keybinds::AddBindIB("menu_action", Language::Translate("spooner.blip.deleteEntity"));
+            Keybinds::AddBindIB("menu_action", Language::Translate("menu.spooner.blip.option.delete_entity.label"));
             bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
             if (bShortcutDeletePressed)
@@ -4223,7 +4287,7 @@ void Sub_Blip_Management()
         }
     }
 
-    AddBreak(Language::Translate("spooner.blip.coordSection"));
+    AddBreak(Language::Translate("menu.spooner.blip.section.coord_section.label"));
     bool bHasCoord = false;
     for (auto& b : Databases::BlipDb)
         if (b.BlipType == SpoonerBlip::Type::Coord)
@@ -4234,7 +4298,7 @@ void Sub_Blip_Management()
     if (!bHasCoord)
     {
         bool bAddCoord = false;
-        AddOption(Language::Translate("spooner.blip.addCoord"), bAddCoord);
+        AddOption(Language::Translate("menu.spooner.blip.option.add_coord.label"), bAddCoord);
         if (bAddCoord)
         {
             auto& spoocam = SpoonerCamera::camera;
@@ -4275,7 +4339,7 @@ void Sub_Blip_Management()
             m.m_selectedInSub = true;
 
             bool bShortcutDeletePressed;
-            Keybinds::AddBindIB("menu_action", Language::Translate("spooner.blip.deleteCoord"));
+            Keybinds::AddBindIB("menu_action", Language::Translate("menu.spooner.blip.option.delete_coord.label"));
             bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
             if (bShortcutDeletePressed)
@@ -4283,7 +4347,7 @@ void Sub_Blip_Management()
         }
     }
 
-    AddBreak(Language::Translate("spooner.blip.radialSection"));
+    AddBreak(Language::Translate("menu.spooner.blip.section.radial_section.label"));
     bool bHasRadial = false;
     for (auto& b : Databases::BlipDb)
         if (b.BlipType == SpoonerBlip::Type::Radial)
@@ -4294,7 +4358,7 @@ void Sub_Blip_Management()
     if (!bHasRadial)
     {
         bool bAddRadial = false;
-        AddOption(Language::Translate("spooner.blip.addRadial"), bAddRadial);
+        AddOption(Language::Translate("menu.spooner.blip.option.add_radial.label"), bAddRadial);
         if (bAddRadial)
         {
             auto& spoocam = SpoonerCamera::camera;
@@ -4322,7 +4386,7 @@ void Sub_Blip_Management()
             continue;
 
         bool bBlipPressed = false;
-        std::string displayName = m.label.empty() ? Language::Translate("spooner.blip.radial") : m.label;
+        std::string displayName = m.label.empty() ? Language::Translate("menu.spooner.blip.option.radial.label") : m.label;
         AddOption(displayName, bBlipPressed);
         if (bBlipPressed)
         {
@@ -4335,7 +4399,7 @@ void Sub_Blip_Management()
             m.m_selectedInSub = true;
 
             bool bShortcutDeletePressed;
-            Keybinds::AddBindIB("menu_action", Language::Translate("spooner.blip.deleteRadial"));
+            Keybinds::AddBindIB("menu_action", Language::Translate("menu.spooner.blip.option.delete_radial.label"));
             bShortcutDeletePressed = Keybinds::WasPressedThisFrame("menu_action");
 
             if (bShortcutDeletePressed)
@@ -4352,10 +4416,10 @@ void Sub_Blip_Management()
 
 void Sub_Blip_Radial()
 {
-    AddTitle(Language::Translate("spooner.blip.radial"));
+    AddTitle(Language::Translate("menu.spooner.blip.radial.title"));
 
     bool bDeletePressed = false;
-    AddOption(Language::Translate("spooner.blip.delete"), bDeletePressed);
+    AddOption(Language::Translate("menu.spooner.blip.option.delete.label"), bDeletePressed);
     if (bDeletePressed)
     {
         sub::Spooner::BlipCustoms::RemoveBlip(*sub::Spooner::SelectedBlip);
@@ -4366,16 +4430,16 @@ void Sub_Blip_Radial()
 
 void Sub_Blip_Entity()
 {
-    AddTitle(Language::Translate("spooner.blip.entity"));
+    AddTitle(Language::Translate("menu.spooner.blip.entity.title"));
 }
 
 void Sub_Blip_Entity_Select()
 {
-    AddTitle(Language::Translate("spooner.blip.selectEntity"));
+    AddTitle(Language::Translate("menu.spooner.blip.select_entity.title"));
 
     if (Databases::EntityDb.empty())
     {
-        AddOption(Language::Translate("spooner.blip.noEntities"), null);
+        AddOption(Language::Translate("menu.spooner.blip.option.no_entities.label"), null);
         return;
     }
 
@@ -4404,7 +4468,7 @@ void Sub_Blip_Entity_Select()
         }
         else
         {
-            AddOption(e.hashName + " " + Language::Translate("spooner.multiSelect.invalidSuffix"), null);
+            AddOption(Language::Format("menu.spooner.multi_select.option.invalid_entity.label", {{"name", e.hashName}}), null);
         }
     }
 }
@@ -4419,20 +4483,20 @@ void Sub_Blip_EntityInBlip()
 
     auto blip = sub::Spooner::SelectedBlip;
 
-    AddTitle(Language::Translate("spooner.blip.entityOptions"));
+    AddTitle(Language::Translate("menu.spooner.blip.entity_options.title"));
 
     bool bEditLabelPressed = false;
-    AddTexter(Language::Translate("spooner.blip.label"), 0, std::vector<std::string>{blip->label.empty() ? "" : blip->label}, bEditLabelPressed);
+    AddTexter(Language::Translate("menu.spooner.option.blip.label"), 0, std::vector<std::string>{blip->label.empty() ? "" : blip->label}, bEditLabelPressed);
     if (bEditLabelPressed)
     {
-        blip->label = Game::InputBox(blip->label, 26U, Language::Translate("spooner.blip.labelPrompt").c_str(), blip->label);
+        blip->label = Game::InputBox(blip->label, 26U, Language::Translate("menu.spooner.blip.option.label_prompt.prompt").c_str(), blip->label);
         BlipCustoms::RefreshBlip(*blip);
     }
 
     bool colour_plus = false;
     bool colour_minus = false;
 
-    AddTexter(Language::Translate("spooner.blip.colour"), 0, std::vector<std::string>{BlipColour::vNames.at(blip->Colour)}, null, colour_plus, colour_minus);
+    AddTexter(Language::Translate("menu.spooner.blip.option.colour.label"), 0, std::vector<std::string>{BlipColour::vNames.at(blip->Colour)}, null, colour_plus, colour_minus);
 
     if (colour_plus)
     {
@@ -4456,12 +4520,12 @@ void Sub_Blip_EntityInBlip()
         }
     }
 
-    AddOption(Language::Format("spooner.blip.icon", {{"icon", BlipIcon::vNames.at(blip->Icon)}}), null, nullFunc, SUB::SPOONER_BLIPS_ICONS);
+    AddOption(Language::Format("menu.spooner.blip.option.icon.label", {{"icon", BlipIcon::vNames.at(blip->Icon)}}), null, nullFunc, SUB::SPOONER_BLIPS_ICONS);
 
     bool scale_plus = false;
     bool scale_minus = false;
 
-    AddNumber(Language::Translate("spooner.blip.scale"), blip->Scale, 2, null, scale_plus, scale_minus);
+    AddNumber(Language::Translate("menu.spooner.blip.option.scale.label"), blip->Scale, 2, null, scale_plus, scale_minus);
 
     if (scale_plus)
     {
@@ -4482,8 +4546,8 @@ void Sub_Blip_EntityInBlip()
     }
 
     bool bToggleRotation = false;
-    AddTickol(Language::Translate("spooner.blip.syncRotation"), blip->bSyncRotation, bToggleRotation, bToggleRotation, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription(Language::Translate("spooner.blip.syncRotation.description"));
+    AddTickol(Language::Translate("menu.spooner.blip.option.sync_rotation.label"), blip->bSyncRotation, bToggleRotation, bToggleRotation, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("menu.spooner.blip.option.sync_rotation.description"));
     if (bToggleRotation)
     {
         blip->bSyncRotation = !blip->bSyncRotation;
@@ -4492,7 +4556,7 @@ void Sub_Blip_EntityInBlip()
     }
 
     bool bToggleRoute = false;
-    AddTickol(Language::Translate("spooner.blip.showRoute"), blip->bShowRoute, bToggleRoute, bToggleRoute, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddTickol(Language::Translate("menu.spooner.blip.option.show_route.label"), blip->bShowRoute, bToggleRoute, bToggleRoute, TICKOL::BOXTICK, TICKOL::BOXBLANK);
     if (bToggleRoute)
     {
         blip->bShowRoute = !blip->bShowRoute;
@@ -4504,7 +4568,7 @@ void Sub_Blip_EntityInBlip()
         bool routeColour_plus = false;
         bool routeColour_minus = false;
 
-        AddTexter(Language::Translate("spooner.blip.routeColour"), 0, std::vector<std::string>{BlipColour::vNames.at(blip->RouteColour)}, null, routeColour_plus, routeColour_minus);
+        AddTexter(Language::Translate("menu.spooner.blip.option.route_colour.label"), 0, std::vector<std::string>{BlipColour::vNames.at(blip->RouteColour)}, null, routeColour_plus, routeColour_minus);
 
         if (routeColour_plus)
         {
@@ -4530,8 +4594,8 @@ void Sub_Blip_EntityInBlip()
     }
 
     bool bToggleCone = false;
-    AddTickol(Language::Translate("spooner.blip.showCone"), blip->bShowCone, bToggleCone, bToggleCone, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription(Language::Translate("spooner.blip.showCone.description"));
+    AddTickol(Language::Translate("menu.spooner.blip.option.show_cone.label"), blip->bShowCone, bToggleCone, bToggleCone, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("menu.spooner.blip.option.show_cone.description"));
     if (bToggleCone)
     {
         blip->bShowCone = !blip->bShowCone;
@@ -4539,8 +4603,8 @@ void Sub_Blip_EntityInBlip()
     }
 
     bool bToggleShortRange = false;
-    AddTickol(Language::Translate("spooner.blip.shortRange"), blip->bShortRange, bToggleShortRange, bToggleShortRange, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription(Language::Translate("spooner.blip.shortRange.description"));
+    AddTickol(Language::Translate("menu.spooner.blip.option.short_range.label"), blip->bShortRange, bToggleShortRange, bToggleShortRange, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("menu.spooner.blip.option.short_range.description"));
     if (bToggleShortRange)
     {
         blip->bShortRange = !blip->bShortRange;
@@ -4548,8 +4612,8 @@ void Sub_Blip_EntityInBlip()
     }
 
     bool bToggleSelectable = false;
-    AddTickol(Language::Translate("spooner.blip.selectable"), blip->bSelectableOnMap, bToggleSelectable, bToggleSelectable, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription(Language::Translate("spooner.blip.selectable.description"));
+    AddTickol(Language::Translate("menu.spooner.blip.option.selectable.label"), blip->bSelectableOnMap, bToggleSelectable, bToggleSelectable, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("menu.spooner.blip.option.selectable.description"));
     if (bToggleSelectable)
     {
         blip->bSelectableOnMap = !blip->bSelectableOnMap;
@@ -4564,8 +4628,8 @@ void Sub_Blip_EntityInBlip()
     if (priorityIt == priorityValues.end())
         priorityIt = priorityValues.begin();
 
-    AddTexter(Language::Translate("spooner.blip.priority"), 0, std::vector<std::string>{std::to_string(blip->Priority)}, null, priority_plus, priority_minus);
-    AddOptionDescription(Language::Translate("spooner.blip.priority.description"));
+    AddTexter(Language::Translate("menu.spooner.blip.option.priority.label"), 0, std::vector<std::string>{std::to_string(blip->Priority)}, null, priority_plus, priority_minus);
+    AddOptionDescription(Language::Translate("menu.spooner.blip.option.priority.description"));
 
     if (priority_plus)
     {
@@ -4589,7 +4653,7 @@ void Sub_Blip_EntityInBlip()
 
     bool deletePressed = false;
 
-    AddOption(Language::Translate("spooner.blip.delete"), deletePressed);
+    AddOption(Language::Translate("menu.spooner.blip.option.delete.label"), deletePressed);
 
     if (deletePressed)
     {
@@ -4602,7 +4666,7 @@ void Sub_Blip_EntityInBlip()
 
 void Sub_Blip_Coord()
 {
-    AddTitle(Language::Translate("spooner.blip.coord"));
+    AddTitle(Language::Translate("menu.spooner.blip.coord.title"));
 }
 
 void Sub_Blip_CoordInBlip()
@@ -4615,20 +4679,20 @@ void Sub_Blip_CoordInBlip()
 
     auto blip = sub::Spooner::SelectedBlip;
 
-    AddTitle(Language::Translate("spooner.blip.coordOptions"));
+    AddTitle(Language::Translate("menu.spooner.blip.coord_options.title"));
 
     bool bEditLabelPressed = false;
-    AddTexter(Language::Translate("spooner.blip.label"), 0, std::vector<std::string>{blip->label.empty() ? "" : blip->label}, bEditLabelPressed);
+    AddTexter(Language::Translate("menu.spooner.option.blip.label"), 0, std::vector<std::string>{blip->label.empty() ? "" : blip->label}, bEditLabelPressed);
     if (bEditLabelPressed)
     {
-        blip->label = Game::InputBox(blip->label, 26U, Language::Translate("spooner.blip.namePrompt").c_str(), blip->label);
+        blip->label = Game::InputBox(blip->label, 26U, Language::Translate("menu.spooner.blip.option.name_prompt.prompt").c_str(), blip->label);
         BlipCustoms::RefreshBlip(*blip);
     }
 
     bool colour_plus = false;
     bool colour_minus = false;
 
-    AddTexter(Language::Translate("spooner.blip.colour"), 0, std::vector<std::string>{BlipColour::vNames.at(blip->Colour)}, null, colour_plus, colour_minus);
+    AddTexter(Language::Translate("menu.spooner.blip.option.colour.label"), 0, std::vector<std::string>{BlipColour::vNames.at(blip->Colour)}, null, colour_plus, colour_minus);
 
     if (colour_plus)
     {
@@ -4652,12 +4716,12 @@ void Sub_Blip_CoordInBlip()
         }
     }
 
-    AddOption(Language::Format("spooner.blip.icon", {{"icon", BlipIcon::vNames.at(blip->Icon)}}), null, nullFunc, SUB::SPOONER_BLIPS_ICONS);
+    AddOption(Language::Format("menu.spooner.blip.option.icon.label", {{"icon", BlipIcon::vNames.at(blip->Icon)}}), null, nullFunc, SUB::SPOONER_BLIPS_ICONS);
 
     bool scale_plus = false;
     bool scale_minus = false;
 
-    AddNumber(Language::Translate("spooner.blip.scale"), blip->Scale, 2, null, scale_plus, scale_minus);
+    AddNumber(Language::Translate("menu.spooner.blip.option.scale.label"), blip->Scale, 2, null, scale_plus, scale_minus);
 
     if (scale_plus)
     {
@@ -4680,7 +4744,7 @@ void Sub_Blip_CoordInBlip()
     bool alpha_plus = false;
     bool alpha_minus = false;
 
-    AddNumber(Language::Translate("spooner.blip.alpha"), blip->Alpha, 2, null, alpha_plus, alpha_minus);
+    AddNumber(Language::Translate("menu.spooner.blip.option.alpha.label"), blip->Alpha, 2, null, alpha_plus, alpha_minus);
 
     if (alpha_plus)
     {
@@ -4701,7 +4765,7 @@ void Sub_Blip_CoordInBlip()
     }
 
     bool bToggleRoute = false;
-    AddTickol(Language::Translate("spooner.blip.showRoute"), blip->bShowRoute, bToggleRoute, bToggleRoute, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddTickol(Language::Translate("menu.spooner.blip.option.show_route.label"), blip->bShowRoute, bToggleRoute, bToggleRoute, TICKOL::BOXTICK, TICKOL::BOXBLANK);
     if (bToggleRoute)
     {
         blip->bShowRoute = !blip->bShowRoute;
@@ -4709,8 +4773,8 @@ void Sub_Blip_CoordInBlip()
     }
 
     bool bToggleShortRange = false;
-    AddTickol(Language::Translate("spooner.blip.shortRange"), blip->bShortRange, bToggleShortRange, bToggleShortRange, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription(Language::Translate("spooner.blip.shortRange.description"));
+    AddTickol(Language::Translate("menu.spooner.blip.option.short_range.label"), blip->bShortRange, bToggleShortRange, bToggleShortRange, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("menu.spooner.blip.option.short_range.description"));
     if (bToggleShortRange)
     {
         blip->bShortRange = !blip->bShortRange;
@@ -4718,8 +4782,8 @@ void Sub_Blip_CoordInBlip()
     }
 
     bool bToggleSelectable = false;
-    AddTickol(Language::Translate("spooner.blip.selectable"), blip->bSelectableOnMap, bToggleSelectable, bToggleSelectable, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription(Language::Translate("spooner.blip.selectable.description"));
+    AddTickol(Language::Translate("menu.spooner.blip.option.selectable.label"), blip->bSelectableOnMap, bToggleSelectable, bToggleSelectable, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddOptionDescription(Language::Translate("menu.spooner.blip.option.selectable.description"));
     if (bToggleSelectable)
     {
         blip->bSelectableOnMap = !blip->bSelectableOnMap;
@@ -4734,8 +4798,8 @@ void Sub_Blip_CoordInBlip()
     if (priorityIt == priorityValues.end())
         priorityIt = priorityValues.begin();
 
-    AddTexter(Language::Translate("spooner.blip.priority"), 0, std::vector<std::string>{std::to_string(blip->Priority)}, null, priority_plus, priority_minus);
-    AddOptionDescription(Language::Translate("spooner.blip.priority.description"));
+    AddTexter(Language::Translate("menu.spooner.blip.option.priority.label"), 0, std::vector<std::string>{std::to_string(blip->Priority)}, null, priority_plus, priority_minus);
+    AddOptionDescription(Language::Translate("menu.spooner.blip.option.priority.description"));
 
     if (priority_plus)
     {
@@ -4759,7 +4823,7 @@ void Sub_Blip_CoordInBlip()
 
     bool deletePressed = false;
 
-    AddOption(Language::Translate("spooner.blip.delete"), deletePressed);
+    AddOption(Language::Translate("menu.spooner.blip.option.delete.label"), deletePressed);
 
     if (deletePressed)
     {
@@ -4769,12 +4833,12 @@ void Sub_Blip_CoordInBlip()
         return;
     }
 
-    AddBreak(Language::Translate("spooner.blip.position"));
+    AddBreak(Language::Translate("menu.spooner.blip.section.position.label"));
     {
         AddOption("~italic~" + Vector3(blip->X, blip->Y, blip->Z).ToString(), null);
 
         bool bSetToPlayer = false;
-        AddOption(Language::Translate("spooner.marker.setToPlayerPosition"), bSetToPlayer);
+        AddOption(Language::Translate("menu.spooner.marker.option.set_to_player_position.label"), bSetToPlayer);
         if (bSetToPlayer)
         {
             Vector3 pos = ENTITY::GET_ENTITY_COORDS(PLAYER_PED_ID(), true);
@@ -4787,7 +4851,7 @@ void Sub_Blip_CoordInBlip()
         if (IS_WAYPOINT_ACTIVE())
         {
             bool bSetToWp = false;
-            AddOption(Language::Translate("spooner.marker.setToWaypoint"), bSetToWp);
+            AddOption(Language::Translate("menu.spooner.marker.option.set_to_waypoint.label"), bSetToWp);
             if (bSetToWp)
             {
                 Blip wp = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
@@ -4802,7 +4866,7 @@ void Sub_Blip_CoordInBlip()
         }
 
         bool bManual = false;
-        AddOption(Language::Translate("spooner.blip.manualPlacement"), bManual, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
+        AddOption(Language::Translate("menu.spooner.blip.option.manual_placement.label"), bManual, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
         if (bManual)
         {
             SpoonerVector3ManualEditingPtrs = std::make_tuple((GTAentity)0, &blip->Offset, (Vector3*)nullptr);
@@ -4820,14 +4884,15 @@ void Sub_Blip_RadialInBlip()
 
     auto blip = sub::Spooner::SelectedBlip;
 
-    AddTitle(Language::Translate("spooner.blip.radialOptions"));
+    AddTitle(Language::Translate("menu.spooner.blip.radial_options.title"));
 
     bool shape_plus = false;
     bool shape_minus = false;
 
-    std::string shapeName = (blip->Shape == SpoonerBlip::RadialShape::Circle) ? Language::Translate("spooner.blip.circle") : Language::Translate("spooner.blip.square");
+    std::string shapeName =
+        (blip->Shape == SpoonerBlip::RadialShape::Circle) ? Language::Translate("menu.spooner.blip.option.circle.label") : Language::Translate("menu.spooner.blip.option.square.label");
 
-    AddTexter(Language::Translate("spooner.blip.shape"), 0, std::vector<std::string>{shapeName}, null, shape_plus, shape_minus);
+    AddTexter(Language::Translate("menu.spooner.blip.option.shape.label"), 0, std::vector<std::string>{shapeName}, null, shape_plus, shape_minus);
 
     if (shape_plus || shape_minus)
     {
@@ -4841,7 +4906,7 @@ void Sub_Blip_RadialInBlip()
         bool radius_plus = false;
         bool radius_minus = false;
 
-        AddNumber(Language::Translate("spooner.blip.radius"), blip->RadialSize, 2, null, radius_plus, radius_minus);
+        AddNumber(Language::Translate("menu.spooner.blip.option.radius.label"), blip->RadialSize, 2, null, radius_plus, radius_minus);
 
         if (radius_plus)
         {
@@ -4868,7 +4933,7 @@ void Sub_Blip_RadialInBlip()
         bool width_plus = false;
         bool width_minus = false;
 
-        AddNumber(Language::Translate("spooner.blip.width"), blip->AreaWidth, 2, null, width_plus, width_minus);
+        AddNumber(Language::Translate("menu.spooner.blip.option.width.label"), blip->AreaWidth, 2, null, width_plus, width_minus);
 
         if (width_plus)
         {
@@ -4891,7 +4956,7 @@ void Sub_Blip_RadialInBlip()
         bool height_plus = false;
         bool height_minus = false;
 
-        AddNumber(Language::Translate("spooner.blip.height"), blip->AreaHeight, 2, null, height_plus, height_minus);
+        AddNumber(Language::Translate("menu.spooner.blip.option.height.label"), blip->AreaHeight, 2, null, height_plus, height_minus);
 
         if (height_plus)
         {
@@ -4913,7 +4978,7 @@ void Sub_Blip_RadialInBlip()
         bool heading_plus = false;
         bool heading_minus = false;
 
-        AddNumber(Language::Translate("spooner.blip.rotation"), blip->Heading, 2, null, heading_plus, heading_minus);
+        AddNumber(Language::Translate("menu.spooner.blip.option.rotation.label"), blip->Heading, 2, null, heading_plus, heading_minus);
 
         if (heading_plus)
         {
@@ -4937,7 +5002,7 @@ void Sub_Blip_RadialInBlip()
     bool colour_plus = false;
     bool colour_minus = false;
 
-    AddTexter(Language::Translate("spooner.blip.colour"), 0, std::vector<std::string>{BlipColour::vNames.at(blip->Colour)}, null, colour_plus, colour_minus);
+    AddTexter(Language::Translate("menu.spooner.blip.option.colour.label"), 0, std::vector<std::string>{BlipColour::vNames.at(blip->Colour)}, null, colour_plus, colour_minus);
 
     if (colour_plus)
     {
@@ -4964,7 +5029,7 @@ void Sub_Blip_RadialInBlip()
     bool alpha_plus = false;
     bool alpha_minus = false;
 
-    AddNumber(Language::Translate("spooner.blip.alpha"), blip->Alpha, 2, null, alpha_plus, alpha_minus);
+    AddNumber(Language::Translate("menu.spooner.blip.option.alpha.label"), blip->Alpha, 2, null, alpha_plus, alpha_minus);
 
     if (alpha_plus)
     {
@@ -4986,7 +5051,7 @@ void Sub_Blip_RadialInBlip()
 
     bool deletePressed = false;
 
-    AddOption(Language::Translate("spooner.blip.delete"), deletePressed);
+    AddOption(Language::Translate("menu.spooner.blip.option.delete.label"), deletePressed);
 
     if (deletePressed)
     {
@@ -4996,12 +5061,12 @@ void Sub_Blip_RadialInBlip()
         return;
     }
 
-    AddBreak(Language::Translate("spooner.blip.position"));
+    AddBreak(Language::Translate("menu.spooner.blip.section.position.label"));
     {
         AddOption("~italic~" + Vector3(blip->X, blip->Y, blip->Z).ToString(), null);
 
         bool bSetToPlayer = false;
-        AddOption(Language::Translate("spooner.marker.setToPlayerPosition"), bSetToPlayer);
+        AddOption(Language::Translate("menu.spooner.marker.option.set_to_player_position.label"), bSetToPlayer);
         if (bSetToPlayer)
         {
             Vector3 pos = ENTITY::GET_ENTITY_COORDS(PLAYER_PED_ID(), true);
@@ -5016,7 +5081,7 @@ void Sub_Blip_RadialInBlip()
         if (IS_WAYPOINT_ACTIVE())
         {
             bool bSetToWp = false;
-            AddOption(Language::Translate("spooner.marker.setToWaypoint"), bSetToWp);
+            AddOption(Language::Translate("menu.spooner.marker.option.set_to_waypoint.label"), bSetToWp);
             if (bSetToWp)
             {
                 Blip wp = GET_FIRST_BLIP_INFO_ID(BlipIcon::Waypoint);
@@ -5032,12 +5097,12 @@ void Sub_Blip_RadialInBlip()
             }
         }
 
-        AddOption(Language::Translate("spooner.marker.attachToEntity"), null, nullFunc, SUB::SPOONER_BLIPS_ATTACH);
+        AddOption(Language::Translate("menu.spooner.marker.option.attach_to_entity.label"), null, nullFunc, SUB::SPOONER_BLIPS_ATTACH);
 
         if (blip->bAttached)
         {
             bool bAdjust = false;
-            AddOption(Language::Translate("spooner.marker.adjustAttachment"), bAdjust, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
+            AddOption(Language::Translate("menu.spooner.marker.option.adjust_attachment.label"), bAdjust, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
             if (bAdjust)
             {
                 SpoonerVector3ManualEditingPtrs = std::make_tuple((GTAentity)blip->EntityHandle, &blip->Offset, (Vector3*)nullptr);
@@ -5046,7 +5111,7 @@ void Sub_Blip_RadialInBlip()
         else
         {
             bool bManual = false;
-            AddOption(Language::Translate("spooner.blip.manualPlacement"), bManual, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
+            AddOption(Language::Translate("menu.spooner.blip.option.manual_placement.label"), bManual, nullFunc, SUB::SPOONER_VECTOR3_MANUALPLACEMENT);
             if (bManual)
             {
                 SpoonerVector3ManualEditingPtrs = std::make_tuple((GTAentity)0, &blip->Offset, (Vector3*)nullptr);
@@ -5065,10 +5130,10 @@ void Sub_Blip_Attach()
 
     auto blip = sub::Spooner::SelectedBlip;
 
-    AddTitle(Language::Translate("spooner.attachment.title"));
+    AddTitle(Language::Translate("menu.spooner.attachment.title"));
 
     bool bDetachPressed = false;
-    AddTickol(Language::Translate("spooner.attachment.detach"), !blip->bAttached, bDetachPressed, bDetachPressed, TICKOL::TICK2);
+    AddTickol(Language::Translate("menu.spooner.attachment.option.detach.label"), !blip->bAttached, bDetachPressed, bDetachPressed, TICKOL::TICK2);
     if (bDetachPressed)
     {
         if (blip->bAttached)
@@ -5086,7 +5151,7 @@ void Sub_Blip_Attach()
 
     if (!Databases::EntityDb.empty())
     {
-        AddBreak(Language::Translate("spooner.attachment.database"));
+        AddBreak(Language::Translate("menu.spooner.attachment.section.database.label"));
         for (auto& e : Databases::EntityDb)
         {
             if (e.handle.Exists())
@@ -5108,7 +5173,7 @@ void Sub_Blip_Attach()
             }
             else
             {
-                AddOption(e.hashName + " " + Language::Translate("spooner.multiSelect.invalidSuffix"), null);
+                AddOption(Language::Format("menu.spooner.multi_select.option.invalid_entity.label", {{"name", e.hashName}}), null);
             }
         }
     }
@@ -5122,13 +5187,13 @@ void Sub_Blip_Icons()
         return;
     }
 
-    AddTitle(Language::Translate("spooner.blip.icons"));
+    AddTitle(Language::Translate("menu.spooner.blip.icons.title"));
 
     bool bSearchPressed = false;
-    AddOption(_searchStr.empty() ? Language::Translate("components.search") : boost::to_upper_copy(_searchStr), bSearchPressed, nullFunc, -1, true);
+    AddOption(_searchStr.empty() ? Language::Translate("component.search.action.label") : boost::to_upper_copy(_searchStr), bSearchPressed, nullFunc, -1, true);
     if (bSearchPressed)
     {
-        _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("components.search").c_str(), _searchStr);
+        _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("component.search.prompt").c_str(), _searchStr);
         boost::to_lower(_searchStr);
     }
 
@@ -5136,9 +5201,9 @@ void Sub_Blip_Icons()
     bool sort_plus = false;
     bool sort_minus = false;
     AddTexter(
-        Language::Translate("spooner.blip.sort"),
+        Language::Translate("menu.spooner.blip.option.sort.label"),
         0,
-        std::vector<std::string>{sortMode == 0 ? Language::Translate("spooner.blip.sortRegular") : Language::Translate("spooner.blip.sortAlphabetic")},
+        std::vector<std::string>{sortMode == 0 ? Language::Translate("menu.spooner.option.blip.value.sort_regular") : Language::Translate("menu.spooner.option.blip.value.sort_alphabetic")},
         null,
         sort_plus,
         sort_minus
@@ -5182,7 +5247,7 @@ void Sub_Blip_Icons()
     }
 
     if (!favEntries.empty())
-        AddBreak(Language::Translate("spooner.blip.favourites"));
+        AddBreak(Language::Translate("menu.spooner.blip.section.favourites.label"));
 
     for (const auto& [icon, name] : favEntries)
     {
@@ -5193,14 +5258,14 @@ void Sub_Blip_Icons()
         {
             sub::Spooner::SelectedBlip->Icon = icon;
             sub::Spooner::BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-            Keybinds::AddBindIB("menu_action", Language::Translate("menu.removeFromFavourites"));
+            Keybinds::AddBindIB("menu_action", Language::Translate("common.remove_from_favourites"));
             if (Keybinds::WasPressedThisFrame("menu_action"))
                 FavouritesManagement::RemoveBlipIconFromFavourites(icon);
         }
     }
 
     if (!otherEntries.empty())
-        AddBreak(Language::Translate("spooner.blip.allIcons"));
+        AddBreak(Language::Translate("menu.spooner.blip.section.all_icons.label"));
 
     for (const auto& [icon, name] : otherEntries)
     {
@@ -5211,7 +5276,7 @@ void Sub_Blip_Icons()
         {
             sub::Spooner::SelectedBlip->Icon = icon;
             sub::Spooner::BlipCustoms::RefreshBlip(*sub::Spooner::SelectedBlip);
-            Keybinds::AddBindIB("menu_action", Language::Translate("menu.addToFavourites"));
+            Keybinds::AddBindIB("menu_action", Language::Translate("common.add_to_favourites"));
             if (Keybinds::WasPressedThisFrame("menu_action"))
                 FavouritesManagement::AddBlipIconToFavourites(icon);
         }
@@ -5222,10 +5287,10 @@ void Sub_SpawnCategories()
 {
     _searchStr.clear();
 
-    AddTitle(Language::Translate("spooner.spawn.title"));
-    AddOption(Language::Translate("spooner.spawn.object"), null, nullFunc, SUB::SPOONER_SPAWN_PROP);
-    AddOption(Language::Translate("spooner.spawn.ped"), null, nullFunc, SUB::SPOONER_SPAWN_PED);
-    AddOption(Language::Translate("spooner.spawn.vehicle"), null, nullFunc, SUB::SPOONER_SPAWN_VEHICLE);
+    AddTitle(Language::Translate("menu.spooner.spawn.title"));
+    AddOption(Language::Translate("menu.spooner.spawn.option.object.label"), null, nullFunc, SUB::SPOONER_SPAWN_PROP);
+    AddOption(Language::Translate("menu.spooner.spawn.option.ped.label"), null, nullFunc, SUB::SPOONER_SPAWN_PED);
+    AddOption(Language::Translate("menu.spooner.spawn.option.vehicle.label"), null, nullFunc, SUB::SPOONER_SPAWN_VEHICLE);
 }
 
 namespace ObjectSearch
@@ -5430,21 +5495,21 @@ void ObjectSpawnerSearchMenu()
 
     EnsureOptions();
 
-    AddTitle(Language::Translate("spooner.objectSearch.title"));
+    AddTitle(Language::Translate("menu.spooner.object_search.title"));
 
     bool bSearchPressed = false;
-    AddOption(searchStr.empty() ? "~b~" + Language::Translate("components.search") + "~s~" : ("~b~" + searchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
+    AddOption(searchStr.empty() ? "~b~" + Language::Translate("component.search.action.label") + "~s~" : ("~b~" + searchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
     if (bSearchPressed)
     {
-        searchStr = Game::InputBox(searchStr, 64U, Language::Translate("spooner.objectSearch.prompt").c_str(), boost::to_lower_copy(searchStr));
+        searchStr = Game::InputBox(searchStr, 64U, Language::Translate("menu.spooner.option.object_search.prompt").c_str(), boost::to_lower_copy(searchStr));
         boost::to_upper(searchStr);
     }
 
     bool sortRight = false, sortLeft = false;
     AddTexter(
-        Language::Translate("spooner.objectSearch.sort"),
+        Language::Translate("menu.spooner.object_search.option.sort.label"),
         sortIndex,
-        {Language::Translate("spooner.objectSearch.sortNameAsc"), Language::Translate("spooner.objectSearch.sortNameDesc")},
+        {Language::Translate("menu.spooner.option.object_search.value.sort_name_asc"), Language::Translate("menu.spooner.option.object_search.value.sort_name_desc")},
         null,
         sortRight,
         sortLeft
@@ -5455,29 +5520,29 @@ void ObjectSpawnerSearchMenu()
         sortIndex--;
 
     bool catRight = false, catLeft = false;
-    AddTexter(Language::Translate("spooner.objectSearch.category"), categoryFilter, categoryOptions, null, catRight, catLeft);
+    AddTexter(Language::Translate("menu.spooner.object_search.option.category.label"), categoryFilter, categoryOptions, null, catRight, catLeft);
     if (catRight && categoryFilter < (int)(categoryOptions.size() - 1))
         categoryFilter++;
     if (catLeft && categoryFilter > 0)
         categoryFilter--;
 
     bool dlcRight = false, dlcLeft = false;
-    AddTexter(Language::Translate("spooner.objectSearch.dlc"), dlcFilter, dlcOptions, null, dlcRight, dlcLeft);
+    AddTexter(Language::Translate("menu.spooner.object_search.option.dlc.label"), dlcFilter, dlcOptions, null, dlcRight, dlcLeft);
     if (dlcRight && dlcFilter < (int)(dlcOptions.size() - 1))
         dlcFilter++;
     if (dlcLeft && dlcFilter > 0)
         dlcFilter--;
 
     bool stuntRight = false, stuntLeft = false;
-    AddTexter(Language::Translate("spooner.objectSearch.stunt"), stuntFilter, stuntOptions, null, stuntRight, stuntLeft);
+    AddTexter(Language::Translate("menu.spooner.object_search.option.stunt.label"), stuntFilter, stuntOptions, null, stuntRight, stuntLeft);
     if (stuntRight && stuntFilter < (int)(stuntOptions.size() - 1))
         stuntFilter++;
     if (stuntLeft && stuntFilter > 0)
         stuntFilter--;
 
     bool sizeRight = false, sizeLeft = false;
-    AddTexter(Language::Translate("spooner.objectSearch.size"), sizeFilter, sizeOptions, null, sizeRight, sizeLeft);
-    AddOptionDescription(Language::Translate("spooner.objectSearch.size.description"));
+    AddTexter(Language::Translate("menu.spooner.object_search.option.size.label"), sizeFilter, sizeOptions, null, sizeRight, sizeLeft);
+    AddOptionDescription(Language::Translate("menu.spooner.object_search.option.size.description"));
     if (sizeRight && sizeFilter < (int)(sizeOptions.size() - 1))
         sizeFilter++;
     if (sizeLeft && sizeFilter > 0)
@@ -5485,9 +5550,14 @@ void ObjectSpawnerSearchMenu()
 
     bool lodRight = false, lodLeft = false;
     AddTexter(
-        Language::Translate("spooner.objectSearch.lod"), lodFilter, {Language::Translate("spooner.objectSearch.hideLod"), Language::Translate("spooner.objectSearch.showAll")}, null, lodRight, lodLeft
+        Language::Translate("menu.spooner.object_search.option.lod.label"),
+        lodFilter,
+        {Language::Translate("menu.spooner.option.object_search.value.hide_lod"), Language::Translate("menu.spooner.option.object_search.value.show_all")},
+        null,
+        lodRight,
+        lodLeft
     );
-    AddOptionDescription(Language::Translate("spooner.objectSearch.lod.description"));
+    AddOptionDescription(Language::Translate("menu.spooner.object_search.option.lod.description"));
     if (lodRight && lodFilter < 1)
         lodFilter++;
     if (lodLeft && lodFilter > 0)
@@ -5512,9 +5582,9 @@ void ObjectSpawnerSearchMenu()
     }
 
     if (results.size() > MaxVisibleResults)
-        AddBreak(Language::Format("spooner.objectSearch.resultsLimited", {{"count", results.size()}, {"max", MaxVisibleResults}}));
+        AddBreak(Language::Format("menu.spooner.object_search.section.results_limited.label", {{"count", results.size()}, {"max", MaxVisibleResults}}));
     else
-        AddBreak(Language::Format("spooner.objectSearch.results", {{"count", results.size()}}));
+        AddBreak(Language::Format("menu.spooner.object_search.section.results.label", {{"count", results.size()}}));
 
     const size_t visibleCount = results.size() < MaxVisibleResults ? results.size() : MaxVisibleResults;
     for (size_t i = 0; i < visibleCount; i++)
@@ -5527,7 +5597,7 @@ void ObjectSpawnerSearchMenu()
         if (Menu::IsLastDrawnOptionSelected())
         {
             bool bIsAFav = FavouritesManagement::IsPropAFavourite(modelName, currentModel.hash);
-            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("menu.removeFromFavourites"), Language::Translate("menu.addToFavourites"));
+            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("common.remove_from_favourites"), Language::Translate("common.add_to_favourites"));
 
             if (Keybinds::WasPressedThisFrame("menu_action"))
             {
@@ -5539,19 +5609,19 @@ void ObjectSpawnerSearchMenu()
 
 void Sub_SpawnProp()
 {
-    AddTitle(Language::Translate("spooner.spawn.objectTitle"));
+    AddTitle(Language::Translate("menu.spooner.spawn.object_title.title"));
 
-    AddOption(Language::Translate("spooner.favourites.title"), null, nullFunc, SUB::SPOONER_SPAWN_PROP_FAVOURITES);
+    AddOption(Language::Translate("menu.spooner.option.favourites.label"), null, nullFunc, SUB::SPOONER_SPAWN_PROP_FAVOURITES);
     bool bOpenObjectSearch = false;
-    AddOption(Language::Translate("spooner.objectSearch.open"), bOpenObjectSearch, nullFunc, SUB::OBJECTSPAWNER_SEARCH);
+    AddOption(Language::Translate("menu.spooner.object_search.option.open.label"), bOpenObjectSearch, nullFunc, SUB::OBJECTSPAWNER_SEARCH);
     if (bOpenObjectSearch)
         dict.clear();
 
     bool bSearchPressed = false;
-    AddOption(_searchStr.empty() ? Language::Translate("components.search") : boost::to_upper_copy(_searchStr), bSearchPressed, nullFunc, -1, true);
+    AddOption(_searchStr.empty() ? Language::Translate("component.search.action.label") : boost::to_upper_copy(_searchStr), bSearchPressed, nullFunc, -1, true);
     if (bSearchPressed)
     {
-        _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("components.search").c_str(), _searchStr);
+        _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("component.search.prompt").c_str(), _searchStr);
         boost::to_lower(_searchStr);
         //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SearchToLower, _searchStr, 126U, std::string(), _searchStr);
         //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_searchStr);
@@ -5573,7 +5643,7 @@ void Sub_SpawnProp()
         if (Menu::IsLastDrawnOptionSelected())
         {
             bool bIsAFav = FavouritesManagement::IsPropAFavourite(current, currentModel.hash);
-            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("menu.removeFromFavourites"), Language::Translate("menu.addToFavourites"));
+            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("common.remove_from_favourites"), Language::Translate("common.add_to_favourites"));
 
             if (Keybinds::WasPressedThisFrame("menu_action"))
             {
@@ -5583,7 +5653,7 @@ void Sub_SpawnProp()
     }
 
     bool bInputPressed = false;
-    AddOption(Language::Translate("spooner.spawn.inputModel"), bInputPressed);
+    AddOption(Language::Translate("menu.spooner.spawn.option.input_model.label"), bInputPressed);
     if (bInputPressed)
     {
         EntityManagement::InputEntityIntoDb(EntityType::PROP);
@@ -5641,17 +5711,17 @@ void RebuildFavPropCache(const std::string& searchStr)
 
 void Sub_SpawnProp_Favourites()
 {
-    AddTitle(Language::Translate("spooner.favourites.title"));
+    AddTitle(Language::Translate("menu.spooner.favourites.title"));
 
     Menu::OnSubBack = []() { s_favPropCache.needsRebuild = true; };
 
     bool searchActive = !s_favPropSearchStr.empty();
 
     bool bSearchPressed = false;
-    AddOption(s_favPropSearchStr.empty() ? "~b~" + Language::Translate("components.search") + "~s~" : ("~b~" + s_favPropSearchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
+    AddOption(s_favPropSearchStr.empty() ? "~b~" + Language::Translate("component.search.action.label") + "~s~" : ("~b~" + s_favPropSearchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
     if (bSearchPressed)
     {
-        s_favPropSearchStr = Game::InputBox(s_favPropSearchStr, 64U, Language::Translate("spooner.favourites.searchPrompt").c_str(), boost::to_lower_copy(s_favPropSearchStr));
+        s_favPropSearchStr = Game::InputBox(s_favPropSearchStr, 64U, Language::Translate("menu.spooner.favourites.option.search_prompt.prompt").c_str(), boost::to_lower_copy(s_favPropSearchStr));
         boost::to_upper(s_favPropSearchStr);
         s_favPropCache.needsRebuild = true;
     }
@@ -5665,23 +5735,23 @@ void Sub_SpawnProp_Favourites()
         MenuCategory::RestoreExpandedState();
 
     bool bInputAdd = false;
-    AddOption(Language::Translate("spooner.favourites.addObject"), bInputAdd);
+    AddOption(Language::Translate("menu.spooner.favourites.option.add_object.label"), bInputAdd);
     if (bInputAdd)
     {
-        std::string inputStr = Game::InputBox("", 40U, Language::Translate("spooner.favourites.modelPrompt").c_str());
+        std::string inputStr = Game::InputBox("", 40U, Language::Translate("menu.spooner.favourites.option.model_prompt.prompt").c_str());
         if (inputStr.length() > 0)
         {
             if (FavouritesManagement::AddPropToFavourites(inputStr, GET_HASH_KEY(inputStr)))
             {
-                Game::Print::PrintBottomLeft(Language::Translate("spooner.favourites.modelAdded"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.spooner.favourites.model_added.message"));
                 s_favPropCache.needsRebuild = true;
             }
             else
-                Game::Print::PrintBottomLeft(Language::Translate("spooner.favourites.modelAddFailed"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.spooner.favourites.model_add_failed.message"));
         }
     }
 
-    AddBreak("---");
+    AddDivider();
 
     MenuCategory::ResetCategoryState();
     for (auto& cat : s_favPropCache.sortedCategories)
@@ -5702,7 +5772,7 @@ void Sub_SpawnProp_Favourites()
 
                 if (Menu::IsLastDrawnOptionSelected())
                 {
-                    Keybinds::AddBindIB("menu_action", Language::Translate("menu.remove"));
+                    Keybinds::AddBindIB("menu_action", Language::Translate("common.remove"));
                     if (Keybinds::WasPressedThisFrame("menu_action"))
                     {
                         FavouritesManagement::RemovePropFromFavourites(prop.modelName, prop.model.hash);
@@ -5711,7 +5781,7 @@ void Sub_SpawnProp_Favourites()
                             Menu::Up();
                         return;
                     }
-                    Keybinds::AddBindIB("favourite_recategorize", Language::Translate("animation.favourites.changeCategory"));
+                    Keybinds::AddBindIB("favourite_recategorize", Language::Translate("menu.ped.animation.favourites.option.change_category.label"));
                     if (Keybinds::WasPressedThisFrame("favourite_recategorize"))
                     {
                         dict = prop.modelName;
@@ -5748,7 +5818,7 @@ void Sub_SpawnProp_Favourites_CatSelect()
         }
     }
 
-    AddTitle(Language::Translate("spooner.favourites.selectCategory"));
+    AddTitle(Language::Translate("menu.spooner.favourites.select_category.title"));
 
     for (auto& cat : allCategories)
     {
@@ -5765,13 +5835,13 @@ void Sub_SpawnProp_Favourites_CatSelect()
     }
 
     if (!allCategories.empty())
-        AddBreak(Language::Translate("spooner.favourites.separator"));
+        AddBreak(Language::Translate("menu.spooner.favourites.section.separator.label"));
 
     bool newCatPressed = false;
-    AddOption(Language::Translate("spooner.favourites.newCategory"), newCatPressed);
+    AddOption(Language::Translate("menu.spooner.favourites.option.new_category.label"), newCatPressed);
     if (newCatPressed)
     {
-        std::string newCat = Game::InputBox("", 64U, Language::Translate("spooner.favourites.newCategoryPrompt").c_str(), "");
+        std::string newCat = Game::InputBox("", 64U, Language::Translate("menu.spooner.favourites.option.new_category_prompt.prompt").c_str(), "");
         if (!newCat.empty())
         {
             FavouritesManagement::SetPropCategory(modelName, newCat);
@@ -5783,7 +5853,7 @@ void Sub_SpawnProp_Favourites_CatSelect()
     if (!currentCategory.empty())
     {
         bool removeCatPressed = false;
-        AddOption(Language::Translate("spooner.favourites.removeCategory"), removeCatPressed);
+        AddOption(Language::Translate("menu.spooner.favourites.option.remove_category.label"), removeCatPressed);
         if (removeCatPressed)
         {
             FavouritesManagement::SetPropCategory(modelName, "");
@@ -5796,26 +5866,26 @@ void Sub_SpawnProp_Favourites_CatSelect()
 void Sub_SpawnPed()
 {
     bool modelChangerInput = false;
-    AddTitle(Language::Translate("spooner.spawn.pedTitle"));
+    AddTitle(Language::Translate("menu.spooner.spawn.ped_title.title"));
 
-    AddOption(Language::Translate("spooner.favourites.title"), null, nullFunc, SUB::MODELCHANGER_FAVOURITES);
-    AddOption(Language::Translate("spooner.spawn.searchPeds"), null, nullFunc, SUB::MODELCHANGER_SEARCH);
+    AddOption(Language::Translate("menu.spooner.option.favourites.label"), null, nullFunc, SUB::MODELCHANGER_FAVOURITES);
+    AddOption(Language::Translate("menu.spooner.spawn.option.search_peds.label"), null, nullFunc, SUB::MODELCHANGER_SEARCH);
 
-    AddOption(Language::Translate("spooner.spawn.player"), null, nullFunc, SUB::MODELCHANGER_PLAYER);
-    AddOption(Language::Translate("spooner.spawn.animals"), null, nullFunc, SUB::MODELCHANGER_ANIMAL);
-    AddOption(Language::Translate("spooner.spawn.ambientFemales"), null, nullFunc, SUB::MODELCHANGER_AMBFEMALES);
-    AddOption(Language::Translate("spooner.spawn.ambientMales"), null, nullFunc, SUB::MODELCHANGER_AMBMALES);
-    AddOption(Language::Translate("spooner.spawn.cutsceneModels"), null, nullFunc, SUB::MODELCHANGER_CS);
-    AddOption(Language::Translate("spooner.spawn.gangFemales"), null, nullFunc, SUB::MODELCHANGER_GANGFEMALES);
-    AddOption(Language::Translate("spooner.spawn.gangMales"), null, nullFunc, SUB::MODELCHANGER_GANGMALES);
-    AddOption(Language::Translate("spooner.spawn.storyModels"), null, nullFunc, SUB::MODELCHANGER_STORY);
-    AddOption(Language::Translate("spooner.spawn.multiplayerModels"), null, nullFunc, SUB::MODELCHANGER_MP);
-    AddOption(Language::Translate("spooner.spawn.scenarioFemales"), null, nullFunc, SUB::MODELCHANGER_SCENARIOFEMALES);
-    AddOption(Language::Translate("spooner.spawn.scenarioMales"), null, nullFunc, SUB::MODELCHANGER_SCENARIOMALES);
-    AddOption(Language::Translate("spooner.spawn.storyScenarioFemales"), null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOFEMALES);
-    AddOption(Language::Translate("spooner.spawn.storyScenarioMales"), null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOMALES);
-    AddOption(Language::Translate("spooner.spawn.others"), null, nullFunc, SUB::MODELCHANGER_OTHERS);
-    AddOption(Language::Translate("spooner.spawn.inputModel"), modelChangerInput);
+    AddOption(Language::Translate("menu.spooner.spawn.option.player.label"), null, nullFunc, SUB::MODELCHANGER_PLAYER);
+    AddOption(Language::Translate("menu.spooner.spawn.option.animals.label"), null, nullFunc, SUB::MODELCHANGER_ANIMAL);
+    AddOption(Language::Translate("menu.spooner.spawn.option.ambient_females.label"), null, nullFunc, SUB::MODELCHANGER_AMBFEMALES);
+    AddOption(Language::Translate("menu.spooner.spawn.option.ambient_males.label"), null, nullFunc, SUB::MODELCHANGER_AMBMALES);
+    AddOption(Language::Translate("menu.spooner.spawn.option.cutscene_models.label"), null, nullFunc, SUB::MODELCHANGER_CS);
+    AddOption(Language::Translate("menu.spooner.spawn.option.gang_females.label"), null, nullFunc, SUB::MODELCHANGER_GANGFEMALES);
+    AddOption(Language::Translate("menu.spooner.spawn.option.gang_males.label"), null, nullFunc, SUB::MODELCHANGER_GANGMALES);
+    AddOption(Language::Translate("menu.spooner.spawn.option.story_models.label"), null, nullFunc, SUB::MODELCHANGER_STORY);
+    AddOption(Language::Translate("menu.spooner.spawn.option.multiplayer_models.label"), null, nullFunc, SUB::MODELCHANGER_MP);
+    AddOption(Language::Translate("menu.spooner.spawn.option.scenario_females.label"), null, nullFunc, SUB::MODELCHANGER_SCENARIOFEMALES);
+    AddOption(Language::Translate("menu.spooner.spawn.option.scenario_males.label"), null, nullFunc, SUB::MODELCHANGER_SCENARIOMALES);
+    AddOption(Language::Translate("menu.spooner.spawn.option.story_scenario_females.label"), null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOFEMALES);
+    AddOption(Language::Translate("menu.spooner.spawn.option.story_scenario_males.label"), null, nullFunc, SUB::MODELCHANGER_ST_SCENARIOMALES);
+    AddOption(Language::Translate("menu.spooner.spawn.option.others.label"), null, nullFunc, SUB::MODELCHANGER_OTHERS);
+    AddOption(Language::Translate("menu.spooner.spawn.option.input_model.label"), modelChangerInput);
 
     if (modelChangerInput)
         EntityManagement::InputEntityIntoDb(EntityType::PED);
@@ -5828,40 +5898,40 @@ void Sub_SpawnVehicle()
 
     g_activePedHandle = PLAYER_PED_ID();
 
-    AddTitle(Language::Translate("spooner.spawn.vehicleTitle"));
-    AddOption(Language::Translate("spooner.favourites.title"), null, nullFunc, SUB::SPAWNVEHICLE_FAVOURITES);
-    AddOption(Language::Translate("spooner.spawn.searchVehicles"), null, nullFunc, SUB::SPAWNVEHICLE_SEARCH);
+    AddTitle(Language::Translate("menu.spooner.spawn.vehicle_title.title"));
+    AddOption(Language::Translate("menu.spooner.option.favourites.label"), null, nullFunc, SUB::SPAWNVEHICLE_FAVOURITES);
+    AddOption(Language::Translate("menu.spooner.spawn.option.search_vehicles.label"), null, nullFunc, SUB::SPAWNVEHICLE_SEARCH);
 
-    AddBreak(Language::Translate("spooner.spawn.cars"));
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.openWheel"), Indices::OPENWHEEL);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.super"), Indices::SUPER);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.sports"), Indices::SPORT);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.sportsClassics"), Indices::SPORTSCLASSIC);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.coupes"), Indices::COUPE);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.muscle"), Indices::MUSCLE);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.offroad"), Indices::OFFROAD);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.suvs"), Indices::SUV);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.sedans"), Indices::SEDAN);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.compacts"), Indices::COMPACT);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.drift"), Indices::DRIFT);
+    AddBreak(Language::Translate("menu.spooner.spawn.section.cars.label"));
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.open_wheel.label"), Indices::OPENWHEEL);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.super.label"), Indices::SUPER);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.sports.label"), Indices::SPORT);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.sports_classics.label"), Indices::SPORTSCLASSIC);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.coupes.label"), Indices::COUPE);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.muscle.label"), Indices::MUSCLE);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.offroad.label"), Indices::OFFROAD);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.suvs.label"), Indices::SUV);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.sedans.label"), Indices::SEDAN);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.compacts.label"), Indices::COMPACT);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.drift.label"), Indices::DRIFT);
 
-    AddBreak(Language::Translate("spooner.spawn.industrial"));
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.vans"), Indices::VAN);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.services"), Indices::SERVICE);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.industrialCategory"), Indices::INDUSTRIAL);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.commercial"), Indices::COMMERCIAL);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.utility"), Indices::UTILITY);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.trains"), Indices::TRAIN);
+    AddBreak(Language::Translate("menu.spooner.spawn.section.industrial.label"));
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.vans.label"), Indices::VAN);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.services.label"), Indices::SERVICE);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.industrial_category.label"), Indices::INDUSTRIAL);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.commercial.label"), Indices::COMMERCIAL);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.utility.label"), Indices::UTILITY);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.trains.label"), Indices::TRAIN);
 
-    AddBreak(Language::Translate("spooner.spawn.othersSection"));
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.emergency"), Indices::EMERGENCY);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.military"), Indices::MILITARY);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.motorcycles"), Indices::MOTORCYCLE);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.bicycles"), Indices::BICYCLE);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.planes"), Indices::PLANE);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.helicopters"), Indices::HELICOPTER);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.boats"), Indices::BOAT);
-    AddVehicleCategoryOption(Language::Translate("spooner.spawn.others"), Indices::OTHER);
+    AddBreak(Language::Translate("menu.spooner.spawn.section.others_section.label"));
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.emergency.label"), Indices::EMERGENCY);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.military.label"), Indices::MILITARY);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.motorcycles.label"), Indices::MOTORCYCLE);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.bicycles.label"), Indices::BICYCLE);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.planes.label"), Indices::PLANE);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.helicopters.label"), Indices::HELICOPTER);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.boats.label"), Indices::BOAT);
+    AddVehicleCategoryOption(Language::Translate("menu.spooner.spawn.option.others.label"), Indices::OTHER);
 }
 } // namespace Spooner::Submenus
 
@@ -5870,10 +5940,10 @@ void EntityAlphaLevelSub_()
     GTAentity entity = Spooner::Submenus::s_selectedEntityTarget;
     auto alphaLevel = entity.GetAlpha();
 
-    AddTitle(Language::Translate("spooner.opacity.title"));
+    AddTitle(Language::Translate("menu.spooner.opacity.title"));
 
     bool bReset = false;
-    AddOption(Language::Translate("spooner.opacity.reset"), bReset);
+    AddOption(Language::Translate("menu.spooner.opacity.option.reset.label"), bReset);
     if (bReset)
     {
         entity.RequestControl();
@@ -5893,9 +5963,9 @@ void EntityAlphaLevelSub_()
         }
     }
 
-    AddBreak(Language::Translate("spooner.opacity.manual"));
+    AddBreak(Language::Translate("menu.spooner.opacity.section.manual.label"));
     bool bInputPressed = false, bPlusPressed = false, bMinusPressed = false;
-    AddNumber(Language::Translate("spooner.opacity.level"), alphaLevel, 0, bInputPressed, bPlusPressed, bMinusPressed);
+    AddNumber(Language::Translate("menu.spooner.opacity.option.level.label"), alphaLevel, 0, bInputPressed, bPlusPressed, bMinusPressed);
     if (bPlusPressed)
     {
         if (alphaLevel < 255)
@@ -5916,7 +5986,7 @@ void EntityAlphaLevelSub_()
     }
     if (bInputPressed)
     {
-        std::string inputStr = Game::InputBox(std::string(), 4U, Language::Translate("spooner.opacity.levelPrompt").c_str(), std::to_string(alphaLevel));
+        std::string inputStr = Game::InputBox(std::string(), 4U, Language::Translate("menu.spooner.opacity.option.level_prompt.prompt").c_str(), std::to_string(alphaLevel));
         if (inputStr.length() > 0)
         {
             try

@@ -265,6 +265,8 @@ void AddToggle(const std::string& text, bool& loop_variable, void (&callback_ON)
 void AddLocal(const std::string& text, BOOL condition, bool& option_code_ON, bool& option_code_OFF, bool gxt = 0);
 void AddLocal(const std::string& text, BOOL condition, void (&callback_ON)(), void (&callback_OFF)(), bool gxt = 0);
 void AddBreak(std::string text);
+void AddStatusBreak(std::string text);
+void AddDivider();
 void AddNumber(const std::string& text, double value, __int8 decimal_places, bool& A_PRESS = null, bool& RIGHT_PRESS = null, bool& LEFT_PRESS = null, bool gxt = 0);
 void draw_tickol_tick_BNW(const std::string& textureDict, const std::string& normal, const std::string& selected, const RGBA& colour);
 inline void draw_tickol_tick(TICKOL tickType, float rotation = 0.0f);

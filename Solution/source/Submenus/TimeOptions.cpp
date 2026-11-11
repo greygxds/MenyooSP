@@ -27,21 +27,21 @@ void TimeMenu()
 
     bool presetSunrise = false, presetNoon = false, presetSunset = false, presetNight = false;
 
-    AddTitle(Language::Translate("time.title"));
-    AddOption(Language::Translate("time.clockSystem"), null, nullFunc, SUB::CLOCK);
-    AddToggle(Language::Translate("time.pauseClock"), pauseClock, pauseClockToggle);
-    AddOptionDescription(Language::Translate("time.pauseClock.description"));
-    AddToggle(Language::Translate("time.syncSystem"), syncClock);
-    AddOptionDescription(Language::Translate("time.syncSystem.description"));
-    AddNumber(Language::Translate("time.hour"), hour, 0, null, hourPlus, hourMinus);
-    AddNumber(Language::Translate("time.minute"), minute, 0, null, minutePlus, minuteMinus);
-    AddNumber(Language::Translate("time.worldSpeed"), currentTimescale, 1, null, timeScalePlus, timeScaleMinus);
-    AddOptionDescription(Language::Translate("time.worldSpeed.description"));
-    AddBreak(Language::Translate("time.presets"));
-    AddOption(Language::Translate("time.sunrise"), presetSunrise);
-    AddOption(Language::Translate("time.noon"), presetNoon);
-    AddOption(Language::Translate("time.sunset"), presetSunset);
-    AddOption(Language::Translate("time.night"), presetNight);
+    AddTitle(Language::Translate("menu.time.title"));
+    AddOption(Language::Translate("menu.time.option.clock_system.label"), null, nullFunc, SUB::CLOCK);
+    AddToggle(Language::Translate("menu.time.option.pause_clock.label"), pauseClock, pauseClockToggle);
+    AddOptionDescription(Language::Translate("menu.time.option.pause_clock.description"));
+    AddToggle(Language::Translate("menu.time.option.sync_system.label"), syncClock);
+    AddOptionDescription(Language::Translate("menu.time.option.sync_system.description"));
+    AddNumber(Language::Translate("menu.time.option.hour.label"), hour, 0, null, hourPlus, hourMinus);
+    AddNumber(Language::Translate("menu.time.option.minute.label"), minute, 0, null, minutePlus, minuteMinus);
+    AddNumber(Language::Translate("menu.time.option.world_speed.label"), currentTimescale, 1, null, timeScalePlus, timeScaleMinus);
+    AddOptionDescription(Language::Translate("menu.time.option.world_speed.description"));
+    AddBreak(Language::Translate("menu.time.section.presets.label"));
+    AddOption(Language::Translate("menu.time.option.sunrise.label"), presetSunrise);
+    AddOption(Language::Translate("menu.time.option.noon.label"), presetNoon);
+    AddOption(Language::Translate("menu.time.option.sunset.label"), presetSunset);
+    AddOption(Language::Translate("menu.time.option.night.label"), presetNight);
 
     if (presetSunrise)
     {
@@ -217,7 +217,13 @@ UINT8 analogueClockIndex = 0;
 Vector2 analogueClockPosition = {0.931f, 0.126f};
 
 const std::string weekDayNames[] = {
-    "time.weekday.sunday", "time.weekday.monday", "time.weekday.tuesday", "time.weekday.wednesday", "time.weekday.thursday", "time.weekday.friday", "time.weekday.saturday"
+    "menu.time.clock.option.weekday.value.sunday",
+    "menu.time.clock.option.weekday.value.monday",
+    "menu.time.clock.option.weekday.value.tuesday",
+    "menu.time.clock.option.weekday.value.wednesday",
+    "menu.time.clock.option.weekday.value.thursday",
+    "menu.time.clock.option.weekday.value.friday",
+    "menu.time.clock.option.weekday.value.saturday"
 };
 
 inline void DisplayClockDigital()
@@ -292,7 +298,7 @@ void DisplayClock()
 
 void ClockMenu()
 {
-    AddTitle(Language::Translate("time.clock.title"));
+    AddTitle(Language::Translate("menu.time.clock.title"));
 
     auto& mode = loopClock;
 
@@ -301,14 +307,16 @@ void ClockMenu()
     bool clockTimePlus = false;
     bool clockTimeMinus = false;
     AddTexter(
-        Language::Translate("time.clock.mode"),
+        Language::Translate("menu.time.clock.option.mode.label"),
         mode,
-        std::vector<std::string>{Language::Translate("time.clock.off"), Language::Translate("time.clock.digital"), Language::Translate("time.clock.analogue")},
+        std::vector<std::string>{
+            Language::Translate("menu.time.option.clock.value.off"), Language::Translate("menu.time.option.clock.value.digital"), Language::Translate("menu.time.option.clock.value.analogue")
+        },
         null,
         clockTimePlus,
         clockTimeMinus
     );
-    AddOptionDescription(Language::Translate("time.clock.mode.description"));
+    AddOptionDescription(Language::Translate("menu.time.clock.option.mode.description"));
     if (clockTimePlus)
     {
         if (mode < maxClockTime)
@@ -322,7 +330,7 @@ void ClockMenu()
 
     if (mode == 2) // If analogue
     {
-        AddBreak(Language::Translate("time.clock.themes"));
+        AddBreak(Language::Translate("menu.time.clock.section.themes.label"));
         for (UINT i = 0; i < clockImages.size(); i++)
         {
             bool bAcmgPressed = false;
@@ -333,14 +341,14 @@ void ClockMenu()
             }
         }
 
-        AddBreak(Language::Translate("time.clock.position"));
+        AddBreak(Language::Translate("menu.time.clock.section.position.label"));
 
         bool analogueClockPosXPlus = false;
         bool analogueClockXMinus = false;
         bool analogueClockPosYPlus = false;
         bool analogueClockPosYMinus = false;
-        AddNumber(Language::Translate("time.clock.x"), analogueClockPosition.x, 3, null, analogueClockPosXPlus, analogueClockXMinus);
-        AddNumber(Language::Translate("time.clock.y"), analogueClockPosition.y, 3, null, analogueClockPosYPlus, analogueClockPosYMinus);
+        AddNumber(Language::Translate("menu.time.clock.option.x.label"), analogueClockPosition.x, 3, null, analogueClockPosXPlus, analogueClockXMinus);
+        AddNumber(Language::Translate("menu.time.clock.option.y.label"), analogueClockPosition.y, 3, null, analogueClockPosYPlus, analogueClockPosYMinus);
 
         if (analogueClockPosXPlus)
         {

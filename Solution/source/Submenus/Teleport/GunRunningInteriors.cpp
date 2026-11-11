@@ -159,7 +159,7 @@ void TeleportPedToBunker(GTAentity ped, BunkerInfoStructure& info)
 
 void Sub_Bunkers()
 {
-    AddTitle(Language::Translate("teleport.gunRunning.bunkers"));
+    AddTitle(Language::Translate("menu.teleport.gun_running.bunkers.title"));
 
     for (auto& loc : vLocations)
     {
@@ -203,8 +203,8 @@ void Sub_Bunkers_InLoc()
     }
 
     bool bCreateBunkerPressed = false;
-    AddOption(Language::Translate("teleport.gunRunning.buildBunker"), bCreateBunkerPressed);
-    AddOptionDescription(Language::Translate("teleport.gunRunning.buildBunker.description"));
+    AddOption(Language::Translate("menu.teleport.gun_running.option.build_bunker.label"), bCreateBunkerPressed);
+    AddOptionDescription(Language::Translate("menu.teleport.gun_running.option.build_bunker.description"));
     if (bCreateBunkerPressed)
     {
         DO_SCREEN_FADE_OUT(50);
@@ -304,7 +304,7 @@ void TeleportPedToMoc(GTAentity ped, MocInfoStructure& info)
 
 void Sub_Moc()
 {
-    AddTitle(Language::Translate("teleport.gunRunning.mocs"));
+    AddTitle(Language::Translate("menu.teleport.gun_running.mocs.title"));
 
     for (auto& loc : vLocations)
     {
@@ -348,8 +348,8 @@ void Sub_Moc_InLoc()
     }
 
     bool bCreateBunkerPressed = false;
-    AddOption(Language::Translate("teleport.gunRunning.buildMoc"), bCreateBunkerPressed);
-    AddOptionDescription(Language::Translate("teleport.gunRunning.buildMoc.description"));
+    AddOption(Language::Translate("menu.teleport.gun_running.option.build_moc.label"), bCreateBunkerPressed);
+    AddOptionDescription(Language::Translate("menu.teleport.gun_running.option.build_moc.description"));
     if (bCreateBunkerPressed)
     {
         DO_SCREEN_FADE_OUT(50);

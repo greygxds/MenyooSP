@@ -436,11 +436,11 @@ void TurnOn()
         SpoonerMode::bEnabled = true;
         sub::Spooner::ImGuiSpooner::SetVisible(true);
         if (Menu::activeSubmenu != SUB::CLOSED)
-            Game::Print::PrintBottomLeft(Language::Translate("spooner.mode.instructionsNote"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.spooner.mode.instructions_note.message"));
     }
     else
     {
-        Game::Print::ShowNotification(Language::Translate("spooner.mode.error"), Language::Translate("spooner.mode.notOpened"));
+        Game::Print::ShowNotification(Language::Translate("message.spooner.mode.error.title"), Language::Translate("message.spooner.mode.not_opened.message"));
     }
 }
 
@@ -657,7 +657,7 @@ void UpdateEntityEditingState(Vector3& position, Vector3& rotation)
         {
             const SpoonerEntity& copiedEntity = EntityManagement::CopyEntity(selectedEntity, EntityManagement::GetEntityIndexInDb(selectedEntity) >= 0, true, Submenus::_copyEntTexterValue);
             selectedEntity = copiedEntity;
-            Game::Print::ShowNotification(Language::Translate("spooner.mode.entityCopied"), 2.5f);
+            Game::Print::ShowNotification(Language::Translate("message.spooner.mode.entity_copied.title"), 2.5f);
         }
     }
 

@@ -113,11 +113,11 @@ void UpdateDefaultPedOutfitCache(int characterType)
 void DrawOutfitSearchOption()
 {
     bool searchPressed = false;
-    AddOption(outfitSearchText.empty() ? Language::Translate("components.search") : outfitSearchText, searchPressed, nullFunc, -1, true);
+    AddOption(outfitSearchText.empty() ? Language::Translate("component.search.action.label") : outfitSearchText, searchPressed, nullFunc, -1, true);
     if (!searchPressed)
         return;
 
-    outfitSearchText = Game::InputBox(outfitSearchText, 126U, Language::Translate("components.search.prompt").c_str(), boost::to_lower_copy(outfitSearchText));
+    outfitSearchText = Game::InputBox(outfitSearchText, 126U, Language::Translate("component.search.prompt").c_str(), boost::to_lower_copy(outfitSearchText));
     boost::to_lower(outfitSearchText);
 }
 
@@ -203,13 +203,13 @@ void PedDefaultOutfitsMenu()
     GTAped ped = g_activePedHandle;
     const int characterType = GetCharacterType(ped.Model().hash);
 
-    AddTitle(Language::Translate("components.outfits.defaultTitle"));
+    AddTitle(Language::Translate("menu.player.wardrobe.outfits.default_title.title"));
     UpdateDefaultPedOutfitCache(characterType);
 
     if (characterType < 0)
     {
         bool optionPressed = false;
-        AddOption(Language::Translate("components.outfits.none"), optionPressed);
+        AddOption(Language::Translate("menu.player.wardrobe.outfits.option.none.label"), optionPressed);
         return;
     }
 

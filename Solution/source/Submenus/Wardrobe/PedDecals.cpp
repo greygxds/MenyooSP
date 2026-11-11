@@ -142,7 +142,12 @@ void ClearPreviewedDecal()
 
 void DrawPreviewModeToggle()
 {
-    Keybinds::AddBindIB("menu_action", decalPreviewState.isEnabled, Language::Translate("components.decals.previewOn"), Language::Translate("components.decals.previewOff"));
+    Keybinds::AddBindIB(
+        "menu_action",
+        decalPreviewState.isEnabled,
+        Language::Translate("menu.player.wardrobe.decals.option.preview_on.label"),
+        Language::Translate("menu.player.wardrobe.decals.option.preview_off.label")
+    );
     if (Keybinds::WasPressedThisFrame("menu_action"))
     {
         decalPreviewState.isEnabled = !decalPreviewState.isEnabled;
@@ -220,7 +225,7 @@ void DrawDecalTypesMenu()
         return;
     }
 
-    AddTitle(Language::Translate("components.decals.title"));
+    AddTitle(Language::Translate("menu.player.wardrobe.decals.title"));
 
     for (const auto& decalTypeEntry : pedModelIt->second)
     {
@@ -237,7 +242,7 @@ void DrawDecalTypesMenu()
     }
 
     bool clearAllDecalsPressed = false;
-    AddTickol(Language::Translate("components.decals.clearAll"), true, clearAllDecalsPressed, clearAllDecalsPressed, TICKOL::CROSS);
+    AddTickol(Language::Translate("menu.player.wardrobe.decals.option.clear_all.label"), true, clearAllDecalsPressed, clearAllDecalsPressed, TICKOL::CROSS);
     if (clearAllDecalsPressed)
     {
         activePed.RequestControl(600);
@@ -257,9 +262,9 @@ void DrawDecalZonesMenu()
     AddTitle(decalMenuSelection.typeName);
 
     bool searchMenuPressed = false;
-    AddOption(Language::Translate("components.search.button"), searchMenuPressed, nullFunc, SUB::PED_DECALS_ZONE_SEARCH, true);
+    AddOption(Language::Translate("menu.player.wardrobe.search.option.button.label"), searchMenuPressed, nullFunc, SUB::PED_DECALS_ZONE_SEARCH, true);
 
-    AddBreak(Language::Translate("components.decals.categories"));
+    AddBreak(Language::Translate("menu.player.wardrobe.decals.section.categories.label"));
 
     for (const auto& decalZoneEntry : *decalsByZoneName)
     {
@@ -290,14 +295,20 @@ void DrawDecalSearchMenu()
         };
     }
 
-    AddTitle(Language::Translate("components.search.title"));
+    AddTitle(Language::Translate("menu.player.wardrobe.search.title"));
 
     bool searchInputPressed = false;
-    AddOption(decalSearchState.searchTerm.empty() ? Language::Translate("components.search.button") : ("~b~" + decalSearchState.searchTerm + "~s~"), searchInputPressed, nullFunc, -1, true);
+    AddOption(
+        decalSearchState.searchTerm.empty() ? Language::Translate("menu.player.wardrobe.search.option.button.label") : ("~b~" + decalSearchState.searchTerm + "~s~"),
+        searchInputPressed,
+        nullFunc,
+        -1,
+        true
+    );
     if (searchInputPressed)
     {
         decalSearchState.searchTerm =
-            Game::InputBox(decalSearchState.searchTerm, 64U, Language::Translate("components.decals.searchPrompt").c_str(), boost::to_lower_copy(decalSearchState.searchTerm));
+            Game::InputBox(decalSearchState.searchTerm, 64U, Language::Translate("menu.player.wardrobe.decals.option.search_prompt.prompt").c_str(), boost::to_lower_copy(decalSearchState.searchTerm));
         boost::to_upper(decalSearchState.searchTerm);
     }
 
@@ -310,7 +321,7 @@ void DrawDecalSearchMenu()
         decalSearchState.resultsNeedRebuild = false;
     }
 
-    AddBreak(Language::Format("components.decals.results", {{"count", decalSearchState.results.size()}}));
+    AddBreak(Language::Format("menu.player.wardrobe.decals.section.results.label", {{"count", decalSearchState.results.size()}}));
 
     for (const auto& searchResult : decalSearchState.results)
     {
@@ -411,7 +422,7 @@ void OpenDecalsMenu()
         return;
     }
 
-    Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.decals.none"));
+    Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.decals.none.message"));
 }
 } // namespace PedDecals
 } // namespace sub

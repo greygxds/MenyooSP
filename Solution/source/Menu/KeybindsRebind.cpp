@@ -99,7 +99,7 @@ bool FindConflict(UINT16 value, const KeybindEntry* captureEntry)
 // Returns "key" or "button" for prompt wording.
 std::string SideName()
 {
-    return Language::Translate(g_context == Context::Keyboard ? "keybinds.side.key" : "keybinds.side.button");
+    return Language::Translate(g_context == Context::Keyboard ? "message.keybinds.side.key" : "message.keybinds.side.button");
 }
 
 std::string ContextName()
@@ -121,25 +121,27 @@ std::string ColoredGlyph(UINT16 value)
 // Per-context capture-cancel gestures shown as a dim trailing hint line.
 std::string CancelHintText()
 {
-    return Language::Translate(g_context == Context::Keyboard ? "keybinds.rebind.cancel.keyboard" : "keybinds.rebind.cancel.gamepad");
+    return Language::Translate(g_context == Context::Keyboard ? "message.keybinds.rebind.cancel_keyboard" : "message.keybinds.rebind.cancel_gamepad");
 }
 
 std::string WaitingPromptText()
 {
-    return Language::Format("keybinds.rebind.waiting", {{"label", g_entry->Label()}, {"cancel", CancelHintText()}});
+    return Language::Format("message.keybinds.rebind.waiting", {{"label", g_entry->Label()}, {"cancel", CancelHintText()}});
 }
 
 std::string HeldPromptText()
 {
     return Language::Format(
-        "keybinds.rebind.held",
-        {{"side", Language::Translate(g_context == Context::Keyboard ? "keybinds.side.keyUpper" : "keybinds.side.buttonUpper")}, {"glyph", ColoredGlyph(g_primary)}, {"cancel", CancelHintText()}}
+        "message.keybinds.rebind.held",
+        {{"side", Language::Translate(g_context == Context::Keyboard ? "message.keybinds.side.key_upper" : "message.keybinds.side.button_upper")},
+         {"glyph", ColoredGlyph(g_primary)},
+         {"cancel", CancelHintText()}}
     );
 }
 
 std::string OverwritePromptText()
 {
-    return Language::Format("keybinds.rebind.overwrite", {{"glyph", ColoredGlyph(g_confirmValue)}, {"side", SideName()}, {"cancel", CancelHintText()}});
+    return Language::Format("message.keybinds.rebind.overwrite", {{"glyph", ColoredGlyph(g_confirmValue)}, {"side", SideName()}, {"cancel", CancelHintText()}});
 }
 
 void DrawRebindPrompt(const std::string& text)
@@ -171,7 +173,9 @@ void NotifyConflict(UINT16 conflictValue)
     if (g_lastNotify && GetTickCount() - g_lastNotify < 250)
         return;
     g_lastNotify = GetTickCount();
-    Game::Print::ShowNotification(Language::Translate("keybinds.conflict.title"), Language::Format("keybinds.conflict.message", {{"glyph", ColoredGlyph(conflictValue)}, {"side", SideName()}}), 2.0f);
+    Game::Print::ShowNotification(
+        Language::Translate("message.keybinds.conflict.title"), Language::Format("message.keybinds.conflict.message", {{"glyph", ColoredGlyph(conflictValue)}, {"side", SideName()}}), 2.0f
+    );
 }
 
 // Writes the captured value(s) on the capture side; combos write both members.
@@ -198,7 +202,7 @@ void Commit(UINT16 first, UINT16 second = NoBind)
     SetBinds(first, second);
     Save();
     addlog(ige::LogType::LOG_DEBUG, "Keybinds: committed \"" + g_entry->Id() + "\" = " + glyph + (combo ? " (combo)" : "") + " (" + ContextName() + ")");
-    Game::Print::ShowNotification("~b~" + g_entry->Label() + "~s~", Language::Format("keybinds.bound", {{"glyph", glyph}}), 2.0f);
+    Game::Print::ShowNotification("~b~" + g_entry->Label() + "~s~", Language::Format("message.keybinds.bound", {{"glyph", glyph}}), 2.0f);
     CancelRebind();
 }
 
@@ -207,7 +211,7 @@ void Unbind()
     SetBinds(NoBind, NoBind);
     Save();
     addlog(ige::LogType::LOG_DEBUG, "Keybinds: \"" + g_entry->Id() + "\" unbound");
-    Game::Print::ShowNotification("~b~" + g_entry->Label() + "~s~", Language::Translate("keybinds.unbound"), 2.0f);
+    Game::Print::ShowNotification("~b~" + g_entry->Label() + "~s~", Language::Translate("message.keybinds.unbound"), 2.0f);
     CancelRebind();
 }
 

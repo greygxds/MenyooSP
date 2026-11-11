@@ -489,7 +489,7 @@ void Menu::draw_description()
     if (selectedOptionDescription.empty())
         return;
 
-    const std::string text = Language::TranslateToSelected(selectedOptionDescription);
+    const std::string text = selectedOptionDescription;
     selectedOptionDescription.clear();
 
     const float rows = (float)(std::min)(totalOptionCount, GTA_MAXOP);
@@ -1265,8 +1265,6 @@ void nullFunc()
 
 void AddTitle(std::string text)
 {
-    text = Language::TranslateToSelected(text);
-
     if (titleBarStripeVisible)
     {
         Game::Print::SetupDraw(font_title, Vector2(0.26, 0.26), true, false, false, titletext);
@@ -1378,8 +1376,6 @@ void AddOption(std::string text, bool& option_code_bool, void (&callback)(), int
         else
             tempChar = "  ~b~>"; // Font safe
     }
-
-    text = Language::TranslateToSelected(text);
 
     if (show_arrow || submenu_index != -1)
     {
@@ -1507,7 +1503,7 @@ void AddLocal(const std::string& text, BOOL condition, void (&callback_ON)(), vo
     OptionStatus(condition); // Display ON/OFF
 }
 
-void AddBreak(std::string text)
+static void DrawBreakRow(std::string text, bool decorateAsSection)
 {
     Menu::currentOptionCount++;
     Menu::currentBreakCount++;
@@ -1563,17 +1559,36 @@ void AddBreak(std::string text)
         }
     }
 
-    text = Language::TranslateToSelected(text);
+    if (DOES_TEXT_LABEL_EXIST(text.c_str()))
+        text = GET_FILENAME_FOR_AUDIO_CONVERSATION(text.c_str());
+
+    if (decorateAsSection)
+        text = "---" + text + "---";
 
     if (Menu::centerBreakText)
     {
         SET_TEXT_CENTRE(1);
-        Game::Print::drawstringGXT(text, 0.16f + menuPos.x, currentOptionY + menuPos.y);
+        Game::Print::drawstring(text, 0.16f + menuPos.x, currentOptionY + menuPos.y);
     }
     else
     {
-        Game::Print::drawstringGXT(text, 0.066f + menuPos.x, currentOptionY + menuPos.y);
+        Game::Print::drawstring(text, 0.066f + menuPos.x, currentOptionY + menuPos.y);
     }
+}
+
+void AddBreak(std::string text)
+{
+    DrawBreakRow(std::move(text), true);
+}
+
+void AddStatusBreak(std::string text)
+{
+    DrawBreakRow(std::move(text), false);
+}
+
+void AddDivider()
+{
+    DrawBreakRow("---", false);
 }
 
 void AddNumber(const std::string& text, double value, __int8 decimal_places, bool& A_PRESS, bool& RIGHT_PRESS, bool& LEFT_PRESS, bool gxt)
@@ -1947,7 +1962,8 @@ template <typename TA> inline void AddTexter(const std::string& text, int select
             chartickStr = textarray.at(selectedindex);
         }
 
-        chartickStr = DOES_TEXT_LABEL_EXIST(chartickStr.c_str()) ? GET_FILENAME_FOR_AUDIO_CONVERSATION(chartickStr.c_str()) : Language::TranslateToSelected(chartickStr);
+        if (DOES_TEXT_LABEL_EXIST(chartickStr.c_str()))
+            chartickStr = GET_FILENAME_FOR_AUDIO_CONVERSATION(chartickStr.c_str());
         FLOAT newXpos;
         Game::Print::SetupDraw(0, Vector2(0.26, 0.26), true, true, Menu::optionTextStroke, optiontext);
 
@@ -2022,9 +2038,11 @@ void AddSaveFileSortOption()
 {
     const int previousSortMode = MenuConfig::saveFileSortMode;
     MenuConfig::saveFileSortMode = AddTexterCycler(
-        Language::Translate("menu.files.sortBy"),
+        Language::Translate("component.file_browser.sort_by.label"),
         previousSortMode,
-        {Language::Translate("menu.files.sortBy.name"), Language::Translate("menu.files.sortBy.created"), Language::Translate("menu.files.sortBy.modified")}
+        {Language::Translate("component.file_browser.sort_by.value.name"),
+         Language::Translate("component.file_browser.sort_by.value.created"),
+         Language::Translate("component.file_browser.sort_by.value.modified")}
     );
     if (MenuConfig::saveFileSortMode != previousSortMode)
         MenuConfig::RequestSave();

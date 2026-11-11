@@ -164,7 +164,7 @@ void TeleportPedToClubhouse(GTAentity ped, ClubhouseInfoStructure& info)
 
 void Sub_Clubhouses()
 {
-    AddTitle(Language::Translate("teleport.biker.clubhouses"));
+    AddTitle(Language::Translate("menu.teleport.biker.clubhouses.title"));
 
     for (auto& loc : vLocations)
     {
@@ -208,8 +208,8 @@ void Sub_Clubhouses_InLoc()
     }
 
     bool bCreateClubhousePressed = false;
-    AddOption(Language::Translate("teleport.biker.buildClubhouse"), bCreateClubhousePressed);
-    AddOptionDescription(Language::Translate("teleport.biker.buildClubhouse.description"));
+    AddOption(Language::Translate("menu.teleport.biker.option.build_clubhouse.label"), bCreateClubhousePressed);
+    AddOptionDescription(Language::Translate("menu.teleport.biker.option.build_clubhouse.description"));
     if (bCreateClubhousePressed)
     {
         DO_SCREEN_FADE_OUT(50);
@@ -345,7 +345,7 @@ void TeleportPedToBusiness(GTAentity ped, BusinessInfoStructure& info)
 
 void Sub_Businesses()
 {
-    AddTitle(Language::Translate("teleport.biker.businesses"));
+    AddTitle(Language::Translate("menu.teleport.biker.businesses.title"));
 
     for (auto& loc : vLocations)
     {
@@ -389,8 +389,8 @@ void Sub_Businesses_InLoc()
     }
 
     bool bCreateBusinessPressed = false;
-    AddOption(Language::Translate("teleport.biker.buildBusiness"), bCreateBusinessPressed);
-    AddOptionDescription(Language::Translate("teleport.biker.buildBusiness.description"));
+    AddOption(Language::Translate("menu.teleport.biker.option.build_business.label"), bCreateBusinessPressed);
+    AddOptionDescription(Language::Translate("menu.teleport.biker.option.build_business.description"));
     if (bCreateBusinessPressed)
     {
         DO_SCREEN_FADE_OUT(50);

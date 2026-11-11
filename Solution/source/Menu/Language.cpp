@@ -391,17 +391,11 @@ std::string Translate(std::string_view key)
     return Format(key, {});
 }
 
-std::string TranslateToSelected(std::string text)
-{
-    if (FindEntry(selectedLocale, text) != nullptr || FindEntry("en-US", text) != nullptr)
-        return Translate(text);
-    return text;
-}
-
 std::string TranslateStable(std::string_view prefix, std::string_view identifier, std::string_view fallback)
 {
     std::string key(prefix);
-    key.push_back('.');
+    if (!key.empty() && key.back() != '.')
+        key.push_back('.');
     for (const unsigned char character : identifier)
     {
         if (std::isalnum(character))
@@ -410,7 +404,26 @@ std::string TranslateStable(std::string_view prefix, std::string_view identifier
             key.push_back('_');
     }
 
-    const std::string translated = TranslateToSelected(key);
+    const std::string translated = Translate(key);
+    return translated == key ? std::string(fallback) : translated;
+}
+
+std::string TranslateStable(std::string_view prefix, std::string_view identifier, std::string_view role, std::string_view fallback)
+{
+    std::string key(prefix);
+    if (!key.empty() && key.back() != '.')
+        key.push_back('.');
+    for (const unsigned char character : identifier)
+    {
+        if (std::isalnum(character))
+            key.push_back(static_cast<char>(std::tolower(character)));
+        else
+            key.push_back('_');
+    }
+    key.push_back('.');
+    key.append(role);
+
+    const std::string translated = Translate(key);
     return translated == key ? std::string(fallback) : translated;
 }
 

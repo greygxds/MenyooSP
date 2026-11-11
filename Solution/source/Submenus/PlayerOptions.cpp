@@ -59,67 +59,67 @@ void PlayerOptionsMenu()
 
     int wantedLevel = myPlayer.GetWantedLevel();
 
-    AddTitle(Language::Translate("player.options.title"));
-    AddOption(Language::Translate("player.options.basicStats.label"), null, nullFunc, SUB::SPSTATMANAGER);
-    AddOption(Language::Translate("player.options.modelChanger.label"), null, nullFunc, SUB::MODELCHANGER);
+    AddTitle(Language::Translate("menu.player.options.title"));
+    AddOption(Language::Translate("menu.player.options.option.basic_stats.label"), null, nullFunc, SUB::SPSTATMANAGER);
+    AddOption(Language::Translate("menu.player.options.option.model_changer.label"), null, nullFunc, SUB::MODELCHANGER);
 
-    AddOption(Language::Translate("player.options.wardrobe.label"), null, nullFunc, SUB::PED_WARDROBE);
+    AddOption(Language::Translate("menu.player.options.option.wardrobe.label"), null, nullFunc, SUB::PED_WARDROBE);
 
-    AddOption(Language::Translate("player.options.animations.label"), null, nullFunc, SUB::ANIMATIONSUB);
-    AddOption(Language::Translate("player.options.scenarioActions.label"), null, nullFunc, SUB::AnimationTaskScenarios);
-    AddOption(Language::Translate("player.options.moods.label"), null, nullFunc, SUB::FACIALMOOD);
-    AddOption(Language::Translate("player.options.movementStyles.label"), null, nullFunc, SUB::MOVEMENTGROUP);
-    AddOption(Language::Translate("player.options.speechPlayer.label"), null, nullFunc, SUB::SPEECHPLAYER);
-    AddOption(Language::Translate("player.options.voiceChanger.label"), null, nullFunc, SUB::VOICECHANGER);
-    AddOption(Language::Translate("player.options.pedFlags.label"), null, nullFunc, SUB::PEDFLAGMANAGER_NAMEDLIST);
-    AddOptionDescription(Language::Translate("player.options.pedFlags.description"));
-    AddOption(Language::Translate("player.options.triggerFx.label"), null, nullFunc, SUB::PTFXSUB);
-    AddOption(Language::Translate("player.options.opacityLocal.label"), goToAlphaLevel, nullFunc, SUB::ENTITYALPHALEVEL);
-    AddOptionDescription(Language::Translate("player.options.opacityLocal.description"));
+    AddOption(Language::Translate("menu.player.options.option.animations.label"), null, nullFunc, SUB::ANIMATIONSUB);
+    AddOption(Language::Translate("menu.player.options.option.scenario_actions.label"), null, nullFunc, SUB::AnimationTaskScenarios);
+    AddOption(Language::Translate("menu.player.options.option.moods.label"), null, nullFunc, SUB::FACIALMOOD);
+    AddOption(Language::Translate("menu.player.options.option.movement_styles.label"), null, nullFunc, SUB::MOVEMENTGROUP);
+    AddOption(Language::Translate("menu.player.options.option.speech_player.label"), null, nullFunc, SUB::SPEECHPLAYER);
+    AddOption(Language::Translate("menu.player.options.option.voice_changer.label"), null, nullFunc, SUB::VOICECHANGER);
+    AddOption(Language::Translate("menu.player.options.option.ped_flags.label"), null, nullFunc, SUB::PEDFLAGMANAGER_NAMEDLIST);
+    AddOptionDescription(Language::Translate("menu.player.options.option.ped_flags.description"));
+    AddOption(Language::Translate("menu.player.options.option.trigger_fx.label"), null, nullFunc, SUB::PTFXSUB);
+    AddOption(Language::Translate("menu.player.options.option.opacity_local.label"), goToAlphaLevel, nullFunc, SUB::ENTITYALPHALEVEL);
+    AddOptionDescription(Language::Translate("menu.player.options.option.opacity_local.description"));
     if (goToAlphaLevel)
     {
         Spooner::Submenus::SetPlayerAsEntityAlphaTarget();
     }
 
-    AddOption(Language::Translate("player.options.cloning.label"), null, nullFunc, SUB::CLONECOMPANIONSUB);
+    AddOption(Language::Translate("menu.player.options.option.cloning.label"), null, nullFunc, SUB::CLONECOMPANIONSUB);
 
-    AddOption(Language::Translate("player.options.replenish.label"), replenishPlayer);
-    AddOptionDescription(Language::Translate("player.options.replenish.description"));
-    AddOption(Language::Translate("player.options.maxAllStats.label"), maxAllStats);
-    AddOptionDescription(Language::Translate("player.options.maxAllStats.description"));
-    AddToggle(Language::Translate("player.options.refillHealthInCover.label"), selfRefillHealthInCover);
-    AddOptionDescription(Language::Translate("player.options.refillHealthInCover.description"));
-    AddToggle(Language::Translate("player.options.invincibility.label"), playerInvincibility, null, invincibilityOff);
-    AddLocal(Language::Translate("player.options.invisibility.label"), !myPed.IsVisible(), invisibilityOff, invisibilityOff);
-    AddToggle(Language::Translate("player.options.noRagdoll.label"), playerNoRagdoll, null, noRagdollOff);
-    AddOptionDescription(Language::Translate("player.options.noRagdoll.description"));
-    AddToggle(Language::Translate("player.options.seatbelt.label"), playerSeatbelt, null, seatbeltOff);
-    AddOptionDescription(Language::Translate("player.options.seatbelt.description"));
-    AddToggle(Language::Translate("player.options.unlimitedSpecialAbility.label"), playerUnlimitedAbility);
-    AddToggle(Language::Translate("player.options.autoClean.label"), playerAutoClean);
-    AddOptionDescription(Language::Translate("player.options.autoClean.description"));
-    AddToggle(Language::Translate("player.options.ignoredByEveryone.label"), ignoredByEveryone, null, ignoredByEveryoneOff);
-    AddOptionDescription(Language::Translate("player.options.ignoredByEveryone.description"));
-    AddNumber(Language::Translate("player.options.wantedLevel.label"), wantedLevel, 0, null, wantedPlus, wantedMinus);
+    AddOption(Language::Translate("menu.player.options.option.replenish.label"), replenishPlayer);
+    AddOptionDescription(Language::Translate("menu.player.options.option.replenish.description"));
+    AddOption(Language::Translate("menu.player.options.option.max_all_stats.label"), maxAllStats);
+    AddOptionDescription(Language::Translate("menu.player.options.option.max_all_stats.description"));
+    AddToggle(Language::Translate("menu.player.options.option.refill_health_in_cover.label"), selfRefillHealthInCover);
+    AddOptionDescription(Language::Translate("menu.player.options.option.refill_health_in_cover.description"));
+    AddToggle(Language::Translate("menu.player.options.option.invincibility.label"), playerInvincibility, null, invincibilityOff);
+    AddLocal(Language::Translate("menu.player.options.option.invisibility.label"), !myPed.IsVisible(), invisibilityOff, invisibilityOff);
+    AddToggle(Language::Translate("menu.player.options.option.no_ragdoll.label"), playerNoRagdoll, null, noRagdollOff);
+    AddOptionDescription(Language::Translate("menu.player.options.option.no_ragdoll.description"));
+    AddToggle(Language::Translate("menu.player.options.option.seatbelt.label"), playerSeatbelt, null, seatbeltOff);
+    AddOptionDescription(Language::Translate("menu.player.options.option.seatbelt.description"));
+    AddToggle(Language::Translate("menu.player.options.option.unlimited_special_ability.label"), playerUnlimitedAbility);
+    AddToggle(Language::Translate("menu.player.options.option.auto_clean.label"), playerAutoClean);
+    AddOptionDescription(Language::Translate("menu.player.options.option.auto_clean.description"));
+    AddToggle(Language::Translate("menu.player.options.option.ignored_by_everyone.label"), ignoredByEveryone, null, ignoredByEveryoneOff);
+    AddOptionDescription(Language::Translate("menu.player.options.option.ignored_by_everyone.description"));
+    AddNumber(Language::Translate("menu.player.options.option.wanted_level.label"), wantedLevel, 0, null, wantedPlus, wantedMinus);
     if (wantedLevel > 0)
     {
-        AddLocal(Language::Translate("player.options.freezeWantedLevel.label"), selfFreezeWantedLevel, wantedFreezeOn, wantedFreezeOff);
-        AddOptionDescription(Language::Translate("player.options.freezeWantedLevel.description"));
+        AddLocal(Language::Translate("menu.player.options.option.freeze_wanted_level.label"), selfFreezeWantedLevel, wantedFreezeOn, wantedFreezeOff);
+        AddOptionDescription(Language::Translate("menu.player.options.option.freeze_wanted_level.description"));
     }
     else
     {
-        AddToggle(Language::Translate("player.options.neverWanted.label"), neverWanted, neverWantedOn, neverWantedOff);
+        AddToggle(Language::Translate("menu.player.options.option.never_wanted.label"), neverWanted, neverWantedOn, neverWantedOff);
     }
-    AddNumber(Language::Translate("player.options.height.label"), height, 2, null, heightPlus, heightMinus);
-    AddOptionDescription(Language::Translate("player.options.height.description"));
-    AddNumber(Language::Translate("player.options.movementSpeed.label"), swimSpeedMult, 2, null, movementSpeedModifierPlus, movementSpeedModifierMinus);
-    AddOptionDescription(Language::Translate("player.options.movementSpeed.description"));
-    AddNumber(Language::Translate("player.options.sweatLevel.label"), selfSweatMult, 2, null, sweatPlus, sweatMinus);
-    AddOptionDescription(Language::Translate("player.options.sweatLevel.description"));
-    AddNumber(Language::Translate("player.options.noiseLevel.label"), playerNoiseMult, 2, null, noiseValuePlus, noiseValueMinus);
-    AddOptionDescription(Language::Translate("player.options.noiseLevel.description"));
-    AddLocal(Language::Translate("player.options.collision.label"), myPed.GetIsCollisionEnabled(), collisionOn, collisionOff);
-    AddOptionDescription(Language::Translate("player.options.collision.description"));
+    AddNumber(Language::Translate("menu.player.options.option.height.label"), height, 2, null, heightPlus, heightMinus);
+    AddOptionDescription(Language::Translate("menu.player.options.option.height.description"));
+    AddNumber(Language::Translate("menu.player.options.option.movement_speed.label"), swimSpeedMult, 2, null, movementSpeedModifierPlus, movementSpeedModifierMinus);
+    AddOptionDescription(Language::Translate("menu.player.options.option.movement_speed.description"));
+    AddNumber(Language::Translate("menu.player.options.option.sweat_level.label"), selfSweatMult, 2, null, sweatPlus, sweatMinus);
+    AddOptionDescription(Language::Translate("menu.player.options.option.sweat_level.description"));
+    AddNumber(Language::Translate("menu.player.options.option.noise_level.label"), playerNoiseMult, 2, null, noiseValuePlus, noiseValueMinus);
+    AddOptionDescription(Language::Translate("menu.player.options.option.noise_level.description"));
+    AddLocal(Language::Translate("menu.player.options.option.collision.label"), myPed.GetIsCollisionEnabled(), collisionOn, collisionOff);
+    AddOptionDescription(Language::Translate("menu.player.options.option.collision.description"));
 
 
     if (collisionOn || collisionOff)
@@ -179,7 +179,7 @@ void PlayerOptionsMenu()
         if (!STAT_SAVE_PENDING_OR_REQUESTED())
             STAT_SAVE(0, 0, 3, 0);
         DO_AUTO_SAVE();
-        Game::Print::PrintBottomLeft(Language::Translate("player.notifications.allStatsMaxed"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.player.all_stats_maxed.message"));
         return;
     }
 
@@ -424,8 +424,8 @@ void FlagListMenu()
 {
     GTAped ped = g_activePedHandle;
 
-    AddTitle(Language::Translate("player.pedFlags.title"));
-    AddOption(Language::Translate("player.pedFlags.custom.label"), null, nullFunc, SUB::PEDFLAGMANAGER_CUSTOM);
+    AddTitle(Language::Translate("menu.player.ped_flags.title"));
+    AddOption(Language::Translate("menu.player.ped_flags.option.custom.label"), null, nullFunc, SUB::PEDFLAGMANAGER_CUSTOM);
 
     for (auto& f : pedFlags)
     {
@@ -450,10 +450,10 @@ void CustomFlagSetterMenu()
     bool idToggle = false;
     BOOL flagStatus = GET_PED_CONFIG_FLAG(ped.Handle(), flagID, true);
 
-    AddTitle(Language::Translate("player.pedFlags.custom.title"));
-    AddNumber(Language::Translate("player.pedFlags.custom.id.label"), flagID, 0, idInput, idPlus, idMinus);
-    AddLocal(Language::Translate("player.pedFlags.custom.status.label"), flagStatus, idToggle, idToggle);
-    AddOptionDescription(Language::Translate("player.pedFlags.custom.status.description"));
+    AddTitle(Language::Translate("menu.player.ped_flags.custom.title"));
+    AddNumber(Language::Translate("menu.player.ped_flags.custom.option.id.label"), flagID, 0, idInput, idPlus, idMinus);
+    AddLocal(Language::Translate("menu.player.ped_flags.custom.option.status.label"), flagStatus, idToggle, idToggle);
+    AddOptionDescription(Language::Translate("menu.player.ped_flags.custom.option.status.description"));
 
     if (idPlus)
     {
@@ -500,17 +500,17 @@ void CloneCompanionMenu()
 
     if (!playerPed.Exists())
     {
-        Game::Print::ShowNotification(Language::Translate("player.notifications.error.title"), Language::Translate("player.notifications.noLongerInMemory"));
+        Game::Print::ShowNotification(Language::Translate("message.player.error.title"), Language::Translate("message.player.no_longer_in_memory.message"));
         addlog(ige::LogType::LOG_WARNING, "Cannot start clone menu, playerPed No longer in memory");
         Menu::SetPreviousMenu();
         return;
     }
 
-    AddTitle(Language::Translate("player.cloning.title"));
+    AddTitle(Language::Translate("menu.player.cloning.title"));
 
     bool cloneNeutralPressed = false;
-    AddOption(Language::Translate("player.cloning.neutral.label"), cloneNeutralPressed);
-    AddOptionDescription(Language::Translate("player.cloning.neutral.description"));
+    AddOption(Language::Translate("menu.player.cloning.option.neutral.label"), cloneNeutralPressed);
+    AddOptionDescription(Language::Translate("menu.player.cloning.option.neutral.description"));
     if (cloneNeutralPressed)
     {
         GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
@@ -523,12 +523,12 @@ void CloneCompanionMenu()
         clone.SetMissionEntity(true);
         clone.NoLongerNeeded();
 
-        Game::Print::PrintBottomLeft(Language::Format("player.notifications.cloned", {{"player", player.GetName()}}));
+        Game::Print::PrintBottomLeft(Language::Format("message.player.cloned.message", {{"player", player.GetName()}}));
     }
 
     bool cloneCompanionPressed = false;
-    AddOption(Language::Translate("player.cloning.companion.label"), cloneCompanionPressed);
-    AddOptionDescription(Language::Translate("player.cloning.companion.description"));
+    AddOption(Language::Translate("menu.player.cloning.option.companion.label"), cloneCompanionPressed);
+    AddOptionDescription(Language::Translate("menu.player.cloning.option.companion.description"));
     if (cloneCompanionPressed)
     {
         GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
@@ -565,13 +565,15 @@ void CloneCompanionMenu()
         grp.SetSeparationRange(100.0f);
         grp.SetFormationSpacing(1.5f);
 
-        Game::Print::PrintBottomLeft(Language::Format("player.notifications.clonedCompanion", {{"player", player.GetName()}, {"possessive", playerPed.GetGender() == Gender::Female ? "her" : "his"}}));
-        Game::Print::PrintBottomLeft(Language::Translate("player.notifications.cloneAddedToSpooner"));
+        Game::Print::PrintBottomLeft(
+            Language::Format("message.player.cloned_companion.message", {{"player", player.GetName()}, {"possessive", playerPed.GetGender() == Gender::Female ? "her" : "his"}})
+        );
+        Game::Print::PrintBottomLeft(Language::Translate("message.player.clone_added_to_spooner.message"));
     }
 
     bool cloneEnemyPressed = false;
-    AddOption(Language::Translate("player.cloning.enemy.label"), cloneEnemyPressed);
-    AddOptionDescription(Language::Translate("player.cloning.enemy.description"));
+    AddOption(Language::Translate("menu.player.cloning.option.enemy.label"), cloneEnemyPressed);
+    AddOptionDescription(Language::Translate("menu.player.cloning.option.enemy.description"));
     if (cloneEnemyPressed)
     {
         GTAped clone = playerPed.Clone(playerPed.GetHeading(), true, true);
@@ -606,8 +608,8 @@ void CloneCompanionMenu()
         clone.SetAlwaysKeepTask(true); // May ruin the task sequence. Not sure.
         squ.Clear();
 
-        Game::Print::PrintBottomLeft(Language::Format("player.notifications.clonedEnemy", {{"player", player.GetName()}, {"possessive", playerPed.GetGender() == Gender::Female ? "her" : "his"}}));
-        Game::Print::PrintBottomLeft(Language::Translate("player.notifications.cloneAddedToSpooner"));
+        Game::Print::PrintBottomLeft(Language::Format("message.player.cloned_enemy.message", {{"player", player.GetName()}, {"possessive", playerPed.GetGender() == Gender::Female ? "her" : "his"}}));
+        Game::Print::PrintBottomLeft(Language::Translate("message.player.clone_added_to_spooner.message"));
     }
 }
 } // namespace sub

@@ -258,7 +258,7 @@ void AddOptionStats(const CharStat_t& stat)
         {
             int liveValue = StatGetInt(statName);
 
-            AddNumber(Language::Translate("stats.specialAbility"), liveValue * 3.3333, 0, null, bFillPressed, bEmptyPressed);
+            AddNumber(Language::Translate("menu.player.stats.option.special_ability.label"), liveValue * 3.3333, 0, null, bFillPressed, bEmptyPressed);
             if (bFillPressed)
             {
                 SPECIAL_ABILITY_FILL_METER(PLAYER_ID(), false, null);
@@ -275,7 +275,8 @@ void AddOptionStats(const CharStat_t& stat)
         AddNumber(stat.caption, statValue, 0, bStatValue_input, bStatValue_plus, bStatValue_minus);
         if (bStatValue_input)
         {
-            std::string inputStr = Game::InputBox(std::string(), (int)std::to_string((int)stat.max).length() + 1, Language::Translate("stats.input.integer").c_str(), std::to_string(statValue));
+            std::string inputStr =
+                Game::InputBox(std::string(), (int)std::to_string((int)stat.max).length() + 1, Language::Translate("menu.player.stats.input.option.integer.prompt").c_str(), std::to_string(statValue));
             if (inputStr.length() > 0)
             {
                 try
@@ -320,7 +321,7 @@ void AddOptionStats(const CharStat_t& stat)
         AddNumber(stat.caption, statValue, 2, bStatValue_input, bStatValue_plus, bStatValue_minus);
         if (bStatValue_input)
         {
-            std::string inputStr = Game::InputBox(std::string(), 13U, Language::Translate("stats.input.float").c_str(), std::to_string(statValue));
+            std::string inputStr = Game::InputBox(std::string(), 13U, Language::Translate("menu.player.stats.input.option.float.prompt").c_str(), std::to_string(statValue));
             if (inputStr.length() > 0)
             {
                 try
@@ -361,9 +362,9 @@ void AddOptionStats(const CharStat_t& stat)
 
 void SPStatsManagerMenu()
 {
-    AddTitle(Language::Translate("stats.title"));
+    AddTitle(Language::Translate("menu.player.stats.title"));
 
-    AddBreak(Language::Translate("stats.storyMode"));
+    AddBreak(Language::Translate("menu.player.stats.section.story_mode.label"));
     for (int i = 0; i < 3; i++)
     {
         bool bGoToCharacterPressed = false;
@@ -376,7 +377,7 @@ void SPStatsManagerMenu()
 
     if (NETWORK_IS_IN_SESSION())
     {
-        AddBreak(Language::Translate("stats.gtaOnline"));
+        AddBreak(Language::Translate("menu.player.stats.section.gta_online.label"));
         for (int i = 3; i < 5; i++)
         {
             bool bGoToCharacterPressed = false;
@@ -388,10 +389,10 @@ void SPStatsManagerMenu()
         }
     }
 
-    AddBreak(Language::Translate("stats.achievements"));
+    AddBreak(Language::Translate("menu.player.stats.section.achievements.label"));
     bool unlockAllAchievements = false;
-    AddOption(Language::Translate("stats.unlockAchievements"), unlockAllAchievements);
-    AddOptionDescription(Language::Translate("stats.unlockAchievements.description"));
+    AddOption(Language::Translate("menu.player.stats.option.unlock_achievements.label"), unlockAllAchievements);
+    AddOptionDescription(Language::Translate("menu.player.stats.option.unlock_achievements.description"));
     if (unlockAllAchievements)
     {
         int numAchievements = 78;
@@ -516,7 +517,7 @@ void SPStatsInCharMenu()
 
     if (IsOnlineChar(selectedCharName->first))
     {
-        AddBreak(Language::Translate("stats.propertyOwnership"));
+        AddBreak(Language::Translate("menu.player.stats.section.property_ownership.label"));
         for (auto& statList : vMPPropertyLists)
         {
             bool bStatListPressed = false;

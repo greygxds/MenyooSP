@@ -244,30 +244,26 @@ static void DrawOverlayStats(float topY, int focusSlot = -1);
 static RGBA GetHairTintColor(int tintId);
 static RGBA GetMakeupTintColor(int tintId);
 
-static std::string TranslateLocalizedOverlayText(std::string_view localizationPrefix, std::string_view captionId, const std::string& fallback)
-{
-    const std::string translatedCaption = Language::TranslateStable(localizationPrefix, captionId, fallback);
-    if (translatedCaption != fallback)
-        return translatedCaption;
-
-    return Game::GetGXTEntry(Language::TranslateToSelected(fallback), fallback);
-}
-
 static std::string TranslateOverlayTitle(const HeadOverlayCaptions& overlay)
 {
-    const std::string localizationPrefix = "components.head.overlays." + std::string(overlay.localizationId);
-    return TranslateLocalizedOverlayText(localizationPrefix, "title", overlay.title);
+    const std::string translated = Language::TranslateStable("menu.player.wardrobe.head.option.overlay", overlay.localizationId, "label", overlay.title);
+    if (translated != overlay.title)
+        return translated;
+    return Game::GetGXTEntry(overlay.title, overlay.title);
 }
 
 static std::string TranslateOverlayVariation(const HeadOverlayCaptions& overlay, const std::string& variation)
 {
-    const std::string localizationPrefix = "components.head.overlays." + std::string(overlay.localizationId) + ".variation";
-    return TranslateLocalizedOverlayText(localizationPrefix, variation, variation);
+    const std::string identifier = std::string(overlay.localizationId) + "_" + variation;
+    const std::string translated = Language::TranslateStable("menu.player.wardrobe.head.option.overlay.value", identifier, variation);
+    if (translated != variation)
+        return translated;
+    return Game::GetGXTEntry(variation, variation);
 }
 
 static std::string TranslateFaceFeature(const FacialFeatureCaption& caption)
 {
-    return Language::TranslateStable("components.face.feature", caption.localizationId, caption.englishText);
+    return Language::TranslateStable("menu.player.wardrobe.face.option.face_feature", caption.localizationId, "label", caption.englishText);
 }
 
 void Sub_Main()
@@ -285,7 +281,7 @@ void Sub_Main()
             pedHeadFeaturesByPed.erase(pit);
         }
         Menu::SetPreviousMenu();
-        Game::Print::PrintBottomLeft(Language::Translate("components.notifications.notFreemodePed"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.player.wardrobe.not_freemode_ped.message"));
         return;
     }
 
@@ -335,23 +331,23 @@ void Sub_Main()
     int maxHairColours = GET_NUM_PED_HAIR_TINTS() - 1;
     int maxEyeColours = 32;
 
-    AddTitle(Language::Translate("components.head.title"));
+    AddTitle(Language::Translate("menu.player.wardrobe.head.title"));
 
     DrawFaceStats(StatsPanel::MenuTopY());
 
-    AddOption(Language::Translate("components.head.overlays"), null, nullFunc, SUB::PED_HEAD_OVERLAYS);
-    AddOption(Language::Translate("components.head.facialFeatures"), null, nullFunc, SUB::PED_HEAD_FACE_FEATURES);
-    AddOption(Language::Translate("components.head.shapeSkin"), null, nullFunc, SUB::PED_HEAD_SKIN_TONE);
-    AddOption(Language::Translate("components.head.faceGenerator"), null, nullFunc, SUB::PED_HEAD_FACE_GENERATOR);
+    AddOption(Language::Translate("menu.player.wardrobe.head.option.overlays.label"), null, nullFunc, SUB::PED_HEAD_OVERLAYS);
+    AddOption(Language::Translate("menu.player.wardrobe.head.option.facial_features.label"), null, nullFunc, SUB::PED_HEAD_FACE_FEATURES);
+    AddOption(Language::Translate("menu.player.wardrobe.head.option.shape_skin.label"), null, nullFunc, SUB::PED_HEAD_SKIN_TONE);
+    AddOption(Language::Translate("menu.player.wardrobe.head.option.face_generator.label"), null, nullFunc, SUB::PED_HEAD_FACE_GENERATOR);
 
-    AddBreak(Language::Translate("components.head.hair"));
-    if (AddNumberStepper(Language::Translate("components.head.hairColour"), selectedPedHeadFeatures->hairColour, 0, 1.0, 0, maxHairColours))
+    AddBreak(Language::Translate("menu.player.wardrobe.head.section.hair.label"));
+    if (AddNumberStepper(Language::Translate("menu.player.wardrobe.head.option.hair_colour.label"), selectedPedHeadFeatures->hairColour, 0, 1.0, 0, maxHairColours))
         ped.SetHairTint(selectedPedHeadFeatures->hairColour, selectedPedHeadFeatures->hairHighlightColour);
-    if (AddNumberStepper(Language::Translate("components.head.hairStreaksColour"), selectedPedHeadFeatures->hairHighlightColour, 0, 1.0, 0, maxHairColours))
+    if (AddNumberStepper(Language::Translate("menu.player.wardrobe.head.option.hair_streaks_colour.label"), selectedPedHeadFeatures->hairHighlightColour, 0, 1.0, 0, maxHairColours))
         ped.SetHairTint(selectedPedHeadFeatures->hairColour, selectedPedHeadFeatures->hairHighlightColour);
-    AddOptionDescription(Language::Translate("components.head.hairHighlights.description"));
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.head.option.hair_highlights.description"));
 
-    AddBreak(Language::Translate("components.head.eyes"));
+    AddBreak(Language::Translate("menu.player.wardrobe.head.section.eyes.label"));
     if (AddNumberStepper(Game::GetGXTEntry("FACE_APP_EYE", "Eye Colour"), selectedPedHeadFeatures->eyeColour, 0, 1.0, 0, maxEyeColours))
         ped.SetEyeColour(SYSTEM::ROUND((float)selectedPedHeadFeatures->eyeColour));
 }
@@ -382,16 +378,16 @@ static void DrawOverlayStats(float topY, int focusSlot)
         rows.push_back(StatsPanel::TitleRow{TranslateOverlayTitle(overlayCaptions)});
         if (overlayValue == 255)
         {
-            rows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.variation"), Language::Translate("components.head.overlay.none")});
+            rows.push_back(StatsPanel::StatRow{Language::Translate("component.wardrobe_stats.variation.label"), Language::Translate("menu.player.wardrobe.head.overlay.option.none.label")});
         }
         else
         {
-            std::string variationText = Language::Format("components.head.overlay.style", {{"index", overlayValue}});
+            std::string variationText = Language::Format("menu.player.wardrobe.head.overlay.option.style.label", {{"index", overlayValue}});
             auto& variationNames = overlayCaptions.variations;
             if (overlayValue >= 0 && (size_t)overlayValue < variationNames.size() && !variationNames[overlayValue].empty())
                 variationText = TranslateOverlayVariation(overlayCaptions, variationNames[overlayValue]) + " (" + std::to_string(overlayValue) + ")";
-            rows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.variation"), variationText});
-            rows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.opacity"), FormatMixValue(overlays.opacity)});
+            rows.push_back(StatsPanel::StatRow{Language::Translate("component.wardrobe_stats.variation.label"), variationText});
+            rows.push_back(StatsPanel::StatRow{Language::Translate("component.wardrobe_stats.opacity.label"), FormatMixValue(overlays.opacity)});
             int colourType = GetPedHeadOverlayColourType((PedHeadOverlay)overlayIndex);
             if (colourType != 0)
             {
@@ -400,10 +396,10 @@ static void DrawOverlayStats(float topY, int focusSlot)
                 if (colourType == 1)
                     rows.push_back(
                         StatsPanel::DoubleColorRow{
-                            Language::Translate("components.stats.colour"),
+                            Language::Translate("component.wardrobe_stats.colour.label"),
                             GetHairTintColor(overlays.primaryColour),
                             colourText,
-                            Language::Translate("components.stats.secondary"),
+                            Language::Translate("component.wardrobe_stats.secondary.label"),
                             GetHairTintColor(overlays.secondaryColour),
                             secondaryText
                         }
@@ -411,10 +407,10 @@ static void DrawOverlayStats(float topY, int focusSlot)
                 else
                     rows.push_back(
                         StatsPanel::DoubleColorRow{
-                            Language::Translate("components.stats.colour"),
+                            Language::Translate("component.wardrobe_stats.colour.label"),
                             GetMakeupTintColor(overlays.primaryColour),
                             colourText,
-                            Language::Translate("components.stats.secondary"),
+                            Language::Translate("component.wardrobe_stats.secondary.label"),
                             GetMakeupTintColor(overlays.secondaryColour),
                             secondaryText
                         }
@@ -429,7 +425,7 @@ static void DrawOverlayStats(float topY, int focusSlot)
 void Sub_HeadOverlays()
 {
     auto& overlayIndex = selectedOverlayIndex;
-    AddTitle(Language::Translate("components.head.overlays"));
+    AddTitle(Language::Translate("menu.player.wardrobe.head.overlays.title"));
 
     DrawOverlayStats(StatsPanel::MenuTopY());
 
@@ -484,7 +480,7 @@ void Sub_HeadOverlays_InItem()
     variationNames.reserve(overlayCaptions.variations.size());
     for (const std::string& variationName : overlayCaptions.variations)
         variationNames.push_back(TranslateOverlayVariation(overlayCaptions, variationName));
-    AddTexter(Language::Translate("components.variation"), overlayValue, variationNames, null, overlayPlus, overlayMinus);
+    AddTexter(Language::Translate("menu.player.wardrobe.option.variation.label"), overlayValue, variationNames, null, overlayPlus, overlayMinus);
     if (overlayPlus)
     {
         if (overlayValue < maxOverlays)
@@ -594,25 +590,37 @@ static void DrawFaceStats(float topY)
     std::vector<StatsPanel::Row> rows;
     rows.push_back(
         StatsPanel::DoubleStatRow{
-            Language::Translate("components.stats.shapeFather"), std::to_string(blendData.shapeFirstID), Language::Translate("components.stats.toneFather"), std::to_string(blendData.skinFirstID)
+            Language::Translate("component.wardrobe_stats.shape_father.label"),
+            std::to_string(blendData.shapeFirstID),
+            Language::Translate("component.wardrobe_stats.tone_father.label"),
+            std::to_string(blendData.skinFirstID)
         }
     );
     rows.push_back(
         StatsPanel::DoubleStatRow{
-            Language::Translate("components.stats.shapeMother"), std::to_string(blendData.shapeSecondID), Language::Translate("components.stats.toneMother"), std::to_string(blendData.skinSecondID)
+            Language::Translate("component.wardrobe_stats.shape_mother.label"),
+            std::to_string(blendData.shapeSecondID),
+            Language::Translate("component.wardrobe_stats.tone_mother.label"),
+            std::to_string(blendData.skinSecondID)
         }
     );
     rows.push_back(
         StatsPanel::DoubleStatRow{
-            Language::Translate("components.stats.shapeMix"), FormatMixValue(blendData.shapeMix), Language::Translate("components.stats.toneMix"), FormatMixValue(blendData.skinMix)
+            Language::Translate("component.wardrobe_stats.shape_mix.label"),
+            FormatMixValue(blendData.shapeMix),
+            Language::Translate("component.wardrobe_stats.tone_mix.label"),
+            FormatMixValue(blendData.skinMix)
         }
     );
     rows.push_back(
         StatsPanel::DoubleStatRow{
-            Language::Translate("components.stats.shapeAncestor"), std::to_string(blendData.shapeThirdID), Language::Translate("components.stats.toneAncestor"), std::to_string(blendData.skinThirdID)
+            Language::Translate("component.wardrobe_stats.shape_ancestor.label"),
+            std::to_string(blendData.shapeThirdID),
+            Language::Translate("component.wardrobe_stats.tone_ancestor.label"),
+            std::to_string(blendData.skinThirdID)
         }
     );
-    rows.push_back(StatsPanel::DoubleStatRow{Language::Translate("components.stats.ancestorMix"), FormatMixValue(blendData.thirdMix), "", ""});
+    rows.push_back(StatsPanel::DoubleStatRow{Language::Translate("component.wardrobe_stats.ancestor_mix.label"), FormatMixValue(blendData.thirdMix), "", ""});
     rows.push_back(StatsPanel::SeparatorRow{});
     for (size_t i = 0; i < facialFeatureCaptions.size(); i += 2)
     {
@@ -629,15 +637,15 @@ static void DrawFaceStats(float topY)
     rows.push_back(StatsPanel::SeparatorRow{});
     rows.push_back(
         StatsPanel::DoubleColorRow{
-            Language::Translate("components.stats.hair"),
+            Language::Translate("component.wardrobe_stats.hair.label"),
             GetHairTintColor(selectedPedHeadFeatures->hairColour),
             std::to_string(selectedPedHeadFeatures->hairColour),
-            Language::Translate("components.stats.hairStreaks"),
+            Language::Translate("component.wardrobe_stats.hair_streaks.label"),
             GetHairTintColor(selectedPedHeadFeatures->hairHighlightColour),
             std::to_string(selectedPedHeadFeatures->hairHighlightColour)
         }
     );
-    rows.push_back(StatsPanel::DoubleStatRow{Language::Translate("components.stats.eyes"), std::to_string(selectedPedHeadFeatures->eyeColour), "", ""});
+    rows.push_back(StatsPanel::DoubleStatRow{Language::Translate("component.wardrobe_stats.eyes.label"), std::to_string(selectedPedHeadFeatures->eyeColour), "", ""});
 
     StatsPanel::Draw(topY, 0.200f, rows);
 }
@@ -646,7 +654,7 @@ void Sub_FaceFeatures()
 {
     GTAped ped = g_activePedHandle;
 
-    AddTitle(Language::Translate("components.head.facialFeatures"));
+    AddTitle(Language::Translate("menu.player.wardrobe.head.facial_features.title"));
 
     DrawFaceStats(StatsPanel::MenuTopY());
 
@@ -670,11 +678,11 @@ void Sub_SkinTone() // HEAD_BLEND
     float minMix = 0.0f;
     float mixStep = 0.01f;
 
-    AddTitle(Language::Translate("components.head.shapeSkin"));
+    AddTitle(Language::Translate("menu.player.wardrobe.head.shape_skin.title"));
 
     DrawFaceStats(StatsPanel::MenuTopY());
-    AddToggle(Language::Translate("components.face.unlockIds"), g_unlockMaxIDs);
-    AddOptionDescription(Language::Translate("components.face.unlockIds.description"));
+    AddToggle(Language::Translate("menu.player.wardrobe.face.option.unlock_ids.label"), g_unlockMaxIDs);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.unlock_ids.description"));
 
     int maxIds = getMaxShapeAndSkinIds();
 
@@ -685,17 +693,17 @@ void Sub_SkinTone() // HEAD_BLEND
     };
 
     // Shape IDs
-    addBlendIdStepper(Language::Translate("components.face.shapeFather"), blendData.shapeFirstID);
-    addBlendIdStepper(Language::Translate("components.face.shapeMother"), blendData.shapeSecondID);
-    addBlendIdStepper(Language::Translate("components.face.shapeAncestor"), blendData.shapeThirdID);
+    addBlendIdStepper(Language::Translate("menu.player.wardrobe.face.option.shape_father.label"), blendData.shapeFirstID);
+    addBlendIdStepper(Language::Translate("menu.player.wardrobe.face.option.shape_mother.label"), blendData.shapeSecondID);
+    addBlendIdStepper(Language::Translate("menu.player.wardrobe.face.option.shape_ancestor.label"), blendData.shapeThirdID);
 
     // Skin IDs
-    addBlendIdStepper(Language::Translate("components.face.toneFather"), blendData.skinFirstID);
-    addBlendIdStepper(Language::Translate("components.face.toneMother"), blendData.skinSecondID);
-    addBlendIdStepper(Language::Translate("components.face.toneAncestor"), blendData.skinThirdID);
+    addBlendIdStepper(Language::Translate("menu.player.wardrobe.face.option.tone_father.label"), blendData.skinFirstID);
+    addBlendIdStepper(Language::Translate("menu.player.wardrobe.face.option.tone_mother.label"), blendData.skinSecondID);
+    addBlendIdStepper(Language::Translate("menu.player.wardrobe.face.option.tone_ancestor.label"), blendData.skinThirdID);
 
     // Mixes
-    AddBreak(Language::Translate("components.face.adjustmentBreak"));
+    AddBreak(Language::Translate("menu.player.wardrobe.face.section.adjustment.label"));
 
     auto addMixSlider = [&](const std::string& label, float& mixValue)
     {
@@ -703,12 +711,12 @@ void Sub_SkinTone() // HEAD_BLEND
             ped.SetHeadBlendData(blendData);
     };
 
-    addMixSlider(Language::Translate("components.face.shape"), blendData.shapeMix);
-    AddOptionDescription(Language::Translate("components.face.shape.description"));
-    addMixSlider(Language::Translate("components.face.tone"), blendData.skinMix);
-    AddOptionDescription(Language::Translate("components.face.skin.description"));
-    addMixSlider(Language::Translate("components.face.ancestor"), blendData.thirdMix);
-    AddOptionDescription(Language::Translate("components.face.thirdParent.description"));
+    addMixSlider(Language::Translate("menu.player.wardrobe.face.option.shape.label"), blendData.shapeMix);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.shape.description"));
+    addMixSlider(Language::Translate("menu.player.wardrobe.face.option.tone.label"), blendData.skinMix);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.skin.description"));
+    addMixSlider(Language::Translate("menu.player.wardrobe.face.option.ancestor.label"), blendData.thirdMix);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.third_parent.description"));
 }
 
 namespace
@@ -759,18 +767,19 @@ int PickRandomParentId(const std::vector<int>& candidateIds)
 struct FaceFeatureGroup
 {
     const char* localizationKey;
+    const char* fallbackLabel;
     int firstFeatureIndex;
     int featureCount;
 };
 
 constexpr std::array<FaceFeatureGroup, 7> faceFeatureGroups = {{
-    {"nose", 0, 6},
-    {"brows", 6, 2},
-    {"cheeksEyes", 8, 4},
-    {"lips", 12, 1},
-    {"jaw", 13, 2},
-    {"chin", 15, 4},
-    {"neck", 19, 1},
+    {"nose", "Nose", 0, 6},
+    {"brows", "Eyebrows", 6, 2},
+    {"cheeksEyes", "Cheeks and Eyes", 8, 4},
+    {"lips", "Lips", 12, 1},
+    {"jaw", "Jaw", 13, 2},
+    {"chin", "Chin", 15, 4},
+    {"neck", "Neck", 19, 1},
 }};
 
 template <typename ValueFactory> void ApplyFaceFeatureRange(GTAped& ped, PedHeadFeatureSelection& selection, int firstFeatureIndex, int featureCount, ValueFactory&& getValue)
@@ -786,7 +795,7 @@ template <typename ValueFactory> void ApplyFaceFeatureRange(GTAped& ped, PedHead
 
 std::string GetFeatureGroupName(const FaceFeatureGroup& group)
 {
-    return Language::Translate(std::string("components.face.group.") + group.localizationKey);
+    return Language::TranslateStable("menu.player.wardrobe.face.section", group.localizationKey, "label", group.fallbackLabel);
 }
 } // namespace
 
@@ -795,16 +804,18 @@ void Sub_FaceGenerator()
     GTAped ped = g_activePedHandle;
 
     std::vector<std::string> parentGenderOptions = {
-        Language::Translate("components.face.filter.genderAny"), Language::Translate("components.face.filter.male"), Language::Translate("components.face.filter.female")
+        Language::Translate("menu.player.wardrobe.face.filter.option.gender_any.label"),
+        Language::Translate("menu.player.wardrobe.face.filter.option.male.label"),
+        Language::Translate("menu.player.wardrobe.face.filter.option.female.label")
     };
     std::vector<std::string> parentToneOptions = {
-        Language::Translate("components.face.filter.skinAny"),
-        Language::Translate("components.face.filter.white"),
-        Language::Translate("components.face.filter.black"),
-        Language::Translate("components.face.filter.hispanic"),
-        Language::Translate("components.face.filter.asian"),
-        Language::Translate("components.face.filter.arab"),
-        Language::Translate("components.face.filter.pakistani")
+        Language::Translate("menu.player.wardrobe.face.filter.option.skin_any.label"),
+        Language::Translate("menu.player.wardrobe.face.filter.option.white.label"),
+        Language::Translate("menu.player.wardrobe.face.filter.option.black.label"),
+        Language::Translate("menu.player.wardrobe.face.filter.option.hispanic.label"),
+        Language::Translate("menu.player.wardrobe.face.filter.option.asian.label"),
+        Language::Translate("menu.player.wardrobe.face.filter.option.arab.label"),
+        Language::Translate("menu.player.wardrobe.face.filter.option.pakistani.label")
     };
 
     bool randomizeFaceBlendPressed = false;
@@ -830,41 +841,43 @@ void Sub_FaceGenerator()
     auto randomizeMixValue = []() -> float { return GET_RANDOM_FLOAT_IN_RANGE(0.0f, 1.0f); };
 
     // --- UI ---
-    AddTitle(Language::Translate("components.face.generator"));
+    AddTitle(Language::Translate("menu.player.wardrobe.face.generator.title"));
 
     // --- Parents ---
     AddTickol(
-        Language::Translate("components.face.useThirdParent"),
+        Language::Translate("menu.player.wardrobe.face.option.use_third_parent.label"),
         PedFaceGen::settings.includeThirdParent,
         PedFaceGen::settings.includeThirdParent,
         PedFaceGen::settings.includeThirdParent,
         TICKOL::BOXTICK,
         TICKOL::BOXBLANK
     );
-    AddOptionDescription(Language::Translate("components.face.randomAncestor.description"));
-    PedFaceGen::settings.parentGenderFilterIndex = AddTexterCycler(Language::Translate("components.face.parentFilter"), PedFaceGen::settings.parentGenderFilterIndex, parentGenderOptions);
-    AddOptionDescription(Language::Translate("components.face.parentFilter.description"));
-    PedFaceGen::settings.parentToneFilterIndex = AddTexterCycler(Language::Translate("components.face.skinColour"), PedFaceGen::settings.parentToneFilterIndex, parentToneOptions);
-    AddOptionDescription(Language::Translate("components.face.skinColour.description"));
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.random_ancestor.description"));
+    PedFaceGen::settings.parentGenderFilterIndex =
+        AddTexterCycler(Language::Translate("menu.player.wardrobe.face.option.parent_filter.label"), PedFaceGen::settings.parentGenderFilterIndex, parentGenderOptions);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.parent_filter.description"));
+    PedFaceGen::settings.parentToneFilterIndex =
+        AddTexterCycler(Language::Translate("menu.player.wardrobe.face.option.skin_colour.label"), PedFaceGen::settings.parentToneFilterIndex, parentToneOptions);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.skin_colour.description"));
 
     // Show non-rockstar parents only if parent / skin color filter is set to "Any" (we don't know the genders/races of modded-parents)
     bool showModdedParents = PedFaceGen::settings.parentGenderFilterIndex == 0 && PedFaceGen::settings.parentToneFilterIndex == 0;
     if (showModdedParents)
     {
-        AddNumberStepper(Language::Translate("components.face.maxParent"), PedFaceGen::settings.highestModdedParentId, 0, 1.0, firstModdedParentId, 255.0);
-        AddOptionDescription(Language::Translate("components.face.maxParent.description"));
+        AddNumberStepper(Language::Translate("menu.player.wardrobe.face.option.max_parent.label"), PedFaceGen::settings.highestModdedParentId, 0, 1.0, firstModdedParentId, 255.0);
+        AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.max_parent.description"));
     }
 
     // --- Randomize ---
-    AddBreak(Language::Translate("components.face.randomizeBreak"));
-    AddOption(Language::Translate("components.face.randomize"), randomizeFaceBlendPressed);
-    AddOptionDescription(Language::Translate("components.face.randomize.description"));
-    AddOption(Language::Translate("components.face.randomizeShapes"), randomizeShapesPressed);
-    AddOptionDescription(Language::Translate("components.face.randomizeShapes.description"));
-    AddOption(Language::Translate("components.face.randomizeTextures"), randomizeTonesPressed);
-    AddOptionDescription(Language::Translate("components.face.randomizeTextures.description"));
-    AddOption(Language::Translate("components.face.randomizeEverything"), randomizeFaceAndFeaturesPressed);
-    AddOptionDescription(Language::Translate("components.face.randomizeEverything.description"));
+    AddBreak(Language::Translate("menu.player.wardrobe.face.section.randomize.label"));
+    AddOption(Language::Translate("menu.player.wardrobe.face.option.randomize.label"), randomizeFaceBlendPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.randomize.description"));
+    AddOption(Language::Translate("menu.player.wardrobe.face.option.randomize_shapes.label"), randomizeShapesPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.randomize_shapes.description"));
+    AddOption(Language::Translate("menu.player.wardrobe.face.option.randomize_textures.label"), randomizeTonesPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.randomize_textures.description"));
+    AddOption(Language::Translate("menu.player.wardrobe.face.option.randomize_everything.label"), randomizeFaceAndFeaturesPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.face.option.randomize_everything.description"));
 
     if (randomizeFaceBlendPressed || randomizeShapesPressed || randomizeTonesPressed || randomizeFaceAndFeaturesPressed)
     {
@@ -922,8 +935,8 @@ void Sub_FaceGenerator()
     }
 
     // --- Facial Features ---
-    AddBreak(Language::Translate("components.face.features"));
-    AddOption(Language::Translate("components.face.randomizeFeatures"), randomizeFeaturesPressed);
+    AddBreak(Language::Translate("menu.player.wardrobe.face.section.features.label"));
+    AddOption(Language::Translate("menu.player.wardrobe.face.option.randomize_features.label"), randomizeFeaturesPressed);
     if (randomizeFeaturesPressed)
     {
         ApplyFaceFeatureRange(ped, *selectedPedHeadFeatures, 0, allFeatureCount, [] { return GET_RANDOM_FLOAT_IN_RANGE(-1.0f, 1.0f); });
@@ -933,15 +946,15 @@ void Sub_FaceGenerator()
     for (const auto& group : faceFeatureGroups)
     {
         bool randomizeGroupPressed = false;
-        AddOption(Language::Format("components.face.randomizeGroup", {{"group", GetFeatureGroupName(group)}}), randomizeGroupPressed);
+        AddOption(Language::Format("menu.player.wardrobe.face.option.randomize_group.label", {{"group", GetFeatureGroupName(group)}}), randomizeGroupPressed);
         if (randomizeGroupPressed)
         {
             ApplyFaceFeatureRange(ped, *selectedPedHeadFeatures, group.firstFeatureIndex, group.featureCount, [] { return GET_RANDOM_FLOAT_IN_RANGE(-1.0f, 1.0f); });
             return;
         }
     }
-    AddBreak(Language::Translate("components.face.reset"));
-    AddOption(Language::Translate("components.face.resetFeatures"), resetAllFeaturesPressed);
+    AddBreak(Language::Translate("menu.player.wardrobe.face.section.reset.label"));
+    AddOption(Language::Translate("menu.player.wardrobe.face.option.reset_features.label"), resetAllFeaturesPressed);
     if (resetAllFeaturesPressed)
     {
         ApplyFaceFeatureRange(ped, *selectedPedHeadFeatures, 0, allFeatureCount, [] { return 0.0f; });
@@ -950,7 +963,7 @@ void Sub_FaceGenerator()
     for (const auto& group : faceFeatureGroups)
     {
         bool resetGroupPressed = false;
-        AddOption(Language::Format("components.face.resetGroup", {{"group", GetFeatureGroupName(group)}}), resetGroupPressed);
+        AddOption(Language::Format("menu.player.wardrobe.face.option.reset_group.label", {{"group", GetFeatureGroupName(group)}}), resetGroupPressed);
         if (resetGroupPressed)
         {
             ApplyFaceFeatureRange(ped, *selectedPedHeadFeatures, group.firstFeatureIndex, group.featureCount, [] { return 0.0f; });

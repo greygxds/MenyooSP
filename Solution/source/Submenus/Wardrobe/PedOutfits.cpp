@@ -164,21 +164,21 @@ OutfitFileStats ReadOutfitFileStats(const std::string& filePath)
 std::vector<StatsPanel::Row> BuildOutfitFileStatsRows(const std::string& filePath, const OutfitFileStats& stats)
 {
     std::vector<StatsPanel::Row> rows;
-    rows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.model"), stats.modelLabel});
+    rows.push_back(StatsPanel::StatRow{Language::Translate("component.wardrobe_stats.model.label"), stats.modelLabel});
     if (stats.opacityLevel < 255)
-        rows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.opacity"), std::to_string(stats.opacityLevel)});
+        rows.push_back(StatsPanel::StatRow{Language::Translate("component.wardrobe_stats.opacity.label"), std::to_string(stats.opacityLevel)});
     if (!stats.isVisible)
-        rows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.visible"), Language::Translate("statsPanel.no")});
+        rows.push_back(StatsPanel::StatRow{Language::Translate("component.wardrobe_stats.visible.label"), Language::Translate("menu.stats_panel.option.no.label")});
     if (!stats.facialMood.empty())
-        rows.push_back(StatsPanel::StatRow{Language::Translate("components.stats.mood"), stats.facialMood});
+        rows.push_back(StatsPanel::StatRow{Language::Translate("component.wardrobe_stats.mood.label"), stats.facialMood});
     if (stats.decalCount > 0)
-        rows.push_back(StatsPanel::StatRow{Language::Format("components.stats.decals", {{"count", static_cast<std::uint64_t>(stats.decalCount)}}), std::to_string(stats.decalCount)});
+        rows.push_back(StatsPanel::StatRow{Language::Format("component.wardrobe_stats.decals.label", {{"count", static_cast<std::uint64_t>(stats.decalCount)}}), std::to_string(stats.decalCount)});
 
     const size_t slotRowCount = (std::max)(stats.componentValues.size(), stats.propValues.size());
     if (slotRowCount > 0)
     {
         rows.push_back(StatsPanel::SeparatorRow{});
-        rows.push_back(StatsPanel::DoubleStatRow{Language::Translate("components.stats.components"), "", Language::Translate("components.stats.props"), ""});
+        rows.push_back(StatsPanel::DoubleStatRow{Language::Translate("component.wardrobe_stats.components.label"), "", Language::Translate("component.wardrobe_stats.props.label"), ""});
         for (size_t slotIndex = 0; slotIndex < slotRowCount; slotIndex++)
         {
             std::string componentLabel;
@@ -202,9 +202,11 @@ std::vector<StatsPanel::Row> BuildOutfitFileStatsRows(const std::string& filePat
         rows.push_back(StatsPanel::SeparatorRow{});
     }
 
-    rows.push_back(StatsPanel::StatRow{Language::Format("components.stats.attachments", {{"count", static_cast<std::uint64_t>(stats.attachmentCount)}}), std::to_string(stats.attachmentCount)});
-    rows.push_back(StatsPanel::StatRow{Language::Translate("statsPanel.size"), GetFileSizeStr(filePath)});
-    rows.push_back(StatsPanel::StatRow{Language::Translate("statsPanel.modified"), GetFileLastWriteDateStr(filePath)});
+    rows.push_back(
+        StatsPanel::StatRow{Language::Format("component.wardrobe_stats.attachments.label", {{"count", static_cast<std::uint64_t>(stats.attachmentCount)}}), std::to_string(stats.attachmentCount)}
+    );
+    rows.push_back(StatsPanel::StatRow{Language::Translate("menu.stats_panel.option.size.label"), GetFileSizeStr(filePath)});
+    rows.push_back(StatsPanel::StatRow{Language::Translate("menu.stats_panel.option.modified.label"), GetFileLastWriteDateStr(filePath)});
     return rows;
 }
 
@@ -260,7 +262,7 @@ bool DrawOutfitFileBrowser()
 
     closedir(dirPoint);
     SortSaveFileEntries(fileNames, directoryPath);
-    AddBreak(Language::Translate("components.outfits.foundFiles"));
+    AddBreak(Language::Translate("menu.player.wardrobe.outfits.section.found_files.label"));
 
     bool folderBackPressed = false;
     AddOption("..", folderBackPressed);
@@ -274,10 +276,10 @@ bool DrawOutfitFileBrowser()
         return false;
 
     bool searchPressed = false;
-    AddOption(searchText.empty() ? Language::Translate("components.search") : searchText, searchPressed, nullFunc, -1, true);
+    AddOption(searchText.empty() ? Language::Translate("component.search.action.label") : searchText, searchPressed, nullFunc, -1, true);
     if (searchPressed)
     {
-        searchText = Game::InputBox(searchText, 126U, Language::Translate("components.search.prompt").c_str(), boost::to_lower_copy(searchText));
+        searchText = Game::InputBox(searchText, 126U, Language::Translate("component.search.prompt").c_str(), boost::to_lower_copy(searchText));
         boost::to_upper(searchText);
     }
 
@@ -343,21 +345,21 @@ void SaveOutfitFromMenu(const std::string& directoryPath)
 
     if (!IsSafePath(inputName))
     {
-        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.invalid_name.message"));
         return;
     }
 
     const bool saved = PedOutfitPersistence::SavePedOutfit(g_activePedHandle, directoryPath + "\\" + inputName + ".xml", GetSelectedXmlFormat());
     if (saved)
-        Game::Print::PrintBottomLeft(Language::Translate("components.notifications.fileCreated"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.player.wardrobe.file_created.message"));
     else
-        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.createFileFailed"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.create_file_failed.message"));
 }
 
 void CreateOutfitFolder()
 {
     std::string& directoryPath = outfitMenuState.directoryPath;
-    const std::string folderName = Game::InputBox("", 28U, Language::Translate("components.outfits.folderPrompt").c_str());
+    const std::string folderName = Game::InputBox("", 28U, Language::Translate("menu.player.wardrobe.outfits.option.folder_prompt.prompt").c_str());
     if (folderName.empty())
     {
         Game::Print::PrintErrorInvalidInput(folderName);
@@ -366,17 +368,17 @@ void CreateOutfitFolder()
 
     if (!IsSafePath(folderName))
     {
-        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.invalid_name.message"));
     }
     else if (CreateDirectoryA((directoryPath + "\\" + folderName).c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
     {
         directoryPath = directoryPath + "\\" + folderName;
         Menu::selectedOptionIndex = 6;
-        Game::Print::PrintBottomLeft(Language::Translate("components.notifications.folderCreated"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.player.wardrobe.folder_created.message"));
     }
     else
     {
-        Game::Print::ShowNotification(Language::Translate("components.failed"), Language::Translate("components.notifications.createFolderFailed"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.failed.title"), Language::Translate("message.player.wardrobe.create_folder_failed.message"));
         addlog(ige::LogType::LOG_ERROR, "Attempt to create folder " + folderName + " failed");
     }
 }
@@ -389,7 +391,7 @@ void SaveOutfitSettingsOrNotifyFailure(const std::string& filePath, const PedOut
     if (PedOutfitPersistence::SavePedOutfitSettings(filePath, settings))
         return;
 
-    Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.overwriteFailed"));
+    Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.overwrite_failed.message"));
 }
 
 void ApplySelectedOutfit(const std::string& filePath, bool applyModelAndHead, bool applyOtherAppearance)
@@ -408,7 +410,7 @@ void ApplySelectedOutfit(const std::string& filePath, bool applyModelAndHead, bo
         applyFailed = true;
 
     if (applyFailed)
-        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.loadFailed"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.load_failed.message"));
 }
 
 void SaveSelectedOutfitAsDefault(const std::string& filePath)
@@ -418,15 +420,15 @@ void SaveSelectedOutfitAsDefault(const std::string& filePath)
         PedOutfitPersistence::ApplyPedOutfit(PLAYER_PED_ID(), filePath, PedOutfitPersistence::OutfitApplyOptions::AllExceptModelAndHead(GetAttachmentPersistenceMode()));
     if (!modelAndHeadApplied || !otherAppearanceApplied)
     {
-        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.loadFailed"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.load_failed.message"));
         return;
     }
 
     if (PedOutfitPersistence::SavePedOutfit(PLAYER_PED_ID(), "menyooStuff/defaultPed.xml", GetSelectedXmlFormat()))
-        Game::Print::PrintBottomLeft(Language::Translate("components.notifications.outfitDefault"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.player.wardrobe.outfit_default.message"));
     else
     {
-        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.createFileFailed"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.create_file_failed.message"));
         addlog(ige::LogType::LOG_ERROR, "Attempt to create file menyooStuff/defaultPed.xml failed");
     }
 }
@@ -434,10 +436,10 @@ void SaveSelectedOutfitAsDefault(const std::string& filePath)
 void OverwriteSelectedOutfit(const std::string& filePath)
 {
     if (PedOutfitPersistence::SavePedOutfit(g_activePedHandle, filePath, GetSelectedXmlFormat()))
-        Game::Print::PrintBottomLeft(Language::Translate("components.notifications.fileOverwritten"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.player.wardrobe.file_overwritten.message"));
     else
     {
-        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.overwriteFailed"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.overwrite_failed.message"));
         addlog(ige::LogType::LOG_ERROR, "Attempt to overwrite file " + filePath + " failed");
     }
 }
@@ -454,7 +456,7 @@ void RenameSelectedOutfit(const std::string& filePath)
 
     if (!IsSafePath(newName))
     {
-        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.invalidName"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.invalid_name.message"));
         return;
     }
 
@@ -463,22 +465,22 @@ void RenameSelectedOutfit(const std::string& filePath)
     if (renameResult != 0)
     {
         addlog(ige::LogType::LOG_ERROR, "Failed to rename outfit file " + outfitName + " to " + newName);
-        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.renameFailed"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.rename_failed.message"));
         return;
     }
 
     outfitName = newName;
     outfitMenuState.selectedOutfitPath = newPath;
-    Game::Print::PrintBottomLeft(Language::Translate("components.notifications.fileRenamed"));
+    Game::Print::PrintBottomLeft(Language::Translate("message.player.wardrobe.file_renamed.message"));
 }
 
 void DeleteSelectedOutfit(const std::string& filePath)
 {
     if (remove(filePath.c_str()) == 0)
-        Game::Print::PrintBottomLeft(Language::Translate("components.notifications.fileDeleted"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.player.wardrobe.file_deleted.message"));
     else
     {
-        Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.deleteFailed"));
+        Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.delete_failed.message"));
         addlog(ige::LogType::LOG_ERROR, "Attempt to delete file " + filePath + " failed");
     }
     Menu::SetPreviousMenu();
@@ -491,10 +493,17 @@ void DrawSelectedOutfitSettings(const std::string& filePath)
     if (!PedOutfitPersistence::ReadPedOutfitSettings(filePath, settings))
         return;
 
-    AddBreak(Language::Translate("components.outfits.attributes"));
+    AddBreak(Language::Translate("menu.player.wardrobe.outfits.section.attributes.label"));
     bool clearDecalOverlaysPressed = false;
-    AddTickol(Language::Translate("components.outfits.clearPreviousDecals"), settings.clearDecalOverlays, clearDecalOverlaysPressed, clearDecalOverlaysPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddOptionDescription(Language::Translate("components.outfits.removeDecals.description"));
+    AddTickol(
+        Language::Translate("menu.player.wardrobe.outfits.option.clear_previous_decals.label"),
+        settings.clearDecalOverlays,
+        clearDecalOverlaysPressed,
+        clearDecalOverlaysPressed,
+        TICKOL::BOXTICK,
+        TICKOL::BOXBLANK
+    );
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.outfits.option.remove_decals.description"));
     if (clearDecalOverlaysPressed)
     {
         settings.clearDecalOverlays = !settings.clearDecalOverlays;
@@ -505,8 +514,8 @@ void DrawSelectedOutfitSettings(const std::string& filePath)
     if (settings.hasShortHeightSetting)
     {
         bool shortHeightPressed = false;
-        AddTickol(Language::Translate("components.outfits.shortHeight"), settings.shortHeight, shortHeightPressed, shortHeightPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-        AddOptionDescription(Language::Translate("components.outfits.shortPed.description"));
+        AddTickol(Language::Translate("menu.player.wardrobe.outfits.option.short_height.label"), settings.shortHeight, shortHeightPressed, shortHeightPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        AddOptionDescription(Language::Translate("menu.player.wardrobe.outfits.option.short_ped.description"));
         if (shortHeightPressed)
         {
             settings.shortHeight = !settings.shortHeight;
@@ -518,14 +527,14 @@ void DrawSelectedOutfitSettings(const std::string& filePath)
     {
         bool attachmentsPersistentPressed = false;
         AddTickol(
-            Language::Translate("components.outfits.persistentAttachments"),
+            Language::Translate("menu.player.wardrobe.outfits.option.persistent_attachments.label"),
             settings.attachmentsPersistent,
             attachmentsPersistentPressed,
             attachmentsPersistentPressed,
             TICKOL::BOXTICK,
             TICKOL::BOXBLANK
         );
-        AddOptionDescription(Language::Translate("components.outfits.attachmentsPersistent.description"));
+        AddOptionDescription(Language::Translate("menu.player.wardrobe.outfits.option.attachments_persistent.description"));
         if (attachmentsPersistentPressed)
         {
             settings.attachmentsPersistent = !settings.attachmentsPersistent;
@@ -537,9 +546,14 @@ void DrawSelectedOutfitSettings(const std::string& filePath)
     {
         bool startTaskSequencesPressed = false;
         AddTickol(
-            Language::Translate("components.outfits.startTaskSequences"), settings.startTaskSequencesOnLoad, startTaskSequencesPressed, startTaskSequencesPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK
+            Language::Translate("menu.player.wardrobe.outfits.option.start_task_sequences.label"),
+            settings.startTaskSequencesOnLoad,
+            startTaskSequencesPressed,
+            startTaskSequencesPressed,
+            TICKOL::BOXTICK,
+            TICKOL::BOXBLANK
         );
-        AddOptionDescription(Language::Translate("components.outfits.attachmentsTasks.description"));
+        AddOptionDescription(Language::Translate("menu.player.wardrobe.outfits.option.attachments_tasks.description"));
         if (startTaskSequencesPressed)
         {
             settings.startTaskSequencesOnLoad = !settings.startTaskSequencesOnLoad;
@@ -565,11 +579,11 @@ namespace
 void AddOutfitXmlFormatOption()
 {
     outfitMenuState.useLegacyXmlFormat = AddTexterCycler(
-                                             Language::Translate("components.outfits.xmlFormat"),
+                                             Language::Translate("menu.player.wardrobe.outfits.option.xml_format.label"),
                                              outfitMenuState.useLegacyXmlFormat,
-                                             {Language::Translate("components.outfits.xmlNew"), Language::Translate("components.outfits.xmlLegacy")}
+                                             {Language::Translate("menu.player.wardrobe.option.outfits.value.xml_new"), Language::Translate("menu.player.wardrobe.option.outfits.value.xml_legacy")}
                                          ) == 1;
-    AddOptionDescription(Language::Translate("components.outfits.xmlFormat.description"));
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.outfits.option.xml_format.description"));
 }
 } // namespace
 
@@ -579,21 +593,23 @@ void PedOutfitsMenu()
 
     bool savePressed = false, createFolderPressed = false;
 
-    AddTitle(Language::Translate("components.outfits.title"));
+    AddTitle(Language::Translate("menu.player.wardrobe.outfits.title"));
     AddSaveFileSortOption();
 
     attachmentModeIndex = static_cast<std::uint8_t>(AddTexterCycler(
-        Language::Translate("components.outfits.attachments"),
+        Language::Translate("menu.player.wardrobe.outfits.option.attachments.label"),
         attachmentModeIndex,
-        {Language::Translate("components.outfits.fileDecides"), Language::Translate("components.outfits.forceOff"), Language::Translate("components.outfits.forceOn")}
+        {Language::Translate("menu.player.wardrobe.option.outfits.value.file_decides"),
+         Language::Translate("menu.player.wardrobe.option.outfits.value.force_off"),
+         Language::Translate("menu.player.wardrobe.option.outfits.value.force_on")}
     ));
-    AddOptionDescription(Language::Translate("components.outfits.attachments.description"));
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.outfits.option.attachments.description"));
 
     AddOutfitXmlFormatOption();
 
-    AddOption(Language::Translate("components.outfits.save"), savePressed);
+    AddOption(Language::Translate("menu.player.wardrobe.outfits.option.save.label"), savePressed);
 
-    AddOption(Language::Translate("components.outfits.createFolder"), createFolderPressed);
+    AddOption(Language::Translate("menu.player.wardrobe.outfits.option.create_folder.label"), createFolderPressed);
 
     if (DrawOutfitFileBrowser())
         return;
@@ -625,19 +641,22 @@ void PedOutfitOptionsMenu()
     bool deleteOutfitPressed = false;
 
     AddTitle(outfitName);
-    AddOption(Language::Translate("components.outfits.apply"), applyOutfitPressed);
-    AddOptionDescription(Language::Translate("components.outfits.apply.description"));
-    AddOption(Language::Translate("components.outfits.applyClothing"), applyClothingPressed);
-    AddOptionDescription(Language::Translate("components.outfits.applyClothing.description"));
-    AddOption(Language::Translate(g_activePedHandle == PLAYER_PED_ID() ? "components.applyPedModel" : "components.applyHeadFeatures"), applyModelAndHeadPressed);
-    AddOptionDescription(Language::Translate("components.outfits.applyHead.description"));
-    AddOption(Language::Translate("components.outfits.applyDefault"), saveAsDefaultPressed);
-    AddOptionDescription(Language::Translate("components.outfits.applyDefault.description"));
+    AddOption(Language::Translate("menu.player.wardrobe.outfits.option.apply.label"), applyOutfitPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.outfits.option.apply.description"));
+    AddOption(Language::Translate("menu.player.wardrobe.outfits.option.apply_clothing.label"), applyClothingPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.outfits.option.apply_clothing.description"));
+    AddOption(
+        Language::Translate(g_activePedHandle == PLAYER_PED_ID() ? "menu.player.wardrobe.option.apply_ped_model.label" : "menu.player.wardrobe.option.apply_head_features.label"),
+        applyModelAndHeadPressed
+    );
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.outfits.option.apply_head.description"));
+    AddOption(Language::Translate("menu.player.wardrobe.outfits.option.apply_default.label"), saveAsDefaultPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.outfits.option.apply_default.description"));
     AddOutfitXmlFormatOption();
-    AddOption(Language::Translate("components.outfits.rename"), renameOutfitPressed);
-    AddOption(Language::Translate("components.outfits.overwrite"), overwriteOutfitPressed);
-    AddOptionDescription(Language::Translate("components.outfits.overwrite.description"));
-    AddOption(Language::Translate("components.outfits.delete"), deleteOutfitPressed);
+    AddOption(Language::Translate("menu.player.wardrobe.outfits.option.rename.label"), renameOutfitPressed);
+    AddOption(Language::Translate("menu.player.wardrobe.outfits.option.overwrite.label"), overwriteOutfitPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.outfits.option.overwrite.description"));
+    AddOption(Language::Translate("menu.player.wardrobe.outfits.option.delete.label"), deleteOutfitPressed);
 
     ApplySelectedOutfit(filePath, applyModelAndHeadPressed || applyOutfitPressed, applyClothingPressed || applyOutfitPressed);
 

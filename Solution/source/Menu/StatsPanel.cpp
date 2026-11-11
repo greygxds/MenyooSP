@@ -115,7 +115,7 @@ void Draw(float topY, float width, const std::vector<Row>& rows)
         return;
 
     HandleVisibilityToggle();
-    Keybinds::AddBindIB("stats_panel_visibility", g_panelsVisible, Language::Translate("statsPanel.hide"), Language::Translate("statsPanel.show"));
+    Keybinds::AddBindIB("stats_panel_visibility", g_panelsVisible, Language::Translate("menu.stats_panel.option.hide.label"), Language::Translate("menu.stats_panel.option.show.label"));
     if (!g_panelsVisible)
         return;
 
@@ -243,7 +243,7 @@ void DrawAtOption(float optionTextY, float width, const std::vector<Row>& rows)
         return;
 
     HandleVisibilityToggle();
-    Keybinds::AddBindIB("stats_panel_visibility", g_panelsVisible, Language::Translate("statsPanel.hide"), Language::Translate("statsPanel.show"));
+    Keybinds::AddBindIB("stats_panel_visibility", g_panelsVisible, Language::Translate("menu.stats_panel.option.hide.label"), Language::Translate("menu.stats_panel.option.show.label"));
     if (!g_panelsVisible)
         return;
 
@@ -366,18 +366,19 @@ void DrawFolderContents(const std::string& dirPath, float optionTextY, float wid
         size_t hiddenFiles = fileCount - shownFiles;
         if (hiddenFolders > 0 && hiddenFiles > 0)
         {
-            const std::string foldersMore = Language::Format("statsPanel.foldersMore", {{"count", static_cast<std::uint64_t>(hiddenFolders)}});
-            const std::string filesMore = Language::Format("statsPanel.filesMore", {{"count", static_cast<std::uint64_t>(hiddenFiles)}});
-            statsRows.push_back(TextRow{foldersMore + Language::Translate("statsPanel.and") + filesMore});
+            const std::string foldersMore = Language::Format("component.stats_panel.hidden_folders.label", {{"count", static_cast<std::uint64_t>(hiddenFolders)}});
+            const std::string filesMore = Language::Format("component.stats_panel.hidden_files.label", {{"count", static_cast<std::uint64_t>(hiddenFiles)}});
+            statsRows.push_back(TextRow{foldersMore});
+            statsRows.push_back(TextRow{filesMore});
         }
         else if (hiddenFiles > 0)
-            statsRows.push_back(TextRow{Language::Format("statsPanel.filesMore", {{"count", static_cast<std::uint64_t>(hiddenFiles)}})});
+            statsRows.push_back(TextRow{Language::Format("component.stats_panel.hidden_files.label", {{"count", static_cast<std::uint64_t>(hiddenFiles)}})});
         else if (hiddenFolders > 0)
-            statsRows.push_back(TextRow{Language::Format("statsPanel.foldersMore", {{"count", static_cast<std::uint64_t>(hiddenFolders)}})});
+            statsRows.push_back(TextRow{Language::Format("component.stats_panel.hidden_folders.label", {{"count", static_cast<std::uint64_t>(hiddenFolders)}})});
         if (shownCount > 0)
             statsRows.push_back(SeparatorRow{});
-        statsRows.push_back(StatRow{Language::Format("statsPanel.folderCountLabel", {{"count", static_cast<std::uint64_t>(folderCount)}}), std::to_string(folderCount)});
-        statsRows.push_back(StatRow{Language::Format("statsPanel.fileCountLabel", {{"count", static_cast<std::uint64_t>(fileCount)}}), std::to_string(fileCount)});
+        statsRows.push_back(StatRow{Language::Format("component.stats_panel.folder_count.label", {{"count", static_cast<std::uint64_t>(folderCount)}}), std::to_string(folderCount)});
+        statsRows.push_back(StatRow{Language::Format("component.stats_panel.file_count.label", {{"count", static_cast<std::uint64_t>(fileCount)}}), std::to_string(fileCount)});
     }
 
     DrawAtOption(optionTextY, width, statsRows);
