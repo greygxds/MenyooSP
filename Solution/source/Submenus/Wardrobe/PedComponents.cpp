@@ -166,7 +166,7 @@ bool DrawCollectionControls(CollectionCacheEntry& cache, PedVariationKind variat
     if (cache.collections.empty())
         return false;
 
-    AddBreak(Language::Translate("components.variation.collectionData"));
+    AddBreak(Language::Translate("menu.player.wardrobe.variation.section.collection_data.label"));
 
     if (cache.selectedDrawableLocation.collectionIndex < 0 || cache.selectedDrawableLocation.collectionIndex >= static_cast<int>(cache.collections.size()))
         cache.selectedDrawableLocation = {0, 0};
@@ -178,8 +178,8 @@ bool DrawCollectionControls(CollectionCacheEntry& cache, PedVariationKind variat
     const int previousCollectionIndex = cache.selectedDrawableLocation.collectionIndex;
     bool openCollectionList = false;
     cache.selectedDrawableLocation.collectionIndex =
-        AddTexterCycler(Language::Translate("components.variation.collection"), cache.selectedDrawableLocation.collectionIndex, collectionNames, openCollectionList);
-    AddOptionDescription(Language::Translate("components.variation.collection.description"));
+        AddTexterCycler(Language::Translate("menu.player.wardrobe.variation.option.collection.label"), cache.selectedDrawableLocation.collectionIndex, collectionNames, openCollectionList);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.variation.option.collection.description"));
     if (openCollectionList)
         OpenCollectionList(variationKind, variationSlotIndex, pedHandle);
 
@@ -195,8 +195,8 @@ bool DrawCollectionControls(CollectionCacheEntry& cache, PedVariationKind variat
         cache.selectedDrawableLocation.localId = 0;
 
     const int previousLocalId = cache.selectedDrawableLocation.localId;
-    AddNumberStepper(Language::Translate("components.variation.localId"), cache.selectedDrawableLocation.localId, 0, 1.0, 0, collection.maxLocalId, false, true);
-    AddOptionDescription(Language::Translate("components.variation.index.description"));
+    AddNumberStepper(Language::Translate("menu.player.wardrobe.variation.option.local_id.label"), cache.selectedDrawableLocation.localId, 0, 1.0, 0, collection.maxLocalId, false, true);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.variation.option.index.description"));
 
     if (collectionChanged || cache.selectedDrawableLocation.localId != previousLocalId)
     {
@@ -242,16 +242,16 @@ void PedComponentsMenu()
 
     WardrobeCamera::SetFraming(ped, WardrobeCamera::Framing::Body);
 
-    AddTitle(Language::Translate("components.wardrobe.title"));
-    AddLocal(Language::Translate("components.wardrobe.frontView"), WardrobeCamera::IsActive(), toggleFrontViewPressed, toggleFrontViewPressed);
-    AddOptionDescription(Language::Translate("components.wardrobe.frontView.description"));
-    AddOption(Language::Translate("components.wardrobe.outfits"), null, nullFunc, SUB::PED_OUTFITS);
-    AddOption(Language::Translate("components.wardrobe.defaultOutfits"), null, nullFunc, SUB::PED_DEFAULT_OUTFITS);
-    AddOptionDescription(Language::Translate("components.wardrobe.defaultOutfits.description"));
-    AddOption(Language::Translate("components.wardrobe.decals"), null, PedDecals::OpenDecalsMenu, -1, true);
-    AddOption(Language::Translate("components.wardrobe.damage"), null, nullFunc, SUB::PED_DAMAGE_CATEGORY_LIST);
-    AddOption(Language::Translate("components.wardrobe.headFeatures"), null, nullFunc, SUB::PED_HEAD);
-    AddOption(Language::Translate("components.wardrobe.accessories"), null, nullFunc, SUB::PED_PROPS);
+    AddTitle(Language::Translate("menu.player.wardrobe.wardrobe.title"));
+    AddLocal(Language::Translate("menu.player.wardrobe.wardrobe.option.front_view.label"), WardrobeCamera::IsActive(), toggleFrontViewPressed, toggleFrontViewPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.wardrobe.option.front_view.description"));
+    AddOption(Language::Translate("menu.player.wardrobe.wardrobe.option.outfits.label"), null, nullFunc, SUB::PED_OUTFITS);
+    AddOption(Language::Translate("menu.player.wardrobe.wardrobe.option.default_outfits.label"), null, nullFunc, SUB::PED_DEFAULT_OUTFITS);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.wardrobe.option.default_outfits.description"));
+    AddOption(Language::Translate("menu.player.wardrobe.wardrobe.option.decals.label"), null, PedDecals::OpenDecalsMenu, -1, true);
+    AddOption(Language::Translate("menu.player.wardrobe.wardrobe.option.damage.label"), null, nullFunc, SUB::PED_DAMAGE_CATEGORY_LIST);
+    AddOption(Language::Translate("menu.player.wardrobe.wardrobe.option.head_features.label"), null, nullFunc, SUB::PED_HEAD);
+    AddOption(Language::Translate("menu.player.wardrobe.wardrobe.option.accessories.label"), null, nullFunc, SUB::PED_PROPS);
 
     const std::vector<std::string> componentSlotNames{
         "Head ~c~[head]",
@@ -268,7 +268,7 @@ void PedComponentsMenu()
         "Tops2 (Outer) ~c~[jbib]"
     };
 
-    AddBreak(Language::Translate("components.sections.components"));
+    AddBreak(Language::Translate("menu.player.wardrobe.sections.section.components.label"));
 
     for (int componentSlotIndex = 0; componentSlotIndex < PV_COMP_MAX; ++componentSlotIndex)
     {
@@ -276,17 +276,17 @@ void PedComponentsMenu()
             AddPedComponentOption(componentSlotNames[componentSlotIndex], componentSlotIndex);
     }
 
-    AddBreak(Language::Translate("components.sections.utilities"));
-    AddOption(Language::Translate("components.random"), randomizeComponentsPressed);
-    AddOptionDescription(Language::Translate("components.random.description"));
-    AddOption(Language::Translate("components.default"), restoreDefaultComponentsPressed);
-    AddOptionDescription(Language::Translate("components.default.description"));
-    AddOption(Language::Translate("components.defaultAll"), restoreDefaultComponentsAndClearPropsPressed);
-    AddOptionDescription(Language::Translate("components.defaultAll.description"));
+    AddBreak(Language::Translate("menu.player.wardrobe.sections.section.utilities.label"));
+    AddOption(Language::Translate("menu.player.wardrobe.option.random.label"), randomizeComponentsPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.option.random.description"));
+    AddOption(Language::Translate("menu.player.wardrobe.option.default.label"), restoreDefaultComponentsPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.option.default.description"));
+    AddOption(Language::Translate("menu.player.wardrobe.option.default_all.label"), restoreDefaultComponentsAndClearPropsPressed);
+    AddOptionDescription(Language::Translate("menu.player.wardrobe.option.default_all.description"));
 
     if (randomizeComponentsPressed)
     {
-        if (ConfirmOnSecondPress(randomComponentsConfirmationPending, Language::Translate("components.confirm.randomComponents")))
+        if (ConfirmOnSecondPress(randomComponentsConfirmationPending, Language::Translate("menu.player.wardrobe.confirm.option.random_components.label")))
         {
             ped.RequestControlOnce();
             ped.SetRandomComponentVariation();
@@ -296,7 +296,7 @@ void PedComponentsMenu()
 
     if (restoreDefaultComponentsPressed)
     {
-        if (ConfirmOnSecondPress(defaultComponentsConfirmationPending, Language::Translate("components.confirm.defaultComponents")))
+        if (ConfirmOnSecondPress(defaultComponentsConfirmationPending, Language::Translate("menu.player.wardrobe.confirm.option.default_components.label")))
         {
             ped.RequestControlOnce();
             ped.SetDefaultComponentVariation();
@@ -306,7 +306,7 @@ void PedComponentsMenu()
 
     if (restoreDefaultComponentsAndClearPropsPressed)
     {
-        if (ConfirmOnSecondPress(defaultComponentsAndAccessoriesConfirmationPending, Language::Translate("components.confirm.defaultComponentsAndAccessories")))
+        if (ConfirmOnSecondPress(defaultComponentsAndAccessoriesConfirmationPending, Language::Translate("menu.player.wardrobe.confirm.option.default_components_and_accessories.label")))
         {
             ped.RequestControlOnce();
             ped.SetDefaultComponentVariation();
@@ -335,10 +335,10 @@ void PedComponentVariationsMenu()
     const int maxComponentDrawableIndex = ped.GetComponentDrawableCount(s_selectedComponentIndex) - 1;
     int componentTextureCount = ped.GetComponentTextureCount(s_selectedComponentIndex, componentDrawableIndex);
 
-    AddTitle(Language::Translate("components.variation.title"));
+    AddTitle(Language::Translate("menu.player.wardrobe.variation.title"));
 
     if (maxComponentDrawableIndex >= 0)
-        AddNumberStepper(Language::Translate("components.variation.type"), componentDrawableIndex, 0, 1.0, 0, maxComponentDrawableIndex, false, true);
+        AddNumberStepper(Language::Translate("menu.player.wardrobe.variation.option.type.label"), componentDrawableIndex, 0, 1.0, 0, maxComponentDrawableIndex, false, true);
 
     if (componentDrawableIndex != previousComponentDrawableIndex)
     {
@@ -347,7 +347,7 @@ void PedComponentVariationsMenu()
     }
 
     if (componentTextureCount > 0)
-        AddNumberStepper(Language::Translate("components.variation.texture"), componentTextureIndex, 0, 1.0, 0, componentTextureCount - 1, false, true);
+        AddNumberStepper(Language::Translate("menu.player.wardrobe.variation.option.texture.label"), componentTextureIndex, 0, 1.0, 0, componentTextureCount - 1, false, true);
 
     bool collectionVariationChanged = false;
     if (!g_isEnhanced && maxComponentDrawableIndex >= 0)
@@ -395,7 +395,7 @@ void PedPropsMenu()
         "Hats ~c~[p_head]", "Glasses ~c~[p_eyes]", "Ear Pieces ~c~[p_ears]", "Unknown 3", "Unknown 4", "Unknown 5", "Watches ~c~[p_lwrist]", "Bangles ~c~[p_rwrist]", "Unknown 8", "Unknown 9"
     };
 
-    AddTitle(Language::Translate("components.accessories.title"));
+    AddTitle(Language::Translate("menu.player.wardrobe.accessories.title"));
 
     for (int propSlotIndex = 0; propSlotIndex < static_cast<int>(propSlotNames.size()); ++propSlotIndex)
     {
@@ -403,13 +403,13 @@ void PedPropsMenu()
             AddPedPropOption(propSlotNames[propSlotIndex], propSlotIndex);
     }
 
-    AddBreak(Language::Translate("components.sections.utilities"));
-    AddOption(Language::Translate("components.accessories.random"), randomizePropsPressed);
-    AddTickol(Language::Translate("components.accessories.default"), true, clearPropsPressed, clearPropsPressed, TICKOL::CROSS);
+    AddBreak(Language::Translate("menu.player.wardrobe.sections.section.utilities.label"));
+    AddOption(Language::Translate("menu.player.wardrobe.accessories.option.random.label"), randomizePropsPressed);
+    AddTickol(Language::Translate("menu.player.wardrobe.accessories.option.default.label"), true, clearPropsPressed, clearPropsPressed, TICKOL::CROSS);
 
     if (randomizePropsPressed)
     {
-        if (ConfirmOnSecondPress(randomPropsConfirmationPending, Language::Translate("components.confirm.randomAccessories")))
+        if (ConfirmOnSecondPress(randomPropsConfirmationPending, Language::Translate("menu.player.wardrobe.confirm.option.random_accessories.label")))
         {
             ped.RequestControlOnce();
             ped.SetRandomProps();
@@ -419,7 +419,7 @@ void PedPropsMenu()
 
     if (clearPropsPressed)
     {
-        if (ConfirmOnSecondPress(clearPropsConfirmationPending, Language::Translate("components.confirm.clearAccessories")))
+        if (ConfirmOnSecondPress(clearPropsConfirmationPending, Language::Translate("menu.player.wardrobe.confirm.option.clear_accessories.label")))
         {
             ped.RequestControlOnce();
             ped.ClearAllProps();
@@ -439,11 +439,11 @@ void PedPropVariationsMenu()
     const int maxPropDrawableIndex = ped.GetPropDrawableCount(s_selectedPropIndex) - 1;
     int propTextureCount = propDrawableIndex >= 0 ? ped.GetPropTextureCount(s_selectedPropIndex, propDrawableIndex) : 0;
 
-    AddTitle(Language::Translate("components.variation.title"));
+    AddTitle(Language::Translate("menu.player.wardrobe.variation.title"));
 
     if (maxPropDrawableIndex >= 0)
     {
-        AddNumberStepper(Language::Translate("components.variation.type"), propDrawableIndex, 0, 1.0, -1, maxPropDrawableIndex, false, true);
+        AddNumberStepper(Language::Translate("menu.player.wardrobe.variation.option.type.label"), propDrawableIndex, 0, 1.0, -1, maxPropDrawableIndex, false, true);
     }
 
     if (propDrawableIndex != previousPropDrawableIndex)
@@ -453,7 +453,7 @@ void PedPropVariationsMenu()
     }
     if (propTextureCount > 0)
     {
-        AddNumberStepper(Language::Translate("components.variation.texture"), propTextureIndex, 0, 1.0, 0, propTextureCount - 1, false, true);
+        AddNumberStepper(Language::Translate("menu.player.wardrobe.variation.option.texture.label"), propTextureIndex, 0, 1.0, 0, propTextureCount - 1, false, true);
     }
 
     bool collectionVariationChanged = false;
@@ -483,7 +483,7 @@ void PedPropVariationsMenu()
 
 void PedVariationCollectionsMenu()
 {
-    AddTitle(Language::Translate("components.variation.collection"));
+    AddTitle(Language::Translate("menu.player.wardrobe.variation.collection.title"));
 
     const int variationSlotCount = collectionMenuContext.variationKind == PedVariationKind::Component ? PV_COMP_MAX : PV_PROP_MAX;
     if (collectionMenuContext.variationSlotIndex < 0 || collectionMenuContext.variationSlotIndex >= variationSlotCount || !DOES_ENTITY_EXIST(collectionMenuContext.pedHandle))

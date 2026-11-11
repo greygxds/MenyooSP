@@ -344,7 +344,7 @@ void DrawPrintBottomCentreMessage()
 
 void PrintBottomCentre(std::string s, int time)
 {
-    activePrintBottomCentreMessage = PrintBottomCentreMessage{Language::TranslateToSelected(std::move(s)), GetTickCount() + static_cast<DWORD>((std::max)(0, time))};
+    activePrintBottomCentreMessage = PrintBottomCentreMessage{std::move(s), GetTickCount() + static_cast<DWORD>((std::max)(0, time))};
 }
 
 void TickPrintBottomCentre()
@@ -371,7 +371,6 @@ void GameFeedNotification::Hide()
 
 GameFeedNotification PrintBottomLeft(std::string s, bool gxt)
 {
-    s = Language::TranslateToSelected(s);
     const char* text = s.c_str();
 
     if (gxt && DOES_TEXT_LABEL_EXIST(text))
@@ -415,7 +414,6 @@ GameFeedNotification PrintBottomLeft(std::string s, const std::string& sender, c
         BEGIN_TEXT_COMMAND_THEFEED_POST(text);
     else
     {
-        s = Language::TranslateToSelected(s);
         text = s.c_str();
 
         if (s.length() < 100)
@@ -617,7 +615,6 @@ std::vector<std::string> WrapText(const std::string& text, float maxWidth)
 
 std::string ResolveNotificationText(std::string text)
 {
-    text = Language::TranslateToSelected(std::move(text));
     if (!DOES_TEXT_LABEL_EXIST(text.c_str()))
         return text;
     const char* resolved = GET_FILENAME_FOR_AUDIO_CONVERSATION(text.c_str());
@@ -816,13 +813,13 @@ void TickNotifications()
 // Messages - Errors
 void PrintErrorInvalidInput(std::string inputStr)
 {
-    Game::Print::ShowNotification(Language::Translate("common.error.title"), Language::Format("common.invalidInput", {{"input", inputStr}}));
+    Game::Print::ShowNotification(Language::Translate("common.error.title"), Language::Format("common.invalid_input", {{"input", inputStr}}));
     addlog(ige::LogType::LOG_ERROR, "Invalid Input: " + inputStr);
 }
 
 void PrintErrorInvalidModel(std::string inputStr)
 {
-    Game::Print::ShowNotification(Language::Translate("common.error.title"), Language::Format("common.invalidModel", {{"input", inputStr}}));
+    Game::Print::ShowNotification(Language::Translate("common.error.title"), Language::Format("common.invalid_model", {{"input", inputStr}}));
     addlog(ige::LogType::LOG_ERROR, "Invalid Model: " + inputStr);
 }
 
@@ -919,7 +916,6 @@ std::string InputBox(const std::string& escReturn, int maxChars, std::string tit
         }
         else
         {
-            titlegxt = Language::TranslateToSelected(titlegxt);
             if (titlegxt.length() < 100)
             {
                 BEGIN_TEXT_COMMAND_DISPLAY_TEXT("STRING");

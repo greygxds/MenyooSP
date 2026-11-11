@@ -267,7 +267,7 @@ void ToggleHeightLock()
     state.heightLocked = !state.heightLocked;
     if (state.heightLocked)
         state.lockedHeight = GetControlledEntity().GetPosition().z;
-    Game::Print::ShowNotification(Language::Translate(state.heightLocked ? "freeCam.heightLocked" : "freeCam.heightUnlocked"), 1.0f);
+    Game::Print::ShowNotification(Language::Translate(state.heightLocked ? "message.misc.free_camera.height_locked.title" : "message.misc.free_camera.height_unlocked.title"), 1.0f);
 }
 
 // Returns -1 / 0 / +1 for scroll down / none / up
@@ -289,7 +289,7 @@ void AdjustSpeed(int scroll)
 
     MenuConfig::FreeCam::defaultSpeed = newSpeed;
     MenuConfig::RequestSave();
-    Game::Print::ShowNotification(Language::Format("misc.freeCam.speed.notification", {{"speed", std::to_string(newSpeed)}}), 1.0f);
+    Game::Print::ShowNotification(Language::Format("message.misc.free_cam.speed.title", {{"speed", std::to_string(newSpeed)}}), 1.0f);
 }
 
 void AdjustFov(int scroll)
@@ -302,7 +302,7 @@ void AdjustFov(int scroll)
     state.camera.SetFieldOfView(newFov);
     MenuConfig::FreeCam::defaultFov = newFov;
     MenuConfig::RequestSave();
-    Game::Print::ShowNotification(Language::Format("misc.freeCam.fov.notification", {{"fov", std::to_string(newFov)}}), 1.0f);
+    Game::Print::ShowNotification(Language::Format("message.misc.free_cam.fov.title", {{"fov", std::to_string(newFov)}}), 1.0f);
 }
 
 void HandleKeyboardAdjustments()
@@ -326,9 +326,9 @@ void HandleKeyboardAdjustments()
 
 void DrawHelpBindRows()
 {
-    Keybinds::AddBindIB("freecam_hasten", Language::Translate("freeCam.hasten"));
-    Keybinds::AddBindIB("freecam_slow", Language::Translate("freeCam.slowDown"));
-    Keybinds::AddBindIB("freecam_height_lock", Language::Translate("freeCam.heightLock"));
+    Keybinds::AddBindIB("freecam_hasten", Language::Translate("menu.misc.free_camera.option.hasten.label"));
+    Keybinds::AddBindIB("freecam_slow", Language::Translate("menu.misc.free_camera.option.slow_down.label"));
+    Keybinds::AddBindIB("freecam_height_lock", Language::Translate("menu.misc.free_camera.option.height_lock.label"));
 }
 } // namespace
 

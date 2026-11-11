@@ -85,8 +85,8 @@ void PlayCutscene(const std::string& label)
 
 void CutsceneListMenu()
 {
-    AddTitle(Language::Translate("cutscene.title"));
-    AddOption(Language::Translate("cutscene.stop"), null, EndCutscene);
+    AddTitle(Language::Translate("menu.misc.cutscene.title"));
+    AddOption(Language::Translate("menu.misc.cutscene.option.stop.label"), null, EndCutscene);
 
     for (auto& label : cutsceneLabels)
     {

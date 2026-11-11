@@ -96,78 +96,80 @@ void VehicleMenu()
 
     static int fixCarTexterValue = 0;
     std::vector<std::string> fixCarTexter{
-        Language::Translate("vehicle.options.repair.full"),
-        Language::Translate("vehicle.options.repair.keepDirt"),
-        Language::Translate("vehicle.options.repair.keepWindowsOpen"),
-        Language::Translate("vehicle.options.repair.keepWindowsOpenWithDirt")
+        Language::Translate("menu.vehicle.options.repair.option.full.label"),
+        Language::Translate("menu.vehicle.options.repair.option.keep_dirt.label"),
+        Language::Translate("menu.vehicle.options.repair.option.keep_windows_open.label"),
+        Language::Translate("menu.vehicle.options.repair.option.keep_windows_open_with_dirt.label")
     };
     auto& fixCarTexterVal = fixCarTexterValue;
     bool fixCarPlus = false;
     bool fixCarMinus = false;
 
-    AddTitle(Language::Translate("vehicle.options.title"));
+    AddTitle(Language::Translate("menu.vehicle.options.title"));
     if (myPedIsInVehicle)
     {
         AddTexter("CMOD_MOD_MNT", fixCarTexterVal, fixCarTexter, fixCar, fixCarPlus, fixCarMinus, true); // Fix & Wash
-        AddOptionDescription(Language::Translate("vehicle.options.repair.description"));
+        AddOptionDescription(Language::Translate("menu.vehicle.options.option.repair.description"));
     }
-    AddOption(Language::Translate("vehicle.options.vehicleSpawner.label"), funnyVehicleFreezeOff, nullFunc, SUB::SPAWNVEHICLE);
-    AddOption(Language::Translate("vehicle.options.menyooCustoms.label"), vehicleMenuModShop, nullFunc, -1, true);
+    AddOption(Language::Translate("menu.vehicle.options.option.vehicle_spawner.label"), funnyVehicleFreezeOff, nullFunc, SUB::SPAWNVEHICLE);
+    AddOption(Language::Translate("menu.vehicle.options.option.menyoo_customs.label"), vehicleMenuModShop, nullFunc, -1, true);
     if (myVehicleModel.IsCargobob())
     {
-        AddLocal(Language::Translate("vehicle.options.cargobobMagnet.label"), myVehicle.IsCargobobHookActive(CargobobHook::Magnet), toggleCargobobMagnet, toggleCargobobMagnet);
+        AddLocal(Language::Translate("menu.vehicle.options.option.cargobob_magnet.label"), myVehicle.IsCargobobHookActive(CargobobHook::Magnet), toggleCargobobMagnet, toggleCargobobMagnet);
     }
     if (DOES_VEHICLE_ALLOW_RAPPEL(g_myVeh))
     {
-        AddOption(Language::Translate("vehicle.options.rappelFromHelicopter.label"), rappelHeli);
+        AddOption(Language::Translate("menu.vehicle.options.option.rappel_from_helicopter.label"), rappelHeli);
     }
     if (myVehicle.GetHasSiren())
     {
-        AddToggle(Language::Translate("vehicle.options.disableVehicleSiren.label"), vehicleDisableSiren, null, disableSirenOff);
+        AddToggle(Language::Translate("menu.vehicle.options.option.disable_vehicle_siren.label"), vehicleDisableSiren, null, disableSirenOff);
     }
     if (myVehicleModel.IsBoat())
     {
-        AddLocal(Language::Translate("vehicle.options.anchorBoat.label"), myVehicle.IsBoatAnchored(), toggleBoatAnchor, toggleBoatAnchor);
+        AddLocal(Language::Translate("menu.vehicle.options.option.anchor_boat.label"), myVehicle.IsBoatAnchored(), toggleBoatAnchor, toggleBoatAnchor);
     }
-    AddOption(Language::Translate("vehicle.options.teleportIntoClosestVehicle.label"), teleportClosestCar);
-    AddOption(Language::Translate("vehicle.options.vehicleMultipliers.label"), null, nullFunc, SUB::VEHICLEMULTIPLIERS);
-    AddOption(Language::Translate("vehicle.options.speedometers.label"), null, nullFunc, SUB::VEHICLESPEEDOS);
-    AddOption(Language::Translate("vehicle.options.multiPlatformNeons.label"), null, nullFunc, SUB::MULTIPLATNEONS);
-    AddOptionDescription(Language::Translate("vehicle.options.multiPlatformNeons.description"));
-    AddOption(Language::Translate("vehicle.options.pvOptions.label"), null, nullFunc, SUB::PVOPS);
-    AddOptionDescription(Language::Translate("vehicle.options.pvOptions.description"));
-    AddOption(Language::Translate("vehicle.options.autoDrive.label"), null, nullFunc, SUB::AUTODRIVESUB);
-    AddOptionDescription(Language::Translate("vehicle.options.autoDrive.description"));
-    AddOption(Language::Translate("vehicle.options.opacityLocal.label"), vehicleMenuAlphaLevel, nullFunc, -1, true);
-    AddOptionDescription(Language::Translate("vehicle.options.opacityLocal.description"));
-    AddNumber(Language::Translate("vehicle.options.damageDefense.label"), vehicleDamageAndDefense, 2, damageAndDefenseCustom, damageAndDefensePlus, damageAndDefenseMinus);
-    AddOptionDescription(Language::Translate("vehicle.options.damageDefense.description"));
-    AddToggle(Language::Translate("vehicle.options.invincibilityLooped.label"), vehicleInvincibility, null, invincibilityOff);
-    AddOptionDescription(Language::Translate("vehicle.options.invincibilityLooped.description"));
-    AddLocal(Language::Translate("vehicle.options.invisibility.label"), !myVehicle.IsVisible(), vehicleInvisibility, invisible);
-    AddToggle(Language::Translate("vehicle.options.autoRepair.label"), vehicleFixLoop);
-    AddToggle(Language::Translate("vehicle.options.autoFlip.label"), vehicleFlipLoop);
-    AddOptionDescription(Language::Translate("vehicle.options.autoFlip.description"));
-    AddToggle(Language::Translate("vehicle.options.keepEngineLightsOn.label"), selfEngineOn);
-    AddOptionDescription(Language::Translate("vehicle.options.keepEngineLightsOn.description"));
-    AddTickol(Language::Translate("vehicle.options.killEngine.label"), (GET_VEHICLE_ENGINE_HEALTH(g_myVeh) < 0.0f), vehicleMenuEngine, vehicleMenuEngine, TICKOL::PERCENTAGESTICKER, TICKOL::NONE);
-    AddOptionDescription(Language::Translate("vehicle.options.killEngine.description"));
-    AddLocal(Language::Translate("vehicle.options.slidyTyres.label"), bitVehicleSlippyTires, slippyTires, slippyTires);
-    AddOptionDescription(Language::Translate("vehicle.options.slidyTyres.description"));
-    AddLocal(Language::Translate("vehicle.options.cruiseControl.label"), VehicleCruise::g_vehicleCruise.Enabled(), VehicleCruise::ToggleOnOff, VehicleCruise::ToggleOnOff);
-    AddOptionDescription(Language::Translate("vehicle.options.cruiseControl.description"));
-    AddToggle(Language::Translate("vehicle.options.vehicleBoost.label"), raceBoost, boostOn);
-    AddOptionDescription(Language::Translate("vehicle.options.vehicleBoost.description"));
-    AddToggle(Language::Translate("vehicle.options.infiniteNativeBoost.label"), unlimitedVehicleBoost);
-    AddOptionDescription(Language::Translate("vehicle.options.infiniteNativeBoost.description"));
-    AddToggle(Language::Translate("vehicle.options.hydraulics.label"), carHydraulics, hydraulicsOn);
-    AddOptionDescription(Language::Translate("vehicle.options.hydraulics.description"));
-    AddTickol(Language::Translate("vehicle.options.doorLocks.label"), (GET_VEHICLE_DOOR_LOCK_STATUS(g_myVeh) == 2), doorLocksOn, doorLocksOff, TICKOL::BOXTICK, TICKOL::BOXBLANK);
-    AddLocal(Language::Translate("vehicle.options.noGravity.label"), bitVehicleGravity, noGravityOn, noGravityOff);
-    AddLocal(Language::Translate("vehicle.options.freezeVehicle.label"), bitFreezeVehicle, freezeCarOn, freezeCarOff);
-    AddLocal(Language::Translate("vehicle.options.collision.label"), myVehicle.GetIsCollisionEnabled(), collisionsOn, collisionsOff);
-    AddOptionDescription(Language::Translate("vehicle.options.collision.description"));
-    AddOption(Language::Translate("vehicle.options.deleteVehicle.label"), deleteCar);
+    AddOption(Language::Translate("menu.vehicle.options.option.teleport_into_closest_vehicle.label"), teleportClosestCar);
+    AddOption(Language::Translate("menu.vehicle.options.option.vehicle_multipliers.label"), null, nullFunc, SUB::VEHICLEMULTIPLIERS);
+    AddOption(Language::Translate("menu.vehicle.options.option.speedometers.label"), null, nullFunc, SUB::VEHICLESPEEDOS);
+    AddOption(Language::Translate("menu.vehicle.options.option.multi_platform_neons.label"), null, nullFunc, SUB::MULTIPLATNEONS);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.multi_platform_neons.description"));
+    AddOption(Language::Translate("menu.vehicle.options.option.pv_options.label"), null, nullFunc, SUB::PVOPS);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.pv_options.description"));
+    AddOption(Language::Translate("menu.vehicle.options.option.auto_drive.label"), null, nullFunc, SUB::AUTODRIVESUB);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.auto_drive.description"));
+    AddOption(Language::Translate("menu.vehicle.options.option.opacity_local.label"), vehicleMenuAlphaLevel, nullFunc, -1, true);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.opacity_local.description"));
+    AddNumber(Language::Translate("menu.vehicle.options.option.damage_defense.label"), vehicleDamageAndDefense, 2, damageAndDefenseCustom, damageAndDefensePlus, damageAndDefenseMinus);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.damage_defense.description"));
+    AddToggle(Language::Translate("menu.vehicle.options.option.invincibility_looped.label"), vehicleInvincibility, null, invincibilityOff);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.invincibility_looped.description"));
+    AddLocal(Language::Translate("menu.vehicle.options.option.invisibility.label"), !myVehicle.IsVisible(), vehicleInvisibility, invisible);
+    AddToggle(Language::Translate("menu.vehicle.options.option.auto_repair.label"), vehicleFixLoop);
+    AddToggle(Language::Translate("menu.vehicle.options.option.auto_flip.label"), vehicleFlipLoop);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.auto_flip.description"));
+    AddToggle(Language::Translate("menu.vehicle.options.option.keep_engine_lights_on.label"), selfEngineOn);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.keep_engine_lights_on.description"));
+    AddTickol(
+        Language::Translate("menu.vehicle.options.option.kill_engine.label"), (GET_VEHICLE_ENGINE_HEALTH(g_myVeh) < 0.0f), vehicleMenuEngine, vehicleMenuEngine, TICKOL::PERCENTAGESTICKER, TICKOL::NONE
+    );
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.kill_engine.description"));
+    AddLocal(Language::Translate("menu.vehicle.options.option.slidy_tyres.label"), bitVehicleSlippyTires, slippyTires, slippyTires);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.slidy_tyres.description"));
+    AddLocal(Language::Translate("menu.vehicle.options.option.cruise_control.label"), VehicleCruise::g_vehicleCruise.Enabled(), VehicleCruise::ToggleOnOff, VehicleCruise::ToggleOnOff);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.cruise_control.description"));
+    AddToggle(Language::Translate("menu.vehicle.options.option.vehicle_boost.label"), raceBoost, boostOn);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.vehicle_boost.description"));
+    AddToggle(Language::Translate("menu.vehicle.options.option.infinite_native_boost.label"), unlimitedVehicleBoost);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.infinite_native_boost.description"));
+    AddToggle(Language::Translate("menu.vehicle.options.option.hydraulics.label"), carHydraulics, hydraulicsOn);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.hydraulics.description"));
+    AddTickol(Language::Translate("menu.vehicle.options.option.door_locks.label"), (GET_VEHICLE_DOOR_LOCK_STATUS(g_myVeh) == 2), doorLocksOn, doorLocksOff, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+    AddLocal(Language::Translate("menu.vehicle.options.option.no_gravity.label"), bitVehicleGravity, noGravityOn, noGravityOff);
+    AddLocal(Language::Translate("menu.vehicle.options.option.freeze_vehicle.label"), bitFreezeVehicle, freezeCarOn, freezeCarOff);
+    AddLocal(Language::Translate("menu.vehicle.options.option.collision.label"), myVehicle.GetIsCollisionEnabled(), collisionsOn, collisionsOff);
+    AddOptionDescription(Language::Translate("menu.vehicle.options.option.collision.description"));
+    AddOption(Language::Translate("menu.vehicle.options.option.delete_vehicle.label"), deleteCar);
 
     if (toggleCargobobMagnet)
     {
@@ -214,7 +216,7 @@ void VehicleMenu()
         }
         else
         {
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         }
         return;
     }
@@ -227,7 +229,7 @@ void VehicleMenu()
         }
         else
         {
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         }
         return;
     }
@@ -263,7 +265,7 @@ void VehicleMenu()
     {
         if (!IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
         {
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         }
         else
         {
@@ -359,7 +361,7 @@ void VehicleMenu()
     if (invisible)
     {
         if (!IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         else
         {
             myVehicle.RequestControlOnce();
@@ -371,7 +373,7 @@ void VehicleMenu()
     if (slippyTires)
     {
         if (!IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         else
         {
             bitVehicleSlippyTires = !bitVehicleSlippyTires;
@@ -384,7 +386,7 @@ void VehicleMenu()
     if (vehicleMenuEngine)
     {
         if (!IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         else
         {
             if (GET_VEHICLE_ENGINE_HEALTH(g_myVeh) > 0.0f)
@@ -392,14 +394,14 @@ void VehicleMenu()
                 myVehicle.RequestControlOnce();
                 SET_VEHICLE_ENGINE_HEALTH(g_myVeh, -1.0f);
                 SET_VEHICLE_UNDRIVEABLE(g_myVeh, 1);
-                Game::Print::ShowNotification(Language::Translate("vehicle.notifications.engineKilled"));
+                Game::Print::ShowNotification(Language::Translate("message.vehicle.engine_killed.title"));
             }
             else
             {
                 myVehicle.RequestControlOnce();
                 SET_VEHICLE_ENGINE_HEALTH(g_myVeh, 1250.0f);
                 SET_VEHICLE_UNDRIVEABLE(g_myVeh, 0);
-                Game::Print::ShowNotification(Language::Translate("vehicle.notifications.engineRevived"));
+                Game::Print::ShowNotification(Language::Translate("message.vehicle.engine_revived.title"));
             }
         }
         return;
@@ -407,7 +409,7 @@ void VehicleMenu()
 
     if (hydraulicsOn)
     {
-        Game::Print::PrintBottomLeft(Language::Format("vehicle.notifications.hydraulicsControls", {{"controls", Menu::usingControllerInput ? "LS/L1 + stick movement" : "LeftShift + WASD"}}));
+        Game::Print::PrintBottomLeft(Language::Format("message.vehicle.hydraulics_controls.message", {{"controls", Menu::usingControllerInput ? "LS/L1 + stick movement" : "LeftShift + WASD"}}));
         return;
     }
 
@@ -427,26 +429,26 @@ void VehicleMenu()
     if (noGravityOn)
     {
         if (!IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         else
         {
             myVehicle.RequestControlOnce();
             SET_VEHICLE_GRAVITY(g_myVeh, 0);
             bitVehicleGravity = true;
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.gravityDisabled"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.gravity_disabled.title"));
         }
         return;
     }
     if (noGravityOff)
     {
         if (!IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         else
         {
             myVehicle.RequestControlOnce();
             SET_VEHICLE_GRAVITY(g_myVeh, 1);
             bitVehicleGravity = false;
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.gravityEnabled"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.gravity_enabled.title"));
         }
         return;
     }
@@ -454,14 +456,14 @@ void VehicleMenu()
     if (freezeCarOn)
     {
         if (!IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         else
         {
             bitFreezeVehicle = true;
             myVehicle.RequestControlOnce();
             SET_VEHICLE_FORWARD_SPEED(g_myVeh, 0.0f);
             FREEZE_ENTITY_POSITION(g_myVeh, 1);
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.freezeOn"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.freeze_on.title"));
         }
         return;
     }
@@ -469,14 +471,14 @@ void VehicleMenu()
     if (freezeCarOff)
     {
         if (!IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         else
         {
             bitFreezeVehicle = false;
             myVehicle.RequestControlOnce();
             SET_VEHICLE_FORWARD_SPEED(g_myVeh, 8.0f);
             FREEZE_ENTITY_POSITION(g_myVeh, 0);
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.freezeOff"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.freeze_off.title"));
         }
         return;
     }
@@ -484,11 +486,11 @@ void VehicleMenu()
     if (deleteCar)
     {
         if (!IS_PED_IN_ANY_VEHICLE(PLAYER_PED_ID(), 0))
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         else
         {
             myVehicle.Delete(false);
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.poof"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.poof.title"));
             *Menu::activeOptionIndex = 1;
         }
         return;
@@ -507,12 +509,12 @@ void PVMenu()
     GTAvehicle myVehicle = g_myVeh;
     GTAvehicle& pv = pvSubVehicleID;
 
-    AddTitle(Language::Translate("vehicle.pv.title"));
-    AddTickol(Language::Translate("vehicle.pv.rememberVehicle.label"), pv == myVehicle, pvSave, pvUnsave);
-    AddOptionDescription(Language::Translate("vehicle.pv.rememberVehicle.description"));
-    AddOption(Language::Translate("vehicle.pv.teleportIntoSeat.label"), pvTeleportIntoIt);
-    AddOption(Language::Translate("vehicle.pv.teleportToVehicle.label"), pvTeleportToIt);
-    AddOption(Language::Translate("vehicle.pv.teleportVehicleToSelf.label"), pvTeleportItToYou);
+    AddTitle(Language::Translate("menu.vehicle.pv.title"));
+    AddTickol(Language::Translate("menu.vehicle.pv.option.remember_vehicle.label"), pv == myVehicle, pvSave, pvUnsave);
+    AddOptionDescription(Language::Translate("menu.vehicle.pv.option.remember_vehicle.description"));
+    AddOption(Language::Translate("menu.vehicle.pv.option.teleport_into_seat.label"), pvTeleportIntoIt);
+    AddOption(Language::Translate("menu.vehicle.pv.option.teleport_to_vehicle.label"), pvTeleportToIt);
+    AddOption(Language::Translate("menu.vehicle.pv.option.teleport_vehicle_to_self.label"), pvTeleportItToYou);
 
     if (pvUnsave)
     {
@@ -533,7 +535,7 @@ void PVMenu()
     {
         if (!myPed.IsInVehicle())
         {
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.notInVehicle"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.not_in_vehicle.message"));
         }
         else
         {
@@ -584,7 +586,7 @@ void PVMenu()
     {
         if (!pv.Exists())
         {
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.noLongerInMemory"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.no_longer_in_memory.message"));
         }
         else
         {
@@ -597,7 +599,7 @@ void PVMenu()
     {
         if (!pv.Exists())
         {
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.noLongerInMemory"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.no_longer_in_memory.message"));
         }
         else
         {
@@ -617,7 +619,7 @@ void PVMenu()
     {
         if (!pv.Exists())
         {
-            Game::Print::ShowNotification(Language::Translate("vehicle.notifications.error.title"), Language::Translate("vehicle.notifications.noLongerInMemory"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.error.title"), Language::Translate("message.vehicle.no_longer_in_memory.message"));
         }
         else
         {
@@ -852,13 +854,13 @@ void AutoDriveMenu()
     bool drivingStylePlus = false;
     bool drivingStyleMinus = false;
 
-    AddTitle(Language::Translate("vehicle.autoDrive.title"));
+    AddTitle(Language::Translate("menu.vehicle.auto_drive.title"));
 
-    AddToggle(Language::Translate("vehicle.autoDrive.randomDestination.label"), bRandDestinationMode, ToggleOnOff, ToggleOnOff);
-    AddOptionDescription(Language::Translate("vehicle.autoDrive.randomDestination.description"));
-    AddLocal(Language::Translate("vehicle.autoDrive.goToWaypoint.label"), Methods.Enabled() && !bRandDestinationMode, ToggleOnOff, ToggleOnOff);
-    AddNumber(Language::Translate("vehicle.autoDrive.speed.label"), speed * 3.6f, 1, null, speedPlus, speedMinus);
-    AddTexter(Language::Translate("vehicle.autoDrive.drivingStyle.label"), drivingStyleIndex, drivingStyleNames, null, drivingStylePlus, drivingStyleMinus);
+    AddToggle(Language::Translate("menu.vehicle.auto_drive.option.random_destination.label"), bRandDestinationMode, ToggleOnOff, ToggleOnOff);
+    AddOptionDescription(Language::Translate("menu.vehicle.auto_drive.option.random_destination.description"));
+    AddLocal(Language::Translate("menu.vehicle.auto_drive.option.go_to_waypoint.label"), Methods.Enabled() && !bRandDestinationMode, ToggleOnOff, ToggleOnOff);
+    AddNumber(Language::Translate("menu.vehicle.auto_drive.option.speed.label"), speed * 3.6f, 1, null, speedPlus, speedMinus);
+    AddTexter(Language::Translate("menu.vehicle.auto_drive.option.driving_style.label"), drivingStyleIndex, drivingStyleNames, null, drivingStylePlus, drivingStyleMinus);
 
     if (speedPlus)
     {
@@ -909,13 +911,13 @@ void VehicleMultipliersMenu()
     bool handlingMultiplierPlus = false;
     bool handlingMultiplierMinus = false;
 
-    AddTitle(Language::Translate("vehicle.multipliers.title"));
+    AddTitle(Language::Translate("menu.vehicle.multipliers.title"));
     AddNumber("CMOD_STAT_1", accelMult, 0, null, accelerationMultiplierPlus, accelerationMultiplierMinus, true); // Acceleration
-    AddOptionDescription(Language::Translate("vehicle.multipliers.acceleration.description"));
+    AddOptionDescription(Language::Translate("menu.vehicle.multipliers.option.acceleration.description"));
     AddNumber(Game::GetGXTEntry("CMOD_STAT_2") + " & Reverse", brakeMult, 0, null, brakeMultiplierPlus, brakeMultiplierMinus); // Braking & Reverse
-    AddOptionDescription(Language::Translate("vehicle.multipliers.braking.description"));
+    AddOptionDescription(Language::Translate("menu.vehicle.multipliers.option.braking.description"));
     AddNumber("CMOD_STAT_3", handlingMult, 0, null, handlingMultiplierPlus, handlingMultiplierMinus, true); // Handling/Traction
-    AddOptionDescription(Language::Translate("vehicle.multipliers.handling.description"));
+    AddOptionDescription(Language::Translate("menu.vehicle.multipliers.option.handling.description"));
 
 
     if (accelerationMultiplierPlus)
@@ -974,13 +976,13 @@ void VehicleMultiPlatNeonsMenu()
 {
     bool addCar = 0, setRGBIndexTo3 = 0, clearList = 0, intensityPlus = 0, intensityMinus = 0, intensityCustom = 0;
 
-    AddTitle(Language::Translate("vehicle.neons.title"));
-    AddToggle(Language::Translate("vehicle.neons.toggle.label"), multiPlatNeons, null, clearList);
-    AddOptionDescription(Language::Translate("vehicle.neons.toggle.description"));
-    AddNumber(Language::Translate("vehicle.neons.intensity.label"), g_multiPlatNeonsIntensity, 2, intensityCustom, intensityPlus, intensityMinus);
-    AddOptionDescription(Language::Translate("vehicle.neons.intensity.description"));
+    AddTitle(Language::Translate("menu.vehicle.neons.title"));
+    AddToggle(Language::Translate("menu.vehicle.neons.option.toggle.label"), multiPlatNeons, null, clearList);
+    AddOptionDescription(Language::Translate("menu.vehicle.neons.option.toggle.description"));
+    AddNumber(Language::Translate("menu.vehicle.neons.option.intensity.label"), g_multiPlatNeonsIntensity, 2, intensityCustom, intensityPlus, intensityMinus);
+    AddOptionDescription(Language::Translate("menu.vehicle.neons.option.intensity.description"));
 
-    AddOption(Language::Translate("vehicle.neons.setColour.label"), setRGBIndexTo3, nullFunc, SUB::MSPAINTS_RGB);
+    AddOption(Language::Translate("menu.vehicle.neons.option.set_colour.label"), setRGBIndexTo3, nullFunc, SUB::MSPAINTS_RGB);
     if (Menu::IsLastDrawnOptionSelected())
     {
         AddPresetColourOptionsPreview(g_multiPlatNeonsColor);
@@ -997,7 +999,7 @@ void VehicleMultiPlatNeonsMenu()
 
     if (intensityCustom)
     {
-        std::string inputStr = Game::InputBox(std::to_string(g_multiPlatNeonsIntensity), 10U, Language::Translate("common.input.valuePrompt").c_str(), std::to_string(g_multiPlatNeonsIntensity));
+        std::string inputStr = Game::InputBox(std::to_string(g_multiPlatNeonsIntensity), 10U, Language::Translate("common.input.value_prompt").c_str(), std::to_string(g_multiPlatNeonsIntensity));
         if (inputStr.length() > 0)
         {
             try
@@ -1148,9 +1150,11 @@ void AddOptionSpeedo(const std::string& text, NamedSpeedoImage& img)
 
 void SpeedoMainMenu()
 {
-    std::vector<std::string> vSpeedoUnits{Language::Translate("vehicle.speedometers.unit.metric"), Language::Translate("vehicle.speedometers.unit.imperial")};
+    std::vector<std::string> vSpeedoUnits{Language::Translate("menu.vehicle.speedometers.unit.option.metric.label"), Language::Translate("menu.vehicle.speedometers.unit.option.imperial.label")};
     std::vector<std::string> vSpeedoTnames{
-        Language::Translate("vehicle.speedometers.mode.off"), Language::Translate("vehicle.speedometers.mode.digital"), Language::Translate("vehicle.speedometers.mode.analogue")
+        Language::Translate("menu.vehicle.speedometers.mode.option.off.label"),
+        Language::Translate("menu.vehicle.speedometers.mode.option.digital.label"),
+        Language::Translate("menu.vehicle.speedometers.mode.option.analogue.label")
     };
 
     bool speedoModePlus = 0;
@@ -1161,15 +1165,15 @@ void SpeedoMainMenu()
     bool asPosYPlus = 0;
     bool asPosYMinus = 0;
 
-    AddTitle(Language::Translate("vehicle.speedometers.title"));
-    AddTexter(Language::Translate("vehicle.speedometers.speedo.label"), loopSpeedo, vSpeedoTnames, null, speedoModePlus, speedoModeMinus);
-    AddTexter(Language::Translate("vehicle.speedometers.unit.label"), speedoMPH, vSpeedoUnits, null, speedoUnitPlus, speedoUnitPlus);
+    AddTitle(Language::Translate("menu.vehicle.speedometers.title"));
+    AddTexter(Language::Translate("menu.vehicle.speedometers.option.speedo.label"), loopSpeedo, vSpeedoTnames, null, speedoModePlus, speedoModeMinus);
+    AddTexter(Language::Translate("menu.vehicle.speedometers.option.unit.label"), speedoMPH, vSpeedoUnits, null, speedoUnitPlus, speedoUnitPlus);
     if (loopSpeedo == SPEEDOMODE_ANALOGUE)
     {
-        AddOption(Language::Translate("vehicle.speedometers.lightThemes.label"), null, nullFunc, SUB::VEHICLESPEEDOS_LIGHT);
-        AddOption(Language::Translate("vehicle.speedometers.darkThemes.label"), null, nullFunc, SUB::VEHICLESPEEDOS_DARK);
-        AddNumber(Language::Translate("vehicle.speedometers.xPosition.label"), speedoPosition.x, 3, null, asPosXPlus, asPosXMinus);
-        AddNumber(Language::Translate("vehicle.speedometers.yPosition.label"), speedoPosition.y, 3, null, asPosYPlus, asPosYMinus);
+        AddOption(Language::Translate("menu.vehicle.speedometers.option.light_themes.label"), null, nullFunc, SUB::VEHICLESPEEDOS_LIGHT);
+        AddOption(Language::Translate("menu.vehicle.speedometers.option.dark_themes.label"), null, nullFunc, SUB::VEHICLESPEEDOS_DARK);
+        AddNumber(Language::Translate("menu.vehicle.speedometers.option.x_position.label"), speedoPosition.x, 3, null, asPosXPlus, asPosXMinus);
+        AddNumber(Language::Translate("menu.vehicle.speedometers.option.y_position.label"), speedoPosition.y, 3, null, asPosYPlus, asPosYMinus);
     }
 
     if (asPosXPlus)
@@ -1212,7 +1216,7 @@ void SpeedoMainMenu()
 
 void SpeedoThemesLight()
 {
-    AddTitle(Language::Translate("vehicle.speedometers.lightThemes.title"));
+    AddTitle(Language::Translate("menu.vehicle.speedometers.light_themes.title"));
 
     for (auto& si : speedoImagesNames[1])
     {
@@ -1222,7 +1226,7 @@ void SpeedoThemesLight()
 
 void SpeedoThemesDark()
 {
-    AddTitle(Language::Translate("vehicle.speedometers.darkThemes.title"));
+    AddTitle(Language::Translate("menu.vehicle.speedometers.dark_themes.title"));
 
     for (auto& si : speedoImagesNames[2])
     {

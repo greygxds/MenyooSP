@@ -1190,7 +1190,7 @@ const std::vector<TeleLocation> vOtherNightclubRelatedTeleports{
 
 void Sub_Nightclubs()
 {
-    AddTitle(Language::Translate("teleport.nightclubs.title"));
+    AddTitle(Language::Translate("menu.teleport.nightclubs.title"));
 
     for (auto& otherTele : vOtherNightclubRelatedTeleports)
     {

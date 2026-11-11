@@ -99,7 +99,7 @@ void AddOption_AddVehicle(const std::string& text, const GTAmodel::Model& model)
 
 void AddOption_RelationshipTextScroller()
 {
-    std::vector<std::string> relationshipStringVec{Language::Translate("spooner.relationship.none")};
+    std::vector<std::string> relationshipStringVec{Language::Translate("menu.spooner.relationship.option.none.label")};
     for (UINT8 i = 0; i < RelationshipManagement::relationshipGroups.size(); i++)
     {
         if (GTAped(selectedEntity.handle).GetRelationshipGroup() == GET_HASH_KEY(RelationshipManagement::relationshipGroups[i]))
@@ -107,8 +107,8 @@ void AddOption_RelationshipTextScroller()
     }
 
     bool relationshipStringPlus = false, relationshipStringMinus = false;
-    AddTexter(Language::Translate("spooner.relationship.title"), 0, relationshipStringVec, null, relationshipStringPlus, relationshipStringMinus);
-    AddOptionDescription(Language::Translate("spooner.relationship.description"));
+    AddTexter(Language::Translate("menu.spooner.option.relationship.label"), 0, relationshipStringVec, null, relationshipStringPlus, relationshipStringMinus);
+    AddOptionDescription(Language::Translate("menu.spooner.option.relationship.description"));
     if (relationshipStringPlus)
     {
         Hash currHash;
@@ -181,7 +181,7 @@ void AddOption_AddPedWithCallback(const std::string& text, const GTAmodel::Model
         }
         else
         {
-            Game::Print::PrintBottomLeft(Language::Translate("spooner.ped.spawnFailed"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.spooner.ped.spawn_failed.message"));
         }
     }
 }

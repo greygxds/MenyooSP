@@ -439,7 +439,7 @@ const std::vector<TeleLocation> vOtherArenaWarRelatedTeleports{
 
 void Sub_ArenaWar()
 {
-    AddTitle(Language::Translate("teleport.arenaWar.title"));
+    AddTitle(Language::Translate("menu.teleport.arena_war.title"));
 
     for (auto& otherTele : vOtherArenaWarRelatedTeleports)
     {

@@ -26,37 +26,37 @@ void MiscOps()
     bool miscPedPopulationOff = false;
     bool miscVehiclePopulationOff = false;
 
-    AddTitle(Language::Translate("misc.title"));
-    AddOption(Language::Translate("misc.freeCamSettings"), null, nullFunc, SUB::FREECAMSETTINGS);
-    AddLocal(Language::Translate("misc.manualRespawn"), ManualRespawn::g_manualRespawn.Enabled(), ManualRespawn::ToggleOnOff, ManualRespawn::ToggleOnOff);
-    AddOptionDescription(Language::Translate("misc.manualRespawn.description"));
-    AddToggle(Language::Translate("misc.simpleBlackout"), simpleBlackoutMode, null, blackoutOff);
-    AddOptionDescription(Language::Translate("misc.simpleBlackout.description"));
-    AddToggle(Language::Translate("misc.restrictedAreaAccess"), restrictedAreasAccess);
-    AddOptionDescription(Language::Translate("misc.restrictedAreaAccess.description"));
-    AddToggle(Language::Translate("misc.decreasedPedPopulation"), pedPopulation, null, miscPedPopulationOff);
-    AddOptionDescription(Language::Translate("misc.decreasedPedPopulation.description"));
-    AddToggle(Language::Translate("misc.decreasedVehiclePopulation"), vehiclePopulation, null, miscVehiclePopulationOff);
-    AddOptionDescription(Language::Translate("misc.decreasedVehiclePopulation.description"));
-    AddToggle(Language::Translate("misc.decreasedWeaponPickups"), clearWeaponPickups);
-    AddOptionDescription(Language::Translate("misc.decreasedWeaponPickups.description"));
-    AddOption(Language::Translate("misc.cutscenePlayer"), null, nullFunc, SUB::CUTSCENEPLAYER);
-    AddOption(Language::Translate("misc.tvPlayer"), null, nullFunc, SUB::TVCHANNELSTUFF_TV);
-    AddOption(Language::Translate("misc.radio"), null, nullFunc, SUB::RADIOSUB);
-    AddOption(Language::Translate("misc.clearArea"), null, nullFunc, SUB::CLEARAREA);
-    AddOptionDescription(Language::Translate("misc.clearArea.description"));
-    AddOption(Language::Translate("misc.visionHax"), null, nullFunc, SUB::TIMECYCLES);
-    AddOptionDescription(Language::Translate("misc.visionHax.description"));
-    AddOption(Language::Translate("misc.mapMods"), null, nullFunc, SUB::MAPMODS);
-    AddOptionDescription(Language::Translate("misc.mapMods.description"));
-    AddOption(Language::Translate("misc.hudOptions"), null, nullFunc, SUB::HUDOPTIONS);
-    AddOption(Language::Translate("misc.gameCameraOptions"), null, nullFunc, SUB::GAMECAMOPTIONS);
+    AddTitle(Language::Translate("menu.misc.title"));
+    AddOption(Language::Translate("menu.misc.option.free_cam_settings.label"), null, nullFunc, SUB::FREECAMSETTINGS);
+    AddLocal(Language::Translate("menu.misc.option.manual_respawn.label"), ManualRespawn::g_manualRespawn.Enabled(), ManualRespawn::ToggleOnOff, ManualRespawn::ToggleOnOff);
+    AddOptionDescription(Language::Translate("menu.misc.option.manual_respawn.description"));
+    AddToggle(Language::Translate("menu.misc.option.simple_blackout.label"), simpleBlackoutMode, null, blackoutOff);
+    AddOptionDescription(Language::Translate("menu.misc.option.simple_blackout.description"));
+    AddToggle(Language::Translate("menu.misc.option.restricted_area_access.label"), restrictedAreasAccess);
+    AddOptionDescription(Language::Translate("menu.misc.option.restricted_area_access.description"));
+    AddToggle(Language::Translate("menu.misc.option.decreased_ped_population.label"), pedPopulation, null, miscPedPopulationOff);
+    AddOptionDescription(Language::Translate("menu.misc.option.decreased_ped_population.description"));
+    AddToggle(Language::Translate("menu.misc.option.decreased_vehicle_population.label"), vehiclePopulation, null, miscVehiclePopulationOff);
+    AddOptionDescription(Language::Translate("menu.misc.option.decreased_vehicle_population.description"));
+    AddToggle(Language::Translate("menu.misc.option.decreased_weapon_pickups.label"), clearWeaponPickups);
+    AddOptionDescription(Language::Translate("menu.misc.option.decreased_weapon_pickups.description"));
+    AddOption(Language::Translate("menu.misc.option.cutscene_player.label"), null, nullFunc, SUB::CUTSCENEPLAYER);
+    AddOption(Language::Translate("menu.misc.option.tv_player.label"), null, nullFunc, SUB::TVCHANNELSTUFF_TV);
+    AddOption(Language::Translate("menu.misc.option.radio.label"), null, nullFunc, SUB::RADIOSUB);
+    AddOption(Language::Translate("menu.misc.option.clear_area.label"), null, nullFunc, SUB::CLEARAREA);
+    AddOptionDescription(Language::Translate("menu.misc.option.clear_area.description"));
+    AddOption(Language::Translate("menu.misc.option.vision_hax.label"), null, nullFunc, SUB::TIMECYCLES);
+    AddOptionDescription(Language::Translate("menu.misc.option.vision_hax.description"));
+    AddOption(Language::Translate("menu.misc.option.map_mods.label"), null, nullFunc, SUB::MAPMODS);
+    AddOptionDescription(Language::Translate("menu.misc.option.map_mods.description"));
+    AddOption(Language::Translate("menu.misc.option.hud_options.label"), null, nullFunc, SUB::HUDOPTIONS);
+    AddOption(Language::Translate("menu.misc.option.game_camera_options.label"), null, nullFunc, SUB::GAMECAMOPTIONS);
 
-    AddBreak(Language::Translate("misc.notSoFun"));
+    AddBreak(Language::Translate("menu.misc.section.not_so_fun.label"));
 
     bool bDeleteAllCams = false;
-    AddOption(Language::Translate("misc.deleteAllCameras"), bDeleteAllCams);
-    AddOptionDescription(Language::Translate("misc.deleteAllCameras.description"));
+    AddOption(Language::Translate("menu.misc.option.delete_all_cameras.label"), bDeleteAllCams);
+    AddOptionDescription(Language::Translate("menu.misc.option.delete_all_cameras.description"));
     if (bDeleteAllCams)
     {
         World::SetRenderingCamera(0);
@@ -64,14 +64,19 @@ void MiscOps()
         World::SetRenderingCamera(0);
     }
 
-    AddOption(Language::Translate("misc.rectangleDrawTool"), null, DrawToolsMenu, -1, true);
-    AddOptionDescription(Language::Translate("misc.rectangleDrawTool.description"));
+    AddOption(Language::Translate("menu.misc.option.rectangle_draw_tool.label"), null, DrawToolsMenu, -1, true);
+    AddOptionDescription(Language::Translate("menu.misc.option.rectangle_draw_tool.description"));
 
     bool bEnableCellphoneYsc = false;
     AddTickol(
-        Language::Translate("misc.mobilePhone"), GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(0xF292D030) > 0, bEnableCellphoneYsc, bEnableCellphoneYsc, TICKOL::BOXTICK, TICKOL::BOXBLANK
+        Language::Translate("menu.misc.option.mobile_phone.label"),
+        GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(0xF292D030) > 0,
+        bEnableCellphoneYsc,
+        bEnableCellphoneYsc,
+        TICKOL::BOXTICK,
+        TICKOL::BOXBLANK
     );
-    AddOptionDescription(Language::Translate("misc.mobilePhone.description"));
+    AddOptionDescription(Language::Translate("menu.misc.option.mobile_phone.description"));
     if (bEnableCellphoneYsc)
     {
         if (GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(0xF292D030) > 0) // cellphone_controller
@@ -91,13 +96,13 @@ void MiscOps()
     };
 
     static UINT8 yscScriptTexterIndex = YSCSCRIPTTEXTER_LOAD;
-    std::vector<std::string> vYscScriptTexter{Language::Translate("misc.yscScript.load"), Language::Translate("misc.yscScript.unload")};
+    std::vector<std::string> vYscScriptTexter{Language::Translate("menu.misc.ysc_script.option.load.label"), Language::Translate("menu.misc.ysc_script.option.unload.label")};
     bool yscScriptInput = false;
     bool yscScriptPlus = false;
     bool yscScriptMinus = false;
 
-    AddTexter(Language::Translate("misc.yscScript"), yscScriptTexterIndex, vYscScriptTexter, yscScriptInput, yscScriptPlus, yscScriptMinus);
-    AddOptionDescription(Language::Translate("misc.yscScript.description"));
+    AddTexter(Language::Translate("menu.misc.option.ysc_script.label"), yscScriptTexterIndex, vYscScriptTexter, yscScriptInput, yscScriptPlus, yscScriptMinus);
+    AddOptionDescription(Language::Translate("menu.misc.option.ysc_script.description"));
 
     if (yscScriptPlus)
     {
@@ -117,7 +122,7 @@ void MiscOps()
 
     if (yscScriptInput)
     {
-        std::string inputStr = std::string(Game::InputBox("", 65U, Language::Translate("misc.yscScript.inputPrompt").c_str()));
+        std::string inputStr = std::string(Game::InputBox("", 65U, Language::Translate("menu.misc.ysc_script.option.input_prompt.prompt").c_str()));
         if (inputStr.length() > 0)
         {
             static const std::map<std::string, UINT16> vYscStackSizes{
@@ -238,16 +243,16 @@ void Timecycles()
     bool strengthPlus = false;
     bool strengthMinus = false;
 
-    AddTitle(Language::Translate("misc.timecycles.title"));
-    AddLocal(Language::Translate("misc.timecycles.heatVision"), GET_USINGSEETHROUGH(), heatVisionOn, heatVisionOn);
-    AddToggle(Language::Translate("misc.timecycles.heatVisionOnAim"), hvSnipers);
-    AddOptionDescription(Language::Translate("misc.timecycles.heatVisionOnAim.description"));
-    AddToggle(Language::Translate("misc.timecycles.nightVision"), bitNightVision, nightVisionOn, nightVisionOff);
+    AddTitle(Language::Translate("menu.misc.timecycles.title"));
+    AddLocal(Language::Translate("menu.misc.timecycles.option.heat_vision.label"), GET_USINGSEETHROUGH(), heatVisionOn, heatVisionOn);
+    AddToggle(Language::Translate("menu.misc.timecycles.option.heat_vision_on_aim.label"), hvSnipers);
+    AddOptionDescription(Language::Translate("menu.misc.timecycles.option.heat_vision_on_aim.description"));
+    AddToggle(Language::Translate("menu.misc.timecycles.option.night_vision.label"), bitNightVision, nightVisionOn, nightVisionOff);
 
-    AddBreak(Language::Translate("misc.timecycles.break"));
-    AddNumber(Language::Translate("misc.timecycles.strength"), currentTimecycleStrength, 2, null, strengthPlus, strengthMinus);
-    AddOptionDescription(Language::Translate("misc.timecycles.strength.description"));
-    AddOption(Language::Translate("misc.timecycles.reset"), timecyclesReset);
+    AddBreak(Language::Translate("menu.misc.timecycles.section.main.label"));
+    AddNumber(Language::Translate("menu.misc.timecycles.option.strength.label"), currentTimecycleStrength, 2, null, strengthPlus, strengthMinus);
+    AddOptionDescription(Language::Translate("menu.misc.timecycles.option.strength.description"));
+    AddOption(Language::Translate("menu.misc.timecycles.option.reset.label"), timecyclesReset);
 
     for (auto& i : TimecycleModification::vTimecycles)
     {
@@ -260,9 +265,9 @@ void Timecycles()
         }
     }
 
-    AddBreak(Language::Translate("misc.timecycles.customBreak"));
-    AddOption(Language::Translate("misc.timecycles.inputCustom"), timecyclesInput);
-    AddOptionDescription(Language::Translate("misc.timecycles.inputCustom.description"));
+    AddBreak(Language::Translate("menu.misc.timecycles.section.custom.label"));
+    AddOption(Language::Translate("menu.misc.timecycles.option.input_custom.label"), timecyclesInput);
+    AddOptionDescription(Language::Translate("menu.misc.timecycles.option.input_custom.description"));
 
     if (heatVisionOn)
     {
@@ -330,19 +335,19 @@ void ClearAreaSub()
     bool clearAreaRadiusMinus = false;
     bool clearAreaRadiusInput = false;
 
-    AddTitle(Language::Translate("misc.clearArea.title"));
+    AddTitle(Language::Translate("menu.misc.clear_area.title"));
 
-    AddNumber(Language::Translate("misc.clearArea.range"), g_clearAreaRadius, 2, clearAreaRadiusInput, clearAreaRadiusPlus, clearAreaRadiusMinus);
-    AddOptionDescription(Language::Translate("misc.clearArea.range.description"));
+    AddNumber(Language::Translate("menu.misc.clear_area.option.range.label"), g_clearAreaRadius, 2, clearAreaRadiusInput, clearAreaRadiusPlus, clearAreaRadiusMinus);
+    AddOptionDescription(Language::Translate("menu.misc.clear_area.option.range.description"));
     if (Menu::IsLastDrawnOptionSelected())
     {
         sub::Spooner::EntityManagement::DrawRadiusDisplayingMarker(GET_ENTITY_COORDS(g_activePedHandle, 1), g_clearAreaRadius);
     }
 
-    AddOption(Language::Translate("misc.clearArea.vehicles"), clearAreaVehicles);
-    AddOption(Language::Translate("misc.clearArea.peds"), clearAreaPeds);
-    AddOption(Language::Translate("misc.clearArea.objects"), clearAreaObjects);
-    AddOption(Language::Translate("misc.clearArea.all"), clearAreaAll);
+    AddOption(Language::Translate("menu.misc.clear_area.option.vehicles.label"), clearAreaVehicles);
+    AddOption(Language::Translate("menu.misc.clear_area.option.peds.label"), clearAreaPeds);
+    AddOption(Language::Translate("menu.misc.clear_area.option.objects.label"), clearAreaObjects);
+    AddOption(Language::Translate("menu.misc.clear_area.option.all.label"), clearAreaAll);
 
     if (clearAreaVehicles)
     {
@@ -466,15 +471,15 @@ void RadioMenu()
     bool radioForward = false;
     auto& frozenStation = g_frozenRadioStation;
 
-    AddTitle(Language::Translate("misc.radio.title"));
+    AddTitle(Language::Translate("menu.misc.radio.title"));
 
     UINT8 vStationIds[] = {255U, 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U, 10U, 11U, 12U, 13U, 14U, 15U, 16U, 17U, 18U, 19U, 20U};
 
     if (ped.Equals(Game::PlayerPed())) // if this is our ped
     {
-        AddLocal(Language::Translate("misc.radio.mobile"), IS_MOBILE_PHONE_RADIO_ACTIVE(), mobileRadioOn, mobileRadioOff);
-        AddOption(Language::Translate("misc.radio.skipTrack"), radioForward);
-        AddBreak(Language::Translate("misc.radio.stationsBreak"));
+        AddLocal(Language::Translate("menu.misc.radio.option.mobile.label"), IS_MOBILE_PHONE_RADIO_ACTIVE(), mobileRadioOn, mobileRadioOff);
+        AddOption(Language::Translate("menu.misc.radio.option.skip_track.label"), radioForward);
+        AddBreak(Language::Translate("menu.misc.radio.section.stations.label"));
 
         for (UINT8 i : vStationIds)
         {
@@ -493,7 +498,12 @@ void RadioMenu()
             if (Menu::IsLastDrawnOptionSelected())
             {
                 bool bIsCurrentlyFrozen = frozenStation == i;
-                Keybinds::AddBindIB("menu_action", !bIsCurrentlyFrozen, Language::Translate("misc.radio.freezeStation").c_str(), Language::Translate("misc.radio.unfreezeStation").c_str());
+                Keybinds::AddBindIB(
+                    "menu_action",
+                    !bIsCurrentlyFrozen,
+                    Language::Translate("menu.misc.radio.option.freeze_station.label").c_str(),
+                    Language::Translate("menu.misc.radio.option.unfreeze_station.label").c_str()
+                );
                 if (Keybinds::WasPressedThisFrame("menu_action"))
                 {
                     if (bIsCurrentlyFrozen)
@@ -609,11 +619,11 @@ void Sub_WaterHack()
     bool radiusInput = false;
     bool heightInput = false;
 
-    AddTitle(Language::Translate("misc.waterHack.title"));
-    AddToggle(Language::Translate("misc.waterHack.toggle"), g_waterHack.Enabled());
-    AddOptionDescription(Language::Translate("misc.waterHack.toggle.description"));
-    AddNumber(Language::Translate("misc.waterHack.radius"), radius, 1, radiusInput, radiusPlus, radiusMinus);
-    AddNumber(Language::Translate("misc.waterHack.height"), height, 1, heightInput, heightPlus, heightMinus);
+    AddTitle(Language::Translate("menu.misc.water_hack.title"));
+    AddToggle(Language::Translate("menu.misc.water_hack.option.toggle.label"), g_waterHack.Enabled());
+    AddOptionDescription(Language::Translate("menu.misc.water_hack.option.toggle.description"));
+    AddNumber(Language::Translate("menu.misc.water_hack.option.radius.label"), radius, 1, radiusInput, radiusPlus, radiusMinus);
+    AddNumber(Language::Translate("menu.misc.water_hack.option.height.label"), height, 1, heightInput, heightPlus, heightMinus);
 
 
     if (radiusPlus)
@@ -740,13 +750,13 @@ void TVMenu()
     auto currentChannel = GRAPHICS::GET_TV_CHANNEL();
     auto currentVolume = GRAPHICS::GET_TV_VOLUME();
 
-    AddTitle(Language::Translate("misc.tv.title"));
-    AddToggle(Language::Translate("misc.tv.togglePlayer"), loopBasicTV);
+    AddTitle(Language::Translate("menu.misc.tv.title"));
+    AddToggle(Language::Translate("menu.misc.tv.option.toggle_player.label"), loopBasicTV);
 
     bool volumePlus = false;
     bool volumeMinus = false;
 
-    AddNumber(Language::Translate("misc.tv.volume"), currentVolume + (maxVolume - minVolume), 0, null, volumePlus, volumeMinus);
+    AddNumber(Language::Translate("menu.misc.tv.option.volume.label"), currentVolume + (maxVolume - minVolume), 0, null, volumePlus, volumeMinus);
     if (volumePlus)
     {
         if (currentVolume < maxVolume)
@@ -764,7 +774,7 @@ void TVMenu()
         }
     }
 
-    AddBreak(Language::Translate("misc.tv.playlistsBreak"));
+    AddBreak(Language::Translate("menu.misc.tv.section.playlists.label"));
     for (auto& pl : tvPlaylists)
     {
         bool playlistPressed = false;
@@ -786,35 +796,35 @@ bool revealMinimap = false;
 
 void HudOptionsMenu()
 {
-    AddTitle(Language::Translate("misc.hud.title"));
+    AddTitle(Language::Translate("menu.misc.hud.title"));
 
     bool revealMinimapToggle = false;
-    AddToggle(Language::Translate("misc.hud.revealMinimap"), revealMinimap, revealMinimapToggle, revealMinimapToggle);
-    AddOptionDescription(Language::Translate("misc.hud.revealMinimap.description"));
+    AddToggle(Language::Translate("menu.misc.hud.option.reveal_minimap.label"), revealMinimap, revealMinimapToggle, revealMinimapToggle);
+    AddOptionDescription(Language::Translate("menu.misc.hud.option.reveal_minimap.description"));
     if (revealMinimapToggle)
     {
         SET_MINIMAP_HIDE_FOW(revealMinimap);
     }
 
-    AddToggle(Language::Translate("misc.hud.displayCoordinates"), bDisplayXyzhCoords);
-    AddOptionDescription(Language::Translate("misc.hud.displayCoordinates.description"));
-    AddToggle(Language::Translate("misc.hud.displayFps"), FPSCounter::bDisplayFps);
-    AddToggle(Language::Translate("misc.hud.hide"), hideHUD);
-    AddToggle(Language::Translate("misc.hud.showFull"), showFullHUD);
-    AddOptionDescription(Language::Translate("misc.hud.showFull.description"));
+    AddToggle(Language::Translate("menu.misc.hud.option.display_coordinates.label"), bDisplayXyzhCoords);
+    AddOptionDescription(Language::Translate("menu.misc.hud.option.display_coordinates.description"));
+    AddToggle(Language::Translate("menu.misc.hud.option.display_fps.label"), FPSCounter::bDisplayFps);
+    AddToggle(Language::Translate("menu.misc.hud.option.hide.label"), hideHUD);
+    AddToggle(Language::Translate("menu.misc.hud.option.show_full.label"), showFullHUD);
+    AddOptionDescription(Language::Translate("menu.misc.hud.option.show_full.description"));
 
-    AddBreak(Language::Translate("misc.hud.componentColours"));
+    AddBreak(Language::Translate("menu.misc.hud.section.component_colours.label"));
     for (auto& h : std::vector<std::pair<int, std::string>>{
-             {HudColour::PURE_WHITE, Language::Translate("misc.hud.mapBlips")},
-             {HudColour::WAYPOINT, Language::Translate("misc.hud.waypoint")},
-             {HudColour::WHITE, Language::Translate("misc.hud.pauseMenuText")},
-             {HudColour::PAUSE_BG, Language::Translate("misc.hud.pauseMenuBackground")},
-             {HudColour::PAUSEMAP_TINT, Language::Translate("misc.hud.pauseMenuMapTint")},
-             {HudColour::BLACK, Language::Translate("misc.hud.selectedText")},
-             {HudColour::FREEMODE, Language::Translate("misc.hud.freemode")},
-             {HudColour::MICHAEL, Language::Translate("misc.hud.michael")},
-             {HudColour::FRANKLIN, Language::Translate("misc.hud.franklin")},
-             {HudColour::TREVOR, Language::Translate("misc.hud.trevor")}
+             {HudColour::PURE_WHITE, Language::Translate("menu.misc.hud.option.map_blips.label")},
+             {HudColour::WAYPOINT, Language::Translate("menu.misc.hud.option.waypoint.label")},
+             {HudColour::WHITE, Language::Translate("menu.misc.hud.option.pause_menu_text.label")},
+             {HudColour::PAUSE_BG, Language::Translate("menu.misc.hud.option.pause_menu_background.label")},
+             {HudColour::PAUSEMAP_TINT, Language::Translate("menu.misc.hud.option.pause_menu_map_tint.label")},
+             {HudColour::BLACK, Language::Translate("menu.misc.hud.option.selected_text.label")},
+             {HudColour::FREEMODE, Language::Translate("menu.misc.hud.option.freemode.label")},
+             {HudColour::MICHAEL, Language::Translate("menu.misc.hud.option.michael.label")},
+             {HudColour::FRANKLIN, Language::Translate("menu.misc.hud.option.franklin.label")},
+             {HudColour::TREVOR, Language::Translate("menu.misc.hud.option.trevor.label")}
          })
     {
         bool bCompSelected = false;
@@ -826,7 +836,7 @@ void HudOptionsMenu()
         }
     }
 
-    AddBreak(Language::Translate("misc.hud.allColours"));
+    AddBreak(Language::Translate("menu.misc.hud.section.all_colours.label"));
     for (int i = 0; i < HudColour::vHudColours.size(); i++)
     {
         bool bCompSelected = false;
@@ -847,21 +857,21 @@ INT8 shakeID = -1;
 
 void GameCamOptionsMenu()
 {
-    AddTitle(Language::Translate("misc.gameCamera.title"));
+    AddTitle(Language::Translate("menu.misc.game_camera.title"));
 
     auto& shakeNames = cameraShakeNames;
 
     bool shakeTypePlus = false;
     bool shakeTypeMinus = false;
     AddTexter(
-        Language::Translate("misc.gameCamera.shakeType"),
+        Language::Translate("menu.misc.game_camera.option.shake_type.label"),
         shakeID < 0 ? 0 : shakeID,
-        shakeID < 0 ? std::vector<std::string>{Language::Translate("misc.gameCamera.none")} : shakeNames,
+        shakeID < 0 ? std::vector<std::string>{Language::Translate("menu.misc.option.game_camera.value.none")} : shakeNames,
         null,
         shakeTypePlus,
         shakeTypeMinus
     );
-    AddOptionDescription(Language::Translate("misc.gameCamera.shakeType.description"));
+    AddOptionDescription(Language::Translate("menu.misc.game_camera.option.shake_type.description"));
     if (shakeTypePlus)
     {
         if (shakeID < (INT8)(shakeNames.size() - 1))
@@ -888,8 +898,8 @@ void GameCamOptionsMenu()
 
     bool shakeAmplitudePlus = false;
     bool shakeAmplitudeMinus = false;
-    AddNumber(Language::Translate("misc.gameCamera.shakeAmplitude"), shakeAmplitude, 2, null, shakeAmplitudePlus, shakeAmplitudeMinus);
-    AddOptionDescription(Language::Translate("misc.gameCamera.shakeAmplitude.description"));
+    AddNumber(Language::Translate("menu.misc.game_camera.option.shake_amplitude.label"), shakeAmplitude, 2, null, shakeAmplitudePlus, shakeAmplitudeMinus);
+    AddOptionDescription(Language::Translate("menu.misc.game_camera.option.shake_amplitude.description"));
     if (shakeAmplitudePlus)
     {
         shakeAmplitude += 0.05f;
@@ -940,38 +950,38 @@ void FreeCamSettingsMenu()
     bool freecamOn = false;
     bool freecamOff = false;
 
-    AddTitle(Language::Translate("misc.freeCam.title"));
-    AddToggle(Language::Translate("misc.freeCam.toggle"), FreeCamMode::bEnabled, freecamOn, freecamOff);
+    AddTitle(Language::Translate("menu.misc.free_cam.title"));
+    AddToggle(Language::Translate("menu.misc.free_cam.option.toggle.label"), FreeCamMode::bEnabled, freecamOn, freecamOff);
 
-    AddBreak(Language::Translate("misc.freeCam.sharedBreak"));
+    AddBreak(Language::Translate("menu.misc.free_cam.section.shared.label"));
     bool changed = false;
-    changed |= AddNumberStepper(Language::Translate("misc.freeCam.movementSpeed"), Cfg::defaultSpeed, 2, Cfg::speedAdjustStep, Cfg::minSpeed, Cfg::maxSpeed);
-    AddOptionDescription(Language::Translate("misc.freeCam.movementSpeed.description"));
-    changed |= AddNumberStepper(Language::Translate("misc.freeCam.slowSpeed"), Cfg::defaultSlowSpeed, 2, Cfg::speedAdjustStep, Cfg::minSpeed, Cfg::maxSpeed);
-    AddOptionDescription(Language::Translate("misc.freeCam.slowSpeed.description"));
-    if (AddNumberStepper(Language::Translate("misc.freeCam.fov"), Cfg::defaultFov, 1, Cfg::fovAdjustStep, Cfg::minFov, Cfg::maxFov))
+    changed |= AddNumberStepper(Language::Translate("menu.misc.free_cam.option.movement_speed.label"), Cfg::defaultSpeed, 2, Cfg::speedAdjustStep, Cfg::minSpeed, Cfg::maxSpeed);
+    AddOptionDescription(Language::Translate("menu.misc.free_cam.option.movement_speed.description"));
+    changed |= AddNumberStepper(Language::Translate("menu.misc.free_cam.option.slow_speed.label"), Cfg::defaultSlowSpeed, 2, Cfg::speedAdjustStep, Cfg::minSpeed, Cfg::maxSpeed);
+    AddOptionDescription(Language::Translate("menu.misc.free_cam.option.slow_speed.description"));
+    if (AddNumberStepper(Language::Translate("menu.misc.free_cam.option.fov.label"), Cfg::defaultFov, 1, Cfg::fovAdjustStep, Cfg::minFov, Cfg::maxFov))
     {
         changed = true;
         ApplyFovToActiveCameras(Cfg::defaultFov);
     }
-    AddOptionDescription(Language::Translate("misc.freeCam.fov.description"));
-    changed |= AddNumberStepper(Language::Translate("misc.freeCam.rotationSensitivityMouse"), Cfg::rotationSensitivityMouse, 1, 0.5, 0.5, 50.0);
-    changed |= AddNumberStepper(Language::Translate("misc.freeCam.rotationSensitivityGamepad"), Cfg::rotationSensitivityGamepad, 1, 0.1, 0.1, 10.0);
+    AddOptionDescription(Language::Translate("menu.misc.free_cam.option.fov.description"));
+    changed |= AddNumberStepper(Language::Translate("menu.misc.free_cam.option.rotation_sensitivity_mouse.label"), Cfg::rotationSensitivityMouse, 1, 0.5, 0.5, 50.0);
+    changed |= AddNumberStepper(Language::Translate("menu.misc.free_cam.option.rotation_sensitivity_gamepad.label"), Cfg::rotationSensitivityGamepad, 1, 0.1, 0.1, 10.0);
     if (changed)
         MenuConfig::RequestSave();
 
     bool resetToDefaults = false;
-    AddOption(Language::Translate("misc.freeCam.reset"), resetToDefaults);
-    AddOptionDescription(Language::Translate("misc.freeCam.reset.description"));
+    AddOption(Language::Translate("menu.misc.free_cam.option.reset.label"), resetToDefaults);
+    AddOptionDescription(Language::Translate("menu.misc.free_cam.option.reset.description"));
     if (resetToDefaults)
     {
         Cfg::ResetToDefaults();
         ApplyFovToActiveCameras(Cfg::defaultFov);
-        Game::Print::ShowNotification(Language::Translate("misc.freeCam.reset.notification"));
+        Game::Print::ShowNotification(Language::Translate("message.misc.free_cam.reset.title"));
     }
 
     if (freecamOn)
-        Game::Print::ShowNotification(Language::Format("misc.freeCam.toggle.notification", {{"key", Keybinds::GetGlyph("no_clip")}}));
+        Game::Print::ShowNotification(Language::Format("message.misc.free_cam.toggle.title", {{"key", Keybinds::GetGlyph("no_clip")}}));
 
     if (freecamOff)
         FreeCamMode::Stop();

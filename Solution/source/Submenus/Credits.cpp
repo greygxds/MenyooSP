@@ -164,13 +164,13 @@ static void LoadCredits()
 
 void CreditsMenu()
 {
-    AddTitle(Language::Translate("credits.title"));
+    AddTitle(Language::Translate("menu.about.credits.title"));
 
     if (!g_CreditsLoaded)
         LoadCredits();
 
     bool openPatreon = false;
-    AddOption(Language::Translate("credits.patreon"), openPatreon, nullFunc, -1, true);
+    AddOption(Language::Translate("menu.about.credits.option.patreon.label"), openPatreon, nullFunc, -1, true);
     if (openPatreon)
     {
         ShellExecuteA(nullptr, "open", "https://www.patreon.com/cw/ItsJustCurtis", nullptr, nullptr, SW_SHOWNORMAL);
@@ -178,7 +178,7 @@ void CreditsMenu()
 
     if (g_CreditsTiers.empty())
     {
-        AddOption(Language::Translate("credits.none"), null);
+        AddOption(Language::Translate("menu.about.credits.option.none.label"), null);
         return;
     }
 

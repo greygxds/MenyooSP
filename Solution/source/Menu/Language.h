@@ -56,8 +56,8 @@ extern std::string configLangName;
 std::string Translate(std::string_view key);
 std::string Format(std::string_view key, std::initializer_list<Argument> arguments);
 
-std::string TranslateToSelected(std::string text);
 std::string TranslateStable(std::string_view prefix, std::string_view identifier, std::string_view fallback);
+std::string TranslateStable(std::string_view prefix, std::string_view identifier, std::string_view role, std::string_view fallback);
 
 int Init();
 void Reload();

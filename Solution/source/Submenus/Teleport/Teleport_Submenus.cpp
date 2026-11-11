@@ -43,25 +43,25 @@ Vector3 _customTeleLoc(Locations::vApartmentInteriors[0].x, Locations::vApartmen
 
 void LoadIpl()
 {
-    std::string inputStr = Game::InputBox("", 64U, Language::Translate("teleport.ipl.namePrompt").c_str());
+    std::string inputStr = Game::InputBox("", 64U, Language::Translate("menu.teleport.ipl.option.name_prompt.prompt").c_str());
 
     if (inputStr.length() == 0)
         return;
 
     if (IS_IPL_ACTIVE(inputStr.c_str()))
     {
-        Game::Print::PrintBottomLeft(Language::Format("teleport.ipl.alreadyLoaded", {{"name", inputStr}}));
+        Game::Print::PrintBottomLeft(Language::Format("message.teleport.ipl.already_loaded.message", {{"name", inputStr}}));
     }
     else
     {
         REQUEST_IPL(inputStr.c_str());
-        Game::Print::PrintBottomLeft(Language::Format("teleport.ipl.loaded", {{"name", inputStr}}));
+        Game::Print::PrintBottomLeft(Language::Format("message.teleport.ipl.loaded.message", {{"name", inputStr}}));
     }
 }
 
 void UnloadIpl()
 {
-    std::string inputStr = Game::InputBox("", 64U, Language::Translate("teleport.ipl.namePrompt").c_str());
+    std::string inputStr = Game::InputBox("", 64U, Language::Translate("menu.teleport.ipl.option.name_prompt.prompt").c_str());
 
     if (inputStr.length() == 0)
         return;
@@ -69,11 +69,11 @@ void UnloadIpl()
     if (IS_IPL_ACTIVE(inputStr.c_str()))
     {
         REMOVE_IPL(inputStr.c_str());
-        Game::Print::PrintBottomLeft(Language::Format("teleport.ipl.unloaded", {{"name", inputStr}}));
+        Game::Print::PrintBottomLeft(Language::Format("message.teleport.ipl.unloaded.message", {{"name", inputStr}}));
     }
     else
     {
-        Game::Print::PrintBottomLeft(Language::Format("teleport.ipl.alreadyUnloaded", {{"name", inputStr}}));
+        Game::Print::PrintBottomLeft(Language::Format("message.teleport.ipl.already_unloaded.message", {{"name", inputStr}}));
     }
 }
 
@@ -81,16 +81,16 @@ namespace Submenus
 {
 void Sub_TeleportMain()
 {
-    AddTitle(Language::Translate("teleport.locations.title"));
+    AddTitle(Language::Translate("menu.teleport.locations.title"));
 
-    AddOption(Language::Translate("teleport.forward"), null, TeleMethods::ToForward241);
-    AddOptionDescription(Language::Translate("teleport.forward.description"));
-    AddOption(Language::Translate("teleport.waypoint"), null, TeleMethods::ToWaypoint241);
-    AddOption(Language::Translate("teleport.missionObjective"), null, TeleMethods::ToMissionBlip241);
-    AddOptionDescription(Language::Translate("teleport.missionObjective.description"));
-    AddOption(Language::Translate("teleport.mapBlips"), null, nullFunc, SUB::TELEPORTOPS_BLIPLIST);
+    AddOption(Language::Translate("menu.teleport.option.forward.label"), null, TeleMethods::ToForward241);
+    AddOptionDescription(Language::Translate("menu.teleport.option.forward.description"));
+    AddOption(Language::Translate("menu.teleport.option.waypoint.label"), null, TeleMethods::ToWaypoint241);
+    AddOption(Language::Translate("menu.teleport.option.mission_objective.label"), null, TeleMethods::ToMissionBlip241);
+    AddOptionDescription(Language::Translate("menu.teleport.option.mission_objective.description"));
+    AddOption(Language::Translate("menu.teleport.option.map_blips.label"), null, nullFunc, SUB::TELEPORTOPS_BLIPLIST);
 
-    AddBreak(Language::Translate("teleport.ready"));
+    AddBreak(Language::Translate("menu.teleport.section.ready.label"));
     for (auto& cat : Locations::vAllCategories)
     {
         bool bCategoryPressed = false;
@@ -109,15 +109,15 @@ void Sub_TeleportMain()
         }
     }
 
-    AddBreak(Language::Translate("teleport.custom"));
-    AddOption(Language::Translate("teleport.customCoordinates"), null, nullFunc, SUB::TELEPORTOPS_CUSTOMCOORDS);
-    AddOption(Language::Translate("teleport.favourites"), null, nullFunc, SUB::TELEPORTOPS_SAVEDLOCATIONS);
+    AddBreak(Language::Translate("menu.teleport.section.custom.label"));
+    AddOption(Language::Translate("menu.teleport.option.custom_coordinates.label"), null, nullFunc, SUB::TELEPORTOPS_CUSTOMCOORDS);
+    AddOption(Language::Translate("menu.teleport.option.favourites.label"), null, nullFunc, SUB::TELEPORTOPS_SAVEDLOCATIONS);
 
-    AddBreak(Language::Translate("teleport.ipls"));
-    AddOption(Language::Translate("teleport.loadIpl"), null, LoadIpl);
-    AddOptionDescription(Language::Translate("teleport.loadIpl.description"));
-    AddOption(Language::Translate("teleport.unloadIpl"), null, UnloadIpl);
-    AddOptionDescription(Language::Translate("teleport.unloadIpl.description"));
+    AddBreak(Language::Translate("menu.teleport.section.ipls.label"));
+    AddOption(Language::Translate("menu.teleport.option.load_ipl.label"), null, LoadIpl);
+    AddOptionDescription(Language::Translate("menu.teleport.option.load_ipl.description"));
+    AddOption(Language::Translate("menu.teleport.option.unload_ipl.label"), null, UnloadIpl);
+    AddOptionDescription(Language::Translate("menu.teleport.option.unload_ipl.description"));
 }
 
 void Sub_CustomCoords()
@@ -132,13 +132,13 @@ void Sub_CustomCoords()
 
     bool x_plus = 0, x_minus = 0, y_plus = 0, y_minus = 0, z_plus = 0, z_minus = 0, x_custom = 0, y_custom = 0, z_custom = 0, apply = 0, update = 0;
 
-    AddTitle(Language::Translate("teleport.customCoordinates"));
-    AddOption(Language::Translate("teleport.updateCurrent"), update);
-    AddOptionDescription(Language::Translate("teleport.updateCurrent.description"));
+    AddTitle(Language::Translate("menu.teleport.custom_coordinates.title"));
+    AddOption(Language::Translate("menu.teleport.option.update_current.label"), update);
+    AddOptionDescription(Language::Translate("menu.teleport.option.update_current.description"));
     AddNumber("  X", _customTeleLoc.x, 4, x_custom, x_plus, x_minus);
     AddNumber("  Y", _customTeleLoc.y, 4, y_custom, y_plus, y_minus);
     AddNumber("  Z", _customTeleLoc.z, 4, z_custom, z_plus, z_minus);
-    AddOption(Language::Translate("teleport.apply"), apply);
+    AddOption(Language::Translate("menu.teleport.option.apply.label"), apply);
 
 
     if (x_plus)
@@ -264,7 +264,7 @@ void Sub_SelectedCategory()
 
 void Sub_BlipList()
 {
-    AddTitle(Language::Translate("teleport.mapBlips"));
+    AddTitle(Language::Translate("menu.teleport.map_blips.title"));
 
     //std::vector<GTAblip> vBlips;
     //World::GetActiveBlips(vBlips);
@@ -303,7 +303,7 @@ void Sub_BlipList()
 
 void Sub_SavedLocations()
 {
-    AddTitle(Language::Translate("teleport.favourites"));
+    AddTitle(Language::Translate("menu.teleport.favourites.title"));
 
     std::string xmlSavedMapLocations = "SavedMapLocations.xml";
     pugi::xml_document doc;
@@ -322,10 +322,10 @@ void Sub_SavedLocations()
     pugi::xml_node nodeRoot = doc.child("SavedMapLocations");
 
     bool bSaveCurrentLocation = false;
-    AddOption(Language::Translate("teleport.saveCurrentLocation"), bSaveCurrentLocation);
+    AddOption(Language::Translate("menu.teleport.option.save_current_location.label"), bSaveCurrentLocation);
     if (bSaveCurrentLocation)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("teleport.locations.namePrompt").c_str());
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.teleport.locations.option.name_prompt.prompt").c_str());
         if (inputStr.length() > 0)
         {
             GTAentity ent = g_activePedHandle;
@@ -344,7 +344,7 @@ void Sub_SavedLocations()
             nodeNewLoc.append_child("Yaw").text() = myRot.z;
             if (doc.save_file((const char*)(GetPathffA(Pathff::Main, true) + xmlSavedMapLocations).c_str()))
             {
-                Game::Print::PrintBottomLeft(Language::Translate("teleport.locations.saved"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.teleport.locations.saved.message"));
             }
         }
         else
@@ -373,7 +373,7 @@ void Sub_SavedLocations()
 
     if (nodeRoot.first_child())
     {
-        AddBreak(Language::Translate("teleport.locations.section"));
+        AddBreak(Language::Translate("menu.teleport.locations.section.section.label"));
         for (auto nodeLocToLoad = nodeRoot.first_child(); nodeLocToLoad; nodeLocToLoad = nodeLocToLoad.next_sibling())
         {
             bool bPressedLoc = false;
@@ -389,7 +389,7 @@ void Sub_SavedLocations()
 
             if (Menu::IsLastDrawnOptionSelected())
             {
-                Keybinds::AddBindIB("menu_action", Language::Translate("menu.remove"));
+                Keybinds::AddBindIB("menu_action", Language::Translate("common.remove"));
 
                 if (Keybinds::WasPressedThisFrame("menu_action"))
                 {

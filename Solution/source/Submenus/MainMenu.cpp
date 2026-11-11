@@ -22,17 +22,17 @@ void MainMenu()
     }
 
     AddTitle(Language::Translate("menu.main.title"));
-    AddOption(Language::Translate("menu.main.players.label"), null, nullFunc, SUB::PLAYERSSUB);
-    AddOption(Language::Translate("menu.main.playerOptions.label"), null, nullFunc, SUB::PLAYEROPS);
-    AddOption(Language::Translate("menu.main.vehicleOptions.label"), null, nullFunc, SUB::VEHICLEOPS);
-    AddOption(Language::Translate("menu.main.teleportOptions.label"), null, nullFunc, SUB::TELEPORTOPS);
-    AddOption(Language::Translate("menu.main.weaponOptions.label"), null, nullFunc, SUB::WEAPONOPS);
-    AddOption(Language::Translate("menu.main.weatherOptions.label"), null, nullFunc, SUB::WEATHEROPS);
-    AddOption(Language::Translate("menu.main.timeOptions.label"), null, nullFunc, SUB::TIMEOPS);
-    AddOption(Language::Translate("menu.main.objectSpooner.label"), null, nullFunc, SUB::SPOONER_MAIN);
-    AddOption(Language::Translate("menu.main.miscOptions.label"), null, nullFunc, SUB::MISCOPS);
-    AddOption(Language::Translate("menu.main.settings.label"), null, nullFunc, SUB::SETTINGS);
-    AddOption(Language::Translate("menu.main.peopleBehindMenyoo.label"), null, nullFunc, SUB::CREDITSSUB);
+    AddOption(Language::Translate("menu.main.option.players.label"), null, nullFunc, SUB::PLAYERSSUB);
+    AddOption(Language::Translate("menu.main.option.player_options.label"), null, nullFunc, SUB::PLAYEROPS);
+    AddOption(Language::Translate("menu.main.option.vehicle_options.label"), null, nullFunc, SUB::VEHICLEOPS);
+    AddOption(Language::Translate("menu.main.option.teleport_options.label"), null, nullFunc, SUB::TELEPORTOPS);
+    AddOption(Language::Translate("menu.main.option.weapon_options.label"), null, nullFunc, SUB::WEAPONOPS);
+    AddOption(Language::Translate("menu.main.option.weather_options.label"), null, nullFunc, SUB::WEATHEROPS);
+    AddOption(Language::Translate("menu.main.option.time_options.label"), null, nullFunc, SUB::TIMEOPS);
+    AddOption(Language::Translate("menu.main.option.object_spooner.label"), null, nullFunc, SUB::SPOONER_MAIN);
+    AddOption(Language::Translate("menu.main.option.misc_options.label"), null, nullFunc, SUB::MISCOPS);
+    AddOption(Language::Translate("menu.main.option.settings.label"), null, nullFunc, SUB::SETTINGS);
+    AddOption(Language::Translate("menu.main.option.people_behind_menyoo.label"), null, nullFunc, SUB::CREDITSSUB);
 
     g_activePlayerId = PLAYER_ID();
     g_activePedHandle = PLAYER_PED_ID();

@@ -44,16 +44,16 @@ void ClearVisibleDamageFromActivePed()
 
 void DrawCategoryListMenu()
 {
-    AddTitle(Language::Translate("components.damage.title"));
-    AddOption(Language::Translate("components.damage.packs"), null, nullFunc, SUB::PED_DAMAGE_PACKS);
-    AddBreak(Language::Translate("components.damage.washUp"));
-    AddTickol(Language::Translate("components.damage.clearBlood"), true, ClearBloodDamageFromActivePed, ClearBloodDamageFromActivePed, TICKOL::CROSS);
-    AddTickol(Language::Translate("components.damage.clearVisible"), true, ClearVisibleDamageFromActivePed, ClearVisibleDamageFromActivePed, TICKOL::CROSS);
+    AddTitle(Language::Translate("menu.player.wardrobe.damage.title"));
+    AddOption(Language::Translate("menu.player.wardrobe.damage.option.packs.label"), null, nullFunc, SUB::PED_DAMAGE_PACKS);
+    AddBreak(Language::Translate("menu.player.wardrobe.damage.section.wash_up.label"));
+    AddTickol(Language::Translate("menu.player.wardrobe.damage.option.clear_blood.label"), true, ClearBloodDamageFromActivePed, ClearBloodDamageFromActivePed, TICKOL::CROSS);
+    AddTickol(Language::Translate("menu.player.wardrobe.damage.option.clear_visible.label"), true, ClearVisibleDamageFromActivePed, ClearVisibleDamageFromActivePed, TICKOL::CROSS);
 }
 
 void DrawBoneSelectionMenu()
 {
-    AddTitle(Language::Translate("components.damage.selectBone"));
+    AddTitle(Language::Translate("menu.player.wardrobe.damage.select_bone.title"));
 
     for (const auto& bone : Bone::vBoneNames)
     {
@@ -67,7 +67,7 @@ void DrawBoneSelectionMenu()
 void DrawBloodMenu()
 {
     GTAped activePed = g_activePedHandle;
-    AddTitle(Language::Translate("components.damage.blood"));
+    AddTitle(Language::Translate("menu.player.wardrobe.damage.blood.title"));
 
     for (const auto& bloodDecalName : PedBloodDecals::vBloodDecals)
     {
@@ -81,7 +81,7 @@ void DrawBloodMenu()
 void DrawDamageDecalsMenu()
 {
     GTAped activePed = g_activePedHandle;
-    AddTitle(Language::Translate("components.damage.decals"));
+    AddTitle(Language::Translate("menu.player.wardrobe.damage.decals.title"));
 
     for (const auto& damageDecalName : PedDamageDecals::vDamageDecals)
     {
@@ -98,7 +98,7 @@ void DrawDamagePacksMenu()
     const auto& damagePacks = PedDamagePacks::vDamagePacks;
     activePed.EnsureDamagePackTracking();
 
-    AddTitle(Language::Translate("components.damage.packs"));
+    AddTitle(Language::Translate("menu.player.wardrobe.damage.packs.title"));
 
     for (const auto& damagePackName : damagePacks)
     {

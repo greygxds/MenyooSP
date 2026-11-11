@@ -1043,7 +1043,7 @@ void DrawVehicleBmp(Hash vehicleModelHash, float centerX, float centerY)
     else
     {
         Game::Print::SetupDraw(0, Vector2(0, 0.185f), true, false, false);
-        Game::Print::drawstring(Language::Translate("vehicleSpawner.stats.noPreview"), centerX, centerY - 0.0043f);
+        Game::Print::drawstring(Language::Translate("message.vehicle.spawner.stats.no_preview.message"), centerX, centerY - 0.0043f);
     }
 }
 
@@ -1053,7 +1053,7 @@ void DrawVehicleModelName(const GTAmodel::Model& vehModel)
     FLOAT y_coord = currentOptionY + menuPos.y;
 
     Game::Print::SetupDraw(font_selection, Vector2(0.0f, (font_options == 0 ? 0.33f : 0.4f)), false, true, false, selectedtext, {0, x_coord});
-    Game::Print::drawstring(Language::Translate("vehicleSpawner.stats.modelName") + ": " + vehModel.VehicleModelName(), 0, y_coord);
+    Game::Print::drawstring(Language::Format("message.vehicle_spawner.model_name", {{"modelName", vehModel.VehicleModelName()}}), 0, y_coord);
 }
 
 std::string GetVehicleClassName(int classId)
@@ -1061,53 +1061,53 @@ std::string GetVehicleClassName(int classId)
     switch (classId)
     {
     case 0:
-        return Language::Translate("vehicleSpawner.stats.class.compact");
+        return Language::Translate("component.vehicle_stats.class.compact.label");
     case 1:
-        return Language::Translate("vehicleSpawner.stats.class.sedan");
+        return Language::Translate("component.vehicle_stats.class.sedan.label");
     case 2:
-        return Language::Translate("vehicleSpawner.stats.class.suv");
+        return Language::Translate("component.vehicle_stats.class.suv.label");
     case 3:
-        return Language::Translate("vehicleSpawner.stats.class.coupe");
+        return Language::Translate("component.vehicle_stats.class.coupe.label");
     case 4:
-        return Language::Translate("vehicleSpawner.stats.class.muscle");
+        return Language::Translate("component.vehicle_stats.class.muscle.label");
     case 5:
-        return Language::Translate("vehicleSpawner.stats.class.sportsClassic");
+        return Language::Translate("component.vehicle_stats.class.sports_classic.label");
     case 6:
-        return Language::Translate("vehicleSpawner.stats.class.sport");
+        return Language::Translate("component.vehicle_stats.class.sport.label");
     case 7:
-        return Language::Translate("vehicleSpawner.stats.class.super");
+        return Language::Translate("component.vehicle_stats.class.super.label");
     case 8:
-        return Language::Translate("vehicleSpawner.stats.class.motorcycle");
+        return Language::Translate("component.vehicle_stats.class.motorcycle.label");
     case 9:
-        return Language::Translate("vehicleSpawner.stats.class.offroad");
+        return Language::Translate("component.vehicle_stats.class.offroad.label");
     case 10:
-        return Language::Translate("vehicleSpawner.stats.class.industrial");
+        return Language::Translate("component.vehicle_stats.class.industrial.label");
     case 11:
-        return Language::Translate("vehicleSpawner.stats.class.utility");
+        return Language::Translate("component.vehicle_stats.class.utility.label");
     case 12:
-        return Language::Translate("vehicleSpawner.stats.class.van");
+        return Language::Translate("component.vehicle_stats.class.van.label");
     case 13:
-        return Language::Translate("vehicleSpawner.stats.class.bicycle");
+        return Language::Translate("component.vehicle_stats.class.bicycle.label");
     case 14:
-        return Language::Translate("vehicleSpawner.stats.class.boat");
+        return Language::Translate("component.vehicle_stats.class.boat.label");
     case 15:
-        return Language::Translate("vehicleSpawner.stats.class.helicopter");
+        return Language::Translate("component.vehicle_stats.class.helicopter.label");
     case 16:
-        return Language::Translate("vehicleSpawner.stats.class.plane");
+        return Language::Translate("component.vehicle_stats.class.plane.label");
     case 17:
-        return Language::Translate("vehicleSpawner.stats.class.service");
+        return Language::Translate("component.vehicle_stats.class.service.label");
     case 18:
-        return Language::Translate("vehicleSpawner.stats.class.emergency");
+        return Language::Translate("component.vehicle_stats.class.emergency.label");
     case 19:
-        return Language::Translate("vehicleSpawner.stats.class.military");
+        return Language::Translate("component.vehicle_stats.class.military.label");
     case 20:
-        return Language::Translate("vehicleSpawner.stats.class.commercial");
+        return Language::Translate("component.vehicle_stats.class.commercial.label");
     case 21:
-        return Language::Translate("vehicleSpawner.stats.class.train");
+        return Language::Translate("component.vehicle_stats.class.train.label");
     case 22:
-        return Language::Translate("vehicleSpawner.stats.class.openWheel");
+        return Language::Translate("component.vehicle_stats.class.open_wheel.label");
     default:
-        return Language::Translate("vehicleSpawner.stats.class.unknown");
+        return Language::Translate("component.vehicle_stats.class.unknown.label");
     }
 }
 
@@ -1214,19 +1214,33 @@ void DrawVehicleStats(const GTAmodel::Model& vehModel)
     const Hash vehicleModelHash = vehModel.hash;
     rows.push_back(StatsPanel::ImageRow{[vehicleModelHash](float centerX, float centerY) { DrawVehicleBmp(vehicleModelHash, centerX, centerY); }});
     rows.push_back(
-        StatsPanel::BarRow{Language::Translate("vehicleSpawner.stats.speed"), std::to_string(static_cast<int>(c.speedMph)) + " " + Language::Translate("vehicleSpawner.stats.mph"), c.speedRatio}
+        StatsPanel::BarRow{
+            Language::Translate("component.vehicle_stats.speed.label"), Language::Format("message.vehicle.spawner.speed_mph_value", {{"speed", static_cast<int>(c.speedMph)}}), c.speedRatio
+        }
     );
-    rows.push_back(StatsPanel::BarRow{Language::Translate("vehicleSpawner.stats.acceleration"), std::to_string(static_cast<int>(c.accelRatio * 100.0f)) + "%", c.accelRatio});
-    rows.push_back(StatsPanel::BarRow{Language::Translate("vehicleSpawner.stats.braking"), std::to_string(static_cast<int>(c.brakingRatio * 100.0f)) + "%", c.brakingRatio});
-    rows.push_back(StatsPanel::BarRow{Language::Translate("vehicleSpawner.stats.traction"), std::to_string(static_cast<int>(c.tractionRatio * 100.0f)) + "%", c.tractionRatio});
+    rows.push_back(
+        StatsPanel::BarRow{
+            Language::Translate("component.vehicle_stats.acceleration.label"), Language::Format("common.percentage_value", {{"value", static_cast<int>(c.accelRatio * 100.0f)}}), c.accelRatio
+        }
+    );
+    rows.push_back(
+        StatsPanel::BarRow{
+            Language::Translate("component.vehicle_stats.braking.label"), Language::Format("common.percentage_value", {{"value", static_cast<int>(c.brakingRatio * 100.0f)}}), c.brakingRatio
+        }
+    );
+    rows.push_back(
+        StatsPanel::BarRow{
+            Language::Translate("component.vehicle_stats.traction.label"), Language::Format("common.percentage_value", {{"value", static_cast<int>(c.tractionRatio * 100.0f)}}), c.tractionRatio
+        }
+    );
     rows.push_back(StatsPanel::SeparatorRow{});
-    rows.push_back(StatsPanel::StatRow{Language::Translate("vehicleSpawner.stats.class"), GetVehicleClassName(c.classId)});
-    rows.push_back(StatsPanel::StatRow{Language::Translate("vehicleSpawner.stats.manufacturer"), c.makeName});
-    std::string seats = Language::Format("vehicleSpawner.stats.seats", {{"count", static_cast<std::int64_t>(c.seats)}});
-    std::string gears = Language::Format("vehicleSpawner.stats.gears", {{"count", static_cast<std::int64_t>(c.gears)}});
-    rows.push_back(StatsPanel::StatRow{Language::Translate("vehicleSpawner.stats.layout"), seats + Language::Translate("vehicleSpawner.stats.layoutSeparator") + gears});
+    rows.push_back(StatsPanel::StatRow{Language::Translate("component.vehicle_stats.class.label"), GetVehicleClassName(c.classId)});
+    rows.push_back(StatsPanel::StatRow{Language::Translate("component.vehicle_stats.manufacturer.label"), c.makeName});
+    std::string seats = Language::Format("component.vehicle_stats.seats.label", {{"count", static_cast<std::int64_t>(c.seats)}});
+    std::string gears = Language::Format("component.vehicle_stats.gears.label", {{"count", static_cast<std::int64_t>(c.gears)}});
+    rows.push_back(StatsPanel::StatRow{Language::Translate("component.vehicle_stats.layout.label"), Language::Format("message.vehicle.spawner.layout", {{"seats", seats}, {"gears", gears}})});
     if (c.hasPrice)
-        rows.push_back(StatsPanel::StatRow{Language::Translate("vehicleSpawner.stats.price"), c.priceStr});
+        rows.push_back(StatsPanel::StatRow{Language::Translate("component.vehicle_stats.price.label"), c.priceStr});
 
     StatsPanel::DrawAtOption(currentOptionY + menuPos.y, 0.100f, rows);
 }
@@ -1358,7 +1372,7 @@ void AddVehicleSpawnOption(const std::string& text, const GTAmodel::Model& vehMo
         {
             blip_g = ADD_BLIP_FOR_ENTITY(vehicle);
             HUD::SET_BLIP_SPRITE(blip_g, GetRandomSpriteId());
-            Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.blipAdded"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.blip_added.message"));
         }
         if (g_warpNear)
         {
@@ -1389,47 +1403,47 @@ void SpawnVehicleMenu()
     dict3.clear();
     bool spawnRandom = 0, spawnVehicleInput = 0;
 
-    AddTitle(Language::Translate("vehicleSpawner.title"));
+    AddTitle(Language::Translate("menu.vehicle.spawner.title"));
 
-    AddOption(Language::Translate("vehicleSpawner.searchMenu"), null, nullFunc, SUB::SPAWNVEHICLE_SEARCH);
-    AddOption(Language::Translate("vehicleSpawner.favourites"), null, nullFunc, SUB::SPAWNVEHICLE_FAVOURITES);
-    AddOption(Language::Translate("vehicleSpawner.savedVehicles"), null, nullFunc, SUB::VEHICLE_SAVER);
-    AddOption(Language::Translate("vehicleSpawner.spawnSettings"), null, nullFunc, SUB::SPAWNVEHICLE_OPTIONS);
+    AddOption(Language::Translate("menu.vehicle.spawner.option.search_menu.label"), null, nullFunc, SUB::SPAWNVEHICLE_SEARCH);
+    AddOption(Language::Translate("menu.vehicle.spawner.option.favourites.label"), null, nullFunc, SUB::SPAWNVEHICLE_FAVOURITES);
+    AddOption(Language::Translate("menu.vehicle.spawner.option.saved_vehicles.label"), null, nullFunc, SUB::VEHICLE_SAVER);
+    AddOption(Language::Translate("menu.vehicle.spawner.option.spawn_settings.label"), null, nullFunc, SUB::SPAWNVEHICLE_OPTIONS);
 
-    AddBreak(Language::Translate("vehicleSpawner.carsBreak"));
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.openWheel"), OPENWHEEL);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.super"), SUPER);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.sports"), SPORT);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.sportsClassics"), SPORTSCLASSIC);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.coupes"), COUPE);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.muscle"), MUSCLE);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.offroad"), OFFROAD);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.suvs"), SUV);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.sedans"), SEDAN);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.compacts"), COMPACT);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.drift"), DRIFT);
+    AddBreak(Language::Translate("menu.vehicle.spawner.section.cars.label"));
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.open_wheel.label"), OPENWHEEL);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.super.label"), SUPER);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.sports.label"), SPORT);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.sports_classics.label"), SPORTSCLASSIC);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.coupes.label"), COUPE);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.muscle.label"), MUSCLE);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.offroad.label"), OFFROAD);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.suvs.label"), SUV);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.sedans.label"), SEDAN);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.compacts.label"), COMPACT);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.drift.label"), DRIFT);
 
-    AddBreak(Language::Translate("vehicleSpawner.industrialBreak"));
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.vans"), VAN);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.services"), SERVICE);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.industrial"), INDUSTRIAL);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.commercial"), COMMERCIAL);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.utility"), UTILITY);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.trains"), TRAIN);
+    AddBreak(Language::Translate("menu.vehicle.spawner.section.industrial.label"));
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.vans.label"), VAN);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.services.label"), SERVICE);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.industrial.label"), INDUSTRIAL);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.commercial.label"), COMMERCIAL);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.utility.label"), UTILITY);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.trains.label"), TRAIN);
 
-    AddBreak(Language::Translate("vehicleSpawner.othersBreak"));
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.emergency"), EMERGENCY);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.military"), MILITARY);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.motorcycles"), MOTORCYCLE);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.bicycles"), BICYCLE);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.planes"), PLANE);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.helicopters"), HELICOPTER);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.boats"), BOAT);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.others"), OTHER);
+    AddBreak(Language::Translate("menu.vehicle.spawner.section.others.label"));
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.emergency.label"), EMERGENCY);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.military.label"), MILITARY);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.motorcycles.label"), MOTORCYCLE);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.bicycles.label"), BICYCLE);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.planes.label"), PLANE);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.helicopters.label"), HELICOPTER);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.boats.label"), BOAT);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.others.label"), OTHER);
 
-    AddOption(Language::Translate("vehicleSpawner.random"), spawnRandom);
-    AddOptionDescription(Language::Translate("vehicleSpawner.random.description"));
-    AddOption(Language::Translate("vehicleSpawner.inputModel"), spawnVehicleInput);
+    AddOption(Language::Translate("menu.vehicle.spawner.option.random.label"), spawnRandom);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.option.random.description"));
+    AddOption(Language::Translate("menu.vehicle.spawner.option.input_model.label"), spawnVehicleInput);
 
     if (spawnRandom || spawnVehicleInput)
     {
@@ -1447,7 +1461,7 @@ void SpawnVehicleMenu()
         }
         else if (spawnVehicleInput)
         {
-            std::string inputStr = Game::InputBox("", 64U, Language::Translate("vehicleSpawner.inputModel.prompt").c_str());
+            std::string inputStr = Game::InputBox("", 64U, Language::Translate("menu.vehicle.spawner.option.input_model.prompt").c_str());
             if (inputStr.length() == 0)
             {
                 return;
@@ -1493,10 +1507,18 @@ static std::string lastSearch;
 static int lastSort = -1, lastClass = -1, lastType = -1;
 
 static const std::vector<std::string> sortOptionKeys = {
-    "vehicleSpawner.search.sortName", "vehicleSpawner.search.sortSpeed", "vehicleSpawner.search.sortAcceleration", "vehicleSpawner.search.sortPrice"
+    "menu.vehicle.spawner.option.search.value.sort_name",
+    "menu.vehicle.spawner.option.search.value.sort_speed",
+    "menu.vehicle.spawner.option.search.value.sort_acceleration",
+    "menu.vehicle.spawner.option.search.value.sort_price"
 };
 static const std::vector<std::string> typeOptionKeys = {
-    "vehicleSpawner.search.all", "vehicleSpawner.search.cars", "vehicleSpawner.search.bikes", "vehicleSpawner.search.helicopters", "vehicleSpawner.search.planes", "vehicleSpawner.search.boats"
+    "menu.vehicle.spawner.search.option.all.label",
+    "menu.vehicle.spawner.search.option.cars.label",
+    "menu.vehicle.spawner.search.option.bikes.label",
+    "menu.vehicle.spawner.search.option.helicopters.label",
+    "menu.vehicle.spawner.search.option.planes.label",
+    "menu.vehicle.spawner.search.option.boats.label"
 };
 
 void BuildClassOptions()
@@ -1508,7 +1530,9 @@ void BuildClassOptions()
         if (m.IsInCdImage())
             total++;
     }
-    classOptions.push_back(Language::Format("vehicleSpawner.search.classCount", {{"class", Language::Translate("vehicleSpawner.search.all")}, {"count", total}}));
+    classOptions.push_back(
+        Language::Format("menu.vehicle.spawner.search.option.class.value.count", {{"class", Language::Translate("menu.vehicle.spawner.search.option.all.label")}, {"count", total}})
+    );
     for (int i = 0; i <= 22; i++)
     {
         int count = 0;
@@ -1518,7 +1542,7 @@ void BuildClassOptions()
                 count++;
         }
         if (count > 0)
-            classOptions.push_back(Language::Format("vehicleSpawner.search.classCount", {{"class", VehicleSpawner::GetVehicleClassName(i)}, {"count", count}}));
+            classOptions.push_back(Language::Format("menu.vehicle.spawner.search.option.class.value.count", {{"class", VehicleSpawner::GetVehicleClassName(i)}, {"count", count}}));
         else
             classOptions.push_back(VehicleSpawner::GetVehicleClassName(i));
     }
@@ -1623,13 +1647,13 @@ void SpawnVehicleSearchMenu()
     if (classOptions.empty())
         BuildClassOptions();
 
-    AddTitle(Language::Translate("vehicleSpawner.search.title"));
+    AddTitle(Language::Translate("menu.vehicle.spawner.search.title"));
 
     bool bSearchPressed = false;
-    AddOption(searchStr.empty() ? Language::Translate("vehicleSpawner.search.button") : ("~b~" + searchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
+    AddOption(searchStr.empty() ? Language::Translate("menu.vehicle.spawner.search.option.button.label") : ("~b~" + searchStr + "~s~"), bSearchPressed, nullFunc, -1, true);
     if (bSearchPressed)
     {
-        searchStr = Game::InputBox(searchStr, 64U, Language::Translate("vehicleSpawner.search.prompt").c_str(), boost::to_lower_copy(searchStr));
+        searchStr = Game::InputBox(searchStr, 64U, Language::Translate("menu.vehicle.spawner.option.search.prompt").c_str(), boost::to_lower_copy(searchStr));
         boost::to_upper(searchStr);
     }
 
@@ -1637,14 +1661,14 @@ void SpawnVehicleSearchMenu()
     const std::vector<std::string> sortOptions{
         Language::Translate(sortOptionKeys[0]), Language::Translate(sortOptionKeys[1]), Language::Translate(sortOptionKeys[2]), Language::Translate(sortOptionKeys[3])
     };
-    AddTexter(Language::Translate("vehicleSpawner.search.sort"), sortIndex, sortOptions, null, sortRight, sortLeft);
+    AddTexter(Language::Translate("menu.vehicle.spawner.search.option.sort.label"), sortIndex, sortOptions, null, sortRight, sortLeft);
     if (sortRight && sortIndex < (int)(sortOptions.size() - 1))
         sortIndex++;
     if (sortLeft && sortIndex > 0)
         sortIndex--;
 
     bool classRight = false, classLeft = false;
-    AddTexter(Language::Translate("vehicleSpawner.search.class"), classFilter, classOptions, null, classRight, classLeft);
+    AddTexter(Language::Translate("menu.vehicle.spawner.search.option.class.label"), classFilter, classOptions, null, classRight, classLeft);
     if (classRight && classFilter < (int)(classOptions.size() - 1))
         classFilter++;
     if (classLeft && classFilter > 0)
@@ -1659,7 +1683,7 @@ void SpawnVehicleSearchMenu()
         Language::Translate(typeOptionKeys[4]),
         Language::Translate(typeOptionKeys[5])
     };
-    AddTexter(Language::Translate("vehicleSpawner.search.type"), typeFilter, typeOptions, null, typeRight, typeLeft);
+    AddTexter(Language::Translate("menu.vehicle.spawner.search.option.type.label"), typeFilter, typeOptions, null, typeRight, typeLeft);
     if (typeRight && typeFilter < (int)(typeOptions.size() - 1))
         typeFilter++;
     if (typeLeft && typeFilter > 0)
@@ -1675,7 +1699,7 @@ void SpawnVehicleSearchMenu()
         dirty = false;
     }
 
-    AddBreak(Language::Format("vehicleSpawner.search.results", {{"count", results.size()}}));
+    AddBreak(Language::Format("menu.vehicle.spawner.search.section.results.label", {{"count", results.size()}}));
 
     for (auto& vehModel : results)
     {
@@ -1704,10 +1728,17 @@ void SpawnVehicleSearchMenu()
             DrawVehicleModelName(vehModel);
 
             bool bIsAFav = SpawnVehicleIsVehicleModelAFavourite(vehModel);
-            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("vehicleSpawner.favourites.remove").c_str(), Language::Translate("vehicleSpawner.favourites.add").c_str());
+            Keybinds::AddBindIB(
+                "menu_action",
+                bIsAFav,
+                Language::Translate("menu.vehicle.spawner.favourites.option.remove.label").c_str(),
+                Language::Translate("menu.vehicle.spawner.favourites.option.add.label").c_str()
+            );
             if (Keybinds::WasPressedThisFrame("menu_action"))
             {
-                !bIsAFav ? SpawnVehicleAddVehicleModelToFavourites(vehModel, Game::InputBox("", 28U, Language::Translate("vehicleSpawner.input.customName").c_str(), vehModel.VehicleDisplayName(true)))
+                !bIsAFav ? SpawnVehicleAddVehicleModelToFavourites(
+                               vehModel, Game::InputBox("", 28U, Language::Translate("menu.vehicle.spawner.input.option.custom_name.prompt").c_str(), vehModel.VehicleDisplayName(true))
+                           )
                          : SpawnVehicleRemoveVehicleModelFromFavourites(vehModel);
             }
         }
@@ -1731,43 +1762,43 @@ void SpawnVehicleOptions()
         "CMOD_PLA_0", "CMOD_PLA_4", "CMOD_PLA_3", "CMOD_PLA_1", "CMOD_PLA_2", "Yankton", "CMOD_PLA_6", "CMOD_PLA_7", "CMOD_PLA_8", "CMOD_PLA_9", "CMOD_PLA_10", "CMOD_PLA_11", "CMOD_PLA_12"
     }; // BOW1, YOBLA, YOBLU, BOW2, BOW3, YANKTON, ECOLA, LASVENTURAS, LIBERTYCITY, LSCARMEET, LSPOUNDERS, SPRUNK
 
-    AddTitle(Language::Translate("vehicleSpawner.settings.title"));
-    AddToggle(Language::Translate("vehicleSpawner.settings.deleteOld"), g_spawnVehicleDeleteOld);
-    AddOptionDescription(Language::Translate("vehicleSpawner.settings.deleteOld.description"));
-    AddToggle(Language::Translate("vehicleSpawner.settings.autoSit"), g_spawnVehicleAutoSit);
-    AddOptionDescription(Language::Translate("vehicleSpawner.settings.autoSit.description"));
-    AddToggle(Language::Translate("vehicleSpawner.settings.addBlip"), g_addBlip);
-    AddOptionDescription(Language::Translate("vehicleSpawner.settings.addBlip.description"));
-    AddToggle(Language::Translate("vehicleSpawner.settings.nearestNode"), g_warpNear);
-    AddOptionDescription(Language::Translate("vehicleSpawner.settings.nearestNode.description"));
-    AddToggle(Language::Translate("vehicleSpawner.settings.preUpgraded"), g_spawnVehicleAutoUpgrade);
-    AddOptionDescription(Language::Translate("vehicleSpawner.settings.preUpgraded.description"));
-    AddToggle(Language::Translate("vehicleSpawner.settings.invincible"), g_spawnVehicleInvincible);
-    AddToggle(Language::Translate("vehicleSpawner.settings.persistent"), g_spawnVehiclePersistent);
-    AddOptionDescription(Language::Translate("vehicleSpawner.settings.persistent.description"));
-    AddOption(Language::Translate("vehicleSpawner.settings.primaryPaint"), setMSPaintIndex10, nullFunc, SUB::MSPAINTS2);
-    AddOption(Language::Translate("vehicleSpawner.settings.secondaryPaint"), setMSPaintIndex11, nullFunc, SUB::MSPAINTS2);
-    AddBreak(Language::Translate("vehicleSpawner.settings.neonsBreak"));
-    AddToggle(Language::Translate("vehicleSpawner.settings.toggle"), g_spawnVehicleNeonToggle);
-    AddOptionDescription(Language::Translate("vehicleSpawner.settings.neons.description"));
-    AddOption(Language::Translate("vehicleSpawner.settings.rgbColour"), setRGBCarcolIndex9, nullFunc, SUB::MSPAINTS_RGB);
+    AddTitle(Language::Translate("menu.vehicle.spawner.settings.title"));
+    AddToggle(Language::Translate("menu.vehicle.spawner.settings.option.delete_old.label"), g_spawnVehicleDeleteOld);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.settings.option.delete_old.description"));
+    AddToggle(Language::Translate("menu.vehicle.spawner.settings.option.auto_sit.label"), g_spawnVehicleAutoSit);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.settings.option.auto_sit.description"));
+    AddToggle(Language::Translate("menu.vehicle.spawner.settings.option.add_blip.label"), g_addBlip);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.settings.option.add_blip.description"));
+    AddToggle(Language::Translate("menu.vehicle.spawner.settings.option.nearest_node.label"), g_warpNear);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.settings.option.nearest_node.description"));
+    AddToggle(Language::Translate("menu.vehicle.spawner.settings.option.pre_upgraded.label"), g_spawnVehicleAutoUpgrade);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.settings.option.pre_upgraded.description"));
+    AddToggle(Language::Translate("menu.vehicle.spawner.settings.option.invincible.label"), g_spawnVehicleInvincible);
+    AddToggle(Language::Translate("menu.vehicle.spawner.settings.option.persistent.label"), g_spawnVehiclePersistent);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.settings.option.persistent.description"));
+    AddOption(Language::Translate("menu.vehicle.spawner.settings.option.primary_paint.label"), setMSPaintIndex10, nullFunc, SUB::MSPAINTS2);
+    AddOption(Language::Translate("menu.vehicle.spawner.settings.option.secondary_paint.label"), setMSPaintIndex11, nullFunc, SUB::MSPAINTS2);
+    AddBreak(Language::Translate("menu.vehicle.spawner.settings.section.neons.label"));
+    AddToggle(Language::Translate("menu.vehicle.spawner.settings.option.toggle.label"), g_spawnVehicleNeonToggle);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.settings.option.neons.description"));
+    AddOption(Language::Translate("menu.vehicle.spawner.settings.option.rgb_colour.label"), setRGBCarcolIndex9, nullFunc, SUB::MSPAINTS_RGB);
     if (Menu::IsLastDrawnOptionSelected())
     {
         AddPresetColourOptionsPreview(g_spawnVehicleNeonColor);
     }
 
-    AddBreak(Language::Translate("vehicleSpawner.settings.plateBreak"));
-    AddTexter(Language::Translate("vehicleSpawner.settings.plateType"), g_spawnVehiclePlateType, plateTypeNames, null, vehPlatePlus, vehPlateMinus);
-    AddTexter(Language::Translate("vehicleSpawner.settings.plateText"), plateTexter_value, plateTexter, vehPlateTextSet, vehPlateTextPlus, vehPlateTextMinus);
+    AddBreak(Language::Translate("menu.vehicle.spawner.settings.section.plate.label"));
+    AddTexter(Language::Translate("menu.vehicle.spawner.settings.option.plate_type.label"), g_spawnVehiclePlateType, plateTypeNames, null, vehPlatePlus, vehPlateMinus);
+    AddTexter(Language::Translate("menu.vehicle.spawner.settings.option.plate_text.label"), plateTexter_value, plateTexter, vehPlateTextSet, vehPlateTextPlus, vehPlateTextMinus);
 
-    AddBreak(Language::Translate("vehicleSpawner.settings.previewsBreak"));
-    AddToggle(Language::Translate("vehicleSpawner.settings.enablePreviews"), g_spawnVehicleDrawBMPs);
-    AddOptionDescription(Language::Translate("vehicleSpawner.settings.enablePreviews.description"));
+    AddBreak(Language::Translate("menu.vehicle.spawner.settings.section.previews.label"));
+    AddToggle(Language::Translate("menu.vehicle.spawner.settings.option.enable_previews.label"), g_spawnVehicleDrawBMPs);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.settings.option.enable_previews.description"));
     AddToggle("Enable 3D Model Previews", Previews::g_enabled);
-    AddOptionDescription("Show a live vehicle model while browsing vehicle lists.");
+    AddOptionDescription(Language::Translate("menu.vehicle_spawner.settings.option.previews.description"));
     bool reloadPreviewsPressed = false;
-    AddOption(Language::Translate("vehicleSpawner.settings.reloadPreviews"), reloadPreviewsPressed);
-    AddOptionDescription(Language::Translate("vehicleSpawner.settings.reloadPreviews.description"));
+    AddOption(Language::Translate("menu.vehicle.spawner.settings.option.reload_previews.label"), reloadPreviewsPressed);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.settings.option.reload_previews.description"));
 
     if (reloadPreviewsPressed)
     {
@@ -2185,11 +2216,13 @@ void SpawnVehicleAllCategoriesMenu()
             DrawVehicleModelName(vehModel);
 
             bool bIsAFav = SpawnVehicleIsVehicleModelAFavourite(vehModel);
-            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("menu.removeFromFavourites"), Language::Translate("menu.addToFavourites"));
+            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("common.remove_from_favourites"), Language::Translate("common.add_to_favourites"));
 
             if (Keybinds::WasPressedThisFrame("menu_action"))
             {
-                !bIsAFav ? SpawnVehicleAddVehicleModelToFavourites(vehModel, Game::InputBox("", 28U, Language::Translate("vehicleSpawner.input.customName").c_str(), vehModel.VehicleDisplayName(true)))
+                !bIsAFav ? SpawnVehicleAddVehicleModelToFavourites(
+                               vehModel, Game::InputBox("", 28U, Language::Translate("menu.vehicle.spawner.input.option.custom_name.prompt").c_str(), vehModel.VehicleDisplayName(true))
+                           )
                          : SpawnVehicleRemoveVehicleModelFromFavourites(vehModel);
             }
         }
@@ -2205,30 +2238,30 @@ void SpawnVehicleFavouritesMenu()
     GTAvehicle activeVehicle = activePed.CurrentVehicle();
     bool isInVehicle = activeVehicle.Exists();
 
-    AddTitle(Language::Translate("vehicleSpawner.favourites.title"));
+    AddTitle(Language::Translate("menu.vehicle.spawner.favourites.title"));
 
     const auto document = favouriteVehiclesCache.Load(GetPathffA(Pathff::Main, true) + favouriteVehiclesFileName);
     const pugi::xml_node root = document->child("AddedVehicleModels");
 
     bool addModelPressed = false;
-    AddOption(Language::Translate("vehicleSpawner.favourites.addModel"), addModelPressed);
+    AddOption(Language::Translate("menu.vehicle.spawner.favourites.option.add_model.label"), addModelPressed);
     if (addModelPressed)
     {
-        std::string modelNameInput = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.favourites.modelPrompt").c_str());
+        std::string modelNameInput = Game::InputBox("", 28U, Language::Translate("menu.vehicle.spawner.favourites.option.model_prompt.prompt").c_str());
         if (modelNameInput.length() > 0)
         {
             WAIT(500);
             Model inputModel = GET_HASH_KEY(modelNameInput);
             if (inputModel.IsInCdImage())
             {
-                std::string customNameInput = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.input.customName").c_str(), inputModel.VehicleDisplayName(true));
+                std::string customNameInput = Game::InputBox("", 28U, Language::Translate("menu.vehicle.spawner.input.option.custom_name.prompt").c_str(), inputModel.VehicleDisplayName(true));
                 if (SpawnVehicleAddVehicleModelToFavourites(inputModel, customNameInput))
                 {
-                    Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.modelAdded"));
+                    Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.model_added.message"));
                 }
                 else
                 {
-                    Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.modelAddFailed"));
+                    Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.model_add_failed.message"));
                 }
             }
         }
@@ -2243,19 +2276,26 @@ void SpawnVehicleFavouritesMenu()
         const Model& currentVehicleModel = activeVehicle.Model();
         bool isCurrentModelAFavourite = SpawnVehicleIsVehicleModelAFavourite(currentVehicleModel);
         bool addCurrentModelPressed = false, removeCurrentModelPressed = false;
-        AddTickol(Language::Translate("vehicleSpawner.favourites.currentModel"), isCurrentModelAFavourite, addCurrentModelPressed, removeCurrentModelPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        AddTickol(
+            Language::Translate("menu.vehicle.spawner.favourites.option.current_model.label"),
+            isCurrentModelAFavourite,
+            addCurrentModelPressed,
+            removeCurrentModelPressed,
+            TICKOL::BOXTICK,
+            TICKOL::BOXBLANK
+        );
         if (addCurrentModelPressed)
         {
-            std::string customNameInput = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.input.customName").c_str(), currentVehicleModel.VehicleDisplayName(true));
+            std::string customNameInput = Game::InputBox("", 28U, Language::Translate("menu.vehicle.spawner.input.option.custom_name.prompt").c_str(), currentVehicleModel.VehicleDisplayName(true));
             if (customNameInput.length() > 0)
             {
                 if (SpawnVehicleAddVehicleModelToFavourites(currentVehicleModel, customNameInput))
                 {
-                    Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.modelAdded"));
+                    Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.model_added.message"));
                 }
                 else
                 {
-                    Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.modelAddFailed"));
+                    Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.model_add_failed.message"));
                 }
             }
             else
@@ -2267,24 +2307,24 @@ void SpawnVehicleFavouritesMenu()
         {
             if (SpawnVehicleRemoveVehicleModelFromFavourites(currentVehicleModel))
             {
-                Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.modelRemoved"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.model_removed.message"));
             }
             else
             {
-                Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.modelRemoveFailed"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.model_remove_failed.message"));
             }
         }
     }
 
     if (root.first_child())
     {
-        AddBreak(Language::Translate("vehicleSpawner.favourites.addedModels"));
+        AddBreak(Language::Translate("menu.vehicle.spawner.favourites.section.added_models.label"));
 
         bool searchPressed = false;
-        AddOption(searchText.empty() ? Language::Translate("vehicleSpawner.search.button") : searchText, searchPressed, nullFunc, -1, true);
+        AddOption(searchText.empty() ? Language::Translate("menu.vehicle.spawner.search.option.button.label") : searchText, searchPressed, nullFunc, -1, true);
         if (searchPressed)
         {
-            searchText = Game::InputBox(searchText, 126U, Language::Translate("menu.search").c_str(), boost::to_lower_copy(searchText));
+            searchText = Game::InputBox(searchText, 126U, Language::Translate("common.search").c_str(), boost::to_lower_copy(searchText));
             boost::to_upper(searchText);
         }
 
@@ -2379,7 +2419,7 @@ void SpawnVehicleFavouritesMenu()
 
                 DrawVehicleModelName(vehicleModel);
 
-                Keybinds::AddBindIB("menu_action", Language::Translate("menu.remove"));
+                Keybinds::AddBindIB("menu_action", Language::Translate("common.remove"));
 
                 if (Keybinds::WasPressedThisFrame("menu_action"))
                 {
@@ -3191,7 +3231,7 @@ void SpawnVehicleDLC()
 
     if (vehDLCCategoryID < 0 || vehDLCCategoryID >= VehicleDlcCategories.size())
     {
-        Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.invalidCategory"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.invalid_category.message"));
         return;
     }
 
@@ -3218,7 +3258,7 @@ void SpawnVehicleDLC()
 
             const bool bIsAFav = SpawnVehicleIsVehicleModelAFavourite(selectedCategory.values[vehDlcIdToSpawn]);
 
-            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("menu.removeFromFavourites"), Language::Translate("menu.addToFavourites"));
+            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("common.remove_from_favourites"), Language::Translate("common.add_to_favourites"));
 
             if (Keybinds::WasPressedThisFrame("menu_action"))
             {
@@ -3226,7 +3266,12 @@ void SpawnVehicleDLC()
                 {
                     SpawnVehicleAddVehicleModelToFavourites(
                         selectedCategory.values[vehDlcIdToSpawn],
-                        Game::InputBox("", 28U, Language::Translate("vehicleSpawner.input.customName").c_str(), GTAmodel::Model(selectedCategory.values[vehDlcIdToSpawn]).VehicleDisplayName(true))
+                        Game::InputBox(
+                            "",
+                            28U,
+                            Language::Translate("menu.vehicle.spawner.input.option.custom_name.prompt").c_str(),
+                            GTAmodel::Model(selectedCategory.values[vehDlcIdToSpawn]).VehicleDisplayName(true)
+                        )
                     );
                 }
                 else
@@ -3245,7 +3290,7 @@ void SpawnVehicleDLC()
 
 void SpawnVehicleDLCSelection()
 {
-    AddTitle(Language::Translate("vehicleSpawner.dlcVehicles"));
+    AddTitle(Language::Translate("menu.vehicle.spawner.dlc_vehicles.title"));
     for (size_t i = 0; i < VehicleDlcCategories.size(); ++i)
     {
         AddOption(VehicleDlcCategories[i].name, null, nullFunc, SUB::SPAWNVEHICLEDLC);
@@ -3338,7 +3383,7 @@ void VehicleSaveToFile(std::string filePath, GTAvehicle ev)
 {
     if (!ev.IsVehicle())
     {
-        Game::Print::ShowNotification(Language::Translate("vehicleSpawner.notifications.error"), Language::Translate("vehicleSpawner.notifications.invalidVehicle"));
+        Game::Print::ShowNotification(Language::Translate("message.vehicle.spawner.error.title"), Language::Translate("message.vehicle.spawner.invalid_vehicle.message"));
         return;
     }
 
@@ -3539,11 +3584,11 @@ void VehicleSaveToFile(std::string filePath, GTAvehicle ev)
 
     if (doc.save_file((const char*)filePath.c_str()))
     {
-        Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.fileSaved"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.file_saved.message"));
     }
     else
     {
-        Game::Print::ShowNotification(Language::Translate("vehicleSpawner.notifications.error"), Language::Translate("vehicleSpawner.notifications.saveFailed"));
+        Game::Print::ShowNotification(Language::Translate("message.vehicle.spawner.error.title"), Language::Translate("message.vehicle.spawner.save_failed.message"));
     }
 }
 
@@ -3552,7 +3597,7 @@ void VehicleReadFromFile(std::string filePath, GTAentity ped)
     pugi::xml_document doc;
     if (doc.load_file((const char*)filePath.c_str()).status != pugi::status_ok)
     {
-        Game::Print::ShowNotification(Language::Translate("vehicleSpawner.notifications.error"), Language::Translate("vehicleSpawner.notifications.loadFailed"));
+        Game::Print::ShowNotification(Language::Translate("message.vehicle.spawner.error.title"), Language::Translate("message.vehicle.spawner.load_failed.message"));
     }
 
     GTAentity myPed = PLAYER_PED_ID();
@@ -3907,12 +3952,11 @@ void VehicleReadFromFile(std::string filePath, GTAentity ped)
     eModel.Unload();
 
     const auto attachmentCount = vSpawnedAttachments.size() - 1;
-    std::string notification = Language::Format("vehicleSpawner.saved.spawnedFromFile", {{"count", attachmentCount}});
+    Game::Print::PrintBottomLeft(Language::Format("message.vehicle.spawner.saved.spawned_from_file", {{"count", attachmentCount}}));
     if (bAddAttachmentsToSpoonerDb)
     {
-        notification += " " + Language::Translate("vehicleSpawner.saved.attachmentsAdded");
+        Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.saved.attachments_added"));
     }
-    Game::Print::PrintBottomLeft(notification);
 }
 
 void saveColourVals()
@@ -3991,7 +4035,7 @@ void saveColourVals()
         break;
     }
 
-    std::string customname = Game::InputBox("noname", 64, Language::Translate("vehicleSpawner.colours.namePrompt").c_str());
+    std::string customname = Game::InputBox("noname", 64, Language::Translate("menu.vehicle.spawner.colours.option.name_prompt.prompt").c_str());
 
     outfile.open(dict3 + "\\Custom colours.txt", std::ios_base::app); // append instead of overwrite
     outfile << "Check https://gtamods.com/wiki/Carcols.ymt for all colour names, audio hashes and IDs.\n";
@@ -4006,7 +4050,9 @@ void saveColourVals()
     outfile << "</Item>\n";
     outfile << "\n";
     outfile.close();
-    Game::Print::PrintBottomLeft(Language::Format("vehicleSpawner.colours.saved", {{"name", customname}, {"h", std::to_string(hsv[0])}, {"s", std::to_string(hsv[1])}, {"v", std::to_string(hsv[2])}}));
+    Game::Print::PrintBottomLeft(
+        Language::Format("message.vehicle.spawner.colours.saved.message", {{"name", customname}, {"h", std::to_string(hsv[0])}, {"s", std::to_string(hsv[1])}, {"v", std::to_string(hsv[2])}})
+    );
 }
 
 int saveCarVars(GTAvehicle vehicle)
@@ -4028,7 +4074,7 @@ int saveCarVars(GTAvehicle vehicle)
     outfile << std::to_string(color6) << "\n";
     outfile << "\n";
     outfile.close();
-    Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.colours.carvariationsSaved"));
+    Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.colours.carvariations_saved.message"));
     return 0;
 }
 
@@ -4045,19 +4091,23 @@ void VehicleSaverMenu()
     bool save2 = false, bCreateFolderPressed = false, savecarvar = false, ms_paints_savergb = false;
     std::vector<std::string> vfilnames;
 
-    AddTitle(Language::Translate("vehicleSpawner.saved.title"));
+    AddTitle(Language::Translate("menu.vehicle.spawner.saved.title"));
     AddSaveFileSortOption();
 
     bool persistentAttachments_plus = 0, persistentAttachments_minus = 0;
     AddTexter(
-        Language::Translate("vehicleSpawner.saved.attachments"),
+        Language::Translate("menu.vehicle.spawner.saved.option.attachments.label"),
         _persistentAttachmentsTexterIndex,
-        std::vector<std::string>{Language::Translate("vehicleSpawner.saved.fileDecides"), Language::Translate("vehicleSpawner.saved.forceOff"), Language::Translate("vehicleSpawner.saved.forceOn")},
+        std::vector<std::string>{
+            Language::Translate("menu.vehicle.spawner.option.saved.value.file_decides"),
+            Language::Translate("menu.vehicle.spawner.option.saved.value.force_off"),
+            Language::Translate("menu.vehicle.spawner.option.saved.value.force_on")
+        },
         null,
         persistentAttachments_plus,
         persistentAttachments_minus
     );
-    AddOptionDescription(Language::Translate("vehicleSpawner.saved.attachments.description"));
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.saved.option.attachments.description"));
     if (persistentAttachments_plus)
     {
         if (_persistentAttachmentsTexterIndex < 2)
@@ -4076,19 +4126,19 @@ void VehicleSaverMenu()
 
     bool driverVisi_plus = 0, driverVisi_minus = 0;
     AddTexter(
-        Language::Translate("vehicleSpawner.saved.driverVisibility"),
+        Language::Translate("menu.vehicle.spawner.saved.option.driver_visibility.label"),
         _driverVisibilityTexterIndex,
         std::vector<std::string>{
-            Language::Translate("vehicleSpawner.saved.fileDecides"),
-            Language::Translate("vehicleSpawner.saved.retain"),
-            Language::Translate("vehicleSpawner.saved.forceOff"),
-            Language::Translate("vehicleSpawner.saved.forceOn")
+            Language::Translate("menu.vehicle.spawner.option.saved.value.file_decides"),
+            Language::Translate("menu.vehicle.spawner.option.saved.value.retain"),
+            Language::Translate("menu.vehicle.spawner.option.saved.value.force_off"),
+            Language::Translate("menu.vehicle.spawner.option.saved.value.force_on")
         },
         null,
         driverVisi_plus,
         driverVisi_minus
     );
-    AddOptionDescription(Language::Translate("vehicleSpawner.saved.driverVisibility.description"));
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.saved.option.driver_visibility.description"));
     if (driverVisi_plus)
     {
         if (_driverVisibilityTexterIndex < 3)
@@ -4105,14 +4155,14 @@ void VehicleSaverMenu()
     }
 
 
-    AddOption(Language::Translate("vehicleSpawner.saved.saveCurrent"), save2);
+    AddOption(Language::Translate("menu.vehicle.spawner.saved.option.save_current.label"), save2);
 
-    AddOption(Language::Translate("vehicleSpawner.saved.storeCarVariations"), savecarvar);
-    AddOptionDescription(Language::Translate("vehicleSpawner.saved.storeCarVariations.description"));
-    AddOption(Language::Translate("vehicleSpawner.saved.saveColourProfile"), ms_paints_savergb);
-    AddOptionDescription(Language::Translate("vehicleSpawner.saved.saveColourProfile.description"));
+    AddOption(Language::Translate("menu.vehicle.spawner.saved.option.store_car_variations.label"), savecarvar);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.saved.option.store_car_variations.description"));
+    AddOption(Language::Translate("menu.vehicle.spawner.saved.option.save_colour_profile.label"), ms_paints_savergb);
+    AddOptionDescription(Language::Translate("menu.vehicle.spawner.saved.option.save_colour_profile.description"));
 
-    AddOption(Language::Translate("vehicleSpawner.saved.createFolder"), bCreateFolderPressed);
+    AddOption(Language::Translate("menu.vehicle.spawner.saved.option.create_folder.label"), bCreateFolderPressed);
 
     if (_dir.empty())
     {
@@ -4128,7 +4178,7 @@ void VehicleSaverMenu()
     closedir(dir_point);
     SortSaveFileEntries(vfilnames, _dir);
 
-    AddBreak(Language::Translate("vehicleSpawner.saved.foundFiles"));
+    AddBreak(Language::Translate("menu.vehicle.spawner.saved.section.found_files.label"));
 
     bool bFolderBackPressed = false;
     AddOption("..", bFolderBackPressed);
@@ -4141,10 +4191,10 @@ void VehicleSaverMenu()
     if (!vfilnames.empty())
     {
         bool bSearchPressed = false;
-        AddOption(_searchStr.empty() ? Language::Translate("vehicleSpawner.search.button") : _searchStr, bSearchPressed, nullFunc, -1, true);
+        AddOption(_searchStr.empty() ? Language::Translate("menu.vehicle.spawner.search.option.button.label") : _searchStr, bSearchPressed, nullFunc, -1, true);
         if (bSearchPressed)
         {
-            _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("vehicleSpawner.search.prompt").c_str(), boost::to_lower_copy(_searchStr));
+            _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("menu.vehicle.spawner.option.search.prompt").c_str(), boost::to_lower_copy(_searchStr));
             boost::to_upper(_searchStr);
         }
 
@@ -4210,12 +4260,12 @@ void VehicleSaverMenu()
     {
         if (isPedInVeh)
         {
-            std::string inputStr = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.saved.fileNamePrompt").c_str());
+            std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.vehicle.spawner.saved.option.file_name_prompt.prompt").c_str());
             if (inputStr.length() > 0)
             {
                 if (!IsSafePath(inputStr))
                 {
-                    Game::Print::ShowNotification(Language::Translate("vehicleSpawner.notifications.error"), Language::Translate("vehicleSpawner.notifications.invalidName"));
+                    Game::Print::ShowNotification(Language::Translate("message.vehicle.spawner.error.title"), Language::Translate("message.vehicle.spawner.invalid_name.message"));
                 }
                 else
                 {
@@ -4244,22 +4294,22 @@ void VehicleSaverMenu()
 
     if (bCreateFolderPressed)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.saved.folderNamePrompt").c_str());
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.vehicle.spawner.saved.option.folder_name_prompt.prompt").c_str());
         if (inputStr.length() > 0)
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification(Language::Translate("vehicleSpawner.notifications.error"), Language::Translate("vehicleSpawner.notifications.invalidName"));
+                Game::Print::ShowNotification(Language::Translate("message.vehicle.spawner.error.title"), Language::Translate("message.vehicle.spawner.invalid_name.message"));
             }
             else if (CreateDirectoryA((_dir + "\\" + inputStr).c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
             {
                 _dir = _dir + "\\" + inputStr;
                 Menu::selectedOptionIndex = 7;
-                Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.folderCreated"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.folder_created.message"));
             }
             else
             {
-                Game::Print::ShowNotification(Language::Translate("vehicleSpawner.notifications.failed"), Language::Translate("vehicleSpawner.notifications.createFolderFailed"));
+                Game::Print::ShowNotification(Language::Translate("message.vehicle.spawner.failed.title"), Language::Translate("message.vehicle.spawner.create_folder_failed.message"));
             }
         }
         else
@@ -4283,13 +4333,13 @@ void VehSaverInItemMenu()
     bool bLoad = 0, bRename = 0, bOverwrite = 0, bDelete = 0;
 
     AddTitle(dict);
-    AddOption(Language::Translate("vehicleSpawner.saved.spawn"), bLoad);
-    AddOption(Language::Translate("vehicleSpawner.saved.rename"), bRename);
+    AddOption(Language::Translate("menu.vehicle.spawner.saved.option.spawn.label"), bLoad);
+    AddOption(Language::Translate("menu.vehicle.spawner.saved.option.rename.label"), bRename);
     if (isPedInVeh)
     {
-        AddOption(Language::Translate("vehicleSpawner.saved.overwrite"), bOverwrite);
+        AddOption(Language::Translate("menu.vehicle.spawner.saved.option.overwrite.label"), bOverwrite);
     }
-    AddOption(Language::Translate("vehicleSpawner.saved.delete"), bDelete);
+    AddOption(Language::Translate("menu.vehicle.spawner.saved.option.delete.label"), bDelete);
 
     if (bLoad)
     {
@@ -4298,12 +4348,12 @@ void VehSaverInItemMenu()
 
     if (bRename)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("vehicleSpawner.saved.newNamePrompt").c_str(), _name);
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.vehicle.spawner.saved.option.new_name_prompt.prompt").c_str(), _name);
         if (inputStr.length() > 0)
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification(Language::Translate("vehicleSpawner.notifications.error"), Language::Translate("vehicleSpawner.notifications.invalidName"));
+                Game::Print::ShowNotification(Language::Translate("message.vehicle.spawner.error.title"), Language::Translate("message.vehicle.spawner.invalid_name.message"));
             }
             else
             {
@@ -4311,12 +4361,12 @@ void VehSaverInItemMenu()
                 std::string newPath = _dir + "\\" + inputStr + ".xml";
                 if (rename(oldPath.c_str(), (newPath).c_str()) == 0)
                 {
-                    Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.fileRenamed"));
+                    Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.file_renamed.message"));
                     _name = inputStr;
                 }
                 else
                 {
-                    Game::Print::ShowNotification(Language::Translate("vehicleSpawner.notifications.error"), Language::Translate("vehicleSpawner.notifications.renameFailed"));
+                    Game::Print::ShowNotification(Language::Translate("message.vehicle.spawner.error.title"), Language::Translate("message.vehicle.spawner.rename_failed.message"));
                 }
             }
         }
@@ -4338,11 +4388,11 @@ void VehSaverInItemMenu()
     {
         if (remove(filePath.c_str()) == 0)
         {
-            Game::Print::PrintBottomLeft(Language::Translate("vehicleSpawner.notifications.fileDeleted"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.vehicle.spawner.file_deleted.message"));
         }
         else
         {
-            Game::Print::ShowNotification(Language::Translate("vehicleSpawner.notifications.error"), Language::Translate("vehicleSpawner.notifications.deleteFailed"));
+            Game::Print::ShowNotification(Language::Translate("message.vehicle.spawner.error.title"), Language::Translate("message.vehicle.spawner.delete_failed.message"));
         }
         Menu::SetPreviousMenu();
         Menu::Up();
@@ -4353,7 +4403,7 @@ void VehSaverInItemMenu()
     pugi::xml_document doc;
     if (doc.load_file((const char*)filePath.c_str()).status == pugi::status_ok)
     {
-        AddBreak(Language::Translate("vehicleSpawner.saved.attributes"));
+        AddBreak(Language::Translate("menu.vehicle.spawner.saved.section.attributes.label"));
         auto nodeVehicle = doc.child("Vehicle"); // Root
 
         auto nodeDriverVisible = nodeVehicle.child("IsDriverVisible");
@@ -4361,14 +4411,14 @@ void VehSaverInItemMenu()
         {
             bool bToggleDriverVisiblePressed = false;
             AddTickol(
-                Language::Translate("vehicleSpawner.saved.driverVisibility"),
+                Language::Translate("menu.vehicle.spawner.saved.option.driver_visibility.label"),
                 nodeDriverVisible.text().as_bool(),
                 bToggleDriverVisiblePressed,
                 bToggleDriverVisiblePressed,
                 TICKOL::BOXTICK,
                 TICKOL::BOXBLANK
             );
-            AddOptionDescription(Language::Translate("vehicleSpawner.saved.driverVisibility.description"));
+            AddOptionDescription(Language::Translate("menu.vehicle.spawner.saved.option.driver_visibility.description"));
             if (bToggleDriverVisiblePressed)
             {
                 nodeDriverVisible.text() = !nodeDriverVisible.text().as_bool();
@@ -4382,7 +4432,7 @@ void VehSaverInItemMenu()
         AddTickol(
             "Persistent Attachments (AddToSpoonerDb)", bAddAttachemntsToSpoonerDb, bToggleAddAttachmentsToSpoonerDbPressed, bToggleAddAttachmentsToSpoonerDbPressed, TICKOL::BOXTICK, TICKOL::BOXBLANK
         );
-        AddOptionDescription(Language::Translate("vehicleSpawner.saved.persistentAttachments.description"));
+        AddOptionDescription(Language::Translate("menu.vehicle.spawner.saved.option.persistent_attachments.description"));
         if (bToggleAddAttachmentsToSpoonerDbPressed)
         {
             nodeAddAttachmentsToSpoonerDb = !nodeAddAttachmentsToSpoonerDb.as_bool();
@@ -4397,14 +4447,14 @@ void VehSaverInItemMenu()
             {
                 bool bToggleStartTaskSeqOnLoadPressed = false;
                 AddTickol(
-                    Language::Translate("vehicleSpawner.saved.startTaskSequences"),
+                    Language::Translate("menu.vehicle.spawner.saved.option.start_task_sequences.label"),
                     nodeStartTaskSeqOnLoad.as_bool(),
                     bToggleStartTaskSeqOnLoadPressed,
                     bToggleStartTaskSeqOnLoadPressed,
                     TICKOL::BOXTICK,
                     TICKOL::BOXBLANK
                 );
-                AddOptionDescription(Language::Translate("vehicleSpawner.saved.startTaskSequences.description"));
+                AddOptionDescription(Language::Translate("menu.vehicle.spawner.saved.option.start_task_sequences.description"));
                 if (bToggleStartTaskSeqOnLoadPressed)
                 {
                     nodeStartTaskSeqOnLoad = !nodeStartTaskSeqOnLoad.as_bool();

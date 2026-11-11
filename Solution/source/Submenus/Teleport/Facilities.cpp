@@ -290,7 +290,7 @@ void TeleportPedToFacility(GTAentity ped, FacilityInfoStructure& info)
 
 void Sub_Facilities()
 {
-    AddTitle(Language::Translate("teleport.facilities.title"));
+    AddTitle(Language::Translate("menu.teleport.facilities.title"));
 
     for (auto& otherTele : vOtherFacilityRelatedTeleports)
     {
@@ -302,7 +302,7 @@ void Sub_Facilities()
         }
     }
 
-    AddBreak(Language::Translate("teleport.facilities.buildSection"));
+    AddBreak(Language::Translate("menu.teleport.facilities.section.build_section.label"));
 
     for (auto& loc : vLocations)
     {
@@ -356,8 +356,8 @@ void Sub_Facilities_InLoc()
     }
 
     bool bCreateFacilityPressed = false;
-    AddOption(Language::Translate("teleport.facilities.build"), bCreateFacilityPressed);
-    AddOptionDescription(Language::Translate("teleport.facilities.build.description"));
+    AddOption(Language::Translate("menu.teleport.facilities.option.build.label"), bCreateFacilityPressed);
+    AddOptionDescription(Language::Translate("menu.teleport.facilities.option.build.description"));
     if (bCreateFacilityPressed)
     {
         DO_SCREEN_FADE_OUT(50);
@@ -376,7 +376,7 @@ void Sub_Facilities_InOption()
         Menu::SetPreviousMenu();
         return;
     }
-    AddTitle(selectedOptionArray->name.empty() ? Language::Translate("teleport.option.title") : selectedOptionArray->name);
+    AddTitle(selectedOptionArray->name.empty() ? Language::Translate("menu.teleport.option.title") : selectedOptionArray->name);
 
     for (UINT i = 0; i < selectedOptionArray->arr->size(); i++)
     {

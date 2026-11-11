@@ -112,7 +112,7 @@ void RemoveOrphanedLightTasks(UINT lightId, const std::string& lightName)
 
             if (taskLightId == lightId)
             {
-                Game::Print::PrintBottomLeft(Language::Format("spooner.light.deletedTask", {{"light", lightName}, {"task", taskName}}));
+                Game::Print::PrintBottomLeft(Language::Format("message.spooner.light.deleted_task.message", {{"light", lightName}, {"task", taskName}}));
                 entity.taskSequence.RemoveTask(static_cast<UINT16>(i));
             }
         }

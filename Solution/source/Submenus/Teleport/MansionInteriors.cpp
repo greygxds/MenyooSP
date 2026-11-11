@@ -509,7 +509,7 @@ void UpdateMansionProp(MansionInfoStructure &info, const MansionInteriorOptionAr
 
 void Sub_MansionInteriors()
 {
-    AddTitle(Language::Translate("teleport.mansion.title"));
+    AddTitle(Language::Translate("menu.teleport.mansion.title"));
 
     for (auto &loc : vLocations)
     {
@@ -525,7 +525,7 @@ void Sub_MansionInteriors()
         }
     }
 
-    AddBreak(Language::Translate("teleport.mansion.quickTeleport"));
+    AddBreak(Language::Translate("menu.teleport.mansion.section.quick_teleport.label"));
     for (auto &loc : vLocations)
     {
         struct
@@ -582,14 +582,16 @@ void Sub_MansionInteriors_InLoc()
     {
         bool bPlus = false, bMinus = false;
         AddTexter(
-            Language::Translate("teleport.mansion.shell"),
+            Language::Translate("menu.teleport.mansion.option.shell.label"),
             0,
-            std::vector<std::string>{currentMansionInfo.shellType == 0 ? Language::Translate("teleport.mansion.generic") : Language::Translate("teleport.mansion.private")},
+            std::vector<std::string>{
+                currentMansionInfo.shellType == 0 ? Language::Translate("menu.teleport.option.mansion.value.generic") : Language::Translate("menu.teleport.option.mansion.value.private")
+            },
             null,
             bPlus,
             bMinus
         );
-        AddOptionDescription(Language::Translate("teleport.mansion.shell.description"));
+        AddOptionDescription(Language::Translate("menu.teleport.mansion.option.shell.description"));
         if (bPlus && currentMansionInfo.shellType < 1)
         {
             currentMansionInfo.shellType++;
@@ -608,8 +610,8 @@ void Sub_MansionInteriors_InLoc()
     if (currentMansionInfo.shellType == 1)
     {
         bool bPlus = false, bMinus = false;
-        AddTexter(Language::Translate("teleport.mansion.railings"), 0, std::vector<std::string>{currentMansionInfo.railingsType == 0 ? "M" : "P"}, null, bPlus, bMinus);
-        AddOptionDescription(Language::Translate("teleport.mansion.railings.description"));
+        AddTexter(Language::Translate("menu.teleport.mansion.option.railings.label"), 0, std::vector<std::string>{currentMansionInfo.railingsType == 0 ? "M" : "P"}, null, bPlus, bMinus);
+        AddOptionDescription(Language::Translate("menu.teleport.mansion.option.railings.description"));
         if (bPlus && currentMansionInfo.railingsType < 1)
         {
             currentMansionInfo.railingsType++;
@@ -626,7 +628,7 @@ void Sub_MansionInteriors_InLoc()
         }
         {
             bool bShutOn = false, bShutOff = false;
-            AddTickol(Language::Translate("teleport.mansion.shutters"), currentMansionInfo.shuttersLoaded, bShutOn, bShutOff, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+            AddTickol(Language::Translate("menu.teleport.mansion.option.shutters.label"), currentMansionInfo.shuttersLoaded, bShutOn, bShutOff, TICKOL::BOXTICK, TICKOL::BOXBLANK);
             if (bShutOn || bShutOff)
             {
                 currentMansionInfo.shuttersLoaded = bShutOn;
@@ -669,8 +671,8 @@ void Sub_MansionInteriors_InLoc()
     if (currentMansionInfo.styleOption.index > 0)
     {
         int oldTint = currentMansionInfo.mansionTint;
-        AddNumberStepper(Language::Translate("teleport.mansion.tint"), currentMansionInfo.mansionTint, 0, 1.0, 0, 3);
-        AddOptionDescription(Language::Translate("teleport.mansion.tint.description"));
+        AddNumberStepper(Language::Translate("menu.teleport.mansion.option.tint.label"), currentMansionInfo.mansionTint, 0, 1.0, 0, 3);
+        AddOptionDescription(Language::Translate("menu.teleport.mansion.option.tint.description"));
         if (currentMansionInfo.mansionTint != oldTint)
         {
             Vector3 pos = currentMansionInfo.location->posMain;
@@ -683,7 +685,7 @@ void Sub_MansionInteriors_InLoc()
         }
     }
 
-    AddBreak(Language::Translate("teleport.mansion.actions"));
+    AddBreak(Language::Translate("menu.teleport.mansion.section.actions.label"));
     auto &loc = *currentMansionInfo.location;
     const char *teleLabels[] = {"Main Interior", "Lower Level", "Garage"};
     Vector3 telePos[] = {loc.posMain, loc.posLower, loc.posGarage};
@@ -703,7 +705,7 @@ void Sub_MansionInteriors_InOption()
         Menu::SetPreviousMenu();
         return;
     }
-    AddTitle(selectedOptionArray->name.empty() ? Language::Translate("teleport.option.title") : selectedOptionArray->name);
+    AddTitle(selectedOptionArray->name.empty() ? Language::Translate("menu.teleport.option.title") : selectedOptionArray->name);
 
     for (UINT i = 0; i < selectedOptionArray->arr->size(); i++)
     {

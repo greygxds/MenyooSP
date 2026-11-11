@@ -221,7 +221,7 @@ void StartQuery()
 {
     results.clear();
     isSearching = true;
-    searchStatus = Language::Translate("spooner.jobs.status.cancelling");
+    searchStatus = Language::Translate("menu.spooner.jobs.status.option.cancelling.label");
 
     UGC_CANCEL_QUERY();
 
@@ -239,7 +239,7 @@ void ReadQueryResults()
 
     if (numResults <= 0)
     {
-        searchStatus = Language::Translate("spooner.jobs.status.noBookmarks");
+        searchStatus = Language::Translate("menu.spooner.jobs.status.option.no_bookmarks.label");
         isSearching = false;
         return;
     }
@@ -268,7 +268,7 @@ void ReadQueryResults()
         results.push_back(r);
     }
 
-    searchStatus = Language::Format("spooner.jobs.status.found", {{"count", results.size()}});
+    searchStatus = Language::Format("message.spooner.jobs.status.found", {{"count", results.size()}});
     isSearching = false;
 
     if (sub::Spooner::JobImporter::savePreviewImage)
@@ -334,7 +334,7 @@ static void DownloadJobThread(BrowserJobResult result, std::vector<std::string> 
                 break;
 
             std::string tryUrl = basePath + "/" + std::to_string(pattern.first) + "_" + std::to_string(pattern.second) + "_" + lang + ".json";
-            downloadStatus = Language::Translate("spooner.jobs.status.fetching");
+            downloadStatus = Language::Translate("menu.spooner.jobs.status.option.fetching.label");
 
             bool success = false;
             std::string body = HttpGet(tryUrl, success);
@@ -369,7 +369,7 @@ static void DownloadJobThread(BrowserJobResult result, std::vector<std::string> 
 
     if (!found)
     {
-        downloadStatus = Language::Translate("spooner.jobs.status.downloadFailed");
+        downloadStatus = Language::Translate("menu.spooner.jobs.status.option.download_failed.label");
     }
     isDownloading = false;
 }
@@ -412,7 +412,7 @@ static std::string GetLangString(int langId)
 void StartDownload(BrowserJobResult result)
 {
     isDownloading = true;
-    downloadStatus = Language::Translate("spooner.jobs.status.startingDownload");
+    downloadStatus = Language::Translate("menu.spooner.jobs.status.option.starting_download.label");
 
     std::string jobLang = GetLangString(result.langId);
     std::vector<std::string> langs = {jobLang.empty() ? "en" : jobLang};
@@ -441,7 +441,7 @@ void Sub_JobBrowser()
         if (GetTickCount() - queryTimer >= 200)
         {
             int qType = GetQueryType();
-            searchStatus = Language::Translate("spooner.jobs.status.queryingUgc");
+            searchStatus = Language::Translate("menu.spooner.jobs.status.option.querying_ugc.label");
 
             BOOL success = FALSE;
             if (qType == 0)
@@ -509,7 +509,7 @@ void Sub_JobBrowser()
     }
 
     bool bRefresh = false;
-    AddOption(Language::Translate("spooner.jobs.refresh"), bRefresh);
+    AddOption(Language::Translate("menu.spooner.jobs.option.refresh.label"), bRefresh);
     if (bRefresh)
     {
         StartQuery();
@@ -517,11 +517,11 @@ void Sub_JobBrowser()
 
     if (isSearching)
     {
-        AddBreak(Language::Translate("spooner.jobs.status.queryingUgc").c_str());
+        AddStatusBreak(Language::Translate("message.spooner.jobs.status.querying_ugc.message"));
     }
     else if (!searchStatus.empty())
     {
-        AddBreak(searchStatus);
+        AddStatusBreak(searchStatus);
     }
 
     if (queryState == QueryState::Success && !results.empty())
@@ -572,15 +572,15 @@ void Sub_JobBrowser_Info()
 {
     if (selectedResultIndex < 0 || selectedResultIndex >= (int)results.size())
     {
-        AddTitle(Language::Translate("spooner.jobs.error"));
-        AddBreak(Language::Translate("spooner.jobs.noSelection"));
+        AddTitle(Language::Translate("menu.spooner.jobs.error.title"));
+        AddStatusBreak(Language::Translate("message.spooner.jobs.no_selection.message"));
         return;
     }
 
     const auto& job = results[selectedResultIndex];
     AddTitle(job.name);
 
-    AddBreak(Language::Format("spooner.jobs.creator", {{"creator", job.creator}}));
+    AddStatusBreak(Language::Format("message.spooner.jobs.creator.message", {{"creator", job.creator}}));
 
     if (sub::Spooner::JobImporter::savePreviewImage && !job.cid.empty())
     {
@@ -604,11 +604,11 @@ void Sub_JobBrowser_Info()
         }
     }
 
-    AddBreak(Language::Format("spooner.jobs.rating", {{"rating", std::to_string(job.rating).substr(0, 4)}, {"count", job.ratingCount}}));
+    AddStatusBreak(Language::Format("message.spooner.jobs.rating.message", {{"rating", std::to_string(job.rating).substr(0, 4)}, {"count", job.ratingCount}}));
 
     bool bDownload = false;
-    AddOption(Language::Translate("spooner.jobs.download"), bDownload);
-    AddOptionDescription(Language::Translate("spooner.jobs.download.description"));
+    AddOption(Language::Translate("menu.spooner.jobs.option.download.label"), bDownload);
+    AddOptionDescription(Language::Translate("menu.spooner.jobs.option.download.description"));
     if (bDownload)
     {
         if (!isDownloading)
@@ -619,16 +619,16 @@ void Sub_JobBrowser_Info()
 
     if (pendingSavedNotification.exchange(false))
     {
-        Game::Print::PrintBottomLeft(Language::Translate("spooner.jobs.saved"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.spooner.jobs.saved.message"));
     }
 
     if (isDownloading)
     {
-        AddBreak(Language::Translate("spooner.jobs.status.downloading").c_str());
+        AddStatusBreak(Language::Translate("message.spooner.jobs.status.downloading.message"));
     }
     if (!downloadStatus.empty())
     {
-        AddBreak(downloadStatus);
+        AddStatusBreak(downloadStatus);
     }
 }
 } // namespace sub::Spooner::JobBrowser
@@ -891,7 +891,7 @@ static void ImportThreadProc(std::string url, bool saveImg, std::vector<std::str
 
     if (isDirectJson)
     {
-        status = Language::Translate("spooner.jobs.status.downloadingJson");
+        status = Language::Translate("menu.spooner.jobs.status.option.downloading_json.label");
         statusColorCode = "~b~";
 
         bool success = false;
@@ -930,7 +930,7 @@ static void ImportThreadProc(std::string url, bool saveImg, std::vector<std::str
 
                 if (saveImg && !cdnBase.empty())
                 {
-                    status = Language::Translate("spooner.jobs.status.downloadingPreview");
+                    status = Language::Translate("menu.spooner.jobs.status.option.downloading_preview.label");
                     std::string imgUrl = cdnBase + "/2_0.jpg";
                     bool imgSuccess = false;
                     std::string imgData = HttpGet(imgUrl, imgSuccess);
@@ -947,18 +947,18 @@ static void ImportThreadProc(std::string url, bool saveImg, std::vector<std::str
                     }
                 }
 
-                status = Language::Format("spooner.jobs.status.imported", {{"name", raceName}});
+                status = Language::Format("message.spooner.jobs.status.imported", {{"name", raceName}});
                 statusColorCode = "~g~";
             }
             catch (...)
             {
-                status = Language::Translate("spooner.jobs.status.parseFailed");
+                status = Language::Translate("menu.spooner.jobs.status.option.parse_failed.label");
                 statusColorCode = "~r~";
             }
         }
         else
         {
-            status = Language::Translate("spooner.jobs.status.downloadJsonFailed");
+            status = Language::Translate("menu.spooner.jobs.status.option.download_json_failed.label");
             statusColorCode = "~r~";
         }
 
@@ -1019,7 +1019,7 @@ static void ImportThreadProc(std::string url, bool saveImg, std::vector<std::str
 
     if (contentId.empty())
     {
-        status = Language::Translate("spooner.jobs.status.contentIdFailed");
+        status = Language::Translate("menu.spooner.jobs.status.option.content_id_failed.label");
         statusColorCode = "~r~";
         isBusy = false;
         return;
@@ -1027,7 +1027,7 @@ static void ImportThreadProc(std::string url, bool saveImg, std::vector<std::str
 
     std::string basePath = cdnBase.empty() ? ("https://prod.cloud.rockstargames.com/ugc/gta5mission/" + contentId) : cdnBase;
 
-    status = Language::Translate("spooner.jobs.status.searching");
+    status = Language::Translate("menu.spooner.jobs.status.option.searching.label");
     statusColorCode = "~b~";
 
     bool found = false;
@@ -1044,7 +1044,7 @@ static void ImportThreadProc(std::string url, bool saveImg, std::vector<std::str
                 break;
 
             std::string tryUrl = basePath + "/" + std::to_string(pattern.first) + "_" + std::to_string(pattern.second) + "_" + lang + ".json";
-            status = Language::Format("spooner.jobs.status.trying", {{"language", lang}, {"pattern", std::to_string(pattern.first) + "_" + std::to_string(pattern.second)}});
+            status = Language::Format("message.spooner.jobs.status.trying", {{"language", lang}, {"pattern", std::to_string(pattern.first) + "_" + std::to_string(pattern.second)}});
 
             bool success = false;
             std::string body = HttpGet(tryUrl, success);
@@ -1075,7 +1075,7 @@ static void ImportThreadProc(std::string url, bool saveImg, std::vector<std::str
 
                     if (saveImg)
                     {
-                        status = Language::Translate("spooner.jobs.status.downloadingPreview");
+                        status = Language::Translate("menu.spooner.jobs.status.option.downloading_preview.label");
                         std::string imgUrl = basePath + "/2_0.jpg";
                         bool imgSuccess = false;
                         std::string imgData = HttpGet(imgUrl, imgSuccess);
@@ -1088,7 +1088,7 @@ static void ImportThreadProc(std::string url, bool saveImg, std::vector<std::str
                         }
                     }
 
-                    status = Language::Format("spooner.jobs.status.imported", {{"name", raceName}});
+                    status = Language::Format("message.spooner.jobs.status.imported", {{"name", raceName}});
                     statusColorCode = "~g~";
                     found = true;
                 }
@@ -1102,7 +1102,7 @@ static void ImportThreadProc(std::string url, bool saveImg, std::vector<std::str
 
     if (!found)
     {
-        status = Language::Translate("spooner.jobs.status.noJson");
+        status = Language::Translate("menu.spooner.jobs.status.option.no_json.label");
         statusColorCode = "~r~";
     }
     isBusy = false;
@@ -1179,7 +1179,7 @@ void StartImport(const std::string& url)
     {
         targetContentId = contentId;
         isBusy = true;
-        status = Language::Translate("spooner.jobs.status.queryingServices");
+        status = Language::Translate("menu.spooner.jobs.status.option.querying_services.label");
         statusColorCode = "~b~";
 
         UGC_CANCEL_QUERY();
@@ -1193,30 +1193,30 @@ void StartImport(const std::string& url)
 
 void Sub_JobImporter()
 {
-    AddTitle(Language::Translate("spooner.jobs.title"));
+    AddTitle(Language::Translate("menu.spooner.jobs.title"));
 
-    AddToggle(Language::Translate("spooner.jobs.previewImages"), savePreviewImage);
-    AddOptionDescription(Language::Translate("spooner.jobs.previewImages.description"));
+    AddToggle(Language::Translate("menu.spooner.jobs.option.preview_images.label"), savePreviewImage);
+    AddOptionDescription(Language::Translate("menu.spooner.jobs.option.preview_images.description"));
 
-    AddOption(Language::Translate("spooner.jobs.bookmarked"), null, nullFunc, SUB::SPOONER_JOBBROWSER);
-    AddOption(Language::Translate("spooner.jobs.myContent"), null, nullFunc, SUB::SPOONER_JOBBROWSER_MYCONTENT);
-    AddOption(Language::Translate("spooner.jobs.friendContent"), null, nullFunc, SUB::SPOONER_JOBBROWSER_FRIENDCONTENT);
-    AddOption(Language::Translate("spooner.jobs.mostRecent"), null, nullFunc, SUB::SPOONER_JOBBROWSER_MOSTRECENT);
-    AddOption(Language::Translate("spooner.jobs.topRated"), null, nullFunc, SUB::SPOONER_JOBBROWSER_TOPRATED);
-    AddOption(Language::Translate("spooner.jobs.crewContent"), null, nullFunc, SUB::SPOONER_JOBBROWSER_CREWCONTENT);
+    AddOption(Language::Translate("menu.spooner.jobs.option.bookmarked.label"), null, nullFunc, SUB::SPOONER_JOBBROWSER);
+    AddOption(Language::Translate("menu.spooner.jobs.option.my_content.label"), null, nullFunc, SUB::SPOONER_JOBBROWSER_MYCONTENT);
+    AddOption(Language::Translate("menu.spooner.jobs.option.friend_content.label"), null, nullFunc, SUB::SPOONER_JOBBROWSER_FRIENDCONTENT);
+    AddOption(Language::Translate("menu.spooner.jobs.option.most_recent.label"), null, nullFunc, SUB::SPOONER_JOBBROWSER_MOSTRECENT);
+    AddOption(Language::Translate("menu.spooner.jobs.option.top_rated.label"), null, nullFunc, SUB::SPOONER_JOBBROWSER_TOPRATED);
+    AddOption(Language::Translate("menu.spooner.jobs.option.crew_content.label"), null, nullFunc, SUB::SPOONER_JOBBROWSER_CREWCONTENT);
 
     bool bLoadFromUrl = false;
-    AddOption(Language::Translate("spooner.jobs.loadUrl"), bLoadFromUrl);
-    AddOptionDescription(Language::Translate("spooner.jobs.loadUrl.description"));
+    AddOption(Language::Translate("menu.spooner.jobs.option.load_url.label"), bLoadFromUrl);
+    AddOptionDescription(Language::Translate("menu.spooner.jobs.option.load_url.description"));
     if (bLoadFromUrl)
     {
         std::string defaultUrl = jobImporterUrl.empty() ? GetClipboardText() : jobImporterUrl;
-        std::string inputStr = Game::InputBox("", 512U, Language::Translate("spooner.jobs.urlPrompt").c_str(), defaultUrl);
+        std::string inputStr = Game::InputBox("", 512U, Language::Translate("menu.spooner.jobs.option.url_prompt.prompt").c_str(), defaultUrl);
         if (inputStr.length() > 0)
         {
             jobImporterUrl = inputStr;
             isBusy = true;
-            status = Language::Translate("spooner.jobs.status.startingImport");
+            status = Language::Translate("menu.spooner.jobs.status.option.starting_import.label");
             statusColorCode = "~b~";
             StartImport(jobImporterUrl);
         }
@@ -1240,7 +1240,7 @@ void Sub_JobImporter()
             std::string jobLang = GetLangString(langId);
             std::vector<std::string> langs = {jobLang.empty() ? "en" : jobLang};
 
-            status = Language::Translate("spooner.jobs.status.startingDownload");
+            status = Language::Translate("menu.spooner.jobs.status.option.starting_download.label");
             std::thread t(ImportThreadProc, jobImporterUrl, savePreviewImage, langs, fileVer, -1);
             t.detach();
             importState = ImportState::Downloading;
@@ -1256,11 +1256,11 @@ void Sub_JobImporter()
 
     if (isBusy)
     {
-        AddBreak(Language::Translate("spooner.jobs.status.importing").c_str());
+        AddStatusBreak(Language::Translate("message.spooner.jobs.status.importing.message"));
     }
     if (!status.empty())
     {
-        AddBreak(statusColorCode + status);
+        AddStatusBreak(statusColorCode + status);
     }
 }
 } // namespace sub::Spooner::JobImporter

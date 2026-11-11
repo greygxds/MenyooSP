@@ -16,43 +16,43 @@ void Settings()
 {
     auto& bSyncWithConfig = MenuConfig::bSaveAtIntervals;
 
-    AddTitle(Language::Translate("settings.title"));
+    AddTitle(Language::Translate("menu.settings.title"));
 
-    AddOption(Language::Translate("settings.keybinds.label"), null, nullFunc, SUB::SETTINGS_KEYBINDS);
+    AddOption(Language::Translate("menu.settings.option.keybinds.label"), null, nullFunc, SUB::SETTINGS_KEYBINDS);
 
     bool bChangeLangPressed = false;
-    AddTexter(Language::Translate("settings.language.label"), 0, {Language::GetSelectedLangTitle()}, bChangeLangPressed);
+    AddTexter(Language::Translate("menu.settings.option.language.label"), 0, {Language::GetSelectedLangTitle()}, bChangeLangPressed);
     if (bChangeLangPressed)
     {
         Menu::pendingSubmenu = SUB::SETTINGS_LANGUAGE;
     }
 
-    AddOption(Language::Translate("settings.themes.label"), null, nullFunc, SUB::SETTINGS_THEMES);
-    AddOption(Language::Translate("settings.menuColours.label"), null, nullFunc, SUB::SETTINGS_COLOURS);
-    AddOption(Language::Translate("settings.menuFonts.label"), null, nullFunc, SUB::SETTINGS_FONTS);
-    AddOption(Language::Translate("settings.menuPosition.label"), null, nullFunc, SUB::SETTINGS_MENUPOS);
-    AddOptionDescription(Language::Translate("settings.keybinds.description"));
-    AddToggle(Language::Translate("settings.notificationBackground.label"), MenuConfig::bShowNotificationBackground, MenuConfig::SaveConfig, MenuConfig::SaveConfig);
-    AddToggle(Language::Translate("settings.mouseSupport.label"), Menu::usingMouseInput);
-    AddOptionDescription(Language::Translate("settings.mouseSupport.description"));
-    AddToggle(Language::Translate("settings.gradients.label"), Menu::useGradientBackgrounds);
-    AddOptionDescription(Language::Translate("settings.gradients.description"));
-    AddToggle(Language::Translate("settings.titleboxGlobe.label"), Menu::enableGlareEffect);
-    AddOptionDescription(Language::Translate("settings.titleboxGlobe.description"));
-    AddToggle(Language::Translate("settings.centreTitle.label"), Menu::centerTitleText);
-    AddToggle(Language::Translate("settings.centreOptions.label"), Menu::centerOptionText);
-    AddToggle(Language::Translate("settings.centreBreaks.label"), Menu::centerBreakText);
-    AddOptionDescription(Language::Translate("settings.centreBreaks.description"));
-    AddToggle(Language::Translate("settings.optionTextStroke.label"), Menu::optionTextStroke);
-    AddOptionDescription(Language::Translate("settings.optionTextStroke.description"));
-    AddToggle(Language::Translate("settings.resetPlayerModel.label"), checkSelfDeathModel);
-    AddOptionDescription(Language::Translate("settings.resetPlayerModel.description"));
-    AddToggle(Language::Translate("settings.syncConfig.label"), bSyncWithConfig, MenuConfig::SaveConfig, MenuConfig::SaveConfig);
-    AddOptionDescription(Language::Translate("settings.syncConfig.description"));
-    AddToggle(Language::Translate("settings.lscPartSelection.label"), g_LSCCustoms);
-    AddOptionDescription(Language::Translate("settings.lscPartSelection.description"));
-    AddOption(Language::Translate("settings.resetToggles.label"), null, MenuConfig::ConfigResetHaxValues);
-    AddOptionDescription(Language::Translate("settings.resetToggles.description"));
+    AddOption(Language::Translate("menu.settings.option.themes.label"), null, nullFunc, SUB::SETTINGS_THEMES);
+    AddOption(Language::Translate("menu.settings.option.menu_colours.label"), null, nullFunc, SUB::SETTINGS_COLOURS);
+    AddOption(Language::Translate("menu.settings.option.menu_fonts.label"), null, nullFunc, SUB::SETTINGS_FONTS);
+    AddOption(Language::Translate("menu.settings.option.menu_position.label"), null, nullFunc, SUB::SETTINGS_MENUPOS);
+    AddOptionDescription(Language::Translate("menu.settings.option.keybinds.description"));
+    AddToggle(Language::Translate("menu.settings.option.notification_background.label"), MenuConfig::bShowNotificationBackground, MenuConfig::SaveConfig, MenuConfig::SaveConfig);
+    AddToggle(Language::Translate("menu.settings.option.mouse_support.label"), Menu::usingMouseInput);
+    AddOptionDescription(Language::Translate("menu.settings.option.mouse_support.description"));
+    AddToggle(Language::Translate("menu.settings.option.gradients.label"), Menu::useGradientBackgrounds);
+    AddOptionDescription(Language::Translate("menu.settings.option.gradients.description"));
+    AddToggle(Language::Translate("menu.settings.option.titlebox_globe.label"), Menu::enableGlareEffect);
+    AddOptionDescription(Language::Translate("menu.settings.option.titlebox_globe.description"));
+    AddToggle(Language::Translate("menu.settings.option.centre_title.label"), Menu::centerTitleText);
+    AddToggle(Language::Translate("menu.settings.option.centre_options.label"), Menu::centerOptionText);
+    AddToggle(Language::Translate("menu.settings.option.centre_breaks.label"), Menu::centerBreakText);
+    AddOptionDescription(Language::Translate("menu.settings.option.centre_breaks.description"));
+    AddToggle(Language::Translate("menu.settings.option.option_text_stroke.label"), Menu::optionTextStroke);
+    AddOptionDescription(Language::Translate("menu.settings.option.option_text_stroke.description"));
+    AddToggle(Language::Translate("menu.settings.option.reset_player_model.label"), checkSelfDeathModel);
+    AddOptionDescription(Language::Translate("menu.settings.option.reset_player_model.description"));
+    AddToggle(Language::Translate("menu.settings.option.sync_config.label"), bSyncWithConfig, MenuConfig::SaveConfig, MenuConfig::SaveConfig);
+    AddOptionDescription(Language::Translate("menu.settings.option.sync_config.description"));
+    AddToggle(Language::Translate("menu.settings.option.lsc_part_selection.label"), g_LSCCustoms);
+    AddOptionDescription(Language::Translate("menu.settings.option.lsc_part_selection.description"));
+    AddOption(Language::Translate("menu.settings.option.reset_toggles.label"), null, MenuConfig::ConfigResetHaxValues);
+    AddOptionDescription(Language::Translate("menu.settings.option.reset_toggles.description"));
 }
 
 void SettingsMenuPos()
@@ -62,9 +62,9 @@ void SettingsMenuPos()
     bool settingsYPosPlus = false;
     bool settingsYPosMinus = false;
 
-    AddTitle(Language::Translate("settings.menuPosition.title"));
-    AddNumber(Language::Translate("settings.menuPosition.offsetX.label"), menuPos.x * 100 + 6.0, 2, null, settingsXPosPlus, settingsXPosMinus);
-    AddNumber(Language::Translate("settings.menuPosition.offsetY.label"), menuPos.y * 100 + 7.4, 2, null, settingsYPosPlus, settingsYPosMinus);
+    AddTitle(Language::Translate("menu.settings.menu_position.title"));
+    AddNumber(Language::Translate("menu.settings.menu_position.option.offset_x.label"), menuPos.x * 100 + 6.0, 2, null, settingsXPosPlus, settingsXPosMinus);
+    AddNumber(Language::Translate("menu.settings.menu_position.option.offset_y.label"), menuPos.y * 100 + 7.4, 2, null, settingsYPosPlus, settingsYPosMinus);
 
 
     if (settingsXPosPlus)
@@ -135,18 +135,18 @@ void AddsettingscolOption(const std::string& text, RGBA& feature)
 
 void SettingsColours()
 {
-    AddTitle(Language::Translate("settings.menuColours.title"));
-    AddsettingscolOption(Language::Translate("settings.menuColours.titleBox.label"), titlebox);
-    AddsettingscolOption(Language::Translate("settings.menuColours.background.label"), BG);
-    AddsettingscolOption(Language::Translate("settings.menuColours.titleText.label"), titletext);
-    AddsettingscolOption(Language::Translate("settings.menuColours.optionText.label"), optiontext);
-    AddsettingscolOption(Language::Translate("settings.menuColours.selectedText.label"), selectedtext);
-    AddsettingscolOption(Language::Translate("settings.menuColours.optionBreaks.label"), optionbreaks);
-    AddsettingscolOption(Language::Translate("settings.menuColours.optionCount.label"), optioncount);
-    AddsettingscolOption(Language::Translate("settings.menuColours.selectionBox.label"), selectionhi);
-    AddsettingscolOption(Language::Translate("settings.menuColours.pedTrackers.label"), _globalPedTrackers_Col);
-    AddToggle(Language::Translate("settings.menuColours.rainbow.label"), rainbowBoxes);
-    AddOptionDescription(Language::Translate("settings.menuColours.rainbow.description"));
+    AddTitle(Language::Translate("menu.settings.menu_colours.title"));
+    AddsettingscolOption(Language::Translate("menu.settings.menu_colours.option.title_box.label"), titlebox);
+    AddsettingscolOption(Language::Translate("menu.settings.menu_colours.option.background.label"), BG);
+    AddsettingscolOption(Language::Translate("menu.settings.menu_colours.option.title_text.label"), titletext);
+    AddsettingscolOption(Language::Translate("menu.settings.menu_colours.option.option_text.label"), optiontext);
+    AddsettingscolOption(Language::Translate("menu.settings.menu_colours.option.selected_text.label"), selectedtext);
+    AddsettingscolOption(Language::Translate("menu.settings.menu_colours.option.option_breaks.label"), optionbreaks);
+    AddsettingscolOption(Language::Translate("menu.settings.menu_colours.option.option_count.label"), optioncount);
+    AddsettingscolOption(Language::Translate("menu.settings.menu_colours.option.selection_box.label"), selectionhi);
+    AddsettingscolOption(Language::Translate("menu.settings.menu_colours.option.ped_trackers.label"), _globalPedTrackers_Col);
+    AddToggle(Language::Translate("menu.settings.menu_colours.option.rainbow.label"), rainbowBoxes);
+    AddOptionDescription(Language::Translate("menu.settings.menu_colours.option.rainbow.description"));
 }
 
 bool HexToRGBA(const std::string& hex, RGBA& colour)
@@ -180,8 +180,8 @@ void SettingsColours2()
     auto& settingsRGBA = g_settingsRGBA;
     auto& settingsRGBA2 = g_settingsRGBA2;
 
-    AddTitle(Language::Translate("settings.menuColours.setColour.title"));
-    AddNumber(Language::Translate("settings.menuColours.setColour.red.label"), settingsRGBA->R, 0, settingsRInput, settingsRPlus, settingsRMinus);
+    AddTitle(Language::Translate("menu.settings.menu_colours.set_colour.title"));
+    AddNumber(Language::Translate("menu.settings.menu_colours.set_colour.option.red.label"), settingsRGBA->R, 0, settingsRInput, settingsRPlus, settingsRMinus);
 
     switch (*Menu::activeOptionIndex)
     {
@@ -192,24 +192,31 @@ void SettingsColours2()
         break;
     }
 
-    AddNumber(Language::Translate("settings.menuColours.setColour.green.label"), settingsRGBA->G, 0, settingsRInput, settingsRPlus, settingsRMinus);
-    AddNumber(Language::Translate("settings.menuColours.setColour.blue.label"), settingsRGBA->B, 0, settingsRInput, settingsRPlus, settingsRMinus);
-    AddNumber(Language::Translate("settings.menuColours.setColour.opacity.label"), settingsRGBA->A, 0, settingsRInput, settingsRPlus, settingsRMinus);
-    AddTexter(Language::Translate("settings.menuColours.setColour.hudColour.label"), settingsHUDColor, HudColour::vHudColours, settingsHUDColourApply, settingsHUDColourPlus, settingsHUDColourMinus);
-    AddOptionDescription(Language::Translate("settings.menuColours.setColour.hudColour.description"));
+    AddNumber(Language::Translate("menu.settings.menu_colours.set_colour.option.green.label"), settingsRGBA->G, 0, settingsRInput, settingsRPlus, settingsRMinus);
+    AddNumber(Language::Translate("menu.settings.menu_colours.set_colour.option.blue.label"), settingsRGBA->B, 0, settingsRInput, settingsRPlus, settingsRMinus);
+    AddNumber(Language::Translate("menu.settings.menu_colours.set_colour.option.opacity.label"), settingsRGBA->A, 0, settingsRInput, settingsRPlus, settingsRMinus);
+    AddTexter(
+        Language::Translate("menu.settings.menu_colours.set_colour.option.hud_colour.label"),
+        settingsHUDColor,
+        HudColour::vHudColours,
+        settingsHUDColourApply,
+        settingsHUDColourPlus,
+        settingsHUDColourMinus
+    );
+    AddOptionDescription(Language::Translate("menu.settings.menu_colours.set_colour.option.hud_colour.description"));
 
     {
         bool bHexInputPressed = false;
-        AddOption(Language::Translate("settings.menuColours.setColour.inputHex.label"), bHexInputPressed);
+        AddOption(Language::Translate("menu.settings.menu_colours.set_colour.option.input_hex.label"), bHexInputPressed);
         if (bHexInputPressed)
         {
-            std::string input = Game::InputBox("", 10U, Language::Translate("settings.menuColours.setColour.inputHex.prompt").c_str(), "#");
+            std::string input = Game::InputBox("", 10U, Language::Translate("menu.settings.menu_colours.set_colour.option.input_hex.prompt").c_str(), "#");
             if (!HexToRGBA(input, *settingsRGBA))
-                Game::Print::ShowNotification(Language::Translate("settings.menuColours.setColour.invalidHex.message"));
+                Game::Print::ShowNotification(Language::Translate("message.settings.menu_colours.set_colour.invalid_hex.title"));
         }
     }
 
-    AddBreak(Language::Translate("settings.menuColours.setColour.presets.break"));
+    AddBreak(Language::Translate("menu.settings.menu_colours.set_colour.presets.section.main.label"));
     AddPresetColourOptions(settingsRGBA->R, settingsRGBA->G, settingsRGBA->B);
 
     switch (*Menu::activeOptionIndex)
@@ -335,13 +342,13 @@ void AddsettingsfonOption(const std::string& text, int fontIndex, INT8& feature)
 
 void SettingsFonts()
 {
-    AddTitle(Language::Translate("settings.menuFonts.title"));
-    AddsettingsfonOption(Language::Translate("settings.menuFonts.titleFont.label"), -1, font_title);
-    AddsettingsfonOption(Language::Translate("settings.menuFonts.optionsFont.label"), -1, font_options);
-    AddsettingsfonOption(Language::Translate("settings.menuFonts.selectedOptionFont.label"), -1, font_selection);
-    AddsettingsfonOption(Language::Translate("settings.menuFonts.optionBreaksFont.label"), -1, font_breaks);
-    AddsettingsfonOption(Language::Translate("settings.menuFonts.hudFont.label"), -1, font_hud);
-    AddsettingsfonOption(Language::Translate("settings.menuFonts.speedoTextFont.label"), -1, font_speedo);
+    AddTitle(Language::Translate("menu.settings.menu_fonts.title"));
+    AddsettingsfonOption(Language::Translate("menu.settings.menu_fonts.option.title_font.label"), -1, font_title);
+    AddsettingsfonOption(Language::Translate("menu.settings.menu_fonts.option.options_font.label"), -1, font_options);
+    AddsettingsfonOption(Language::Translate("menu.settings.menu_fonts.option.selected_option_font.label"), -1, font_selection);
+    AddsettingsfonOption(Language::Translate("menu.settings.menu_fonts.option.option_breaks_font.label"), -1, font_breaks);
+    AddsettingsfonOption(Language::Translate("menu.settings.menu_fonts.option.hud_font.label"), -1, font_hud);
+    AddsettingsfonOption(Language::Translate("menu.settings.menu_fonts.option.speedo_text_font.label"), -1, font_speedo);
 }
 
 void SettingsFonts2()
@@ -350,14 +357,14 @@ void SettingsFonts2()
     bool fonts2Input = false;
     INT8 dummyFeature;
 
-    AddTitle(Language::Translate("settings.menuFonts.setFont.title"));
-    AddsettingsfonOption(Language::Translate("settings.menuFonts.normal.choice"), GTAfont::Arial, dummyFeature);
-    AddsettingsfonOption(Language::Translate("settings.menuFonts.impact.choice"), GTAfont::Impact, dummyFeature);
-    AddsettingsfonOption(Language::Translate("settings.menuFonts.italic.choice"), GTAfont::Italic, dummyFeature);
-    AddsettingsfonOption(Language::Translate("settings.menuFonts.pricedown.choice"), GTAfont::Pricedown, dummyFeature);
-    AddsettingsfonOption(Language::Translate("settings.menuFonts.caps.choice"), GTAfont::Caps, dummyFeature);
-    AddOption(Language::Translate("settings.menuFonts.inputIndex.label"), fonts2Input);
-    AddOptionDescription(Language::Translate("settings.menuFonts.inputIndex.description"));
+    AddTitle(Language::Translate("menu.settings.menu_fonts.set_font.title"));
+    AddsettingsfonOption(Language::Translate("menu.settings.menu_fonts.set_font.option.font.value.normal"), GTAfont::Arial, dummyFeature);
+    AddsettingsfonOption(Language::Translate("menu.settings.menu_fonts.set_font.option.font.value.impact"), GTAfont::Impact, dummyFeature);
+    AddsettingsfonOption(Language::Translate("menu.settings.menu_fonts.set_font.option.font.value.italic"), GTAfont::Italic, dummyFeature);
+    AddsettingsfonOption(Language::Translate("menu.settings.menu_fonts.set_font.option.font.value.pricedown"), GTAfont::Pricedown, dummyFeature);
+    AddsettingsfonOption(Language::Translate("menu.settings.menu_fonts.set_font.option.font.value.caps"), GTAfont::Caps, dummyFeature);
+    AddOption(Language::Translate("menu.settings.menu_fonts.option.input_index.label"), fonts2Input);
+    AddOptionDescription(Language::Translate("menu.settings.menu_fonts.option.input_index.description"));
 
     if (fonts2Input)
     {
@@ -378,7 +385,7 @@ void SettingsFonts2()
 
 void SettingsLanguage()
 {
-    AddTitle(Language::Translate("settings.language.title"));
+    AddTitle(Language::Translate("menu.settings.language.title"));
     AddTickol(Language::GetLocaleTitle("en-US"), Language::GetSelectedLocale() == "en-US", Language::ResetSelectedLang, Language::ResetSelectedLang);
 
     for (const auto& locale : Language::GetAvailableLocales())
@@ -393,7 +400,7 @@ void SettingsLanguage()
         }
     }
 
-    AddTickol(Language::Translate("settings.language.reload.label"), true, Language::Reload, Language::Reload, TICKOL::CROSS);
+    AddTickol(Language::Translate("menu.settings.language.option.reload.label"), true, Language::Reload, Language::Reload, TICKOL::CROSS);
 }
 
 class MenyooTheme
@@ -819,7 +826,7 @@ std::vector<MenyooThemeNamed> vValues_MenyooThemes{
 
 void SettingsThemesMain()
 {
-    AddTitle(Language::Translate("settings.themes.title"));
+    AddTitle(Language::Translate("menu.settings.themes.title"));
 
     bool pressed = false;
     for (auto& them : vValues_MenyooThemes)

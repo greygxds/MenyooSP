@@ -357,13 +357,13 @@ void VoiceChangerMenu()
     }
 
     bool pressed = false;
-    AddTitle(Language::Translate("speech.voiceChanger.title"));
+    AddTitle(Language::Translate("menu.player.speech.voice_changer.title"));
 
     bool searchPressed = false;
-    AddOption(searchStr.empty() ? Language::Translate("speech.search.prompt") : searchStr, searchPressed, nullFunc, -1, true);
+    AddOption(searchStr.empty() ? Language::Translate("menu.player.speech.option.search.label") : searchStr, searchPressed, nullFunc, -1, true);
     if (searchPressed)
     {
-        searchStr = Game::InputBox(searchStr, 126U, Language::Translate("speech.search.prompt").c_str(), boost::to_lower_copy(searchStr));
+        searchStr = Game::InputBox(searchStr, 126U, Language::Translate("menu.player.speech.option.search.prompt").c_str(), boost::to_lower_copy(searchStr));
         boost::to_upper(searchStr);
     }
 
@@ -383,7 +383,7 @@ void VoiceChangerMenu()
         {
             ped.RequestControl();
             ped.SetVoiceName(v.voiceName);
-            Game::Print::ShowNotification(Language::Translate("speech.notifications.changed.title"), Language::Translate("speech.notifications.changed.message"));
+            Game::Print::ShowNotification(Language::Translate("message.player.speech.changed.title"), Language::Translate("message.player.speech.changed.message"));
         }
     }
 }
@@ -398,13 +398,13 @@ void AmbientSpeechPlayerMenu()
         return;
     }
 
-    AddTitle(Language::Translate("speech.title"));
+    AddTitle(Language::Translate("menu.player.speech.title"));
 
     bool searchPressed = false;
-    AddOption(searchStr.empty() ? Language::Translate("speech.search.prompt") : searchStr, searchPressed, nullFunc, -1, true);
+    AddOption(searchStr.empty() ? Language::Translate("menu.player.speech.option.search.label") : searchStr, searchPressed, nullFunc, -1, true);
     if (searchPressed)
     {
-        searchStr = Game::InputBox(searchStr, 126U, Language::Translate("speech.search.prompt").c_str(), boost::to_lower_copy(searchStr));
+        searchStr = Game::InputBox(searchStr, 126U, Language::Translate("menu.player.speech.option.search.prompt").c_str(), boost::to_lower_copy(searchStr));
         boost::to_upper(searchStr);
     }
 
@@ -439,7 +439,7 @@ void Sub_AmbientSpeechPlayer_InVoice()
     AddTitle(v.voiceName);
 
     bool bSpeechParam_plus = false, bSpeechParam_minus = false;
-    AddTexter(Language::Translate("speech.modifier"), 0, std::vector<std::string>{vSpeechParams[_currSpeechParamIndex].title}, null, bSpeechParam_plus, bSpeechParam_minus);
+    AddTexter(Language::Translate("menu.player.speech.option.modifier.label"), 0, std::vector<std::string>{vSpeechParams[_currSpeechParamIndex].title}, null, bSpeechParam_plus, bSpeechParam_minus);
     if (bSpeechParam_plus)
     {
         if (_currSpeechParamIndex < vSpeechParams.size() - 1)

@@ -79,7 +79,7 @@ class GTAMapMod
         LoadFromXml();
         if (showMsg)
         {
-            Game::Print::ShowNotification(Language::Format("mapMods.loaded", {{"name", name}}));
+            Game::Print::ShowNotification(Language::Format("message.misc.map_mods.loaded.title", {{"name", name}}));
         }
     }
 
@@ -92,7 +92,7 @@ class GTAMapMod
         ohandles.clear();
 
         if (showMsg)
-            Game::Print::ShowNotification(Language::Format("mapMods.unloaded", {{"name", name}}));
+            Game::Print::ShowNotification(Language::Format("message.misc.map_mods.unloaded.title", {{"name", name}}));
     }
 
     const std::string& Name()
@@ -164,7 +164,7 @@ class GTAMapMod
 
         if (!author.empty())
         {
-            Game::Print::PrintBottomLeft(Language::Format("mapMods.haxBy", {{"name", author}}));
+            Game::Print::PrintBottomLeft(Language::Format("message.misc.map_mods.hax_by.message", {{"name", author}}));
         }
     }
 };
@@ -224,7 +224,7 @@ void MapMods()
         LoadMapModsFromXml();
     }
 
-    AddTitle(Language::Translate("mapMods.title"));
+    AddTitle(Language::Translate("menu.misc.map_mods.title"));
 
     for (auto& mm : allMapMods)
     {
@@ -240,9 +240,9 @@ void MapMods2()
     bool currentMapModUnload = false;
 
     AddTitle(currentMAPMODC->Name());
-    AddOption(Language::Translate("mapMods.teleport"), currentMapModTeleport);
-    AddLocal(Language::Translate("mapMods.load"), currentMAPMODC->IsLoaded(), currentMapModLoad, currentMapModUnload);
-    AddOptionDescription(Language::Translate("mapMods.load.description"));
+    AddOption(Language::Translate("menu.misc.map_mods.option.teleport.label"), currentMapModTeleport);
+    AddLocal(Language::Translate("menu.misc.map_mods.option.load.label"), currentMAPMODC->IsLoaded(), currentMapModLoad, currentMapModUnload);
+    AddOptionDescription(Language::Translate("menu.misc.map_mods.option.load.description"));
 
     if (currentMapModTeleport)
     {

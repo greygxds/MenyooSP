@@ -161,7 +161,7 @@ void ToWaypoint(GTAped ped)
 
         if (!e.Exists())
         {
-            Game::Print::ShowNotification(Language::Translate("teleport.error"), Language::Translate("teleport.entityInvalid"));
+            Game::Print::ShowNotification(Language::Translate("message.teleport.error.title"), Language::Translate("message.teleport.entity_invalid.message"));
             return;
         }
 
@@ -181,7 +181,7 @@ void ToWaypoint(GTAped ped)
     }
     else
     {
-        Game::Print::ShowNotification(Language::Translate("teleport.error"), Language::Translate("teleport.noWaypoint"));
+        Game::Print::ShowNotification(Language::Translate("message.teleport.error.title"), Language::Translate("message.teleport.no_waypoint.message"));
     }
 }
 

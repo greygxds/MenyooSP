@@ -124,7 +124,7 @@ void VehicleCruise::PrintCruiseText(bool working)
 {
     Game::Print::SetupDraw(GTAfont::Impact, Vector2(0.30f, 0.30f), false, true, true);
     if (working)
-        Game::Print::DrawString(oss_ << Language::Format("vehicle.cruise.speed", {{"speed", std::to_string(int(cruiseSpeed * 3.6f))}}), 0.95f, 0.24f);
+        Game::Print::DrawString(oss_ << Language::Format("message.vehicle.cruise.speed.message", {{"speed", std::to_string(int(cruiseSpeed * 3.6f))}}), 0.95f, 0.24f);
     else
         Game::Print::drawstring("Cruise Status: ~r~Inactive.", 0.95f, 0.24f);
 }

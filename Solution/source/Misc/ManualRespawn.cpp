@@ -139,7 +139,7 @@ void CheckSelfDealthModel()
         const std::string& ofn = GetPathffA(Pathff::Outfit, true) + "_reserved.xml";
         const bool outfitSaved = sub::PedOutfitPersistence::SavePedOutfit(GTAped(PLAYER_PED_ID()), ofn);
         if (!outfitSaved)
-            Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("components.notifications.createFileFailed"));
+            Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.player.wardrobe.create_file_failed.message"));
 
 
         if (is_death)
@@ -170,7 +170,7 @@ void CheckSelfDealthModel()
         {
             const bool outfitApplied = sub::PedOutfitPersistence::ApplyPedOutfit(GTAped(PLAYER_PED_ID()), ofn, sub::PedOutfitPersistence::OutfitApplyOptions::CompleteWithoutAttachments());
             if (!outfitApplied)
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.loadFailed"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.load_failed.message"));
         }
 
         WAIT(0);

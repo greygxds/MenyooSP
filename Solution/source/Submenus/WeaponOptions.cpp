@@ -75,28 +75,28 @@ void Weaponops()
     bool wdmg_jump = 0, wdmg_plus = 0, wdmg_minus = 0, WeaponopsInfiniteAmmoOff_ = 0, WeaponopsInfiniteAmmoOn_ = 0, bSelfDeleteGunOn = 0, ped_weaps_all = 0, ped_weaps_dlc = 0, ped_weaps_garbage = 0,
          ped_weaps_handcuffs = 0, ped_weaps_digiscanner = 0, ped_weaps_briefcase = 0, bGiveMaxAmmoPressed = 0, WeaponopsRemoveWeaps_ = 0;
 
-    AddTitle(Language::Translate("weapon.options.title"));
-    AddOption(Language::Translate("weapon.options.individualWeapons.label"), null, nullFunc, SUB::WEAPONOPS_INDIVS_CATEGORIES);
-    AddOption(Language::Translate("weapon.options.loadouts.label"), null, nullFunc, SUB::WEAPONOPS_LOADOUTS);
+    AddTitle(Language::Translate("menu.weapon.options.title"));
+    AddOption(Language::Translate("menu.weapon.options.option.individual_weapons.label"), null, nullFunc, SUB::WEAPONOPS_INDIVS_CATEGORIES);
+    AddOption(Language::Translate("menu.weapon.options.option.loadouts.label"), null, nullFunc, SUB::WEAPONOPS_LOADOUTS);
     //AddOption("Set A Permanent Weapon", null, nullFunc, SUB::WEAPONOPS_FORCEAWEAPON_LIST);
-    AddOption(Language::Translate("weapon.options.giveAllWeapons.label"), ped_weaps_all);
+    AddOption(Language::Translate("menu.weapon.options.option.give_all_weapons.label"), ped_weaps_all);
     //	AddOption("Give Garbage Bag", ped_weaps_garbage);
     //	AddOption("Give Handcuffs", ped_weaps_handcuffs);
-    AddOption(Language::Translate("weapon.options.giveDigiscanner.label"), ped_weaps_digiscanner);
-    AddOption(Language::Translate("weapon.options.giveBriefcase.label"), ped_weaps_briefcase);
-    AddOption(Language::Translate("weapon.options.giveMaxAmmo.label"), bGiveMaxAmmoPressed);
-    AddOption(Language::Translate("weapon.options.removeAllWeapons.label"), WeaponopsRemoveWeaps_);
-    AddToggle(Language::Translate("weapon.options.infiniteParachutes.label"), selfInfiniteParachutes);
-    AddOptionDescription(Language::Translate("weapon.options.infiniteParachutes.description"));
-    AddToggle(Language::Translate("weapon.options.infiniteAmmoInClip.label"), bitInfiniteAmmo, WeaponopsInfiniteAmmoOn_, WeaponopsInfiniteAmmoOff_);
-    AddOptionDescription(Language::Translate("weapon.options.infiniteAmmoInClip.description"));
-    AddTexter(Language::Translate("weapon.options.weaponDamage.label"), 0, std::vector<std::string>{wdmg_ss.str()}, wdmg_jump, wdmg_plus, wdmg_minus);
-    AddOptionDescription(Language::Translate("weapon.options.weaponDamage.description"));
-    AddToggle(Language::Translate("weapon.options.entityRemovalGun.label"), selfDeleteGun, bSelfDeleteGunOn);
-    AddOptionDescription(Language::Translate("weapon.options.entityRemovalGun.description"));
+    AddOption(Language::Translate("menu.weapon.options.option.give_digiscanner.label"), ped_weaps_digiscanner);
+    AddOption(Language::Translate("menu.weapon.options.option.give_briefcase.label"), ped_weaps_briefcase);
+    AddOption(Language::Translate("menu.weapon.options.option.give_max_ammo.label"), bGiveMaxAmmoPressed);
+    AddOption(Language::Translate("menu.weapon.options.option.remove_all_weapons.label"), WeaponopsRemoveWeaps_);
+    AddToggle(Language::Translate("menu.weapon.options.option.infinite_parachutes.label"), selfInfiniteParachutes);
+    AddOptionDescription(Language::Translate("menu.weapon.options.option.infinite_parachutes.description"));
+    AddToggle(Language::Translate("menu.weapon.options.option.infinite_ammo_in_clip.label"), bitInfiniteAmmo, WeaponopsInfiniteAmmoOn_, WeaponopsInfiniteAmmoOff_);
+    AddOptionDescription(Language::Translate("menu.weapon.options.option.infinite_ammo_in_clip.description"));
+    AddTexter(Language::Translate("menu.weapon.options.option.weapon_damage.label"), 0, std::vector<std::string>{wdmg_ss.str()}, wdmg_jump, wdmg_plus, wdmg_minus);
+    AddOptionDescription(Language::Translate("menu.weapon.options.option.weapon_damage.description"));
+    AddToggle(Language::Translate("menu.weapon.options.option.entity_removal_gun.label"), selfDeleteGun, bSelfDeleteGunOn);
+    AddOptionDescription(Language::Translate("menu.weapon.options.option.entity_removal_gun.description"));
     if (bSelfDeleteGunOn)
     {
-        Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.entityRemovalGunHint"));
+        Game::Print::PrintBottomLeft(Language::Translate("message.weapon.entity_removal_gun_hint.message"));
         return;
     }
 
@@ -203,36 +203,36 @@ void List_VehicleCats_Sub()
     using VehicleSpawner::AddVehicleCategoryOption;
     typedef VehicleSpawner::Indices Indices;
 
-    AddTitle(Language::Translate("weapon.favourites.vehicles.title"));
-    AddOption(Language::Translate("weapon.favourites.label"), null, nullFunc, SUB::SPAWNVEHICLE_FAVOURITES);
+    AddTitle(Language::Translate("menu.weapon.favourites.vehicles.title"));
+    AddOption(Language::Translate("menu.weapon.option.favourites.label"), null, nullFunc, SUB::SPAWNVEHICLE_FAVOURITES);
 
-    AddBreak(Language::Translate("weapon.favourites.vehicles.cars"));
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.openWheel"), Indices::OPENWHEEL);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.super"), Indices::SUPER);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.sports"), Indices::SPORT);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.sportsClassics"), Indices::SPORTSCLASSIC);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.coupes"), Indices::COUPE);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.muscle"), Indices::MUSCLE);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.offroad"), Indices::OFFROAD);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.suvs"), Indices::SUV);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.sedans"), Indices::SEDAN);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.compacts"), Indices::COMPACT);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.drift"), Indices::DRIFT);
+    AddBreak(Language::Translate("menu.weapon.favourites.vehicles.section.cars.label"));
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.open_wheel.label"), Indices::OPENWHEEL);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.super.label"), Indices::SUPER);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.sports.label"), Indices::SPORT);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.sports_classics.label"), Indices::SPORTSCLASSIC);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.coupes.label"), Indices::COUPE);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.muscle.label"), Indices::MUSCLE);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.offroad.label"), Indices::OFFROAD);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.suvs.label"), Indices::SUV);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.sedans.label"), Indices::SEDAN);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.compacts.label"), Indices::COMPACT);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.drift.label"), Indices::DRIFT);
 
-    AddBreak(Language::Translate("weapon.favourites.vehicles.industrial"));
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.vans"), Indices::VAN);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.services"), Indices::SERVICE);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.industrial"), Indices::INDUSTRIAL);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.commercial"), Indices::COMMERCIAL);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.utility"), Indices::UTILITY);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.trains"), Indices::TRAIN);
+    AddBreak(Language::Translate("menu.weapon.favourites.vehicles.section.industrial.label"));
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.vans.label"), Indices::VAN);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.services.label"), Indices::SERVICE);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.industrial.label"), Indices::INDUSTRIAL);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.commercial.label"), Indices::COMMERCIAL);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.utility.label"), Indices::UTILITY);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.trains.label"), Indices::TRAIN);
 
-    AddBreak(Language::Translate("weapon.favourites.vehicles.others"));
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.emergency"), Indices::EMERGENCY);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.military"), Indices::MILITARY);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.motorcycles"), Indices::MOTORCYCLE);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.bicycles"), Indices::BICYCLE);
-    AddVehicleCategoryOption(Language::Translate("vehicleSpawner.others"), Indices::OTHER);
+    AddBreak(Language::Translate("menu.weapon.favourites.vehicles.section.others.label"));
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.emergency.label"), Indices::EMERGENCY);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.military.label"), Indices::MILITARY);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.motorcycles.label"), Indices::MOTORCYCLE);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.bicycles.label"), Indices::BICYCLE);
+    AddVehicleCategoryOption(Language::Translate("menu.vehicle.spawner.option.others.label"), Indices::OTHER);
 
     /*PCHAR chartick;
 		for (const auto& vimg : vVehicleBmps)
@@ -348,7 +348,7 @@ void Sub_WeaponFavourites()
     GTAped ped = g_activePedHandle;
     Hash currentPedWeapon = ped.GetWeapon();
 
-    AddTitle(Language::Translate("weapon.favourites.title"));
+    AddTitle(Language::Translate("menu.weapon.favourites.title"));
 
     pugi::xml_document doc;
     if (doc.load_file((const char*)(GetPathffA(Pathff::Main, true) + xmlFavouriteWeapons).c_str()).status != pugi::status_ok)
@@ -364,25 +364,25 @@ void Sub_WeaponFavourites()
     pugi::xml_node nodeRoot = doc.document_element();
 
     bool bInputAdd = false;
-    AddOption(Language::Translate("weapon.favourites.addNewWeapon.label"), bInputAdd);
+    AddOption(Language::Translate("menu.weapon.favourites.option.add_new_weapon.label"), bInputAdd);
     if (bInputAdd)
     {
-        std::string hashNameStr = Game::InputBox("", 40U, Language::Translate("weapon.favourites.weaponName.prompt"));
+        std::string hashNameStr = Game::InputBox("", 40U, Language::Translate("menu.weapon.favourites.option.weapon_name.prompt"));
         if (hashNameStr.length() > 0)
         {
             WAIT(500);
             Hash hashNameHash = GET_HASH_KEY(hashNameStr);
             if (IS_WEAPON_VALID(hashNameHash))
             {
-                std::string customNameStr = Game::InputBox("", 28U, Language::Translate("weapon.favourites.customName.prompt"), GetWeaponLabel(hashNameHash, true));
+                std::string customNameStr = Game::InputBox("", 28U, Language::Translate("menu.weapon.favourites.option.custom_name.prompt"), GetWeaponLabel(hashNameHash, true));
                 if (customNameStr.length() > 0)
                 {
                     if (AddWeaponToFavourites(hashNameHash, customNameStr))
                     {
-                        Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.weaponAdded"));
+                        Game::Print::PrintBottomLeft(Language::Translate("message.weapon.weapon_added.message"));
                     }
                     else
-                        Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.unableToAddWeapon"));
+                        Game::Print::PrintBottomLeft(Language::Translate("message.weapon.unable_to_add_weapon.message"));
                 }
                 else
                     Game::Print::PrintErrorInvalidInput(customNameStr);
@@ -399,18 +399,20 @@ void Sub_WeaponFavourites()
     {
         bool bIsCurrentWeaponAFav = IsWeaponAFavourite(currentPedWeapon);
         bool bAddCurrentWeaponToFav = false, bRemoveCurrentWeaponFromFav = false;
-        AddTickol(Language::Translate("weapon.favourites.currentWeapon.label"), bIsCurrentWeaponAFav, bAddCurrentWeaponToFav, bRemoveCurrentWeaponFromFav, TICKOL::BOXTICK, TICKOL::BOXBLANK);
+        AddTickol(
+            Language::Translate("menu.weapon.favourites.option.current_weapon.label"), bIsCurrentWeaponAFav, bAddCurrentWeaponToFav, bRemoveCurrentWeaponFromFav, TICKOL::BOXTICK, TICKOL::BOXBLANK
+        );
         if (bAddCurrentWeaponToFav)
         {
-            std::string customNameStr = Game::InputBox("", 28U, Language::Translate("weapon.favourites.customName.prompt"), GetWeaponLabel(currentPedWeapon, true));
+            std::string customNameStr = Game::InputBox("", 28U, Language::Translate("menu.weapon.favourites.option.custom_name.prompt"), GetWeaponLabel(currentPedWeapon, true));
             if (customNameStr.length())
             {
                 if (AddWeaponToFavourites(currentPedWeapon, customNameStr))
                 {
-                    Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.weaponAdded"));
+                    Game::Print::PrintBottomLeft(Language::Translate("message.weapon.weapon_added.message"));
                 }
                 else
-                    Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.unableToAddWeapon"));
+                    Game::Print::PrintBottomLeft(Language::Translate("message.weapon.unable_to_add_weapon.message"));
             }
             else
                 Game::Print::PrintErrorInvalidInput(customNameStr);
@@ -421,16 +423,16 @@ void Sub_WeaponFavourites()
         {
             if (RemoveWeaponFromFavourites(currentPedWeapon))
             {
-                Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.weaponRemoved"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.weapon.weapon_removed.message"));
             }
             else
-                Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.unableToRemoveWeapon"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.weapon.unable_to_remove_weapon.message"));
         }
     }
 
     if (nodeRoot.first_child())
     {
-        AddBreak(Language::Translate("weapon.favourites.addedWeapons"));
+        AddBreak(Language::Translate("menu.weapon.favourites.section.added_weapons.label"));
 
         for (auto nodeLocToLoad = nodeRoot.first_child(); nodeLocToLoad; nodeLocToLoad = nodeLocToLoad.next_sibling())
         {
@@ -458,7 +460,7 @@ void Sub_WeaponFavourites()
 
             if (Menu::IsLastDrawnOptionSelected())
             {
-                Keybinds::AddBindIB("menu_action", Language::Translate("menu.remove"));
+                Keybinds::AddBindIB("menu_action", Language::Translate("common.remove"));
 
                 if (Keybinds::WasPressedThisFrame("menu_action"))
                 {
@@ -506,16 +508,16 @@ void Sub_CategoriesList()
     Hash pedCurrentWeapon;
     GET_CURRENT_PED_WEAPON(ped, &pedCurrentWeapon, 1);
 
-    AddTitle(Language::Translate("weapon.individual.title"));
+    AddTitle(Language::Translate("menu.weapon.individual.title"));
 
     bool pressedCurrent = false;
-    AddOption(Language::Translate("weapon.individual.currentWeapon.label"), pressedCurrent);
+    AddOption(Language::Translate("menu.weapon.individual.option.current_weapon.label"), pressedCurrent);
     if (pressedCurrent)
     {
         switch (pedCurrentWeapon)
         {
         case WEAPON_UNARMED:
-            Game::Print::ShowNotification(Language::Format("weapon.notifications.invalidWeapon", {{"weapon", GetWeaponLabel(pedCurrentWeapon, true)}}));
+            Game::Print::ShowNotification(Language::Format("message.weapon.invalid_weapon.title", {{"weapon", GetWeaponLabel(pedCurrentWeapon, true)}}));
             break;
         default:
             selectedCategory = WEAPONTYPE::WEAPE_CURRENTLYHELD;
@@ -525,7 +527,7 @@ void Sub_CategoriesList()
     }
 
     if (GET_PLAYER_PED(g_activePlayerId) == ped)
-        AddOption(Language::Translate("weapon.individual.parachutes.label"), null, nullFunc, SUB::WEAPONOPS_PARACHUTE);
+        AddOption(Language::Translate("menu.weapon.individual.option.parachutes.label"), null, nullFunc, SUB::WEAPONOPS_PARACHUTE);
 
     bool pressed = false;
     for (i = 0; i < vCategoryNames.size() - 1 /*Minus Added weapons*/; i++)
@@ -540,7 +542,7 @@ void Sub_CategoriesList()
     }
 
     bool bFavsPressed = false;
-    AddOption(Language::Translate("weapon.individual.favourites.label"), bFavsPressed, nullFunc, SUB::WEAPONOPS_WEAPONFAVOURITES);
+    AddOption(Language::Translate("menu.weapon.individual.option.favourites.label"), bFavsPressed, nullFunc, SUB::WEAPONOPS_WEAPONFAVOURITES);
     if (bFavsPressed)
     {
         selectedCategory = (INT)(vCategoryNames.size() - 1);
@@ -567,14 +569,15 @@ void Sub_InCategory()
         if (Menu::IsLastDrawnOptionSelected())
         {
             bool bIsAFav = WeaponFavourites_catind::IsWeaponAFavourite(thisWeaponInfo.weaponHash);
-            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("menu.removeFromFavourites"), Language::Translate("menu.addToFavourites"));
+            Keybinds::AddBindIB("menu_action", bIsAFav, Language::Translate("common.remove_from_favourites"), Language::Translate("common.add_to_favourites"));
 
             if (Keybinds::WasPressedThisFrame("menu_action"))
             {
-                !bIsAFav ? WeaponFavourites_catind::AddWeaponToFavourites(
-                               thisWeaponInfo.weaponHash, Game::InputBox("", 28U, Language::Translate("weapon.favourites.customName.prompt"), GetWeaponLabel(thisWeaponInfo.weaponHash, true))
-                           )
-                         : WeaponFavourites_catind::RemoveWeaponFromFavourites(thisWeaponInfo.weaponHash);
+                !bIsAFav
+                    ? WeaponFavourites_catind::AddWeaponToFavourites(
+                          thisWeaponInfo.weaponHash, Game::InputBox("", 28U, Language::Translate("menu.weapon.favourites.option.custom_name.prompt"), GetWeaponLabel(thisWeaponInfo.weaponHash, true))
+                      )
+                    : WeaponFavourites_catind::RemoveWeaponFromFavourites(thisWeaponInfo.weaponHash);
                 /*if (!bIsAFav)
 						{
 						OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::FavouriteWeaponSelected, std::string(), 28U, "Enter custom name:", get_weapon_label(thisWeaponInfo.weaponHash, true));
@@ -625,7 +628,7 @@ void Sub_InItem()
     AddTitle(displayName);
 
     bool it_Equip = 0;
-    AddTickol(Language::Translate("weapon.individual.equipWeapon.label"), pedCurrentWeapon == whash, it_Equip, null);
+    AddTickol(Language::Translate("menu.weapon.individual.option.equip_weapon.label"), pedCurrentWeapon == whash, it_Equip, null);
     if (it_Equip)
     {
         if (DOES_ENTITY_EXIST(ped))
@@ -642,8 +645,8 @@ void Sub_InItem()
         }
     }
     bool it_FillAmmo = 0;
-    AddOption(Language::Translate("weapon.individual.fillAmmo.label"), it_FillAmmo);
-    AddOptionDescription(Language::Translate("weapon.individual.fillAmmo.description"));
+    AddOption(Language::Translate("menu.weapon.individual.option.fill_ammo.label"), it_FillAmmo);
+    AddOptionDescription(Language::Translate("menu.weapon.individual.option.fill_ammo.description"));
     if (it_FillAmmo)
     {
         int maxAmmo = 0;
@@ -653,8 +656,8 @@ void Sub_InItem()
     }
 
     bool it_FillinfAmmo = 0;
-    AddOption(Language::Translate("weapon.individual.emptyAmmo.label"), it_FillinfAmmo);
-    AddOptionDescription(Language::Translate("weapon.individual.emptyAmmo.description"));
+    AddOption(Language::Translate("menu.weapon.individual.option.empty_ammo.label"), it_FillinfAmmo);
+    AddOptionDescription(Language::Translate("menu.weapon.individual.option.empty_ammo.description"));
     if (it_FillinfAmmo)
     {
         SET_AMMO_IN_CLIP(ped, whash, -1);
@@ -662,7 +665,7 @@ void Sub_InItem()
     }
 
     bool it_RemoveWeapon = 0;
-    AddOption(Language::Translate("weapon.individual.removeWeapon.label"), it_RemoveWeapon);
+    AddOption(Language::Translate("menu.weapon.individual.option.remove_weapon.label"), it_RemoveWeapon);
     if (it_RemoveWeapon)
     {
         if (HAS_PED_GOT_WEAPON(ped, whash, false))
@@ -673,7 +676,7 @@ void Sub_InItem()
     {
         if (selWeaponComponents->size() > 0 || selWeaponTints != nullptr)
         {
-            AddOption(Language::Translate("weapon.individual.attachmentsTints.label"), null, nullFunc, SUB::WEAPONOPS_INDIVS_ITEM_MODS);
+            AddOption(Language::Translate("menu.weapon.individual.option.attachments_tints.label"), null, nullFunc, SUB::WEAPONOPS_INDIVS_ITEM_MODS);
         }
     }
 }
@@ -714,7 +717,7 @@ void Sub_InItem_Mods()
 
     auto currentTint = GET_PED_WEAPON_TINT_INDEX(ped, whash);
 
-    AddTitle(Language::Translate("weapon.attachments.title"));
+    AddTitle(Language::Translate("menu.weapon.attachments.title"));
 
     WEAPON::GIVE_WEAPON_TO_PED(ped, whash, 9999, false, true);
     WEAPON::SET_CURRENT_PED_WEAPON(ped, whash, true);
@@ -768,7 +771,7 @@ void Sub_InItem_Mods()
     if (selWeaponTints != nullptr)
     {
         if (!selWeaponComponents->empty())
-            AddBreak(Language::Translate("weapon.attachments.tints"));
+            AddBreak(Language::Translate("menu.weapon.attachments.section.tints.label"));
 
         for (int i = 0; i < selWeaponTints->size(); i++)
         {
@@ -798,10 +801,10 @@ void Sub_Parachute()
     Hash whash = GADGET_PARACHUTE;
     bool doesPedHavePara = HAS_PED_GOT_WEAPON(ped, whash, false) != 0;
 
-    AddTitle(Language::Translate("weapon.parachute.title"));
+    AddTitle(Language::Translate("menu.weapon.parachute.title"));
 
     bool it_Equip = 0;
-    AddTickol(Language::Translate("weapon.parachute.equipPrimary.label"), doesPedHavePara, it_Equip, it_Equip);
+    AddTickol(Language::Translate("menu.weapon.parachute.option.equip_primary.label"), doesPedHavePara, it_Equip, it_Equip);
     if (it_Equip)
     {
         if (DOES_ENTITY_EXIST(ped))
@@ -812,7 +815,7 @@ void Sub_Parachute()
     }
 
     bool it_Equip2 = 0;
-    AddTickol(Language::Translate("weapon.parachute.equipSecondary.label"), doesPedHavePara, it_Equip2, it_Equip2);
+    AddTickol(Language::Translate("menu.weapon.parachute.option.equip_secondary.label"), doesPedHavePara, it_Equip2, it_Equip2);
     if (it_Equip2)
     {
         if (DOES_ENTITY_EXIST(ped))
@@ -824,7 +827,7 @@ void Sub_Parachute()
     }
 
     bool it_RemoveWeapon = 0;
-    AddOption(Language::Translate("weapon.parachute.remove.label"), it_RemoveWeapon);
+    AddOption(Language::Translate("menu.weapon.parachute.option.remove.label"), it_RemoveWeapon);
     if (it_RemoveWeapon)
     {
         if (doesPedHavePara)
@@ -832,7 +835,7 @@ void Sub_Parachute()
     }
 
     bool goRgbSmokeMenu = 0;
-    AddOption(Language::Translate("weapon.parachute.setSmokeColour.label"), goRgbSmokeMenu, nullFunc, SUB::MSPAINTS_RGB);
+    AddOption(Language::Translate("menu.weapon.parachute.option.set_smoke_colour.label"), goRgbSmokeMenu, nullFunc, SUB::MSPAINTS_RGB);
     if (Menu::IsLastDrawnOptionSelected())
         AddPresetColourOptionsPreviews(paraSmokeCol);
     if (goRgbSmokeMenu)
@@ -840,7 +843,7 @@ void Sub_Parachute()
         bitMSPaintsRGBMode = 7;
     }
 
-    AddBreak(Language::Translate("weapon.parachute.tints"));
+    AddBreak(Language::Translate("menu.weapon.parachute.section.tints.label"));
 
     bool tintPressed = 0;
     for (i = 0; i < vCaptions_ChuteTints.size(); i++)
@@ -941,13 +944,13 @@ void Sub_Loadouts()
     bool save2 = false, bCreateFolderPressed = false;
     std::vector<std::string> vfilnames;
 
-    AddTitle(Language::Translate("weapon.loadouts.title"));
+    AddTitle(Language::Translate("menu.weapon.loadouts.title"));
     AddSaveFileSortOption();
 
-    AddOption(Language::Translate("weapon.loadouts.saveCurrent.label"), save2);
-    AddOptionDescription(Language::Translate("weapon.loadouts.saveCurrent.description"));
+    AddOption(Language::Translate("menu.weapon.loadouts.option.save_current.label"), save2);
+    AddOptionDescription(Language::Translate("menu.weapon.loadouts.option.save_current.description"));
 
-    AddOption(Language::Translate("weapon.loadouts.createFolder.label"), bCreateFolderPressed);
+    AddOption(Language::Translate("menu.weapon.loadouts.option.create_folder.label"), bCreateFolderPressed);
 
     //get_all_filenames_with_extension(GetPathffA(Pathff::WeaponsLoadout, false), ".xml", vfilnames, false);
     if (_dir.empty())
@@ -962,7 +965,7 @@ void Sub_Loadouts()
     closedir(dir_point);
     SortSaveFileEntries(vfilnames, _dir);
 
-    AddBreak(Language::Translate("weapon.loadouts.foundFiles.break"));
+    AddBreak(Language::Translate("menu.weapon.loadouts.found_files.section.main.label"));
 
     bool bFolderBackPressed = false;
     AddOption("..", bFolderBackPressed);
@@ -975,10 +978,10 @@ void Sub_Loadouts()
     if (!vfilnames.empty())
     {
         bool bSearchPressed = false;
-        AddOption(_searchStr.empty() ? Language::Translate("weapon.loadouts.search.label") : _searchStr, bSearchPressed, nullFunc, -1, true);
+        AddOption(_searchStr.empty() ? Language::Translate("menu.weapon.loadouts.option.search.label") : _searchStr, bSearchPressed, nullFunc, -1, true);
         if (bSearchPressed)
         {
-            _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("weapon.loadouts.search.prompt"), boost::to_lower_copy(_searchStr));
+            _searchStr = Game::InputBox(_searchStr, 126U, Language::Translate("menu.weapon.loadouts.option.search.prompt"), boost::to_lower_copy(_searchStr));
             boost::to_upper(_searchStr);
             //OnscreenKeyboard::State::Set(OnscreenKeyboard::Purpose::SearchToUpper, _searchStr, 126U, std::string(), _searchStr);
             //OnscreenKeyboard::State::arg1._ptr = reinterpret_cast<void*>(&_searchStr);
@@ -1033,17 +1036,17 @@ void Sub_Loadouts()
 
     if (save2)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("weapon.loadouts.loadoutName.prompt"));
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.weapon.loadouts.option.loadout_name.prompt"));
         if (inputStr.length() > 0)
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification(Language::Translate("weapon.notifications.error.title"), Language::Translate("weapon.notifications.invalidName"));
+                Game::Print::ShowNotification(Language::Translate("message.weapon.error.title"), Language::Translate("message.weapon.invalid_name.message"));
             }
             else if (WeaponsLoadouts_catind::Create(_ped, _dir + "\\" + inputStr + ".xml"))
-                Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.loadoutSaved"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.weapon.loadout_saved.message"));
             else
-                Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.unableToSaveLoadout"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.weapon.unable_to_save_loadout.message"));
         }
         else
             Game::Print::PrintErrorInvalidInput(inputStr);
@@ -1054,22 +1057,22 @@ void Sub_Loadouts()
 
     if (bCreateFolderPressed)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("weapon.loadouts.folderName.prompt"));
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.weapon.loadouts.option.folder_name.prompt"));
         if (inputStr.length() > 0)
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification(Language::Translate("weapon.notifications.error.title"), Language::Translate("weapon.notifications.invalidName"));
+                Game::Print::ShowNotification(Language::Translate("message.weapon.error.title"), Language::Translate("message.weapon.invalid_name.message"));
             }
             else if (CreateDirectoryA((_dir + "\\" + inputStr).c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS)
             {
                 _dir = _dir + "\\" + inputStr;
                 Menu::selectedOptionIndex = 5;
-                Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.folderCreated"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.weapon.folder_created.message"));
             }
             else
             {
-                Game::Print::ShowNotification(Language::Translate("weapon.notifications.failed.title"), Language::Translate("weapon.notifications.unableToCreateFolder"));
+                Game::Print::ShowNotification(Language::Translate("message.weapon.failed.title"), Language::Translate("message.weapon.unable_to_create_folder.message"));
             }
         }
         else
@@ -1089,36 +1092,36 @@ void Sub_Loadouts_InItem()
     bool bLoad = false, bRename = false, bOverwrite = false, bDelete = false;
 
     AddTitle(_name);
-    AddOption(Language::Translate("weapon.loadouts.apply.label"), bLoad);
-    AddOptionDescription(Language::Translate("weapon.loadouts.apply.description"));
-    AddOption(Language::Translate("weapon.loadouts.renameFile.label"), bRename);
-    AddOption(Language::Translate("weapon.loadouts.overwriteFile.label"), bOverwrite);
-    AddOption(Language::Translate("weapon.loadouts.deleteFile.label"), bDelete);
+    AddOption(Language::Translate("menu.weapon.loadouts.option.apply.label"), bLoad);
+    AddOptionDescription(Language::Translate("menu.weapon.loadouts.option.apply.description"));
+    AddOption(Language::Translate("menu.weapon.loadouts.option.rename_file.label"), bRename);
+    AddOption(Language::Translate("menu.weapon.loadouts.option.overwrite_file.label"), bOverwrite);
+    AddOption(Language::Translate("menu.weapon.loadouts.option.delete_file.label"), bDelete);
 
     if (bLoad)
     {
         if (WeaponsLoadouts_catind::Apply(_ped, filePath))
-            Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.loadoutApplied"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.weapon.loadout_applied.message"));
         else
-            Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.unableToApplyLoadout"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.weapon.unable_to_apply_loadout.message"));
     }
 
     if (bRename)
     {
-        std::string inputStr = Game::InputBox("", 28U, Language::Translate("weapon.loadouts.newName.prompt"), _name);
+        std::string inputStr = Game::InputBox("", 28U, Language::Translate("menu.weapon.loadouts.option.new_name.prompt"), _name);
         if (inputStr.length())
         {
             if (!IsSafePath(inputStr))
             {
-                Game::Print::ShowNotification(Language::Translate("weapon.notifications.error.title"), Language::Translate("weapon.notifications.invalidName"));
+                Game::Print::ShowNotification(Language::Translate("message.weapon.error.title"), Language::Translate("message.weapon.invalid_name.message"));
             }
             else if (rename(filePath.c_str(), (_dir + "\\" + inputStr + ".xml").c_str()) == 0)
             {
                 _name = inputStr;
-                Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.fileRenamed"));
+                Game::Print::PrintBottomLeft(Language::Translate("message.weapon.file_renamed.message"));
             }
             else
-                Game::Print::ShowNotification(Language::Translate("weapon.notifications.error.title"), Language::Translate("weapon.notifications.renamingFile"));
+                Game::Print::ShowNotification(Language::Translate("message.weapon.error.title"), Language::Translate("message.weapon.renaming_file.message"));
         }
         else
             Game::Print::PrintErrorInvalidInput(inputStr);
@@ -1130,17 +1133,17 @@ void Sub_Loadouts_InItem()
     if (bOverwrite)
     {
         if (WeaponsLoadouts_catind::Create(_ped, filePath))
-            Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.fileOverwritten"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.weapon.file_overwritten.message"));
         else
-            Game::Print::ShowNotification(Language::Translate("weapon.notifications.error.title"), Language::Translate("weapon.notifications.unableToOverwriteFile"));
+            Game::Print::ShowNotification(Language::Translate("message.weapon.error.title"), Language::Translate("message.weapon.unable_to_overwrite_file.message"));
     }
 
     if (bDelete)
     {
         if (remove(filePath.c_str()) == 0)
-            Game::Print::PrintBottomLeft(Language::Translate("weapon.notifications.fileDeleted"));
+            Game::Print::PrintBottomLeft(Language::Translate("message.weapon.file_deleted.message"));
         else
-            Game::Print::ShowNotification(Language::Translate("weapon.notifications.error.title"), Language::Translate("weapon.notifications.deletingFile"));
+            Game::Print::ShowNotification(Language::Translate("message.weapon.error.title"), Language::Translate("message.weapon.deleting_file.message"));
         Menu::SetPreviousMenu();
         Menu::Up();
         return;

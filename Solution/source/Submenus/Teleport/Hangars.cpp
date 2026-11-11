@@ -291,7 +291,7 @@ void TeleportPedToHangar(GTAentity ped, HangarInfoStructure& info)
 
 void Sub_Hangars()
 {
-    AddTitle(Language::Translate("teleport.hangars.title"));
+    AddTitle(Language::Translate("menu.teleport.hangars.title"));
 
     for (auto& loc : vLocations)
     {
@@ -345,8 +345,8 @@ void Sub_Hangars_InLoc()
     }
 
     bool bCreateHangarPressed = false;
-    AddOption(Language::Translate("teleport.hangars.build"), bCreateHangarPressed);
-    AddOptionDescription(Language::Translate("teleport.hangars.build.description"));
+    AddOption(Language::Translate("menu.teleport.hangars.option.build.label"), bCreateHangarPressed);
+    AddOptionDescription(Language::Translate("menu.teleport.hangars.option.build.description"));
     if (bCreateHangarPressed)
     {
         DO_SCREEN_FADE_OUT(50);
@@ -365,7 +365,7 @@ void Sub_Hangars_InOption()
         Menu::SetPreviousMenu();
         return;
     }
-    AddTitle(selectedOptionArray->name.empty() ? Language::Translate("teleport.option.title") : selectedOptionArray->name);
+    AddTitle(selectedOptionArray->name.empty() ? Language::Translate("menu.teleport.option.title") : selectedOptionArray->name);
 
     for (UINT i = 0; i < selectedOptionArray->arr->size(); i++)
     {

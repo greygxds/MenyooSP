@@ -36,7 +36,7 @@ void CustomHelpText::SetTag(const std::string& newTag)
 
 void CustomHelpText::SetText(const std::string& newText)
 {
-    _text = _tag + Language::TranslateToSelected(newText);
+    _text = _tag + newText;
 }
 
 void CustomHelpText::ShowThisFrame(const std::string& textToShow)

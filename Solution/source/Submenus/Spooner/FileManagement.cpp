@@ -654,9 +654,9 @@ void LoadPedCompsFromXml(GTAped ep, const pugi::xml_node& nodePedComps, bool sho
     for (auto& line : collectionErrors)
         errorLines += line + "\n";
     if (showNotifications && !collectionWarnings.empty())
-        Game::Print::ShowNotification(Language::Translate("spooner.files.warning"), Language::Format("spooner.files.itemsMoved", {{"items", warningLines}}));
+        Game::Print::ShowNotification(Language::Translate("message.spooner.files.warning.title"), Language::Format("message.spooner.files.items_moved.message", {{"items", warningLines}}));
     if (showNotifications && !collectionErrors.empty())
-        Game::Print::ShowNotification(Language::Translate("spooner.files.error"), Language::Format("spooner.files.itemsMissing", {{"items", errorLines}}));
+        Game::Print::ShowNotification(Language::Translate("message.spooner.files.error.title"), Language::Format("message.spooner.files.items_missing.message", {{"items", errorLines}}));
 }
 
 void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNetworkIsGameInProgress, bool showNotifications)
@@ -693,9 +693,9 @@ void LoadPedPropsFromXml(GTAped ep, const pugi::xml_node& nodePedProps, bool bNe
     for (auto& line : collectionErrors)
         errorLines += line + "\n";
     if (showNotifications && !collectionWarnings.empty())
-        Game::Print::ShowNotification(Language::Translate("spooner.files.warning"), Language::Format("spooner.files.itemsMoved", {{"items", warningLines}}));
+        Game::Print::ShowNotification(Language::Translate("message.spooner.files.warning.title"), Language::Format("message.spooner.files.items_moved.message", {{"items", warningLines}}));
     if (showNotifications && !collectionErrors.empty())
-        Game::Print::ShowNotification(Language::Translate("spooner.files.error"), Language::Format("spooner.files.itemsMissing", {{"items", errorLines}}));
+        Game::Print::ShowNotification(Language::Translate("message.spooner.files.error.title"), Language::Format("message.spooner.files.items_missing.message", {{"items", errorLines}}));
 }
 
 void LoadPedHeadFeaturesFromXml(GTAped ep, const pugi::xml_node& nodePedHeadFeatures, const GTAmodel::Model& eModel)
@@ -718,7 +718,7 @@ void LoadPedHeadFeaturesFromXml(GTAped ep, const pugi::xml_node& nodePedHeadFeat
     headBlend.isParent = nodePedHeadBlend.child("IsP").text().as_int();
     if (!g_unlockMaxIDs && (headBlend.shapeFirstID > 45 || headBlend.shapeSecondID > 45 || headBlend.shapeThirdID > 45))
     {
-        Game::Print::ShowNotification(Language::Translate("spooner.files.warning"), Language::Translate("spooner.files.parentHeadRange"));
+        Game::Print::ShowNotification(Language::Translate("message.spooner.files.warning.title"), Language::Translate("message.spooner.files.parent_head_range.message"));
         addlog(
             ige::LogType::LOG_WARNING,
             "Ped Head Index " + std::to_string(max(headBlend.shapeFirstID, max(headBlend.shapeSecondID, headBlend.shapeThirdID))) +
@@ -1533,7 +1533,7 @@ SpoonerBlip SpawnBlipFromXmlNode(pugi::xml_node& nodeBlip, const std::vector<Spo
         }
         if (!found)
         {
-            Game::Print::PrintBottomLeft(Language::Format("spooner.files.blipLoadFailed", {{"name", b.Name}}));
+            Game::Print::PrintBottomLeft(Language::Format("message.spooner.files.blip_load_failed.message", {{"name", b.Name}}));
             return SpoonerBlip(); // Return empty blip to signal skip
         }
     }
@@ -2522,7 +2522,7 @@ bool LoadPlacementsFromFile(const std::string& filePath)
     std::string noteStr = nodeRoot.child("Note").text().as_string();
     if (noteStr.length())
     {
-        Game::Print::PrintBottomLeft(Language::Format("spooner.files.noteLoaded", {{"note", noteStr}}));
+        Game::Print::PrintBottomLeft(Language::Format("message.spooner.files.note_loaded.message", {{"note", noteStr}}));
     }
 
     mciSendStringA(("close " + _oldAudioAlias).c_str(), NULL, 0, 0);

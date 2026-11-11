@@ -398,10 +398,10 @@ static void _TeleportToLocation(const CayoPericoLocation& loc)
 
 void Sub_CayoPerico()
 {
-    AddTitle(Language::Translate("teleport.cayo.title"));
-    AddToggle(Language::Translate("teleport.cayo.enabled"), bCayoPericoEnabled, _EnableIsland, _DisableIsland);
-    AddOptionDescription(Language::Translate("teleport.cayo.enabled.description"));
-    AddBreak(Language::Translate("teleport.locations.section"));
+    AddTitle(Language::Translate("menu.teleport.cayo.title"));
+    AddToggle(Language::Translate("menu.teleport.cayo.option.enabled.label"), bCayoPericoEnabled, _EnableIsland, _DisableIsland);
+    AddOptionDescription(Language::Translate("menu.teleport.cayo.option.enabled.description"));
+    AddBreak(Language::Translate("menu.teleport.locations.section.section.label"));
     for (auto& loc : vCayoPericoLocations)
     {
         bool bPressed = false;
@@ -409,7 +409,7 @@ void Sub_CayoPerico()
         if (bPressed)
             _TeleportToLocation(loc);
     }
-    AddBreak(Language::Translate("teleport.cayo.interiors"));
+    AddBreak(Language::Translate("menu.teleport.cayo.section.interiors.label"));
     for (auto& loc : vCayoPericoInteriors)
     {
         bool bPressed = false;

@@ -1157,7 +1157,7 @@ void SetLocalCarHydraulics()
 {
     GTAvehicle vehicle = g_myVeh;
 
-    Keybinds::AddBindIB("vehicle_hydraulics", Language::Translate("vehicle.hydraulics"));
+    Keybinds::AddBindIB("vehicle_hydraulics", Language::Translate("menu.vehicle.option.hydraulics.label"));
 
     if (Keybinds::IsHeld("vehicle_hydraulics") && vehicle.IsOnAllWheels())
     {
@@ -2113,7 +2113,7 @@ static void TickVehicleEffects(bool gameIsPaused)
     {
         if (raceBoost)
         {
-            Keybinds::AddBindIB("vehicle_boost", Language::Translate("vehicle.boost"));
+            Keybinds::AddBindIB("vehicle_boost", Language::Translate("menu.vehicle.option.boost.label"));
             if (Keybinds::IsHeld("vehicle_boost"))
             {
                 SetSelfVehicleBoost();
@@ -2150,7 +2150,7 @@ void Menu::loops()
             const bool otherAppearanceApplied =
                 sub::PedOutfitPersistence::ApplyPedOutfit(GTAped(PLAYER_PED_ID()), defaultOutfitPath, sub::PedOutfitPersistence::OutfitApplyOptions::AllExceptModelAndHead());
             if (!modelAndHeadApplied || !otherAppearanceApplied)
-                Game::Print::ShowNotification(Language::Translate("components.error"), Language::Translate("spooner.files.loadFailed"));
+                Game::Print::ShowNotification(Language::Translate("message.player.wardrobe.error.title"), Language::Translate("message.spooner.files.load_failed.message"));
         }
         else if (fileStatusError)
         {

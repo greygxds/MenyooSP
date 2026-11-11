@@ -15,7 +15,7 @@ namespace sub
 {
 void PlayersMenu()
 {
-    AddTitle(Language::Translate("players.title"));
+    AddTitle(Language::Translate("menu.players.title"));
 
     for (int i = 0; i < GAME_PLAYERCOUNT; i++)
     {
@@ -51,13 +51,13 @@ void PlayersAMenu()
     }
     else
     {
-        spectatePlayerStr = Language::Translate("players.spectate");
+        spectatePlayerStr = Language::Translate("menu.players.option.spectate.label");
     }
 
     AddTitle(g_playerName); // Title = player name
-    AddOption(Language::Translate("players.setWaypoint"), setWaypoint);
+    AddOption(Language::Translate("menu.players.option.set_waypoint.label"), setWaypoint);
     AddLocal(spectatePlayerStr, spectatePlayer == g_activePlayerId, spectateOn, spectateOff); // Spectate Player
-    AddOptionDescription(Language::Translate("players.spectate.description"));
+    AddOptionDescription(Language::Translate("menu.players.option.spectate.description"));
 
     if (spectateOn)
     {

@@ -30,30 +30,30 @@ void WeatherMenu()
     float windSpeed = GET_WIND_SPEED();
     float wavesHeight = GET_DEEP_OCEAN_SCALER();
 
-    AddTitle(Language::Translate("weather.title"));
-    AddTickol(Language::Translate("weather.reset"), true, clearWeatherOverride, clearWeatherOverride, TICKOL::CROSS);
-    AddOptionDescription(Language::Translate("weather.reset.description"));
+    AddTitle(Language::Translate("menu.weather.title"));
+    AddTickol(Language::Translate("menu.weather.option.reset.label"), true, clearWeatherOverride, clearWeatherOverride, TICKOL::CROSS);
+    AddOptionDescription(Language::Translate("menu.weather.option.reset.description"));
     if (clearWeatherOverride)
     {
         World::ClearWeatherOverride();
     }
     const std::vector<std::string> weatherLabels{
-        Language::Translate("weather.extraSunny"),
-        Language::Translate("weather.clear"),
-        Language::Translate("weather.clouds"),
-        Language::Translate("weather.smog"),
-        Language::Translate("weather.foggy"),
-        Language::Translate("weather.overcast"),
-        Language::Translate("weather.rain"),
-        Language::Translate("weather.thunder"),
-        Language::Translate("weather.clearing"),
-        Language::Translate("weather.neutral"),
-        Language::Translate("weather.snow"),
-        Language::Translate("weather.blizzard"),
-        Language::Translate("weather.snowLight"),
-        Language::Translate("weather.halloween"),
-        Language::Translate("weather.halloweenSnow"),
-        Language::Translate("weather.halloweenRain")
+        Language::Translate("menu.weather.option.extra_sunny.label"),
+        Language::Translate("menu.weather.option.clear.label"),
+        Language::Translate("menu.weather.option.clouds.label"),
+        Language::Translate("menu.weather.option.smog.label"),
+        Language::Translate("menu.weather.option.foggy.label"),
+        Language::Translate("menu.weather.option.overcast.label"),
+        Language::Translate("menu.weather.option.rain.label"),
+        Language::Translate("menu.weather.option.thunder.label"),
+        Language::Translate("menu.weather.option.clearing.label"),
+        Language::Translate("menu.weather.option.neutral.label"),
+        Language::Translate("menu.weather.option.snow.label"),
+        Language::Translate("menu.weather.option.blizzard.label"),
+        Language::Translate("menu.weather.option.snow_light.label"),
+        Language::Translate("menu.weather.option.halloween.label"),
+        Language::Translate("menu.weather.option.halloween_snow.label"),
+        Language::Translate("menu.weather.option.halloween_rain.label")
     };
     for (size_t weatherIndex = 0; weatherIndex < World::sWeatherNames.size(); ++weatherIndex)
     {
@@ -68,17 +68,17 @@ void WeatherMenu()
         }
     }
 
-    AddLocal(Language::Translate("weather.snowOnTerrain"), g_spSnow.IsSnow(), spSnowOn, spSnowOff);
-    AddOptionDescription(Language::Translate("weather.snowOnTerrain.description"));
-    AddNumber(Language::Translate("weather.windSpeed"), windSpeed, 2, null, windSpeedPlus, windSpeedMinus);
-    AddNumber(Language::Translate("weather.oceanWaveStrength"), wavesHeight, 2, null, wavesHeightPlus, wavesHeightMinus);
-    AddNumber(Language::Translate("weather.rainPuddles"), g_rainFXIntensity, 2, null, rainFXPlus, rainFXMinus);
-    AddOptionDescription(Language::Translate("weather.rainPuddles.description"));
-    AddNumber(Language::Translate("weather.gravity"), gravityMultiplier, 2, null, gravityLevelPlus, gravityLevelMinus);
-    AddOptionDescription(Language::Translate("weather.gravity.description"));
-    AddOption(Language::Translate("weather.cloudsMenu"), null, nullFunc, SUB::CLOUDOPS);
-    AddOption(Language::Translate("weather.waterHack"), null, nullFunc, SUB::WATERHACK);
-    AddOptionDescription(Language::Translate("weather.waterHack.description"));
+    AddLocal(Language::Translate("menu.weather.option.snow_on_terrain.label"), g_spSnow.IsSnow(), spSnowOn, spSnowOff);
+    AddOptionDescription(Language::Translate("menu.weather.option.snow_on_terrain.description"));
+    AddNumber(Language::Translate("menu.weather.option.wind_speed.label"), windSpeed, 2, null, windSpeedPlus, windSpeedMinus);
+    AddNumber(Language::Translate("menu.weather.option.ocean_wave_strength.label"), wavesHeight, 2, null, wavesHeightPlus, wavesHeightMinus);
+    AddNumber(Language::Translate("menu.weather.option.rain_puddles.label"), g_rainFXIntensity, 2, null, rainFXPlus, rainFXMinus);
+    AddOptionDescription(Language::Translate("menu.weather.option.rain_puddles.description"));
+    AddNumber(Language::Translate("menu.weather.option.gravity.label"), gravityMultiplier, 2, null, gravityLevelPlus, gravityLevelMinus);
+    AddOptionDescription(Language::Translate("menu.weather.option.gravity.description"));
+    AddOption(Language::Translate("menu.weather.option.clouds_menu.label"), null, nullFunc, SUB::CLOUDOPS);
+    AddOption(Language::Translate("menu.weather.option.water_hack.label"), null, nullFunc, SUB::WATERHACK);
+    AddOptionDescription(Language::Translate("menu.weather.option.water_hack.description"));
 
 
     if (spSnowOn || spSnowOff)
@@ -156,10 +156,10 @@ const std::array<std::string, 20> cloudNames{{{"Altostratus"},  {"Cirrocumulus"}
 
 void CloudMenu()
 {
-    AddTitle(Language::Translate("weather.clouds.title"));
+    AddTitle(Language::Translate("menu.weather.clouds.title"));
 
     bool bResetPressed = false;
-    AddTickol(Language::Translate("weather.clouds.reset"), true, bResetPressed, bResetPressed, TICKOL::CROSS);
+    AddTickol(Language::Translate("menu.weather.clouds.option.reset.label"), true, bResetPressed, bResetPressed, TICKOL::CROSS);
     if (bResetPressed)
     {
         UNLOAD_ALL_CLOUD_HATS();
@@ -169,7 +169,7 @@ void CloudMenu()
     {
         auto& name = cloudNames[cloudIndex];
         bool bPressed = false;
-        AddOption(Language::Translate("weather.clouds." + std::to_string(cloudIndex)), bPressed);
+        AddOption(Language::TranslateStable("menu.weather.clouds.option.cloud_type.value", name, name), bPressed);
         if (bPressed)
         {
             addlog(ige::LogType::LOG_DEBUG, "Set Clouds: " + name);

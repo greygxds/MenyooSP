@@ -116,15 +116,15 @@ bool AddCategory(const std::string& label, bool defaultExpanded)
     categoryHeaderLabels.push_back(label);
 
     if ((std::max)(categoryHeaderPositions.size(), s_lastCategoryCount) > 1)
-        AddOptionDescription(Language::Translate("menu.category.expandJump.description"));
+        AddOptionDescription(Language::Translate("component.menu_category.expand_jump.description"));
     else
-        AddOptionDescription(Language::Translate("menu.category.expand.description"));
+        AddOptionDescription(Language::Translate("component.menu_category.expand.description"));
 
     if (categoryHeaderPositions.size() > 1)
     {
         if (!categoryNavigationHintAdded)
         {
-            Keybinds::AddBindIB("category_jump", Language::Translate("menu.category.navigate"));
+            Keybinds::AddBindIB("category_jump", Language::Translate("component.menu_category.navigate.label"));
             categoryNavigationHintAdded = true;
         }
 
@@ -193,7 +193,7 @@ void CategoryNavigate()
         return;
     }
 
-    AddTitle(Language::Translate("menu.category.jump.title"));
+    AddTitle(Language::Translate("component.menu_category.jump.title"));
 
     for (size_t i = 0; i < labels.size(); i++)
     {

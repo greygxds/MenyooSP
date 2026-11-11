@@ -209,13 +209,13 @@ void AddTargetToDb(GTAentity target)
 
 void AddInstructionalButtons(bool isInDb)
 {
-    Menu::add_IB(INPUT_CURSOR_CANCEL, Language::Translate("spooner.cursor.openPropertyMenu"));
+    Menu::add_IB(INPUT_CURSOR_CANCEL, Language::Translate("menu.spooner.cursor.option.open_property_menu.label"));
     if (!state.dragging)
-        Menu::add_IB(INPUT_CURSOR_ACCEPT, Language::Translate("spooner.cursor.moveEntity"));
-    Keybinds::AddBindIB("spooner_edit_copy", Language::Translate("spooner.cursor.copyToDb"));
-    Keybinds::AddBindIB("spooner_cursor_remove", Language::Translate("menu.delete"));
+        Menu::add_IB(INPUT_CURSOR_ACCEPT, Language::Translate("menu.spooner.cursor.option.move_entity.label"));
+    Keybinds::AddBindIB("spooner_edit_copy", Language::Translate("menu.spooner.cursor.option.copy_to_db.label"));
+    Keybinds::AddBindIB("spooner_cursor_remove", Language::Translate("common.delete"));
     if (!isInDb)
-        Keybinds::AddBindIB("spooner_cursor_add_to_db", Language::Translate("spooner.cursor.addToDb"));
+        Keybinds::AddBindIB("spooner_cursor_add_to_db", Language::Translate("menu.spooner.cursor.option.add_to_db.label"));
 }
 
 void HandleShortcuts(GTAentity target)
