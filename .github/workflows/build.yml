@@ -170,6 +170,7 @@ jobs:
           Compress-Archive `
             -Path "MenyooSP/*" `
             -DestinationPath "MenyooSP.zip"
+          Copy-Item -LiteralPath "MenyooSP/Menyoo.asi" -Destination "Menyoo.asi"
 
       - name: Generate release notes
         shell: pwsh
@@ -183,4 +184,6 @@ jobs:
           name: Build ${{ env.VERSION }}
           body_path: release-notes.md
           overwrite_files: true
-          files: MenyooSP.zip
+          files: |
+            MenyooSP.zip
+            Menyoo.asi

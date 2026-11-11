@@ -3398,5 +3398,20 @@
   "message.vehicle.spawner.speed_mph_value": "{speed} mi/h",
   "common.percentage_value": "{value} %",
   "menu.spooner.multi_select.option.invalid_entity.label": "{name} (invalide)",
-  "menu.spooner.multi_select.option.attached_entity.label": "{name} ~r~(attaché)~s~"
+  "menu.spooner.multi_select.option.attached_entity.label": "{name} ~r~(attaché)~s~",
+  "menu.settings.option.ignore_update_checks.label": "Ignorer les mises à jour",
+  "menu.settings.option.ignore_update_checks.description": "Empêche Menyoo de rechercher les mises à jour et d'afficher les notifications.",
+  "keybind.update_install.label": "Installer la mise à jour de Menyoo",
+  "keybind.update_install.description": "Télécharge et installe la dernière version de Menyoo.",
+  "keybind.update_changelog.label": "Afficher le journal des modifications de Menyoo",
+  "keybind.update_changelog.description": "Ouvre les changements entre votre version et la dernière version.",
+  "message.updater.title": "Mise à jour de Menyoo disponible",
+  "message.updater.available": "{version} est disponible au téléchargement (installée : {installed}).",
+  "message.updater.prompt_install": "Mettre à jour",
+  "message.updater.prompt_changelog": "Modifications",
+  "message.updater.prompt_hide": "Masquer",
+  "message.updater.downloading": "Téléchargement de {version}. Gardez GTA V ouvert jusqu'à la fin.",
+  "message.updater.install_pending": "{version} installée. Redémarrez GTA V pour l'appliquer.",
+  "message.updater.download_failed": "Le téléchargement de {version} a échoué. Votre version actuelle n'a pas été modifiée.",
+  "message.updater.install_failed": "Impossible d'installer {version}. Votre version actuelle n'a pas été modifiée."
 }

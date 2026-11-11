@@ -3442,5 +3442,20 @@
   "message.vehicle.spawner.speed_mph_value": "{speed} mph",
   "common.percentage_value": "{value}%",
   "menu.spooner.multi_select.option.invalid_entity.label": "{name} (nieprawidłowy model)",
-  "menu.spooner.multi_select.option.attached_entity.label": "{name} ~r~(dołączony)~s~"
+  "menu.spooner.multi_select.option.attached_entity.label": "{name} ~r~(dołączony)~s~",
+  "menu.settings.option.ignore_update_checks.label": "Ignoruj aktualizacje",
+  "menu.settings.option.ignore_update_checks.description": "Wyłącza sprawdzanie aktualizacji i wyświetlanie powiadomień.",
+  "keybind.update_install.label": "Zainstaluj aktualizację Menyoo",
+  "keybind.update_install.description": "Pobiera i instaluje najnowsze wydanie Menyoo.",
+  "keybind.update_changelog.label": "Pokaż dziennik zmian Menyoo",
+  "keybind.update_changelog.description": "Otwiera zmiany między obecną a najnowszą wersją.",
+  "message.updater.title": "Dostępna aktualizacja Menyoo",
+  "message.updater.available": "{version} jest dostępna do pobrania (zainstalowana: {installed}).",
+  "message.updater.prompt_install": "Aktualizuj",
+  "message.updater.prompt_changelog": "Dziennik zmian",
+  "message.updater.prompt_hide": "Ukryj",
+  "message.updater.downloading": "Pobieranie {version}. Nie zamykaj GTA V do końca pobierania.",
+  "message.updater.install_pending": "{version} zainstalowana. Uruchom ponownie GTA V, aby ją zastosować.",
+  "message.updater.download_failed": "Pobieranie {version} nie powiodło się. Obecna wersja nie została zmieniona.",
+  "message.updater.install_failed": "Nie udało się zainstalować {version}. Obecna wersja nie została zmieniona."
 }

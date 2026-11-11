@@ -8,6 +8,7 @@
 * (at your option) any later version.
 */
 #include "Routine.h"
+#include "../Updates/UpdateChecker.h"
 
 #include "..\macros.h"
 
@@ -2213,6 +2214,7 @@ void Menu::loops()
 
     // HUD overlays
     DrawGameInfo();
+    Updates::Tick();
     Game::Print::TickPrintBottomCentre();
     Game::Print::TickNotifications();
 

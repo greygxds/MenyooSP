@@ -9,6 +9,7 @@
 */
 #include "MainMenu.h"
 #include "Settings.h"
+#include "../Updates/UpdateChecker.h"
 
 namespace sub
 {
@@ -33,6 +34,8 @@ void Settings()
     AddOption(Language::Translate("menu.settings.option.menu_position.label"), null, nullFunc, SUB::SETTINGS_MENUPOS);
     AddOptionDescription(Language::Translate("menu.settings.option.keybinds.description"));
     AddToggle(Language::Translate("menu.settings.option.notification_background.label"), MenuConfig::bShowNotificationBackground, MenuConfig::SaveConfig, MenuConfig::SaveConfig);
+    AddToggle(Language::Translate("menu.settings.option.ignore_update_checks.label"), Updates::ignoreUpdateChecks, MenuConfig::SaveConfig, MenuConfig::SaveConfig);
+    AddOptionDescription(Language::Translate("menu.settings.option.ignore_update_checks.description"));
     AddToggle(Language::Translate("menu.settings.option.mouse_support.label"), Menu::usingMouseInput);
     AddOptionDescription(Language::Translate("menu.settings.option.mouse_support.description"));
     AddToggle(Language::Translate("menu.settings.option.gradients.label"), Menu::useGradientBackgrounds);
