@@ -3398,5 +3398,20 @@
   "message.vehicle.spawner.speed_mph_value": "{speed} mph",
   "common.percentage_value": "{value}%",
   "menu.spooner.multi_select.option.invalid_entity.label": "{name} (Invalid)",
-  "menu.spooner.multi_select.option.attached_entity.label": "{name} ~r~(Attached)~s~"
+  "menu.spooner.multi_select.option.attached_entity.label": "{name} ~r~(Attached)~s~",
+  "menu.settings.option.ignore_update_checks.label": "Ignore update checks",
+  "menu.settings.option.ignore_update_checks.description": "Stops Menyoo from checking for updates and showing update notices.",
+  "keybind.update_install.label": "Install Menyoo Update",
+  "keybind.update_install.description": "Downloads and installs the latest Menyoo release.",
+  "keybind.update_changelog.label": "View Menyoo Changelog",
+  "keybind.update_changelog.description": "Opens the changes between your version and the latest release.",
+  "message.updater.title": "Menyoo Update Available",
+  "message.updater.available": "{version} is available to download (currently installed: {installed}).",
+  "message.updater.prompt_install": "Update",
+  "message.updater.prompt_changelog": "Changelog",
+  "message.updater.prompt_hide": "Hide",
+  "message.updater.downloading": "{version} is downloading. Keep GTA V open until the download completes.",
+  "message.updater.install_pending": "{version} installed. Restart GTA V to apply it.",
+  "message.updater.download_failed": "Downloading {version} failed. Your current version was left unchanged.",
+  "message.updater.install_failed": "Could not install {version}. Your current version was left unchanged."
 }

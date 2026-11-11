@@ -16,6 +16,7 @@
 #include "Routine.h"
 #include "Keybinds.h"
 #include "Language.h"
+#include "../Updates/UpdateChecker.h"
 
 #include "..\Util\ExePath.h"
 #include "..\Natives\types.h" // RGBA/RgbS
@@ -98,6 +99,7 @@ void MenuConfig::ConfigRead()
 
     MenuConfig::bSaveAtIntervals = ini.GetBoolValue(section_settings.c_str(), "sync_with_config_at_intervals", MenuConfig::bSaveAtIntervals);
     MenuConfig::bShowNotificationBackground = ini.GetBoolValue(section_settings.c_str(), "show_notification_background", MenuConfig::bShowNotificationBackground);
+    Updates::ignoreUpdateChecks = ini.GetBoolValue(section_settings.c_str(), "ignore_update_checks", Updates::ignoreUpdateChecks);
     MenuConfig::saveFileSortMode = static_cast<int>(ini.GetLongValue(section_settings.c_str(), "save_file_sort_mode", MenuConfig::saveFileSortMode));
     if (MenuConfig::saveFileSortMode < static_cast<int>(SaveFileSorting::SortMode::Name) || MenuConfig::saveFileSortMode > static_cast<int>(SaveFileSorting::SortMode::Modified))
     {
@@ -323,6 +325,7 @@ void MenuConfig::SaveConfig()
 
     ini.SetBoolValue(section_settings.c_str(), "sync_with_config_at_intervals", MenuConfig::bSaveAtIntervals);
     ini.SetBoolValue(section_settings.c_str(), "show_notification_background", MenuConfig::bShowNotificationBackground);
+    ini.SetBoolValue(section_settings.c_str(), "ignore_update_checks", Updates::ignoreUpdateChecks);
     ini.SetLongValue(section_settings.c_str(), "save_file_sort_mode", MenuConfig::saveFileSortMode);
     ini.SetBoolValue(section_settings.c_str(), "DeathModelReset", checkSelfDeathModel);
     ini.SetDoubleValue(section_settings.c_str(), "menuPosX", (menuPos.x + 0.0598f) * 100);

@@ -38,6 +38,10 @@ namespace
 const std::vector<KeybindEntry> g_registry{
     {"menu_open", "Open Menu", "Opens Menyoo while it is closed, closes it while it is open.", (UINT16)VirtualKey::F8, NoBind, (UINT16)INPUT_FRONTEND_RB, (UINT16)INPUT_FRONTEND_LEFT, "General"},
 
+    {"update_install", "Install Menyoo Update", "Downloads and installs the latest Menyoo release.", (UINT16)VirtualKey::F10, NoBind, NoBind, NoBind, "General"},
+
+    {"update_changelog", "View Menyoo Changelog", "Opens the changes between your version and the latest release.", (UINT16)VirtualKey::F12, NoBind, NoBind, NoBind, "General"},
+
     {"spooner_mode", "Spooner Mode", "Toggles Spooner Mode on and off.", (UINT16)VirtualKey::F9, NoBind, (UINT16)INPUT_FRONTEND_RB, (UINT16)INPUT_FRONTEND_RIGHT, "Spooner"},
 
     {"no_clip", "Noclip / FreeCam", "Activates the FreeCam while in Noclip.", (UINT16)VirtualKey::F3, NoBind, (UINT16)INPUT_FRONTEND_X, (UINT16)INPUT_FRONTEND_LS, "FreeCam", false},
