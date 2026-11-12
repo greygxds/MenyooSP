@@ -37,7 +37,7 @@ bool ignoreUpdateChecks = false;
 
 namespace
 {
-constexpr wchar_t kLatestReleasePath[] = L"/repos/greygxds/MenyooSP/releases/latest";
+constexpr wchar_t kLatestReleaseUrl[] = L"https://api.github.com/repos/greygxds/MenyooSP/releases/latest";
 constexpr char kReleasePageUrl[] = "https://github.com/greygxds/MenyooSP/releases/latest";
 constexpr char kReleaseAssetPrefix[] = "https://github.com/greygxds/MenyooSP/releases/download/";
 
@@ -126,9 +126,15 @@ bool ReadHttp(const std::wstring& url, std::vector<unsigned char>& result)
     components.dwExtraInfoLength = static_cast<DWORD>(-1);
 
     if (!WinHttpCrackUrl(url.c_str(), static_cast<DWORD>(url.size()), 0, &components))
+    {
+        addlog(ige::LogType::LOG_WARNING, "Update HTTP: could not parse URL (Windows error " + std::to_string(GetLastError()) + ").");
         return false;
+    }
     if (components.nScheme != INTERNET_SCHEME_HTTPS)
+    {
+        addlog(ige::LogType::LOG_WARNING, "Update HTTP: refusing non-HTTPS URL.");
         return false;
+    }
 
     const std::wstring host(components.lpszHostName, components.dwHostNameLength);
     std::wstring path(components.lpszUrlPath, components.dwUrlPathLength);
@@ -137,31 +143,54 @@ bool ReadHttp(const std::wstring& url, std::vector<unsigned char>& result)
 
     HINTERNET session = WinHttpOpen(L"MenyooUpdater/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
     if (!session)
+    {
+        addlog(ige::LogType::LOG_WARNING, "Update HTTP: WinHttpOpen failed (Windows error " + std::to_string(GetLastError()) + ").");
         return false;
+    }
 
     WinHttpSetTimeouts(session, 5000, 5000, 10000, 10000);
     HINTERNET connection = WinHttpConnect(session, host.c_str(), components.nPort, 0);
     if (!connection)
     {
+        const DWORD error = GetLastError();
         WinHttpCloseHandle(session);
+        addlog(ige::LogType::LOG_WARNING, "Update HTTP: could not connect to " + std::string(host.begin(), host.end()) + " (Windows error " + std::to_string(error) + ").");
         return false;
     }
 
     HINTERNET request = WinHttpOpenRequest(connection, L"GET", path.c_str(), nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
     if (!request)
     {
+        const DWORD error = GetLastError();
         WinHttpCloseHandle(connection);
         WinHttpCloseHandle(session);
+        addlog(ige::LogType::LOG_WARNING, "Update HTTP: WinHttpOpenRequest failed (Windows error " + std::to_string(error) + ").");
         return false;
     }
 
     const wchar_t headers[] = L"Accept: application/vnd.github+json\r\n";
     bool success = false;
-    if (WinHttpSendRequest(request, headers, static_cast<DWORD>(-1), WINHTTP_NO_REQUEST_DATA, 0, 0, 0) && WinHttpReceiveResponse(request, nullptr))
+    if (!WinHttpSendRequest(request, headers, static_cast<DWORD>(-1), WINHTTP_NO_REQUEST_DATA, 0, 0, 0))
+    {
+        addlog(ige::LogType::LOG_WARNING, "Update HTTP: request send failed (Windows error " + std::to_string(GetLastError()) + ").");
+    }
+    else if (!WinHttpReceiveResponse(request, nullptr))
+    {
+        addlog(ige::LogType::LOG_WARNING, "Update HTTP: no response (Windows error " + std::to_string(GetLastError()) + ").");
+    }
+    else
     {
         DWORD statusCode = 0;
         DWORD statusSize = sizeof(statusCode);
-        if (WinHttpQueryHeaders(request, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, WINHTTP_HEADER_NAME_BY_INDEX, &statusCode, &statusSize, WINHTTP_NO_HEADER_INDEX) && statusCode == 200)
+        if (!WinHttpQueryHeaders(request, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, WINHTTP_HEADER_NAME_BY_INDEX, &statusCode, &statusSize, WINHTTP_NO_HEADER_INDEX))
+        {
+            addlog(ige::LogType::LOG_WARNING, "Update HTTP: could not read status code (Windows error " + std::to_string(GetLastError()) + ").");
+        }
+        else if (statusCode != 200)
+        {
+            addlog(ige::LogType::LOG_WARNING, "Update HTTP: server returned status " + std::to_string(statusCode) + ".");
+        }
+        else
         {
             success = true;
             for (;;)
@@ -169,6 +198,7 @@ bool ReadHttp(const std::wstring& url, std::vector<unsigned char>& result)
                 DWORD bytesAvailable = 0;
                 if (!WinHttpQueryDataAvailable(request, &bytesAvailable))
                 {
+                    addlog(ige::LogType::LOG_WARNING, "Update HTTP: read failed (Windows error " + std::to_string(GetLastError()) + ").");
                     success = false;
                     break;
                 }
@@ -180,6 +210,7 @@ bool ReadHttp(const std::wstring& url, std::vector<unsigned char>& result)
                 DWORD bytesRead = 0;
                 if (!WinHttpReadData(request, result.data() + offset, bytesAvailable, &bytesRead))
                 {
+                    addlog(ige::LogType::LOG_WARNING, "Update HTTP: read failed (Windows error " + std::to_string(GetLastError()) + ").");
                     result.resize(offset);
                     success = false;
                     break;
@@ -203,7 +234,10 @@ bool DownloadToFile(const std::string& url, const std::filesystem::path& destina
 
     std::ofstream output(destination, std::ios::binary | std::ios::trunc);
     if (!output)
+    {
+        addlog(ige::LogType::LOG_WARNING, "Update download: could not open the staging file for writing.");
         return false;
+    }
 
     output.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
     return output.good();
@@ -271,8 +305,9 @@ std::string MakeChangelogUrl(const std::string& latestTag)
 void CheckForUpdate()
 {
     std::vector<unsigned char> response;
-    if (!ReadHttp(kLatestReleasePath, response))
+    if (!ReadHttp(kLatestReleaseUrl, response))
     {
+        addlog(ige::LogType::LOG_WARNING, "Update check: could not fetch the latest release from GitHub.");
         g_state = State::Failed;
         return;
     }
@@ -280,6 +315,7 @@ void CheckForUpdate()
     const nlohmann::json release = nlohmann::json::parse(response, nullptr, false);
     if (release.is_discarded())
     {
+        addlog(ige::LogType::LOG_WARNING, "Update check: GitHub returned malformed JSON.");
         g_state = State::Failed;
         return;
     }
@@ -288,6 +324,7 @@ void CheckForUpdate()
     if (tag.rfind("build-", 0) != 0 ||
         !std::all_of(tag.begin(), tag.end(), [](unsigned char character) { return std::isalnum(character) || character == '-' || character == '_' || character == '.'; }))
     {
+        addlog(ige::LogType::LOG_WARNING, "Update check: unexpected release tag '" + tag + "'.");
         g_state = State::Failed;
         return;
     }
@@ -297,6 +334,7 @@ void CheckForUpdate()
     const std::string buildNumberText = tag.substr(buildNumberStart);
     if (buildNumberText.empty() || !std::all_of(buildNumberText.begin(), buildNumberText.end(), [](unsigned char character) { return std::isdigit(character); }))
     {
+        addlog(ige::LogType::LOG_WARNING, "Update check: could not read a build number from tag '" + tag + "'.");
         g_state = State::Failed;
         return;
     }
@@ -308,6 +346,7 @@ void CheckForUpdate()
     }
     catch (...)
     {
+        addlog(ige::LogType::LOG_WARNING, "Update check: build number '" + buildNumberText + "' is out of range.");
         g_state = State::Failed;
         return;
     }
@@ -440,6 +479,7 @@ void DownloadAndStage()
     const std::filesystem::path stagedPath = std::filesystem::path(g_targetDirectory) / L".Menyoo.asi.update";
     if (!DownloadToFile(info.assetUrl, stagedPath))
     {
+        addlog(ige::LogType::LOG_WARNING, "Update download: could not download Menyoo.asi for " + info.version + ".");
         DeleteFileW(stagedPath.c_str());
         g_state = State::Failed;
         return;
@@ -448,6 +488,7 @@ void DownloadAndStage()
     const std::string actualChecksum = CalculateSha256(stagedPath);
     if (actualChecksum.empty() || actualChecksum != info.assetDigest)
     {
+        addlog(ige::LogType::LOG_WARNING, "Update download: SHA-256 mismatch (expected " + info.assetDigest + ", got " + (actualChecksum.empty() ? std::string("none") : actualChecksum) + ").");
         DeleteFileW(stagedPath.c_str());
         g_state = State::Failed;
         return;
@@ -461,6 +502,7 @@ void StartWorker(bool download)
     HMODULE module = PinModule();
     if (!module)
     {
+        addlog(ige::LogType::LOG_WARNING, "Update worker: could not pin the Menyoo module in memory.");
         g_state = State::Failed;
         return;
     }
@@ -479,6 +521,7 @@ void StartWorker(bool download)
                 }
                 catch (...)
                 {
+                    addlog(ige::LogType::LOG_WARNING, "Update worker: unexpected exception during the update.");
                     g_state = State::Failed;
                 }
                 if (module)
@@ -490,6 +533,7 @@ void StartWorker(bool download)
     {
         if (module)
             FreeLibrary(module);
+        addlog(ige::LogType::LOG_WARNING, "Update worker: could not start the update thread.");
         g_state = State::Failed;
     }
 }
@@ -720,6 +764,7 @@ void Tick()
             }
             else
             {
+                addlog(ige::LogType::LOG_WARNING, "Update check: could not determine the Menyoo.asi path.");
                 g_state = State::Failed;
             }
         }
