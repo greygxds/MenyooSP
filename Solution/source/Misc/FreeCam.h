@@ -20,6 +20,9 @@ extern bool bEnabled;
 // controller movement is scaled so the default speed (0.5) matches the old fixed 0.8 / 1.8
 constexpr float controllerSpeedScale = 1.6f;
 constexpr float keyboardSprintMultiplier = 4.0f;
+constexpr float targetFrameRate = 60.0f;
+
+float GetFrameRateFactor();
 
 // Currently flying
 bool IsActive();

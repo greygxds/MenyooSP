@@ -137,7 +137,7 @@ static void AddPreviewYaw(float delta)
         SpoonerMode::previewYawOffset = fmod(SpoonerMode::previewYawOffset, 360.0f);
 }
 
-static void UpdatePreviewRotationGamepad()
+static void UpdatePreviewRotationGamepad(float frameRateFactor)
 {
     if (!Menu::usingControllerInput || !IsModelPreviewVisible())
         return;
@@ -153,10 +153,11 @@ static void UpdatePreviewRotationGamepad()
     if (dpadPressed)
         return;
 
+    const float rotationStepDegrees = Settings::previewRotateStepDegrees * frameRateFactor;
     if (lbPressed && !rbPressed)
-        AddPreviewYaw(-Settings::previewRotateStepDegrees);
+        AddPreviewYaw(-rotationStepDegrees);
     if (rbPressed && !lbPressed)
-        AddPreviewYaw(Settings::previewRotateStepDegrees);
+        AddPreviewYaw(rotationStepDegrees);
 }
 
 static void AdjustSpeed(int scroll)
@@ -210,13 +211,15 @@ static void HandleScrollAdjustments()
     AdjustSpeed(scroll);
 }
 
-static void ApplyInput(const Input& input)
+static void ApplyInput(const Input& input, float frameRateFactor)
 {
-    if (!input.translation.IsZero())
-        camera.SetPosition(camera.GetOffsetInWorldCoords(input.translation));
+    const Vector3 scaledTranslation = input.translation * frameRateFactor;
+    if (!scaledTranslation.IsZero())
+        camera.SetPosition(camera.GetOffsetInWorldCoords(scaledTranslation));
 
-    if (!input.rotation.IsZero())
-        camera.SetRotation(camera.GetRotation() + input.rotation);
+    const Vector3 scaledRotation = input.rotation * frameRateFactor;
+    if (!scaledRotation.IsZero())
+        camera.SetRotation(camera.GetRotation() + scaledRotation);
 }
 
 static void AddMarkerAtAim()
@@ -285,10 +288,11 @@ void Tick()
     DisablePlayerControls(player);
 
     const Input input = Menu::usingControllerInput ? ReadControllerInput() : ReadKeyboardInput();
+    const float frameRateFactor = FreeCamMode::GetFrameRateFactor();
 
-    UpdatePreviewRotationGamepad();
+    UpdatePreviewRotationGamepad(frameRateFactor);
     HandleScrollAdjustments();
-    ApplyInput(input);
+    ApplyInput(input, frameRateFactor);
     HandleShortcuts();
     DrawDistanceWarning(playerPed);
     MenuConfig::FlushPendingSave();

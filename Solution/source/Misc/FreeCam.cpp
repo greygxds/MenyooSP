@@ -37,6 +37,12 @@ namespace FreeCamMode
 {
 bool bEnabled = false;
 
+float GetFrameRateFactor()
+{
+    const float frameTimeSeconds = std::clamp(GET_FRAME_TIME(), 1.0f / 240.0f, 0.1f);
+    return frameTimeSeconds * targetFrameRate;
+}
+
 namespace
 {
 constexpr float controllerHastenMultiplier = 2.25f;
@@ -228,12 +234,12 @@ void ResetControllerPedStance()
         SET_PED_COMBAT_MOVEMENT(ped.GetHandle(), 0);
 }
 
-void ApplyRotation(const Input& input)
+void ApplyRotation(const Input& input, float frameRateFactor)
 {
     Camera& cam = state.camera;
     GTAentity controlled = GetControlledEntity();
 
-    Vector3 nextRot = cam.GetRotation() + input.rotation;
+    Vector3 nextRot = cam.GetRotation() + (input.rotation * frameRateFactor);
     nextRot.y = 0.0f; // no roll
     controlled.SetRotation(Vector3(0.0f, 0.0f, nextRot.z));
     cam.SetRotation(nextRot);
@@ -243,21 +249,22 @@ void ApplyRotation(const Input& input)
         GameplayCamera::SetRelativeHeading(0.0f);
 }
 
-void ApplyMovement(const Input& input)
+void ApplyMovement(const Input& input, float frameRateFactor)
 {
     GTAentity controlled = GetControlledEntity();
+    const Vector3 scaledTranslation = input.translation * frameRateFactor;
 
     if (state.heightLocked)
     {
-        state.lockedHeight += input.translation.z;
-        Vector3 newPos = state.camera.GetOffsetInWorldCoords(Vector3(input.translation.x, input.translation.y, 0.0f));
+        state.lockedHeight += scaledTranslation.z;
+        Vector3 newPos = state.camera.GetOffsetInWorldCoords(Vector3(scaledTranslation.x, scaledTranslation.y, 0.0f));
         newPos.z = state.lockedHeight;
         controlled.SetPosition(newPos);
         return;
     }
 
-    if (!input.translation.IsZero())
-        controlled.SetPosition(state.camera.GetOffsetInWorldCoords(input.translation));
+    if (!scaledTranslation.IsZero())
+        controlled.SetPosition(state.camera.GetOffsetInWorldCoords(scaledTranslation));
 }
 
 // ── Keyboard adjustments (height lock, speed, FOV) ─────────────
@@ -445,8 +452,9 @@ void Tick()
             input = ReadKeyboardInput();
         }
 
-        ApplyRotation(input);
-        ApplyMovement(input);
+        const float frameRateFactor = GetFrameRateFactor();
+        ApplyRotation(input, frameRateFactor);
+        ApplyMovement(input, frameRateFactor);
     }
 
     MenuConfig::FlushPendingSave();
